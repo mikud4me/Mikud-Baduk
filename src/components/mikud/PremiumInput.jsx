@@ -29,15 +29,19 @@ export default function PremiumInput({
     : value;
 
   return (
-    <div className="mb-4 animate-in fade-in slide-in-from-bottom-2 duration-500 text-right w-full">
-      <label className="flex items-center text-[#001a33] font-black text-sm mb-1.5 pr-1">
-        {IconComponent && <IconComponent size={15} className="text-[#d4af37] ml-2" />}
+    <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500 text-right w-full group">
+      <label className="flex items-center text-[#001a33] font-black text-base mb-2 pr-1 group-focus-within:text-[#d4af37] transition-colors">
+        {IconComponent && (
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37]/20 to-[#f4d03f]/20 flex items-center justify-center ml-3 group-focus-within:scale-110 transition-transform">
+            <IconComponent size={18} className="text-[#d4af37]" />
+          </div>
+        )}
         {label}
       </label>
       
       {options ? (
         <select 
-          className="w-full bg-white h-10 px-3 border-2 border-slate-100 rounded-xl outline-none focus:border-[#d4af37] transition-all text-slate-900 font-bold text-sm appearance-none text-right cursor-pointer shadow-sm" 
+          className="w-full bg-gradient-to-br from-white to-slate-50 h-14 px-5 border-2 border-slate-200 rounded-2xl outline-none focus:border-[#d4af37] focus:shadow-lg focus:shadow-[#d4af37]/20 transition-all text-slate-900 font-bold text-base appearance-none text-right cursor-pointer shadow-md hover:border-[#d4af37]/50" 
           dir="rtl" 
           value={value} 
           onChange={(e) => onChange(name, e.target.value)}
@@ -68,7 +72,7 @@ export default function PremiumInput({
           <input 
             type={type} 
             placeholder={placeholder} 
-            className={`w-full bg-white h-10 px-4 border-2 rounded-xl outline-none focus:border-[#d4af37] transition-all text-slate-900 font-bold text-base text-right shadow-sm ${error ? 'border-red-400' : 'border-slate-100'}`} 
+            className={`w-full bg-gradient-to-br from-white to-slate-50 h-14 px-5 border-2 rounded-2xl outline-none focus:border-[#d4af37] focus:shadow-lg focus:shadow-[#d4af37]/20 transition-all text-slate-900 font-bold text-lg text-right shadow-md hover:border-[#d4af37]/50 ${error ? 'border-red-400 focus:border-red-500' : 'border-slate-200'}`} 
             value={displayValue} 
             onChange={(name === 'age' || name === 'loanDuration') 
               ? (e) => onChange(name, e.target.value) 
@@ -76,11 +80,18 @@ export default function PremiumInput({
             } 
           />
           {isNumeric && !['loanDuration', 'age'].includes(name) && (
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-base opacity-50">₪</span>
+            <div className="absolute left-5 top-1/2 -translate-y-1/2">
+              <span className="text-[#d4af37] font-black text-xl">₪</span>
+            </div>
           )}
         </div>
       )}
-      {error && <p className="text-red-600 text-[10px] font-black mt-1 pr-1">{error}</p>}
+      {error && (
+        <div className="mt-2 flex items-center gap-2 bg-red-50 border-r-4 border-red-500 px-4 py-2 rounded-lg">
+          <AlertCircle size={16} className="text-red-600" />
+          <p className="text-red-600 text-sm font-bold">{error}</p>
+        </div>
+      )}
     </div>
   );
 }

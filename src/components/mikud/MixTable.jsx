@@ -7,19 +7,25 @@ const formatCurrency = (val) => {
 
 export default function MixTable({ title, tracks, totalPmt, isRecommended }) {
   return (
-    <div className={`bg-white rounded-[1.5rem] overflow-hidden shadow-lg border-2 ${isRecommended ? 'border-[#d4af37]' : 'border-slate-100'} mb-6 text-right w-full`}>
-      <div className="p-4 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between items-center text-right" dir="rtl">
-        <div>
-          <h4 className="text-lg font-black text-[#001a33] tracking-tighter leading-tight">{title}</h4>
-          {isRecommended && (
-            <span className="bg-[#001a33] text-white text-[8px] px-3 py-0.5 rounded-full font-black mt-1 inline-block uppercase tracking-widest">
-              מומלץ מיקוד משכנתאות
-            </span>
-          )}
+    <div className={`bg-gradient-to-br from-white via-slate-50 to-white rounded-[2rem] overflow-hidden shadow-2xl border-4 ${isRecommended ? 'border-[#d4af37] ring-4 ring-[#d4af37]/20' : 'border-slate-200'} mb-8 text-right w-full relative group hover:scale-[1.02] transition-all duration-500`}>
+      {isRecommended && (
+        <div className="absolute -top-4 right-8 z-10">
+          <div className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] px-6 py-2 rounded-full font-black text-sm shadow-2xl shadow-[#d4af37]/50 flex items-center gap-2">
+            <Sparkles size={16} />
+            מומלץ ביותר!
+          </div>
         </div>
-        <div className="text-right sm:text-left mt-3 sm:mt-0">
-          <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">החזר חודשי</p>
-          <p className="text-4xl font-black text-[#001a33] leading-none">₪{formatCurrency(Math.floor(totalPmt))}</p>
+      )}
+      <div className="p-6 border-b-2 border-slate-200 bg-gradient-to-r from-slate-50 to-white flex flex-col sm:flex-row justify-between items-center text-right" dir="rtl">
+        <div>
+          <h4 className="text-2xl font-black text-[#001a33] tracking-tight leading-tight mb-2">{title}</h4>
+          <p className="text-slate-500 text-sm font-bold">תמהיל מקצועי ומאוזן</p>
+        </div>
+        <div className="text-right sm:text-left mt-4 sm:mt-0">
+          <p className="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">החזר חודשי משוער</p>
+          <div className="bg-gradient-to-r from-[#001a33] to-[#003d66] text-white px-6 py-4 rounded-2xl shadow-xl">
+            <p className="text-5xl font-black leading-none">₪{formatCurrency(Math.floor(totalPmt))}</p>
+          </div>
         </div>
       </div>
       

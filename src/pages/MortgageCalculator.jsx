@@ -258,44 +258,122 @@ export default function MortgageCalculator() {
   };
 
   return (
-    <div className="min-h-screen font-sans text-right transition-all duration-700 bg-slate-50 overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen font-sans text-right transition-all duration-700 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 overflow-x-hidden relative" dir="rtl">
       
-      <nav className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm h-14 px-4 sm:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.reload()}>
-          <div className="w-8 h-8 rounded-lg bg-[#001a33] flex items-center justify-center text-[#d4af37] font-black text-xl shadow-lg">M</div>
-          <h1 className="text-lg font-black text-[#001a33]">מיקוד משכנתאות</h1>
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-[#d4af37]/20 via-transparent to-transparent rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-blue-600/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
+        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-gradient-to-br from-[#d4af37]/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
+      </div>
+
+      <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#001a33] via-[#002a4d] to-[#001a33] border-b-2 border-[#d4af37]/30 shadow-2xl backdrop-blur-xl h-20 px-6 sm:px-10 flex items-center justify-between">
+        <div className="flex items-center gap-4 cursor-pointer group" onClick={() => window.location.reload()}>
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#f4d03f] flex items-center justify-center text-[#001a33] font-black text-3xl shadow-2xl shadow-[#d4af37]/50 group-hover:scale-110 transition-transform duration-300">
+            M
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-white tracking-tight">מיקוד משכנתאות</h1>
+            <p className="text-[#d4af37] text-xs font-bold">המטרה שלנו, החיסכון שלכם</p>
+          </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-1.5 text-[#001a33] font-black hover:text-[#d4af37] transition-colors cursor-pointer text-xs" onClick={() => setIsChatOpen(!isChatOpen)}>
-            <HelpCircle size={16} className="text-[#d4af37]" />
+          <button 
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold hover:bg-white/20 transition-all group"
+          >
+            <HelpCircle size={18} className="text-[#d4af37] group-hover:rotate-12 transition-transform" />
             <span>צריכים עזרה?</span>
-          </div>
-          <a href="tel:2324" className="bg-[#001a33] text-white px-3 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-blue-900 transition-all active:scale-95 text-center">2324*</a>
+          </button>
+          <a href="tel:2324" className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] px-6 py-3 rounded-2xl font-black text-lg shadow-2xl shadow-[#d4af37]/50 hover:scale-105 transition-all active:scale-95 text-center">
+            2324*
+          </a>
         </div>
       </nav>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 flex flex-col items-center">
+      <main className="max-w-5xl mx-auto px-4 py-12 flex flex-col items-center relative z-10">
         {step <= 6 ? (
-          <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-xl p-6 sm:p-10 border border-slate-100 transition-all duration-700">
-            <div className="flex items-center justify-between mb-8">
-              <div className="text-right">
-                <h2 className="text-xl font-black text-[#001a33] uppercase leading-none text-right">
-                  {step === 1 && !otpSent && "זיהוי וקשר"}
-                  {step === 1 && otpSent && "אימות קוד"}
-                  {step === 2 && "פרופיל לווים"}
-                  {step === 3 && "פרטי הנכס"}
-                  {step === 4 && "הכנסות והתחייבויות"}
-                  {step === 5 && "מקורות מימון"}
-                  {step === 6 && "העדפות משכנתא"}
-                </h2>
-                <p className="text-slate-400 font-bold text-[10px] mt-1 tracking-widest uppercase">שלב {step} מתוך 6</p>
+          <div className="w-full max-w-2xl">
+            {/* Hero Section Above Form */}
+            {step === 1 && !otpSent && (
+              <div className="text-center mb-10 animate-in fade-in slide-in-from-top-8 duration-1000">
+                <div className="inline-block mb-6">
+                  <div className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] px-8 py-3 rounded-full font-black text-sm shadow-2xl shadow-[#d4af37]/50 animate-pulse">
+                    ✨ מערכת חכמה לבניית תמהילי משכנתא ✨
+                  </div>
+                </div>
+                <h1 className="text-5xl sm:text-6xl font-black text-white mb-6 leading-tight drop-shadow-2xl">
+                  המשכנתא המושלמת<br/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f4d03f]">
+                    מתחילה כאן
+                  </span>
+                </h1>
+                <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
+                  מערכת AI מתקדמת שבונה עבורכם 3 תמהילים אופטימליים תוך דקות ספורות
+                </p>
+                <div className="flex justify-center gap-8 mt-8 text-sm">
+                  <div className="flex items-center gap-2 text-[#d4af37]">
+                    <div className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
+                    <span className="text-white font-bold">חיסכון ממוצע ₪150K</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[#d4af37]">
+                    <div className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
+                    <span className="text-white font-bold">תוצאות ב-3 דקות</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[#d4af37]">
+                    <div className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
+                    <span className="text-white font-bold">100% חינם</span>
+                  </div>
+                </div>
               </div>
-              <div className="relative w-14 h-14 flex items-center justify-center text-[#d4af37]">
+            )}
+            
+            <div className="bg-gradient-to-br from-white via-slate-50 to-white rounded-[3rem] shadow-2xl p-8 sm:p-12 border-4 border-[#d4af37]/20 transition-all duration-700 relative overflow-hidden backdrop-blur-xl">
+              {/* Decorative Elements */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#d4af37]/10 to-transparent rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl" />
+            <div className="flex items-center justify-between mb-10 relative z-10">
+              <div className="text-right flex-1">
+                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#001a33] to-[#003d66] px-6 py-3 rounded-2xl shadow-xl mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#f4d03f] flex items-center justify-center shadow-lg">
+                    {step === 1 && <User size={20} className="text-[#001a33]" />}
+                    {step === 2 && <Calendar size={20} className="text-[#001a33]" />}
+                    {step === 3 && <Home size={20} className="text-[#001a33]" />}
+                    {step === 4 && <Coins size={20} className="text-[#001a33]" />}
+                    {step === 5 && <Wallet size={20} className="text-[#001a33]" />}
+                    {step === 6 && <Building2 size={20} className="text-[#001a33]" />}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-white leading-none">
+                      {step === 1 && !otpSent && "בואו נכיר"}
+                      {step === 1 && otpSent && "אימות זהות"}
+                      {step === 2 && "פרופיל אישי"}
+                      {step === 3 && "הנכס שלכם"}
+                      {step === 4 && "מצב כלכלי"}
+                      {step === 5 && "מקורות מימון"}
+                      {step === 6 && "העדפות"}
+                    </h2>
+                    <p className="text-[#d4af37] font-bold text-xs mt-1">שלב {step} מתוך 6 - כמעט שם!</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="relative w-24 h-24 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="28" cy="28" r="24" stroke="currentColor" strokeWidth="2" fill="transparent" className="text-slate-50" />
-                  <circle cx="28" cy="28" r="24" stroke="currentColor" strokeWidth="2" fill="transparent" className="text-[#d4af37] transition-all duration-1000" strokeDasharray={151} strokeDashoffset={151 - (151 * step) / 6} strokeLinecap="round" />
+                  <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-200" />
+                  <circle cx="48" cy="48" r="40" stroke="url(#gradient)" strokeWidth="4" fill="transparent" className="transition-all duration-1000" strokeDasharray={251} strokeDashoffset={251 - (251 * step) / 6} strokeLinecap="round" />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#d4af37" />
+                      <stop offset="100%" stopColor="#f4d03f" />
+                    </linearGradient>
+                  </defs>
                 </svg>
-                <span className="absolute text-xs font-black text-[#001a33]">{step}/6</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-black text-[#001a33]">{step}</span>
+                  <span className="text-xs font-bold text-slate-400">מתוך 6</span>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/20 to-transparent rounded-full blur-xl animate-pulse" />
               </div>
             </div>
 
@@ -392,15 +470,41 @@ export default function MortgageCalculator() {
               )}
             </div>
 
-            <div className="mt-8 flex gap-4 text-right" dir="rtl">
-              <button onClick={() => {if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1);}} className="flex-1 h-12 rounded-xl font-black text-lg text-slate-500 border-2 border-slate-100 hover:bg-slate-50 transition-all active:scale-95 text-center">חזור</button>
-              <button onClick={() => {
-                if (step === 1 && !otpSent) startVerification();
-                else if (step === 1 && otpSent) verifyOtp();
-                else if (validateStep(step)) step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
-              }} className="flex-[2] h-12 rounded-xl font-black text-xl shadow-lg transition-all bg-[#001a33] text-white hover:bg-[#d4af37] hover:text-[#001a33] active:scale-95 text-center">
-                <span>{step === 6 ? 'הפקת דוח מסכם' : step === 1 && !otpSent ? 'שלח קוד' : 'המשך'}</span>
-                <ChevronLeft size={20} className="inline mr-1" />
+            <div className="mt-10 flex gap-4 text-right relative z-10" dir="rtl">
+              {step > 1 && (
+                <button 
+                  onClick={() => {if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1);}} 
+                  className="flex-1 h-16 rounded-2xl font-black text-lg text-slate-600 border-3 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95 text-center shadow-lg group"
+                >
+                  <span className="group-hover:-translate-x-1 inline-block transition-transform">← חזור</span>
+                </button>
+              )}
+              <button 
+                onClick={() => {
+                  if (step === 1 && !otpSent) startVerification();
+                  else if (step === 1 && otpSent) verifyOtp();
+                  else if (validateStep(step)) step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
+                }} 
+                className={`h-16 rounded-2xl font-black text-xl shadow-2xl transition-all bg-gradient-to-r from-[#001a33] to-[#003d66] text-white hover:from-[#d4af37] hover:to-[#f4d03f] hover:text-[#001a33] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  {step === 6 ? (
+                    <>
+                      <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
+                      הפקת דוח מסכם
+                    </>
+                  ) : step === 1 && !otpSent ? (
+                    <>
+                      שלח קוד אימות
+                      <ChevronLeft size={24} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  ) : (
+                    <>
+                      המשך לשלב הבא
+                      <ChevronLeft size={24} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </span>
               </button>
             </div>
           </div>

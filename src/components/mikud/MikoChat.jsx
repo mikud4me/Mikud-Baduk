@@ -81,30 +81,38 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
   return (
     <div className="fixed bottom-4 left-4 z-[300] flex flex-col items-start" dir="rtl">
       {isOpen && (
-        <div className="bg-white w-[88vw] sm:w-[320px] h-[450px] mb-4 rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4">
-          <div className="bg-[#001a33] p-3 text-white flex justify-between items-center shadow-lg">
+        <div className="bg-gradient-to-br from-white via-slate-50 to-white w-[88vw] sm:w-[380px] h-[550px] mb-4 rounded-[2rem] shadow-2xl border-4 border-[#d4af37]/30 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 backdrop-blur-xl">
+          <div className="bg-gradient-to-r from-[#001a33] to-[#003d66] p-4 text-white flex justify-between items-center shadow-xl">
             <div className="flex items-center gap-3 font-bold">
-              <MikoAvatar className="w-8 h-8" />
-              <span className="text-sm">מיקו - מומחה אסטרטגי</span>
+              <MikoAvatar className="w-12 h-12 ring-2 ring-[#d4af37]" />
+              <div>
+                <span className="text-base block">מיקו AI</span>
+                <span className="text-xs text-[#d4af37] block">המומחה הדיגיטלי שלך</span>
+              </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:text-[#d4af37] transition-colors p-1">
-              <X size={20}/>
+            <button onClick={() => setIsOpen(false)} className="hover:text-[#d4af37] transition-colors p-2 hover:bg-white/10 rounded-xl">
+              <X size={22}/>
             </button>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-br from-slate-50 to-white">
             {messages.length === 0 && (
-              <p className="text-slate-400 text-[10px] italic text-center mt-8 font-bold">
-                שלום רב! הגעתם למיקו. כיצד אוכל לסייע היום?
-              </p>
+              <div className="text-center mt-12">
+                <div className="bg-gradient-to-r from-[#d4af37]/10 to-[#f4d03f]/10 border-2 border-[#d4af37]/20 rounded-2xl p-6">
+                  <p className="text-slate-600 text-sm font-bold leading-relaxed">
+                    👋 שלום! אני מיקו, המומחה הדיגיטלי שלך.<br/>
+                    כיצד אוכל לסייע לך היום?
+                  </p>
+                </div>
+              </div>
             )}
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                <div className={`p-3 rounded-2xl max-w-[90%] text-xs shadow-sm ${
+              <div key={i} className={`flex ${m.role === 'user' ? 'justify-start' : 'justify-end'} animate-in slide-in-from-bottom-2`}>
+                <div className={`p-4 rounded-2xl max-w-[85%] text-sm shadow-lg ${
                   m.role === 'user' 
-                    ? 'bg-slate-200 text-slate-800 rounded-bl-none' 
-                    : 'bg-[#001a33] text-white rounded-br-none'
-                }`}>
+                    ? 'bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 rounded-br-none border-2 border-slate-300' 
+                    : 'bg-gradient-to-r from-[#001a33] to-[#003d66] text-white rounded-bl-none border-2 border-[#d4af37]/30'
+                } font-medium leading-relaxed`}>
                   {m.text}
                 </div>
               </div>
@@ -117,19 +125,19 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
             <div ref={chatEndRef} />
           </div>
           
-          <div className="p-3 bg-white border-t flex gap-2">
+          <div className="p-4 bg-gradient-to-r from-slate-50 to-white border-t-2 border-slate-200 flex gap-3">
             <input 
-              className="flex-1 bg-slate-100 border-0 rounded-xl px-3 py-2 text-xs outline-none text-right" 
-              placeholder="שאל את מיקו..." 
+              className="flex-1 bg-white border-2 border-slate-200 focus:border-[#d4af37] rounded-2xl px-5 py-3 text-sm outline-none text-right font-medium shadow-sm transition-all" 
+              placeholder="שאל את מיקו כל שאלה..." 
               value={input} 
               onChange={e => setInput(e.target.value)} 
               onKeyDown={e => e.key === 'Enter' && handleSend()} 
             />
             <button 
               onClick={handleSend} 
-              className="bg-[#001a33] text-white p-2.5 rounded-xl active:scale-95 transition-transform"
+              className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] p-3 rounded-2xl active:scale-95 transition-all shadow-lg hover:shadow-xl"
             >
-              <Send size={14}/>
+              <Send size={18}/>
             </button>
           </div>
         </div>
@@ -137,9 +145,13 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
       
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="w-14 h-14 sm:w-16 sm:h-16 shadow-2xl hover:scale-110 transition-all rounded-full overflow-hidden border-4 border-[#001a33] bg-white relative"
+        className="w-16 h-16 sm:w-20 sm:h-20 shadow-2xl hover:scale-110 transition-all rounded-full overflow-hidden border-4 border-[#d4af37] bg-gradient-to-br from-white to-slate-100 relative group"
       >
         <MikoAvatar className="w-full h-full" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {!isOpen && (
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+        )}
       </button>
     </div>
   );
