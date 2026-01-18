@@ -326,7 +326,7 @@ export default function MortgageCalculator() {
               </div>
             )}
             
-            <div className="bg-gradient-to-br from-white via-slate-50 to-white rounded-[3rem] shadow-2xl p-8 sm:p-12 border-4 border-[#d4af37]/20 transition-all duration-700 relative overflow-hidden backdrop-blur-xl">
+            <div className="bg-gradient-to-br from-white via-slate-50 to-white rounded-[2rem] sm:rounded-[3rem] shadow-2xl p-5 sm:p-8 md:p-12 border-2 sm:border-4 border-[#d4af37]/20 transition-all duration-700 relative overflow-hidden backdrop-blur-xl">
               {/* Decorative Elements */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#d4af37]/10 to-transparent rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl" />
@@ -343,7 +343,7 @@ export default function MortgageCalculator() {
                     {step === 6 && <Building2 size={20} className="text-[#001a33]" />}
                   </div>
                   <div>
-                    <h2 className="text-2xl font-black text-white leading-none">
+                    <h2 className="text-lg sm:text-2xl font-black text-white leading-none">
                       {step === 1 && !otpSent && "בואו נכיר"}
                       {step === 1 && otpSent && "אימות זהות"}
                       {step === 2 && "פרופיל אישי"}
@@ -352,7 +352,7 @@ export default function MortgageCalculator() {
                       {step === 5 && "מקורות מימון"}
                       {step === 6 && "העדפות"}
                     </h2>
-                    <p className="text-[#d4af37] font-bold text-xs mt-1">שלב {step} מתוך 6 - כמעט שם!</p>
+                    <p className="text-[#d4af37] font-bold text-[10px] sm:text-xs mt-1">שלב {step} מתוך 6 - כמעט שם!</p>
                   </div>
                 </div>
               </div>
@@ -509,45 +509,45 @@ export default function MortgageCalculator() {
             </div>
           </div>
         ) : (
-          <div className="animate-in fade-in zoom-in-95 duration-1000 max-w-4xl mx-auto text-right" dir="rtl">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-10 border-t-[12px] border-[#001a33] relative">
-              <div className="mb-10 pb-8 border-b-4 border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-right">
-                <div>
-                  <div className="flex items-center gap-2 mb-2 text-[#d4af37] font-black text-[10px] uppercase tracking-[0.2em]">
-                    <BadgeCheck size={24}/>תיק היתכנות אסטרטגי רשמי
+          <div className="animate-in fade-in zoom-in-95 duration-1000 max-w-4xl mx-auto text-right px-2 sm:px-0" dir="rtl">
+              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl p-4 sm:p-6 md:p-10 border-t-[6px] sm:border-t-[12px] border-[#001a33] relative">
+                <div className="mb-6 sm:mb-10 pb-4 sm:pb-8 border-b-2 sm:border-b-4 border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-right">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2 text-[#d4af37] font-black text-[8px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.2em]">
+                      <BadgeCheck size={16} className="sm:w-6 sm:h-6"/>תיק היתכנות אסטרטגי רשמי
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#001a33] tracking-tighter uppercase leading-none">{formData.fullName}</h2>
+                    <p className="text-slate-400 font-bold text-xs sm:text-sm italic mt-1 tracking-wide sm:tracking-wider uppercase leading-none">PRIVATE ADVISORY REPORT | {TODAY_DATE}</p>
                   </div>
-                  <h2 className="text-4xl font-black text-[#001a33] tracking-tighter uppercase leading-none">{formData.fullName}</h2>
-                  <p className="text-slate-400 font-bold text-sm italic mt-1 tracking-wider uppercase leading-none">PRIVATE ADVISORY REPORT | {TODAY_DATE}</p>
-                </div>
-                <div className="bg-slate-50 px-6 py-3 rounded-2xl border-2 border-slate-100 text-left">
-                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Portfolio ID</p>
-                  <p className="text-lg font-black text-[#001a33] leading-none uppercase">MK-{Math.random().toString(36).substr(2, 5).toUpperCase()}</p>
+                <div className="bg-slate-50 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border-2 border-slate-100 text-left">
+                  <p className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Portfolio ID</p>
+                  <p className="text-sm sm:text-lg font-black text-[#001a33] leading-none uppercase">MK-{Math.random().toString(36).substr(2, 5).toUpperCase()}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-right">
-                <div className="p-8 rounded-[2rem] shadow-xl border-b-8 bg-[#001a33] border-[#d4af37] text-white">
-                  <span className="font-black text-[11px] uppercase tracking-widest text-[#d4af37]">סכום משכנתא מבוקש / יחס מימון</span>
-                  <div className="text-5xl font-black mt-2 leading-none text-right">₪{formatCurrency(results.loanAmount)}</div>
-                  <div className="mt-3 font-bold text-xs text-slate-400">{results.ltv.toFixed(1)}% מימון מהנכס</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10 text-right">
+                <div className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] shadow-xl border-b-4 sm:border-b-8 bg-[#001a33] border-[#d4af37] text-white">
+                  <span className="font-black text-[9px] sm:text-[11px] uppercase tracking-widest text-[#d4af37]">סכום משכנתא מבוקש / יחס מימון</span>
+                  <div className="text-2xl sm:text-4xl md:text-5xl font-black mt-2 leading-none text-right">₪{formatCurrency(results.loanAmount)}</div>
+                  <div className="mt-2 sm:mt-3 font-bold text-[10px] sm:text-xs text-slate-400">{results.ltv.toFixed(1)}% מימון מהנכס</div>
                 </div>
-                <div className="p-8 rounded-[2rem] border-2 shadow-sm flex flex-col justify-between bg-[#FDF9F0] border-[#EAD9B5] text-right">
+                <div className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border-2 shadow-sm flex flex-col justify-between bg-[#FDF9F0] border-[#EAD9B5] text-right">
                   <div>
-                    <span className="font-black text-[11px] uppercase tracking-widest text-[#785C28]">ציון היתכנות לאישור סופי</span>
-                    <div className="text-5xl font-black mt-2 leading-none text-[#001a33]">{results.score}%</div>
+                    <span className="font-black text-[9px] sm:text-[11px] uppercase tracking-widest text-[#785C28]">ציון היתכנות לאישור סופי</span>
+                    <div className="text-2xl sm:text-4xl md:text-5xl font-black mt-2 leading-none text-[#001a33]">{results.score}%</div>
                   </div>
-                  <div className="mt-6 h-2.5 bg-white rounded-full overflow-hidden border border-slate-200">
+                  <div className="mt-4 sm:mt-6 h-2 sm:h-2.5 bg-white rounded-full overflow-hidden border border-slate-200">
                     <div className="h-full bg-[#001a33] transition-all duration-2000" style={{width: `${results.score}%`}} />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-200 relative overflow-hidden mb-12 shadow-inner text-right">
-                <div className="absolute top-0 right-0 w-2.5 h-full bg-[#001a33]" />
-                <h3 className="text-2xl font-black text-[#001a33] mb-8 flex items-center gap-4">
-                  <Sparkles size={28} className="text-[#d4af37]" /> ניתוח אסטרטגי מלא מיקוד משכנתאות
+              <div className="bg-slate-50 p-5 sm:p-8 md:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-slate-200 relative overflow-hidden mb-8 sm:mb-12 shadow-inner text-right">
+                <div className="absolute top-0 right-0 w-1.5 sm:w-2.5 h-full bg-[#001a33]" />
+                <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#001a33] mb-4 sm:mb-6 md:mb-8 flex items-center gap-2 sm:gap-4">
+                  <Sparkles size={20} className="sm:w-7 sm:h-7 text-[#d4af37]" /> ניתוח אסטרטגי מלא מיקוד משכנתאות
                 </h3>
-                <div className="text-slate-700 text-lg leading-loose font-bold text-justify whitespace-pre-line">
+                <div className="text-slate-700 text-sm sm:text-base md:text-lg leading-relaxed sm:leading-loose font-bold text-justify whitespace-pre-line">
                   {loading ? (
                     <div className="flex items-center gap-4 italic text-xl text-right">
                       <Loader2 className="animate-spin text-blue-600" /> המערכת מנתחת את התיק שלכם...
@@ -559,8 +559,8 @@ export default function MortgageCalculator() {
                 </div>
               </div>
 
-              <div className="text-center mb-8">
-                <h4 className="text-2xl font-black text-[#001a33] italic">לחצו כאן לקבלת חומרים ואסטרטגיות נוספות ממיקו ה-AI</h4>
+              <div className="text-center mb-6 sm:mb-8">
+                <h4 className="text-base sm:text-xl md:text-2xl font-black text-[#001a33] italic px-2">לחצו כאן לקבלת חומרים ואסטרטגיות נוספות ממיקו ה-AI</h4>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-right">
@@ -628,14 +628,14 @@ export default function MortgageCalculator() {
                 </div>
               </div>
 
-              <div className="mt-12 bg-[#001a33] rounded-[4rem] p-16 text-white flex flex-col lg:flex-row items-center justify-between gap-12 border-b-[10px] border-[#d4af37] shadow-3xl text-right">
+              <div className="mt-8 sm:mt-12 bg-[#001a33] rounded-[2rem] sm:rounded-[3rem] md:rounded-[4rem] p-6 sm:p-10 md:p-16 text-white flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-12 border-b-[6px] sm:border-b-[10px] border-[#d4af37] shadow-3xl text-right">
                 <div className="text-right max-w-xl">
-                  <h4 className="text-5xl font-black mb-8 leading-tight tracking-tighter italic uppercase">המטרה שלנו היא<br/>החיסכון הגדול שלכם.</h4>
-                  <p className="text-slate-400 text-xl font-bold leading-relaxed italic">הניתוח הוא רק ההתחלה. מומחי מיקוד משכנתאות ישיגו לכם את התנאים המנצחים במערכת הבנקאית.</p>
+                  <h4 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-4 sm:mb-6 md:mb-8 leading-tight tracking-tighter italic uppercase">המטרה שלנו היא<br/>החיסכון הגדול שלכם.</h4>
+                  <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl font-bold leading-relaxed italic">הניתוח הוא רק ההתחלה. מומחי מיקוד משכנתאות ישיגו לכם את התנאים המנצחים במערכת הבנקאית.</p>
                 </div>
-                <div className="flex flex-col items-center gap-8 text-center">
-                  <a href="tel:2324" className="bg-[#d4af37] text-[#001a33] px-16 py-8 rounded-[2rem] font-black text-6xl shadow-2xl hover:bg-white transition-all transform hover:scale-105 active:scale-95 leading-none">2324*</a>
-                  <p className="text-[#d4af37] font-black tracking-widest uppercase text-xs">פגישת ייעוץ אישית ללא התחייבות</p>
+                <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 text-center">
+                  <a href="tel:2324" className="bg-[#d4af37] text-[#001a33] px-10 sm:px-12 md:px-16 py-5 sm:py-6 md:py-8 rounded-[1.5rem] sm:rounded-[2rem] font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl hover:bg-white transition-all transform hover:scale-105 active:scale-95 leading-none">2324*</a>
+                  <p className="text-[#d4af37] font-black tracking-widest uppercase text-[10px] sm:text-xs">פגישת ייעוץ אישית ללא התחייבות</p>
                 </div>
               </div>
             </div>
