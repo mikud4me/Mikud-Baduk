@@ -267,15 +267,13 @@ export default function MortgageCalculator() {
         <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-gradient-to-br from-[#d4af37]/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
       </div>
 
-      <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#001a33] via-[#002a4d] to-[#001a33] border-b-2 border-[#d4af37]/30 shadow-2xl backdrop-blur-xl h-20 px-6 sm:px-10 flex items-center justify-between">
-        <div className="flex items-center gap-4 cursor-pointer group" onClick={() => window.location.reload()}>
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#f4d03f] flex items-center justify-center text-[#001a33] font-black text-3xl shadow-2xl shadow-[#d4af37]/50 group-hover:scale-110 transition-transform duration-300">
-            M
-          </div>
-          <div>
-            <h1 className="text-2xl font-black text-white tracking-tight">מיקוד משכנתאות</h1>
-            <p className="text-[#d4af37] text-xs font-bold">המטרה שלנו, החיסכון שלכם</p>
-          </div>
+      <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#001a33] via-[#002a4d] to-[#001a33] border-b-2 border-[#d4af37]/30 shadow-2xl backdrop-blur-xl h-24 px-6 sm:px-10 flex items-center justify-between">
+        <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/c3cbe376c_Screenshot_20260117_000002_Gallery.jpg" 
+            alt="מיקוד משכנתאות - המטרה שלנו, החיסכון שלכם" 
+            className="h-20 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+          />
         </div>
         <div className="flex items-center gap-4">
           <button 
@@ -383,7 +381,7 @@ export default function MortgageCalculator() {
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="שם מלא לתיק הלקוח" name="fullName" value={formData.fullName} placeholder="ישראל ישראלי" icon={User} onChange={handleInputChange} error={fieldErrors.fullName} />
                   <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} />
-                  <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="name@domain.com" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} />
+                  <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} />
                   <div className="mt-4 flex items-start gap-3 p-5 rounded-xl border-2 bg-slate-50 shadow-inner">
                     <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-[#001a33] focus:ring-[#001a33]" checked={formData.consent} onChange={(e) => handleInputChange('consent', e.target.checked)} />
                     <p className="text-[11px] text-slate-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
