@@ -332,7 +332,8 @@ export default function MortgageCalculator() {
               {/* Decorative Elements */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#d4af37]/10 to-transparent rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl" />
-            <div className="flex items-center justify-between mb-10 relative z-10">
+              
+              <div className="flex items-center justify-between mb-10 relative z-10">
               <div className="text-right flex-1">
                 <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#001a33] to-[#003d66] px-6 py-3 rounded-2xl shadow-xl mb-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#f4d03f] flex items-center justify-center shadow-lg">
@@ -375,9 +376,9 @@ export default function MortgageCalculator() {
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/20 to-transparent rounded-full blur-xl animate-pulse" />
               </div>
-            </div>
+              </div>
 
-            <div className="min-h-[300px]">
+              <div className="min-h-[300px] relative z-10">
               {step === 1 && !otpSent && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="שם מלא לתיק הלקוח" name="fullName" value={formData.fullName} placeholder="ישראל ישראלי" icon={User} onChange={handleInputChange} error={fieldErrors.fullName} />
@@ -506,6 +507,7 @@ export default function MortgageCalculator() {
                   )}
                 </span>
               </button>
+            </div>
             </div>
           </div>
         ) : (
