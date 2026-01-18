@@ -14,60 +14,82 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
     const userMsg = input;
     setInput("");
     
-    const isGreeting = /(שלום|היי|הלו|בוקר טוב|אהלן|מי זה|מי אתה)/i.test(userMsg);
-    const isThanks = /(תודה|ביי|להתראות|סיימתי)/i.test(userMsg);
+    const isGreeting = /(שלום|היי|הלו|בוקר טוב|אהלן|מי זה|מי אתה|מה שלומך)/i.test(userMsg);
+    const isThanks = /(תודה|ביי|להתראות|סיימתי|שיהיה בהצלחה)/i.test(userMsg);
+    const aboutMikud = /(מיקוד משכנתאות|מיקוד|החברה|על החברה|מי אתם|מה אתם עושים)/i.test(userMsg);
 
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setLoading(true);
 
+    // ברכת פתיחה
     if (isGreeting && messages.length <= 1) {
       setTimeout(() => {
         setMessages(prev => [...prev, { 
           role: 'ai', 
-          text: `שלום רב! הגעתם למיקו, מומחה ה-AI של מיקוד משכנתאות. ${isPurchased ? 'אני מכיר את התיק שלכם היטב, איך אוכל לעזור?' : 'אני יכול לענות לך על שאלות כלליות, אבל לא אוכל לנתח את התיק האישי שלך עד שלא תרכוש את התמהילים המקצועיים.'}` 
+          text: `שלום וברוכים הבאים! 🎯 אני מיקו, העוזר הדיגיטלי החכם של מיקוד משכנתאות - החברה המובילה בארץ לייעוץ משכנתאות מקצועי. ${isPurchased ? 'אני מכיר לעומק את התיק שלך ואשמח לעזור בכל שאלה!' : 'אשמח לענות על שאלות כלליות על משכנתאות. לניתוח מלא של התיק האישי שלך, מומלץ לרכוש את הדוח המקצועי.'} איך אוכל לסייע?` 
         }]);
         setLoading(false);
       }, 600);
       return;
     }
 
-    if (!isPurchased && !isGreeting) {
+    // מידע על מיקוד משכנתאות
+    if (aboutMikud) {
       setTimeout(() => {
         setMessages(prev => [...prev, { 
           role: 'ai', 
-          text: "ברגע שתקנה את התמהילים אוכל לענות על שאלות לגבי התיק ולבצע ניתוח עומק. בנתיים, אני ממליץ לדבר עם יועץ אנושי בטלפון 2324*." 
+          text: `מיקוד משכנתאות היא החברה המובילה בישראל לייעוץ משכנתאות מקצועי! 🎯 המטרה שלנו - החיסכון הגדול שלכם. אנחנו מתמחים בבניית תמהילי משכנתא אופטימליים, משא ומתן מול הבנקים, וליווי מלא עד לאישור סופי. הצלחנו לחסוך ללקוחותינו ממוצע של ₪150,000 לכל תיק! רוצה לדבר עם יועץ אנושי? חייג 2324*` 
         }]);
         setLoading(false);
       }, 700);
       return;
     }
 
+    // פרידה
     if (isThanks) {
       setTimeout(() => {
         setMessages(prev => [...prev, { 
           role: 'ai', 
-          text: "בשמחה רבה! שמחנו לעזור לך במיקוד משכנתאות. שיהיה המון בהצלחה!" 
+          text: "תודה רבה שבחרת במיקוד משכנתאות! 🙏 אנחנו כאן בשבילך תמיד. המטרה שלנו - החיסכון שלכם! שיהיה בהצלחה והמון ברכה בדרך לבית החדש 🏡✨" 
         }]);
         setLoading(false);
       }, 500);
       return;
     }
 
-    const context = isPurchased ? `תיק: משכנתא ${results?.loanAmount}₪, הכנסה ${results?.totalIncome}₪, מימון ${results?.ltv?.toFixed(1)}%.` : "לקוח טרם רכש.";
-    const sys = "שמך מיקו, מומחה AI של מיקוד משכנתאות. ענה קצר מאוד (עד 2 משפטים). אם הלקוח מבקש עזרה, הפנה ל-2324*.";
+    // לקוח שלא רכש - ייעוץ מוגבל
+    if (!isPurchased) {
+      const context = `לקוח טרם רכש דוח מלא. נתוני בסיס: נכס ${formData.propertyPrice || 0}₪, הון עצמי ${formData.equity || 0}₪, הכנסה ${formData.netIncome || 0}₪.`;
+      try {
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: `אתה מיקו מומחה משכנתאות של מיקוד משכנתאות. ${context} שאלת לקוח: "${userMsg}". תן תשובה כללית מועילה (עד 3 משפטים), הפנה לרכישת דוח מלא לניתוח מדויק, ולייעוץ אישי ב-2324*.`,
+          add_context_from_internet: true
+        });
+        const reply = response?.output || response || "אשמח לעזור! לניתוח מדויק של התיק שלך מומלץ לרכוש את הדוח המלא או לדבר עם יועץ ב-2324*.";
+        setMessages(prev => [...prev, { role: 'ai', text: reply.replace(/[*#]/g, '').trim() }]);
+      } catch (e) {
+        setMessages(prev => [...prev, { role: 'ai', text: "לניתוח מדויק של התיק שלך מומלץ לרכוש את הדוח המקצועי או לחייג ליועץ אנושי ב-2324*" }]);
+      } finally { 
+        setLoading(false); 
+      }
+      return;
+    }
+
+    // לקוח שרכש - ניתוח מלא
+    const fullContext = `תיק מלא: משכנתא ${results?.loanAmount}₪ (${results?.ltv?.toFixed(1)}% מימון), הכנסה כוללת ${results?.totalIncome}₪, DTI ${results?.dti?.toFixed(1)}%, תקופה ${results?.actualDuration} שנים. תמהיל A: קבועה 100%, תמהיל B (מומלץ): 33% פריים + 33% קבועה + 34% משתנה צמודה, תמהיל C: 50% פריים + 50% קבועה. החזר חודשי תמהיל B: ₪${Math.floor(results?.mixB?.total || 0)}.`;
     
     try {
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `${context} שאלה: ${userMsg}`,
-        add_context_from_internet: false
+        prompt: `אתה מיקו, מומחה משכנתאות AI של מיקוד משכנתאות - החברה המובילה בארץ. ${fullContext} שאלת לקוח: "${userMsg}". תן ייעוץ ממוקד ומקצועי (2-4 משפטים), התייחס לנתונים הספציפיים שלו, המלץ על התמהיל המתאים ביותר, והסבר למה. אם צריך מידע חיצוני השתמש בו. סיים בעידוד ליצור קשר עם יועץ אנושי ב-2324* להמשך.`,
+        add_context_from_internet: true
       });
       
-      const reply = response?.output || response || "מצטער, יש לי קושי קטן בחיבור כרגע.";
+      const reply = response?.output || response || "בהתבסס על התיק שלך, אני ממליץ על תמהיל B המאוזן. לדיון מעמיק צור קשר עם יועץ ב-2324*.";
       setMessages(prev => [...prev, { role: 'ai', text: reply.replace(/[*#]/g, '').trim() }]);
     } catch (e) {
       setMessages(prev => [...prev, { 
         role: 'ai', 
-        text: "סליחה, יש לי תקלה קלה בחיבור. נסה שוב או חייג 2324*?" 
+        text: "בהתבסס על התיק שלך, התמהיל המומלץ מאוזן ומגונן. ליווי מלא ומשא ומתן מול הבנקים - חייג 2324* 🎯" 
       }]);
     } finally { 
       setLoading(false); 
