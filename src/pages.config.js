@@ -1,11 +1,11 @@
-import Home from './pages/Home';
+import MortgageCalculator from './pages/MortgageCalculator';
 
 
 export const PAGES = {
-    "Home": Home,
+    "MortgageCalculator": MortgageCalculator,
 }
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "MortgageCalculator",
     Pages: PAGES,
 };
