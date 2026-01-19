@@ -9,6 +9,10 @@ import { base44 } from '@/api/base44Client';
 import PremiumInput from '@/components/mikud/PremiumInput';
 import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_mock');
 
 const TODAY_DATE = "18 בינואר 2026";
 const RATES = {
@@ -53,6 +57,9 @@ export default function MortgageCalculator() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [userInputOtp, setUserInputOtp] = useState("");
+  const [showPayment, setShowPayment] = useState(false);
+  const [clientSecret, setClientSecret] = useState(null);
+  const [currentLeadId, setCurrentLeadId] = useState(null);
 
   const [formData, setFormData] = useState({
     fullName: '', phone: '', email: '', consent: false,
@@ -216,7 +223,7 @@ export default function MortgageCalculator() {
       setAiAnalysis(cleanAiText(analysis));
       setBankerEmail(email.replace(/[*#]/g, ''));
       
-      await base44.entities.Lead.create({
+      const lead = await base44.entities.Lead.create({
         ...formData,
         loanAmount: results.loanAmount,
         ltv: results.ltv,
@@ -225,6 +232,8 @@ export default function MortgageCalculator() {
         isPurchased: false,
         status: 'new'
       });
+      
+      setCurrentLeadId(lead.id);
     } catch (err) {
       console.error(err);
       setAiAnalysis("הניתוח הושלם. קיימת היתכנות גבוהה לעסקה.");
@@ -254,6 +263,32 @@ export default function MortgageCalculator() {
       setAiInsights({ type: types[type].label, content: "פנה ליועץ לקבלת המידע המלא." });
     } finally { 
       setInsightLoading(false); 
+    }
+  };
+
+  const handlePurchaseClick = async () => {
+    try {
+      const payment = await base44.payments.createPayment({
+        amount: 499,
+        currency: 'ILS',
+        description: 'דוח תמהילי משכנתא מלא - מיקוד משכנתאות',
+        metadata: { leadId: currentLeadId, reportType: 'full' }
+      });
+      
+      setClientSecret(payment.clientSecret);
+      setShowPayment(true);
+    } catch (error) {
+      console.error('Payment creation failed:', error);
+      alert('שגיאה ביצירת תשלום. אנא נסה שוב.');
+    }
+  };
+
+  const handlePaymentSuccess = async () => {
+    setIsPurchased(true);
+    setShowPayment(false);
+    
+    if (currentLeadId) {
+      await base44.entities.Lead.update(currentLeadId, { isPurchased: true });
     }
   };
 
@@ -601,7 +636,7 @@ export default function MortgageCalculator() {
                     <Lock size={40} className="sm:w-16 sm:h-16 text-[#001a33] mb-4 sm:mb-6" />
                     <h4 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#001a33] mb-3 sm:mb-4 leading-tight px-4">דוח תמהילים אופטימלי נעול</h4>
                     <p className="text-slate-700 font-bold text-sm sm:text-base md:text-lg max-w-sm mb-6 sm:mb-10 leading-relaxed italic px-4">הפקת התמהילים המדויקים, פירוט הריביות והחזרים חודשיים מלאים דורשת פתיחת תיק בחברת מיקוד משכנתאות.</p>
-                    <button onClick={() => setIsPurchased(true)} className="bg-[#001a33] text-white px-6 sm:px-10 md:px-12 py-4 sm:py-5 rounded-xl sm:rounded-[2.5rem] font-black text-lg sm:text-2xl md:text-3xl shadow-3xl hover:bg-[#d4af37] hover:text-[#001a33] transition-all transform hover:scale-105 active:scale-95 flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
+                    <button onClick={handlePurchaseClick} className="bg-[#001a33] text-white px-6 sm:px-10 md:px-12 py-4 sm:py-5 rounded-xl sm:rounded-[2.5rem] font-black text-lg sm:text-2xl md:text-3xl shadow-3xl hover:bg-[#d4af37] hover:text-[#001a33] transition-all transform hover:scale-105 active:scale-95 flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
                       <span className="text-center">רכוש דוח מלא<br className="sm:hidden"/> ב-₪499 + מע"מ</span>
                       <ChevronLeft size={24} className="sm:w-7 sm:h-7"/>
                     </button>
@@ -645,6 +680,89 @@ export default function MortgageCalculator() {
 
       <MikoChat formData={formData} results={results} isPurchased={isPurchased} isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
       
+      {showPayment && clientSecret && (
+        <div className="fixed inset-0 z-[400] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowPayment(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative" onClick={(e) => e.stopPropagation()} dir="rtl">
+            <button onClick={() => setShowPayment(false)} className="absolute top-4 left-4 text-slate-400 hover:text-slate-600 transition-colors">
+              <X size={24} />
+            </button>
+            
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock size={32} className="text-[#001a33]" />
+              </div>
+              <h3 className="text-2xl font-black text-[#001a33] mb-2">רכישת דוח מלא</h3>
+              <p className="text-slate-600 font-bold">תשלום מאובטח ב-₪499 + מע"מ</p>
+            </div>
+            
+            <Elements stripe={stripePromise} options={{ clientSecret, locale: 'he' }}>
+              <PaymentForm onSuccess={handlePaymentSuccess} />
+            </Elements>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function PaymentForm({ onSuccess }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    setLoading(true);
+    setError(null);
+
+    const { error: submitError } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.href,
+      },
+      redirect: 'if_required'
+    });
+
+    if (submitError) {
+      setError(submitError.message);
+      setLoading(false);
+    } else {
+      onSuccess();
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement />
+      
+      {error && (
+        <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4 text-right">
+          <p className="text-red-700 font-bold text-sm">{error}</p>
+        </div>
+      )}
+      
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className="w-full bg-gradient-to-r from-[#001a33] to-[#003d66] text-white py-4 rounded-2xl font-black text-xl hover:from-[#d4af37] hover:to-[#f4d03f] hover:text-[#001a33] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="animate-spin" size={20} />
+            מעבד תשלום...
+          </>
+        ) : (
+          <>
+            <Lock size={20} />
+            שלם ופתח דוח מלא
+          </>
+        )}
+      </button>
+      
+      <p className="text-center text-xs text-slate-400 font-bold">תשלום מאובטח עם הצפנה מלאה</p>
+    </form>
   );
 }
