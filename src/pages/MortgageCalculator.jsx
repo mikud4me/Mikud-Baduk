@@ -12,7 +12,7 @@ import MikoChat from '@/components/mikud/MikoChat';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_mock');
+const stripePromise = loadStripe('pk_test_51QcMelJvSiJi40JJ79sN9CXTTxyHQqH0p92aU7TLPl67xyqG9mXC4yBM0SovVlnZ31RB5IZJpRfmNaTFOjdUe96o00E8OxJmC7');
 
 const TODAY_DATE = "18 בינואר 2026";
 const RATES = {
@@ -268,15 +268,18 @@ export default function MortgageCalculator() {
 
   const handlePurchaseClick = async () => {
     try {
-      const payment = await base44.payments.createPayment({
+      const response = await base44.functions.invoke('createPaymentIntent', {
         amount: 499,
-        currency: 'ILS',
-        description: 'דוח תמהילי משכנתא מלא - מיקוד משכנתאות',
+        currency: 'ils',
         metadata: { leadId: currentLeadId, reportType: 'full' }
       });
       
-      setClientSecret(payment.clientSecret);
-      setShowPayment(true);
+      if (response.data?.clientSecret) {
+        setClientSecret(response.data.clientSecret);
+        setShowPayment(true);
+      } else {
+        throw new Error('Failed to create payment');
+      }
     } catch (error) {
       console.error('Payment creation failed:', error);
       alert('שגיאה ביצירת תשלום. אנא נסה שוב.');
