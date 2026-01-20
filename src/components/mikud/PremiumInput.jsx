@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertCircle } from 'lucide-react';
 
 const formatCurrency = (val) => {
   if (!val || isNaN(val)) return "0";
