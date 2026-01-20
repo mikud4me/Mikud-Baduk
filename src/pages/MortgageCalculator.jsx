@@ -11,8 +11,9 @@ import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
 
 
-const TODAY_DATE = "18 בינואר 2026";
-const RATES = {
+const TODAY_DATE = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const DEFAULT_RATES = {
   FIXED_UNLINKED: 0.0505, 
   VAR_UNLINKED: 0.0498,   
   FIXED_LINKED: 0.0347,   
@@ -55,6 +56,8 @@ export default function MortgageCalculator() {
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [userInputOtp, setUserInputOtp] = useState("");
   const [currentLeadId, setCurrentLeadId] = useState(null);
+  const [rates, setRates] = useState(DEFAULT_RATES);
+  const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
   const [formData, setFormData] = useState({
     fullName: '', phone: '', email: '', consent: false,
@@ -65,6 +68,21 @@ export default function MortgageCalculator() {
     monthlyDebts: '0', creditHistory: 'clean', equity: '',
     additionalIncomeType: 'none', additionalIncomeAmount: '0'
   });
+
+  useEffect(() => {
+    const loadRates = async () => {
+      try {
+        const response = await base44.functions.invoke('getBankOfIsraelRates');
+        if (response.data?.success && response.data?.rates) {
+          setRates(response.data.rates);
+          setRatesLastUpdated(response.data.last_updated);
+        }
+      } catch (error) {
+        console.error('Failed to load rates:', error);
+      }
+    };
+    loadRates();
+  }, []);
 
   const maxTerm = useMemo(() => {
     const ageNum = Number(formData.age) || 35;
@@ -126,25 +144,25 @@ export default function MortgageCalculator() {
     const mixB_T1 = { 
       name: "פריים (Prime)", 
       amount: loanAmount * 0.33, 
-      rate: RATES.PRIME_CALC, 
+      rate: rates.PRIME_CALC, 
       years: duration, 
-      pmt: calculatePayment(loanAmount * 0.33, RATES.PRIME_CALC, duration), 
+      pmt: calculatePayment(loanAmount * 0.33, rates.PRIME_CALC, duration), 
       desc: "P-0.5%" 
     };
     const mixB_T2 = { 
       name: "קבועה לא צמודה (קל\"צ)", 
       amount: loanAmount * 0.33, 
-      rate: RATES.FIXED_UNLINKED, 
+      rate: rates.FIXED_UNLINKED, 
       years: duration, 
-      pmt: calculatePayment(loanAmount * 0.33, RATES.FIXED_UNLINKED, duration), 
+      pmt: calculatePayment(loanAmount * 0.33, rates.FIXED_UNLINKED, duration), 
       desc: "החזר קבוע" 
     };
     const mixB_T3 = { 
       name: "משתנה כל 5 שנים צמודה", 
       amount: loanAmount * 0.34, 
-      rate: RATES.VAR_LINKED, 
+      rate: rates.VAR_LINKED, 
       years: duration, 
-      pmt: calculatePayment(loanAmount * 0.34, RATES.VAR_LINKED, duration), 
+      pmt: calculatePayment(loanAmount * 0.34, rates.VAR_LINKED, duration), 
       desc: "משתנה צמודה" 
     };
     const pmtB = mixB_T1.pmt + mixB_T2.pmt + mixB_T3.pmt;
@@ -159,12 +177,12 @@ export default function MortgageCalculator() {
         tracks: [{ 
           name: "100% קבועה לא צמודה", 
           amount: loanAmount, 
-          rate: RATES.FIXED_UNLINKED, 
+          rate: rates.FIXED_UNLINKED, 
           years: duration, 
-          pmt: calculatePayment(loanAmount, RATES.FIXED_UNLINKED, duration), 
+          pmt: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration), 
           desc: "הגנה מלאה" 
         }], 
-        total: calculatePayment(loanAmount, RATES.FIXED_UNLINKED, duration) 
+        total: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration) 
       },
       mixB: { tracks: [mixB_T1, mixB_T2, mixB_T3], total: pmtB },
       mixC: { 
@@ -172,25 +190,25 @@ export default function MortgageCalculator() {
           { 
             name: "50% פריים (Prime)", 
             amount: loanAmount * 0.5, 
-            rate: RATES.PRIME_CALC, 
+            rate: rates.PRIME_CALC, 
             years: duration, 
-            pmt: calculatePayment(loanAmount*0.5, RATES.PRIME_CALC, duration), 
+            pmt: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration), 
             desc: "ניצול שוק" 
           }, 
           { 
             name: "50% קבועה (קל\"צ)", 
             amount: loanAmount * 0.5, 
-            rate: RATES.FIXED_UNLINKED, 
+            rate: rates.FIXED_UNLINKED, 
             years: duration, 
-            pmt: calculatePayment(loanAmount*0.5, RATES.FIXED_UNLINKED, duration), 
+            pmt: calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration), 
             desc: "עוגן יציבות" 
           }
         ], 
-        total: calculatePayment(loanAmount*0.5, RATES.PRIME_CALC, duration) + calculatePayment(loanAmount*0.5, RATES.FIXED_UNLINKED, duration) 
+        total: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration) + calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration) 
       },
       score: Math.min(100, Math.max(0, (ltv <= 0.75 ? 50 : 5) + ((pmtB / freeIncome) <= 0.40 ? 50 : 10)))
     };
-  }, [formData, maxTerm]);
+  }, [formData, maxTerm, rates]);
 
   const generateFullAnalysis = async () => {
     if (!validateStep(6)) return;
@@ -566,7 +584,7 @@ export default function MortgageCalculator() {
                   ) : aiAnalysis}
                 </div>
                 <div className="mt-4 pt-4 border-t border-slate-200 text-xs text-slate-400 font-bold italic">
-                  * החישוב מבוסס על ריביות ממוצעות ועדכניות ליום החישוב מאתר בנק ישראל.
+                  * החישוב מבוסס על ריביות עדכניות מבנק ישראל{ratesLastUpdated && ` (עודכן: ${new Date(ratesLastUpdated).toLocaleDateString('he-IL')})`}.
                 </div>
               </div>
 
