@@ -24,8 +24,8 @@ export default function PremiumInput({
   max, 
   type = "text" 
 }) {
-  const isNumeric = ['propertyPrice', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'loanDuration', 'additionalIncomeAmount', 'age'].includes(name);
-  const displayValue = isNumeric && value !== "" && name !== 'age' && name !== 'loanDuration' 
+  const isNumeric = ['propertyPrice', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'birthYear'].includes(name);
+  const displayValue = isNumeric && value !== "" && !['age', 'loanDuration', 'idNumber', 'birthYear'].includes(name)
     ? formatCurrency(value) 
     : value;
 
@@ -75,12 +75,12 @@ export default function PremiumInput({
             placeholder={placeholder} 
             className={`w-full bg-gradient-to-br from-white to-slate-50 h-14 px-5 border-2 rounded-2xl outline-none focus:border-[#d4af37] focus:shadow-lg focus:shadow-[#d4af37]/20 transition-all text-slate-900 font-bold text-lg text-right shadow-md hover:border-[#d4af37]/50 ${error ? 'border-red-400 focus:border-red-500' : 'border-slate-200'}`} 
             value={displayValue} 
-            onChange={(name === 'age' || name === 'loanDuration') 
+            onChange={(['age', 'loanDuration', 'idNumber', 'birthYear'].includes(name)) 
               ? (e) => onChange(name, e.target.value) 
               : (e) => onChange(name, isNumeric ? parseInputToNumber(e.target.value) : e.target.value)
             } 
           />
-          {isNumeric && !['loanDuration', 'age'].includes(name) && (
+          {isNumeric && !['loanDuration', 'age', 'idNumber', 'birthYear'].includes(name) && (
             <div className="absolute left-5 top-1/2 -translate-y-1/2">
               <span className="text-[#d4af37] font-black text-xl">₪</span>
             </div>

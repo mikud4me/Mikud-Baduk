@@ -60,7 +60,7 @@ export default function MortgageCalculator() {
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
   const [formData, setFormData] = useState({
-    fullName: '', phone: '', email: '', consent: false,
+    fullName: '', phone: '', email: '', idNumber: '', birthYear: '', consent: false,
     purpose: 'first_home', loanDuration: '25',
     propertyPrice: '', propertyStatus: 'first_home',
     age: '', employmentStatusA: 'employee', employmentStatusB: 'none',
@@ -101,6 +101,12 @@ export default function MortgageCalculator() {
     
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(formData.email)) errors.email = "נא להזין כתובת אימייל אמיתית ותקינה";
+    
+    if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
+    
+    const year = Number(formData.birthYear);
+    const currentYear = new Date().getFullYear();
+    if (!formData.birthYear || year < 1920 || year > currentYear - 18) errors.birthYear = "שנת לידה לא תקינה";
     
     if (!formData.consent) errors.consent = "חובה לאשר יצירת קשר";
 
@@ -409,6 +415,8 @@ export default function MortgageCalculator() {
               {step === 1 && !otpSent && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="שם מלא לתיק הלקוח" name="fullName" value={formData.fullName} placeholder="ישראל ישראלי" icon={User} onChange={handleInputChange} error={fieldErrors.fullName} />
+                  <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} />
+                  <PremiumInput label="שנת לידה" name="birthYear" value={formData.birthYear} placeholder="1985" icon={Calendar} onChange={handleInputChange} error={fieldErrors.birthYear} />
                   <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} />
                   <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} />
                   <div className="mt-4 flex items-start gap-3 p-5 rounded-xl border-2 bg-slate-50 shadow-inner">
