@@ -51,12 +51,12 @@ async function getCachedSnapshot(ttlSeconds) {
   return snap;
 }
 
-// Fallback rates (אם ה-API נכשל)
+// Fallback rates (אם ה-API נכשל) - מבוסס על נתוני קנטה ינואר 2026
 const FALLBACK_RATES = {
-  FIXED_UNLINKED: 0.0505,
-  VAR_UNLINKED: 0.0498,
-  FIXED_LINKED: 0.0347,
-  VAR_LINKED: 0.0361
+  FIXED_UNLINKED: 0.0498,    // קבועה לא צמודה 20-25 שנים
+  VAR_UNLINKED: 0.0496,      // משתנה לא צמודה 5-10 שנים
+  FIXED_LINKED: 0.0353,      // קבועה צמודה 20-25 שנים
+  VAR_LINKED: 0.0361         // משתנה צמודה 0-5 שנים
 };
 
 Deno.serve(async (req) => {
