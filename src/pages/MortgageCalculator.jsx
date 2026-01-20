@@ -9,10 +9,7 @@ import { base44 } from '@/api/base44Client';
 import PremiumInput from '@/components/mikud/PremiumInput';
 import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe('pk_test_51QcMelJvSiJi40JJ79sN9CXTTxyHQqH0p92aU7TLPl67xyqG9mXC4yBM0SovVlnZ31RB5IZJpRfmNaTFOjdUe96o00E8OxJmC7');
 
 const TODAY_DATE = "18 בינואר 2026";
 const RATES = {
@@ -57,8 +54,6 @@ export default function MortgageCalculator() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [userInputOtp, setUserInputOtp] = useState("");
-  const [showPayment, setShowPayment] = useState(false);
-  const [clientSecret, setClientSecret] = useState(null);
   const [currentLeadId, setCurrentLeadId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -267,29 +262,7 @@ export default function MortgageCalculator() {
   };
 
   const handlePurchaseClick = async () => {
-    try {
-      const response = await base44.functions.invoke('createPaymentIntent', {
-        amount: 499,
-        currency: 'ils',
-        metadata: { leadId: currentLeadId, reportType: 'full' }
-      });
-      
-      if (response.data?.clientSecret) {
-        setClientSecret(response.data.clientSecret);
-        setShowPayment(true);
-      } else {
-        throw new Error('Failed to create payment');
-      }
-    } catch (error) {
-      console.error('Payment creation failed:', error);
-      alert('שגיאה ביצירת תשלום. אנא נסה שוב.');
-    }
-  };
-
-  const handlePaymentSuccess = async () => {
     setIsPurchased(true);
-    setShowPayment(false);
-    
     if (currentLeadId) {
       await base44.entities.Lead.update(currentLeadId, { isPurchased: true });
     }
@@ -682,90 +655,6 @@ export default function MortgageCalculator() {
       </main>
 
       <MikoChat formData={formData} results={results} isPurchased={isPurchased} isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
-      
-      {showPayment && clientSecret && (
-        <div className="fixed inset-0 z-[400] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowPayment(false)}>
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative" onClick={(e) => e.stopPropagation()} dir="rtl">
-            <button onClick={() => setShowPayment(false)} className="absolute top-4 left-4 text-slate-400 hover:text-slate-600 transition-colors">
-              <X size={24} />
-            </button>
-            
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#d4af37] to-[#f4d03f] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock size={32} className="text-[#001a33]" />
-              </div>
-              <h3 className="text-2xl font-black text-[#001a33] mb-2">רכישת דוח מלא</h3>
-              <p className="text-slate-600 font-bold">תשלום מאובטח ב-₪499 + מע"מ</p>
-            </div>
-            
-            <Elements stripe={stripePromise} options={{ clientSecret, locale: 'he' }}>
-              <PaymentForm onSuccess={handlePaymentSuccess} />
-            </Elements>
-          </div>
-        </div>
-      )}
     </div>
-  );
-}
-
-function PaymentForm({ onSuccess }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!stripe || !elements) return;
-
-    setLoading(true);
-    setError(null);
-
-    const { error: submitError } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: window.location.href,
-      },
-      redirect: 'if_required'
-    });
-
-    if (submitError) {
-      setError(submitError.message);
-      setLoading(false);
-    } else {
-      onSuccess();
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
-      
-      {error && (
-        <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4 text-right">
-          <p className="text-red-700 font-bold text-sm">{error}</p>
-        </div>
-      )}
-      
-      <button
-        type="submit"
-        disabled={!stripe || loading}
-        className="w-full bg-gradient-to-r from-[#001a33] to-[#003d66] text-white py-4 rounded-2xl font-black text-xl hover:from-[#d4af37] hover:to-[#f4d03f] hover:text-[#001a33] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="animate-spin" size={20} />
-            מעבד תשלום...
-          </>
-        ) : (
-          <>
-            <Lock size={20} />
-            שלם ופתח דוח מלא
-          </>
-        )}
-      </button>
-      
-      <p className="text-center text-xs text-slate-400 font-bold">תשלום מאובטח עם הצפנה מלאה</p>
-    </form>
   );
 }
