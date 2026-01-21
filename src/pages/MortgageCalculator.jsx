@@ -299,6 +299,53 @@ export default function MortgageCalculator() {
   return (
     <div className="min-h-screen font-sans text-right bg-white overflow-x-hidden" dir="rtl">
       
+      {/* Banks Trust Section */}
+      <div className="bg-gradient-to-br from-gray-50 to-white py-8 border-b-2 border-gray-100">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <h3 className="text-xl sm:text-2xl font-bold text-[#1e3a5f] mb-2">עובדים עם כל הבנקים המובילים</h3>
+            <p className="text-gray-500 text-sm font-medium">גישה לכל אפשרויות המימון בשוק הישראלי</p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12">
+            <div className="grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100 flex items-center justify-center h-16 w-32">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/he/9/91/Bank_Hapoalim_logo.svg" 
+                alt="בנק הפועלים"
+                className="max-h-12 max-w-full object-contain"
+              />
+            </div>
+            <div className="grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100 flex items-center justify-center h-16 w-32">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/he/1/15/BankLeumiLogo.svg" 
+                alt="בנק לאומי"
+                className="max-h-12 max-w-full object-contain"
+              />
+            </div>
+            <div className="grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100 flex items-center justify-center h-16 w-32">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/2/27/Discount_Bank%2C_Ltd_logo.png" 
+                alt="בנק דיסקונט"
+                className="max-h-12 max-w-full object-contain"
+              />
+            </div>
+            <div className="grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100 flex items-center justify-center h-16 w-32">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/he/c/c8/%D7%9C%D7%95%D7%92%D7%95_%D7%A9%D7%9C_%D7%91%D7%A0%D7%A7_%D7%9E%D7%96%D7%A8%D7%97%D7%99-%D7%98%D7%A4%D7%97%D7%95%D7%AA.svg" 
+                alt="בנק מזרחי טפחות"
+                className="max-h-12 max-w-full object-contain"
+              />
+            </div>
+            <div className="grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100 flex items-center justify-center h-16 w-32">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/he/c/cd/%D7%A1%D7%9E%D7%9C%D7%99%D7%9C_%D7%91%D7%A0%D7%A7_%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D_2024.svg" 
+                alt="בנק ירושלים"
+                className="max-h-12 max-w-full object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm backdrop-blur-xl h-20 px-6 sm:px-10 flex items-center justify-between">
         <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
           <img 
