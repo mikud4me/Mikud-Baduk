@@ -1,68 +1,69 @@
 import React from 'react';
+import { Building2 } from 'lucide-react';
 
 export default function BankLogosCarousel() {
   const banks = [
-    { name: 'בנק הפועלים', logo: 'https://upload.wikimedia.org/wikipedia/he/9/91/Bank_Hapoalim_logo.svg' },
-    { name: 'בנק לאומי', logo: 'https://upload.wikimedia.org/wikipedia/he/1/15/BankLeumiLogo.svg' },
-    { name: 'בנק דיסקונט', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/27/Discount_Bank%2C_Ltd_logo.png' },
-    { name: 'בנק מזרחי טפחות', logo: 'https://upload.wikimedia.org/wikipedia/he/c/c8/%D7%9C%D7%95%D7%92%D7%95_%D7%A9%D7%9C_%D7%91%D7%A0%D7%A7_%D7%9E%D7%96%D7%A8%D7%97%D7%99-%D7%98%D7%A4%D7%97%D7%95%D7%AA.svg' },
-    { name: 'בנק ירושלים', logo: 'https://upload.wikimedia.org/wikipedia/he/c/cd/%D7%A1%D7%9E%D7%9C%D7%99%D7%9C_%D7%91%D7%A0%D7%A7_%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D_2024.svg' },
-    { name: 'הבנק הבינלאומי', logo: 'https://www.fibi.co.il/wps/wcm/connect/marketing/marketing_he/homepage/images/logo-fibi.svg' },
-    { name: 'בנק מסד', logo: 'https://www.bank-massad.co.il/SiteFiles/1/Images/logo.svg' },
-    { name: 'בנק אוצר החייל', logo: 'https://www.bankotsar.co.il/PublishingImages/Logo-Bank-Otsar-Hahayal.svg' },
+    'הפועלים',
+    'לאומי', 
+    'דיסקונט',
+    'מזרחי טפחות',
+    'ירושלים',
+    'הבינלאומי',
+    'מסד',
+    'אוצר החייל',
+    'יהב',
+    'מרכנתיל',
   ];
 
-  // כפול את המערך פעמיים כדי שהאנימציה תהיה חלקה
-  const allBanks = [...banks, ...banks];
+  // כפול את המערך 3 פעמים לאנימציה חלקה
+  const allBanks = [...banks, ...banks, ...banks];
 
   return (
-    <div className="bg-white border-y border-gray-100 py-6 overflow-hidden relative">
+    <div className="bg-gradient-to-b from-white via-slate-50 to-white border-y border-gray-200 py-4 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 mb-3">
-        <p className="text-center text-sm font-semibold text-gray-500">
-          עובדים עם כל הבנקים והמוסדות הפיננסיים המובילים בישראל
+        <p className="text-center text-xs font-bold text-gray-400 tracking-wide">
+          שותפים עם כל הבנקים המובילים בישראל
         </p>
       </div>
       
       <div className="relative">
         {/* Gradient overlays */}
-        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10" />
-        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white via-white to-transparent z-10 pointer-events-none" />
         
         {/* Scrolling container */}
-        <div className="flex animate-scroll-rtl">
+        <div className="flex animate-scroll-infinite hover:pause-animation">
           {allBanks.map((bank, index) => (
             <div 
-              key={`${bank.name}-${index}`}
-              className="flex-shrink-0 px-8 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 opacity-50 hover:opacity-100"
+              key={`${bank}-${index}`}
+              className="flex-shrink-0 px-4 flex items-center justify-center group"
             >
-              <img 
-                src={bank.logo} 
-                alt={bank.name}
-                className="h-8 w-auto object-contain"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
+              <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 shadow-sm hover:shadow-md hover:border-[#c9a961] transition-all duration-300">
+                <Building2 size={14} className="text-[#1e3a5f] group-hover:text-[#c9a961] transition-colors" />
+                <span className="text-xs font-bold text-gray-700 whitespace-nowrap group-hover:text-[#1e3a5f]">
+                  בנק {bank}
+                </span>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
       <style jsx>{`
-        @keyframes scroll-rtl {
+        @keyframes scroll-infinite {
           0% {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(50%);
+            transform: translateX(calc(-100% / 3));
           }
         }
         
-        .animate-scroll-rtl {
-          animation: scroll-rtl 30s linear infinite;
+        .animate-scroll-infinite {
+          animation: scroll-infinite 25s linear infinite;
         }
         
-        .animate-scroll-rtl:hover {
+        .animate-scroll-infinite:hover {
           animation-play-state: paused;
         }
       `}</style>
