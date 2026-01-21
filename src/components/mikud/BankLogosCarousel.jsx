@@ -10,8 +10,8 @@ export default function BankLogosCarousel() {
     { name: 'מרכנתיל', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/ff1e5dfd3_GetImg.jpg' },
   ];
   
-  // כפול את המערך 6 פעמים ליצירת זרימה חלקה ללא קפיצות
-  const allBanks = [...banks, ...banks, ...banks, ...banks, ...banks, ...banks];
+  // כפול את המערך פעמיים בדיוק - זה מספיק ללולאה אינסופית מושלמת
+  const allBanks = [...banks, ...banks];
 
   return (
     <div className="bg-white border-y border-gray-100 py-6 overflow-hidden">
@@ -30,9 +30,9 @@ export default function BankLogosCarousel() {
             const getHeight = (bankName) => {
               switch(bankName) {
                 case 'לאומי': return 'h-9';
-                case 'הפועלים': return 'h-28';
-                case 'ירושלים': return 'h-20';
-                case 'מזרחי טפחות': return 'h-28';
+                case 'הפועלים': return 'h-32';
+                case 'ירושלים': return 'h-24';
+                case 'מזרחי טפחות': return 'h-32';
                 default: return 'h-16';
               }
             };
@@ -58,16 +58,16 @@ export default function BankLogosCarousel() {
 
       <style>{`
         @keyframes scroll-rtl {
-          from {
+          0% {
             transform: translateX(0);
           }
-          to {
-            transform: translateX(calc(-100% / 6));
+          100% {
+            transform: translateX(-50%);
           }
         }
 
         .animate-scroll-rtl {
-          animation: scroll-rtl 40s linear infinite;
+          animation: scroll-rtl 20s linear infinite;
           will-change: transform;
         }
 
