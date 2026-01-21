@@ -16,8 +16,8 @@ export default function BankLogosCarousel() {
   return (
     <div className="bg-white border-y border-gray-100 py-6 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 mb-4">
-        <p className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          עובדים עם כל הבנקים המובילים
+        <p className="text-center text-sm font-bold text-[#1e3a5f] tracking-wide">
+          שותפים עסקיים מובילים במערכת הבנקאית הישראלית
         </p>
       </div>
       
@@ -26,21 +26,32 @@ export default function BankLogosCarousel() {
         <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
         
         <div className="flex animate-scroll-rtl">
-          {allBanks.map((bank, index) => (
-            <div 
-              key={`${bank.name}-${index}`}
-              className="flex-shrink-0 px-8 flex items-center justify-center"
-            >
-              <img 
-                src={bank.img} 
-                alt={`בנק ${bank.name}`}
-                className="h-16 w-auto object-contain opacity-90 hover:opacity-100 transition-all duration-300 hover:scale-105"
-                onError={(e) => {
-                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="48"%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="14" fill="%23666"%3E' + bank.name + '%3C/text%3E%3C/svg%3E';
-                }}
-              />
-            </div>
-          ))}
+          {allBanks.map((bank, index) => {
+            const getHeight = (bankName) => {
+              switch(bankName) {
+                case 'לאומי': return 'h-11';
+                case 'הפועלים': return 'h-20';
+                case 'ירושלים': return 'h-20';
+                default: return 'h-16';
+              }
+            };
+            
+            return (
+              <div 
+                key={`${bank.name}-${index}`}
+                className="flex-shrink-0 px-8 flex items-center justify-center"
+              >
+                <img 
+                  src={bank.img} 
+                  alt={`בנק ${bank.name}`}
+                  className={`${getHeight(bank.name)} w-auto object-contain opacity-90 hover:opacity-100 transition-all duration-300 hover:scale-105`}
+                  onError={(e) => {
+                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="48"%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="14" fill="%23666"%3E' + bank.name + '%3C/text%3E%3C/svg%3E';
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 
