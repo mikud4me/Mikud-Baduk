@@ -358,7 +358,9 @@ export default function MortgageCalculator() {
               </div>
             )}
             
-            <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-gray-100 transition-all duration-700">
+            <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-12 md:p-16 border-4 border-[#1e3a5f] transition-all duration-700 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
+              <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
               <div className="flex items-center justify-between mb-12">
               <div className="text-right flex-1">
                 <div className="inline-flex items-center gap-3 bg-[#1e3a5f] px-5 py-2.5 rounded-full shadow-sm mb-3">
