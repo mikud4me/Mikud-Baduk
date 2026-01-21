@@ -82,7 +82,8 @@ Deno.serve(async (req) => {
         VAR_LINKED: FALLBACK_RATES.VAR_LINKED
       },
       bank_of_israel_rate: snapshot.boiRate,
-      last_updated: snapshot.fetchedAt
+      last_updated: snapshot.fetchedAt,
+      prime: snapshot.prime
     });
   } catch (error) {
     console.error('BOI API Error:', error);
@@ -104,7 +105,8 @@ Deno.serve(async (req) => {
         VAR_LINKED: FALLBACK_RATES.VAR_LINKED
       },
       bank_of_israel_rate: fallbackBankRate,
-      last_updated: new Date().toISOString()
+      last_updated: new Date().toISOString(),
+      prime: fallbackPrime
     });
   }
 });
