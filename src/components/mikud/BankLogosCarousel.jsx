@@ -18,29 +18,29 @@ export default function BankLogosCarousel() {
   const allBanks = [...banks, ...banks, ...banks];
 
   return (
-    <div className="bg-white border-y border-gray-100 py-3 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 mb-2">
-        <p className="text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+    <div className="bg-white border-y border-gray-100 py-6 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 mb-4">
+        <p className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
           עובדים עם כל הבנקים המובילים
         </p>
       </div>
       
       <div className="relative">
-        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
         
         <div className="flex animate-scroll-rtl">
           {allBanks.map((bank, index) => (
             <div 
               key={`${bank.name}-${index}`}
-              className="flex-shrink-0 px-6 flex items-center justify-center"
+              className="flex-shrink-0 px-8 flex items-center justify-center"
             >
               <img 
                 src={bank.img} 
                 alt={`בנק ${bank.name}`}
-                className="h-6 w-auto object-contain opacity-40 hover:opacity-100 transition-opacity grayscale hover:grayscale-0"
+                className="h-12 w-auto object-contain opacity-80 hover:opacity-100 transition-all duration-300 hover:scale-110"
                 onError={(e) => {
-                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="24"%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="10" fill="%23666"%3E' + bank.name + '%3C/text%3E%3C/svg%3E';
+                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="48"%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="14" fill="%23666"%3E' + bank.name + '%3C/text%3E%3C/svg%3E';
                 }}
               />
             </div>
