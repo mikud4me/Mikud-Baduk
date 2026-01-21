@@ -10,6 +10,8 @@ export default function BankLogosCarousel() {
     { name: 'בינלאומי', img: 'https://www.fibi.co.il/wps/wcm/connect/marketing/marketing_he/homepage/images/logo-fibi.svg' },
     { name: 'מסד', img: 'https://www.bank-massad.co.il/SiteFiles/1/Images/logo.svg' },
     { name: 'אוצר החייל', img: 'https://www.bankotsar.co.il/PublishingImages/Logo-Bank-Otsar-Hahayal.svg' },
+    { name: 'יהב', img: 'https://img.ex.co/image/upload/ar_1,c_crop/q_auto:good,f_auto,fl_lossy,w_640,c_limit,dpr_2.5/v1668453375/zsxe9licxurjvkbcnnvk.jpg' },
+    { name: 'מרכנתיל', img: 'https://www.meyda.org.il/wp-content/uploads/2016/09/GetImg.jpg' },
   ];
 
   // כפול את המערך 3 פעמים
