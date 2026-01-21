@@ -15,9 +15,9 @@ export default function BankLogosCarousel() {
 
   return (
     <div className="bg-white border-y border-gray-100 py-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 mb-4">
-        <p className="text-center text-sm font-bold text-[#1e3a5f] tracking-wide">
-          שותפים עסקיים מובילים במערכת הבנקאית הישראלית
+      <div className="max-w-7xl mx-auto px-4 mb-6">
+        <p className="text-center text-lg font-extrabold text-[#1e3a5f] tracking-tight" style={{ fontFamily: 'system-ui, -apple-system, sans-serif', letterSpacing: '0.02em' }}>
+          בשיתוף פעולה עם כל הבנקים המובילים במשק
         </p>
       </div>
       
@@ -30,8 +30,9 @@ export default function BankLogosCarousel() {
             const getHeight = (bankName) => {
               switch(bankName) {
                 case 'לאומי': return 'h-11';
-                case 'הפועלים': return 'h-20';
-                case 'ירושלים': return 'h-20';
+                case 'הפועלים': return 'h-24';
+                case 'ירושלים': return 'h-24';
+                case 'מזרחי טפחות': return 'h-24';
                 default: return 'h-16';
               }
             };
