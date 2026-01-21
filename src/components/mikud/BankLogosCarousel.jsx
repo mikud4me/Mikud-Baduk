@@ -7,9 +7,11 @@ export default function BankLogosCarousel() {
     { name: 'דיסקונט', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/074d60b37_--600x416.jpg' },
     { name: 'מזרחי טפחות', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/e0ed091a8_mizrachi.png' },
     { name: 'ירושלים', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/ad9176516_ye.png' },
-    { name: 'בינלאומי', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/074d60b37_--600x416.jpg' },
     { name: 'מרכנתיל', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/ff1e5dfd3_GetImg.jpg' },
   ];
+  
+  // כפול את המערך 3 פעמים כדי ליצור אפקט רציף
+  const allBanks = [...banks, ...banks, ...banks];
 
   return (
     <div className="bg-white border-y border-gray-100 py-6 overflow-hidden">
@@ -24,7 +26,7 @@ export default function BankLogosCarousel() {
         <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
         
         <div className="flex animate-scroll-rtl">
-          {banks.map((bank, index) => (
+          {allBanks.map((bank, index) => (
             <div 
               key={`${bank.name}-${index}`}
               className="flex-shrink-0 px-8 flex items-center justify-center"
