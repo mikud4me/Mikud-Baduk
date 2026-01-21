@@ -10,8 +10,8 @@ export default function BankLogosCarousel() {
     { name: 'מרכנתיל', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/ff1e5dfd3_GetImg.jpg' },
   ];
   
-  // כפול את המערך פעמיים בדיוק - כך הלולאה תהיה אינסופית ללא קפיצות
-  const allBanks = [...banks, ...banks];
+  // כפול את המערך 3 פעמים ליצירת זרימה רציפה מושלמת
+  const allBanks = [...banks, ...banks, ...banks];
 
   return (
     <div className="bg-white border-y border-gray-100 py-6 overflow-hidden">
@@ -25,7 +25,7 @@ export default function BankLogosCarousel() {
         <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
         <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
         
-        <div className="flex animate-scroll-rtl">
+        <div className="flex animate-scroll-rtl" style={{ width: 'max-content' }}>
           {allBanks.map((bank, index) => {
             const getHeight = (bankName) => {
               switch(bankName) {
@@ -62,12 +62,12 @@ export default function BankLogosCarousel() {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(calc(-100% / 3));
           }
         }
 
         .animate-scroll-rtl {
-          animation: scroll-rtl 30s linear infinite;
+          animation: scroll-rtl 45s linear infinite;
           will-change: transform;
         }
 
