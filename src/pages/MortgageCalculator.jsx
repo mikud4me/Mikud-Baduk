@@ -139,13 +139,17 @@ export default function MortgageCalculator() {
   };
 
   const results = useMemo(() => {
-    const price = Number(formData.propertyPrice) || 0;
-    const eq = Number(formData.equity) || 0;
+    const price = Number(String(formData.propertyPrice).replace(/,/g, '')) || 0;
+    const eq = Number(String(formData.equity).replace(/,/g, '')) || 0;
     const duration = Math.min(maxTerm, Number(formData.loanDuration) || maxTerm);
     const loanAmount = Math.max(0, price - eq);
     const ltv = price > 0 ? (loanAmount / price) : 0;
-    const totalInc = (Number(formData.netIncome) || 0) + (Number(formData.partnerNetIncome) || 0) + (Number(formData.additionalIncomeAmount) || 0);
-    const freeIncome = Math.max(1, totalInc - Number(formData.monthlyDebts));
+    const netInc = Number(String(formData.netIncome).replace(/,/g, '')) || 0;
+    const partnerInc = Number(String(formData.partnerNetIncome).replace(/,/g, '')) || 0;
+    const additionalInc = Number(String(formData.additionalIncomeAmount).replace(/,/g, '')) || 0;
+    const debts = Number(String(formData.monthlyDebts).replace(/,/g, '')) || 0;
+    const totalInc = netInc + partnerInc + additionalInc;
+    const freeIncome = Math.max(1, totalInc - debts);
 
     const mixB_T1 = { 
       name: "פריים (Prime)", 
