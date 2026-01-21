@@ -10,8 +10,8 @@ export default function BankLogosCarousel() {
     { name: 'מרכנתיל', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/ff1e5dfd3_GetImg.jpg' },
   ];
   
-  // כפול את המערך 4 פעמים ליצירת לולאה אינסופית חלקה
-  const allBanks = [...banks, ...banks, ...banks, ...banks];
+  // כפול את המערך פעמיים בדיוק ליצירת לולאה אינסופית מושלמת
+  const allBanks = [...banks, ...banks];
 
   return (
     <div className="bg-white border-y border-gray-100 py-6 overflow-hidden">
@@ -25,17 +25,17 @@ export default function BankLogosCarousel() {
         <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
         <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
         
-        <div className="flex animate-scroll-rtl" style={{ width: 'max-content' }}>
+        <div className="flex animate-scroll-rtl gap-6 sm:gap-12">
           {allBanks.map((bank, index) => (
             <div 
               key={`${bank.name}-${index}`}
-              className="flex-shrink-0 px-8 sm:px-12 flex items-center justify-center"
-              style={{ minWidth: '140px' }}
+              className="flex-shrink-0 flex items-center justify-center"
+              style={{ width: '120px', height: '60px' }}
             >
               <img 
                 src={bank.img} 
                 alt={`בנק ${bank.name}`}
-                className="h-16 w-auto object-contain opacity-90 hover:opacity-100 transition-all duration-300 hover:scale-105"
+                className="max-h-[50px] max-w-[110px] w-auto h-auto object-contain opacity-90 hover:opacity-100 transition-all duration-300"
                 onError={(e) => {
                   e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="48"%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="14" fill="%23666"%3E' + bank.name + '%3C/text%3E%3C/svg%3E';
                 }}
@@ -51,12 +51,12 @@ export default function BankLogosCarousel() {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-25%);
+            transform: translateX(-50%);
           }
         }
 
         .animate-scroll-rtl {
-          animation: scroll-rtl 40s linear infinite;
+          animation: scroll-rtl 25s linear infinite;
           will-change: transform;
         }
 
