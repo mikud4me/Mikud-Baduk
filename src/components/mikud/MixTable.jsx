@@ -8,52 +8,52 @@ const formatCurrency = (val) => {
 
 export default function MixTable({ title, tracks, totalPmt, isRecommended }) {
   return (
-    <div className={`bg-gradient-to-br from-white via-slate-50 to-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-2xl border-2 sm:border-4 ${isRecommended ? 'border-[#d4af37] ring-2 sm:ring-4 ring-[#d4af37]/20' : 'border-slate-200'} mb-6 sm:mb-8 text-right w-full relative group hover:scale-[1.02] transition-all duration-500`}>
+    <div className={`bg-white rounded-2xl overflow-hidden shadow-lg border ${isRecommended ? 'border-[#c9a961]' : 'border-gray-200'} mb-6 text-right w-full relative transition-all duration-300 hover:shadow-xl`}>
       {isRecommended && (
-        <div className="absolute -top-3 sm:-top-4 right-4 sm:right-8 z-10">
-          <div className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] px-3 sm:px-6 py-1.5 sm:py-2 rounded-full font-black text-xs sm:text-sm shadow-2xl shadow-[#d4af37]/50 flex items-center gap-1 sm:gap-2">
-            <Sparkles size={12} className="sm:w-4 sm:h-4" />
-            מומלץ ביותר!
+        <div className="absolute -top-3 right-6 z-10">
+          <div className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-white px-5 py-1.5 rounded-full font-semibold text-xs shadow-md flex items-center gap-1.5">
+            <Sparkles size={14} />
+            מומלץ ביותר
           </div>
         </div>
       )}
-      <div className="p-4 sm:p-6 border-b-2 border-slate-200 bg-gradient-to-r from-slate-50 to-white flex flex-col sm:flex-row justify-between items-center text-right" dir="rtl">
+      <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center text-right" dir="rtl">
         <div>
-          <h4 className="text-lg sm:text-xl md:text-2xl font-black text-[#001a33] tracking-tight leading-tight mb-1 sm:mb-2">{title}</h4>
-          <p className="text-slate-500 text-xs sm:text-sm font-bold">תמהיל מקצועי ומאוזן</p>
+          <h4 className="text-xl sm:text-2xl font-bold text-[#1e3a5f] mb-1">{title}</h4>
+          <p className="text-gray-500 text-sm font-medium">תמהיל מקצועי ומאוזן</p>
         </div>
-        <div className="text-right sm:text-left mt-3 sm:mt-0">
-          <p className="text-[10px] sm:text-xs text-slate-400 font-black uppercase tracking-widest mb-1 sm:mb-2">החזר חודשי משוער</p>
-          <div className="bg-gradient-to-r from-[#001a33] to-[#003d66] text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl">
-            <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-none">₪{formatCurrency(Math.floor(totalPmt))}</p>
+        <div className="text-right sm:text-left mt-4 sm:mt-0">
+          <p className="text-xs text-gray-400 font-medium mb-2">החזר חודשי משוער</p>
+          <div className="bg-[#1e3a5f] text-white px-6 py-3 rounded-xl">
+            <p className="text-3xl sm:text-4xl font-bold">₪{formatCurrency(Math.floor(totalPmt))}</p>
           </div>
         </div>
       </div>
       
       <div className="p-0 overflow-x-auto">
-        <table className="w-full text-right min-w-[450px] sm:min-w-[550px]">
+        <table className="w-full text-right min-w-[450px]">
           <thead>
-            <tr className="text-slate-400 text-[8px] sm:text-[10px] uppercase font-black border-b border-slate-50">
-              <th className="p-2 sm:p-3 pr-3 sm:pr-4 text-right">מסלול</th>
-              <th className="p-2 sm:p-3 text-center">סכום</th>
-              <th className="p-2 sm:p-3 text-center">ריבית</th>
-              <th className="p-2 sm:p-3 text-center">תקופה</th>
-              <th className="p-2 sm:p-3 text-left pl-3 sm:pl-4">החזר</th>
+            <tr className="text-gray-400 text-xs font-semibold border-b border-gray-200">
+              <th className="p-3 pr-6 text-right">מסלול</th>
+              <th className="p-3 text-center">סכום</th>
+              <th className="p-3 text-center">ריבית</th>
+              <th className="p-3 text-center">תקופה</th>
+              <th className="p-3 text-left pl-6">החזר</th>
             </tr>
           </thead>
-          <tbody className="text-xs sm:text-sm font-black text-[#001a33]">
+          <tbody className="text-sm font-medium text-gray-900">
             {tracks.map((track, idx) => (
-              <tr key={idx} className="border-b border-slate-50 last:border-0 hover:bg-blue-50/20 transition-colors">
-                <td className="p-2 sm:p-3 pr-3 sm:pr-4 text-right">
-                  <div className="font-black text-xs sm:text-sm">{track.name}</div>
-                  <div className="text-[8px] sm:text-[9px] text-slate-400 font-bold">{track.desc}</div>
+              <tr key={idx} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                <td className="p-3 pr-6 text-right">
+                  <div className="font-semibold text-sm">{track.name}</div>
+                  <div className="text-xs text-gray-400 font-normal">{track.desc}</div>
                 </td>
-                <td className="p-2 sm:p-3 text-center text-[11px] sm:text-sm">₪{formatCurrency(Math.floor(track.amount))}</td>
-                <td className="p-2 sm:p-3 text-center text-[#d4af37] italic font-black text-xs sm:text-sm">
+                <td className="p-3 text-center">₪{formatCurrency(Math.floor(track.amount))}</td>
+                <td className="p-3 text-center text-[#c9a961] font-semibold">
                   {(track.rate * 100).toFixed(2)}%
                 </td>
-                <td className="p-2 sm:p-3 text-center text-[11px] sm:text-sm">{track.years} ש'</td>
-                <td className="p-2 sm:p-3 text-left font-black text-base sm:text-lg md:text-xl pl-3 sm:pl-4">₪{formatCurrency(Math.floor(track.pmt))}</td>
+                <td className="p-3 text-center">{track.years} ש'</td>
+                <td className="p-3 text-left font-bold text-lg pl-6">₪{formatCurrency(Math.floor(track.pmt))}</td>
               </tr>
             ))}
           </tbody>

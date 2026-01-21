@@ -297,92 +297,81 @@ export default function MortgageCalculator() {
   };
 
   return (
-    <div className="min-h-screen font-sans text-right transition-all duration-700 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 overflow-x-hidden relative" dir="rtl">
+    <div className="min-h-screen font-sans text-right bg-white overflow-x-hidden" dir="rtl">
       
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-[#d4af37]/20 via-transparent to-transparent rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-blue-600/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
-        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-gradient-to-br from-[#d4af37]/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
-      </div>
-
-      <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#001a33] via-[#002a4d] to-[#001a33] border-b-2 border-[#d4af37]/30 shadow-2xl backdrop-blur-xl h-24 px-6 sm:px-10 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm backdrop-blur-xl h-20 px-6 sm:px-10 flex items-center justify-between">
         <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/c3cbe376c_Screenshot_20260117_000002_Gallery.jpg" 
             alt="מיקוד משכנתאות - המטרה שלנו, החיסכון שלכם" 
-            className="h-20 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+            className="h-16 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
           />
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsChatOpen(!isChatOpen)}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold hover:bg-white/20 transition-all group"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-[#1e3a5f] text-[#1e3a5f] font-bold hover:bg-[#1e3a5f] hover:text-white transition-all group"
           >
-            <HelpCircle size={18} className="text-[#d4af37] group-hover:rotate-12 transition-transform" />
-            <span>צריכים עזרה?</span>
+            <HelpCircle size={18} className="group-hover:rotate-12 transition-transform" />
+            <span>שאלות?</span>
           </button>
-          <a href="tel:2324" className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] px-6 py-3 rounded-2xl font-black text-lg shadow-2xl shadow-[#d4af37]/50 hover:scale-105 transition-all active:scale-95 text-center">
+          <a href="tel:2324" className="bg-[#1e3a5f] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#152d47] transition-all shadow-md hover:shadow-lg text-center">
             2324*
           </a>
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto px-4 py-12 flex flex-col items-center relative z-10">
+      <main className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
         {step <= 6 ? (
-          <div className="w-full max-w-2xl">
+          <div className="w-full max-w-4xl">
             {/* Hero Section Above Form */}
             {step === 1 && !otpSent && (
-              <div className="text-center mb-10 animate-in fade-in slide-in-from-top-8 duration-1000">
-                <div className="inline-block mb-6">
-                  <div className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] px-8 py-3 rounded-full font-black text-sm shadow-2xl shadow-[#d4af37]/50 animate-pulse">
-                    ✨ מערכת חכמה לבניית תמהילי משכנתא ✨
+              <div className="text-center mb-16 animate-in fade-in slide-in-from-top-8 duration-1000">
+                <div className="inline-block mb-4">
+                  <div className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-white px-6 py-2 rounded-full font-semibold text-xs tracking-wide shadow-sm">
+                    מערכת AI לבניית תמהילי משכנתא
                   </div>
                 </div>
-                <h1 className="text-5xl sm:text-6xl font-black text-white mb-6 leading-tight drop-shadow-2xl">
-                  המשכנתא המושלמת<br/>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f4d03f]">
+                <h1 className="text-5xl sm:text-7xl font-bold text-[#1e3a5f] mb-6 leading-tight">
+                  המשכנתא הנכונה<br/>
+                  <span className="text-[#c9a961]">
                     מתחילה כאן
                   </span>
                 </h1>
-                <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
-                  מערכת AI מתקדמת שבונה עבורכם 3 תמהילים אופטימליים תוך דקות ספורות
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light">
+                  קבלו 3 תמהילים אופטימליים תוך 3 דקות, בחינם ובלי התחייבות
                 </p>
-                <div className="flex justify-center gap-8 mt-8 text-sm">
-                  <div className="flex items-center gap-2 text-[#d4af37]">
-                    <div className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
-                    <span className="text-white font-bold">חיסכון ממוצע ₪150K</span>
+                <div className="flex justify-center gap-12 mt-10 text-sm">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-3xl font-bold text-[#1e3a5f]">₪150K</div>
+                    <span className="text-gray-500">חיסכון ממוצע</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#d4af37]">
-                    <div className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
-                    <span className="text-white font-bold">תוצאות ב-3 דקות</span>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-3xl font-bold text-[#1e3a5f]">3 דק׳</div>
+                    <span className="text-gray-500">זמן תגובה</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#d4af37]">
-                    <div className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
-                    <span className="text-white font-bold">100% חינם</span>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-3xl font-bold text-[#1e3a5f]">0₪</div>
+                    <span className="text-gray-500">עלות</span>
                   </div>
                 </div>
               </div>
             )}
             
-            <div className="bg-gradient-to-br from-white via-slate-50 to-white rounded-[2rem] sm:rounded-[3rem] shadow-2xl p-5 sm:p-8 md:p-12 border-2 sm:border-4 border-[#d4af37]/20 transition-all duration-700 relative overflow-hidden backdrop-blur-xl">
-              {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#d4af37]/10 to-transparent rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl" />
-              
-              <div className="flex items-center justify-between mb-10 relative z-10">
+            <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-gray-100 transition-all duration-700">
+              <div className="flex items-center justify-between mb-12">
               <div className="text-right flex-1">
-                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#001a33] to-[#003d66] px-6 py-3 rounded-2xl shadow-xl mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#f4d03f] flex items-center justify-center shadow-lg">
-                    {step === 1 && <User size={20} className="text-[#001a33]" />}
-                    {step === 2 && <Calendar size={20} className="text-[#001a33]" />}
-                    {step === 3 && <Home size={20} className="text-[#001a33]" />}
-                    {step === 4 && <Coins size={20} className="text-[#001a33]" />}
-                    {step === 5 && <Wallet size={20} className="text-[#001a33]" />}
-                    {step === 6 && <Building2 size={20} className="text-[#001a33]" />}
+                <div className="inline-flex items-center gap-3 bg-[#1e3a5f] px-5 py-2.5 rounded-full shadow-sm mb-3">
+                  <div className="w-9 h-9 rounded-full bg-[#c9a961] flex items-center justify-center">
+                    {step === 1 && <User size={18} className="text-white" />}
+                    {step === 2 && <Calendar size={18} className="text-white" />}
+                    {step === 3 && <Home size={18} className="text-white" />}
+                    {step === 4 && <Coins size={18} className="text-white" />}
+                    {step === 5 && <Wallet size={18} className="text-white" />}
+                    {step === 6 && <Building2 size={18} className="text-white" />}
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-2xl font-black text-white leading-none">
+                    <h2 className="text-base sm:text-xl font-bold text-white leading-none">
                       {step === 1 && !otpSent && "בואו נכיר"}
                       {step === 1 && otpSent && "אימות זהות"}
                       {step === 2 && "פרופיל אישי"}
@@ -391,27 +380,20 @@ export default function MortgageCalculator() {
                       {step === 5 && "מקורות מימון"}
                       {step === 6 && "העדפות"}
                     </h2>
-                    <p className="text-[#d4af37] font-bold text-[10px] sm:text-xs mt-1">שלב {step} מתוך 6 - כמעט שם!</p>
+                    <p className="text-[#c9a961] font-medium text-xs mt-1">שלב {step} מתוך 6</p>
                   </div>
                 </div>
               </div>
               
-              <div className="relative w-24 h-24 flex items-center justify-center">
+              <div className="relative w-20 h-20 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-200" />
-                  <circle cx="48" cy="48" r="40" stroke="url(#gradient)" strokeWidth="4" fill="transparent" className="transition-all duration-1000" strokeDasharray={251} strokeDashoffset={251 - (251 * step) / 6} strokeLinecap="round" />
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#d4af37" />
-                      <stop offset="100%" stopColor="#f4d03f" />
-                    </linearGradient>
-                  </defs>
+                  <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-gray-200" />
+                  <circle cx="40" cy="40" r="36" stroke="#c9a961" strokeWidth="3" fill="transparent" className="transition-all duration-1000" strokeDasharray={226} strokeDashoffset={226 - (226 * step) / 6} strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-black text-[#001a33]">{step}</span>
-                  <span className="text-xs font-bold text-slate-400">מתוך 6</span>
+                  <span className="text-2xl font-bold text-[#1e3a5f]">{step}</span>
+                  <span className="text-xs font-medium text-gray-400">מתוך 6</span>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/20 to-transparent rounded-full blur-xl animate-pulse" />
               </div>
               </div>
 
@@ -510,11 +492,11 @@ export default function MortgageCalculator() {
               )}
             </div>
 
-            <div className="mt-10 flex gap-4 text-right relative z-10" dir="rtl">
+            <div className="mt-12 flex gap-4 text-right" dir="rtl">
               {step > 1 && (
                 <button 
                   onClick={() => {if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1);}} 
-                  className="flex-1 h-16 rounded-2xl font-black text-lg text-slate-600 border-3 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95 text-center shadow-lg group"
+                  className="flex-1 h-14 rounded-full font-bold text-base text-gray-600 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 text-center group"
                 >
                   <span className="group-hover:-translate-x-1 inline-block transition-transform">← חזור</span>
                 </button>
@@ -525,7 +507,7 @@ export default function MortgageCalculator() {
                   else if (step === 1 && otpSent) verifyOtp();
                   else if (validateStep(step)) step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
                 }} 
-                className={`h-16 rounded-2xl font-black text-xl shadow-2xl transition-all bg-gradient-to-r from-[#001a33] to-[#003d66] text-white hover:from-[#d4af37] hover:to-[#f4d03f] hover:text-[#001a33] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
+                className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
               >
                 <span className="flex items-center justify-center gap-2">
                   {step === 6 ? (
@@ -550,45 +532,44 @@ export default function MortgageCalculator() {
             </div>
           </div>
         ) : (
-          <div className="animate-in fade-in zoom-in-95 duration-1000 max-w-4xl mx-auto text-right px-2 sm:px-0" dir="rtl">
-              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl p-4 sm:p-6 md:p-10 border-t-[6px] sm:border-t-[12px] border-[#001a33] relative">
-                <div className="mb-6 sm:mb-10 pb-4 sm:pb-8 border-b-2 sm:border-b-4 border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-right">
+          <div className="animate-in fade-in zoom-in-95 duration-1000 max-w-5xl mx-auto text-right px-2 sm:px-0" dir="rtl">
+              <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-10 md:p-16 border border-gray-100 relative">
+                <div className="mb-8 sm:mb-12 pb-6 sm:pb-10 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-right">
                   <div>
-                    <div className="flex items-center gap-2 mb-2 text-[#d4af37] font-black text-[8px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.2em]">
-                      <BadgeCheck size={16} className="sm:w-6 sm:h-6"/>תיק היתכנות אסטרטגי רשמי
+                    <div className="flex items-center gap-2 mb-2 text-[#c9a961] font-semibold text-xs uppercase tracking-wide">
+                      <BadgeCheck size={18}/>דוח היתכנות משכנתא
                     </div>
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#001a33] tracking-tighter uppercase leading-none">{formData.fullName}</h2>
-                    <p className="text-slate-400 font-bold text-xs sm:text-sm italic mt-1 tracking-wide sm:tracking-wider uppercase leading-none">PRIVATE ADVISORY REPORT | {TODAY_DATE}</p>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1e3a5f] leading-tight">{formData.fullName}</h2>
+                    <p className="text-gray-400 font-medium text-sm mt-2">{TODAY_DATE}</p>
                   </div>
-                <div className="bg-slate-50 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border-2 border-slate-100 text-left">
-                  <p className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Portfolio ID</p>
-                  <p className="text-sm sm:text-lg font-black text-[#001a33] leading-none uppercase">MK-{Math.random().toString(36).substr(2, 5).toUpperCase()}</p>
+                <div className="bg-gray-50 px-5 py-3 rounded-2xl border border-gray-200 text-left">
+                  <p className="text-xs text-gray-400 font-medium mb-1">מזהה תיק</p>
+                  <p className="text-lg font-bold text-[#1e3a5f]">MK-{Math.random().toString(36).substr(2, 5).toUpperCase()}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10 text-right">
-                <div className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] shadow-xl border-b-4 sm:border-b-8 bg-[#001a33] border-[#d4af37] text-white">
-                  <span className="font-black text-[9px] sm:text-[11px] uppercase tracking-widest text-[#d4af37]">סכום משכנתא מבוקש / יחס מימון</span>
-                  <div className="text-2xl sm:text-4xl md:text-5xl font-black mt-2 leading-none text-right">₪{formatCurrency(results.loanAmount)}</div>
-                  <div className="mt-2 sm:mt-3 font-bold text-[10px] sm:text-xs text-slate-400">{results.ltv.toFixed(1)}% מימון מהנכס</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-right">
+                <div className="p-8 rounded-2xl bg-[#1e3a5f] text-white">
+                  <span className="font-semibold text-xs uppercase tracking-wide text-[#c9a961]">סכום משכנתא מבוקש</span>
+                  <div className="text-4xl sm:text-5xl font-bold mt-3 leading-none">₪{formatCurrency(results.loanAmount)}</div>
+                  <div className="mt-3 font-medium text-sm text-gray-300">{results.ltv.toFixed(1)}% מימון מהנכס</div>
                 </div>
-                <div className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border-2 shadow-sm flex flex-col justify-between bg-[#FDF9F0] border-[#EAD9B5] text-right">
+                <div className="p-8 rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
                   <div>
-                    <span className="font-black text-[9px] sm:text-[11px] uppercase tracking-widest text-[#785C28]">ציון היתכנות לאישור סופי</span>
-                    <div className="text-2xl sm:text-4xl md:text-5xl font-black mt-2 leading-none text-[#001a33]">{results.score}%</div>
+                    <span className="font-semibold text-xs uppercase tracking-wide text-[#8b7e5c]">ציון היתכנות</span>
+                    <div className="text-4xl sm:text-5xl font-bold mt-3 leading-none text-[#1e3a5f]">{results.score}%</div>
                   </div>
-                  <div className="mt-4 sm:mt-6 h-2 sm:h-2.5 bg-white rounded-full overflow-hidden border border-slate-200">
-                    <div className="h-full bg-[#001a33] transition-all duration-2000" style={{width: `${results.score}%`}} />
+                  <div className="mt-6 h-2 bg-white/50 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#c9a961] transition-all duration-2000" style={{width: `${results.score}%`}} />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-5 sm:p-8 md:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-slate-200 relative overflow-hidden mb-8 sm:mb-12 shadow-inner text-right">
-                <div className="absolute top-0 right-0 w-1.5 sm:w-2.5 h-full bg-[#001a33]" />
-                <h3 className="text-lg sm:text-xl md:text-2xl font-black text-[#001a33] mb-4 sm:mb-6 md:mb-8 flex items-center gap-2 sm:gap-4">
-                  <Sparkles size={20} className="sm:w-7 sm:h-7 text-[#d4af37]" /> ניתוח אסטרטגי מלא מיקוד משכנתאות
+              <div className="bg-gray-50 p-8 sm:p-10 rounded-2xl border border-gray-200 mb-12 text-right">
+                <h3 className="text-2xl sm:text-3xl font-bold text-[#1e3a5f] mb-6 flex items-center gap-3">
+                  <Sparkles size={24} className="text-[#c9a961]" /> ניתוח מקצועי מלא
                 </h3>
-                <div className="text-slate-700 text-sm sm:text-base md:text-lg leading-relaxed sm:leading-loose font-bold text-justify whitespace-pre-line">
+                <div className="text-gray-700 text-base sm:text-lg leading-relaxed font-normal whitespace-pre-line">
                   {loading ? (
                     <div className="flex items-center gap-4 italic text-xl text-right">
                       <Loader2 className="animate-spin text-blue-600" /> המערכת מנתחת את התיק שלכם...
