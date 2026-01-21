@@ -30,9 +30,9 @@ export default function BankLogosCarousel() {
             const getHeight = (bankName) => {
               switch(bankName) {
                 case 'לאומי': return 'h-11';
-                case 'הפועלים': return 'h-24';
-                case 'ירושלים': return 'h-24';
-                case 'מזרחי טפחות': return 'h-24';
+                case 'הפועלים': return 'h-28';
+                case 'ירושלים': return 'h-20';
+                case 'מזרחי טפחות': return 'h-28';
                 default: return 'h-16';
               }
             };
