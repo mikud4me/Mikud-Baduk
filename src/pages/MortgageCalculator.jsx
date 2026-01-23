@@ -405,11 +405,11 @@ export default function MortgageCalculator() {
               <div className="min-h-[300px] relative z-10">
               {step === 1 && !otpSent && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="שם מלא לתיק הלקוח" name="fullName" value={formData.fullName} placeholder="ישראל ישראלי" icon={User} onChange={handleInputChange} error={fieldErrors.fullName} />
-                  <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} />
-                  <PremiumInput label="שנת לידה" name="birthYear" value={formData.birthYear} placeholder="1985" icon={Calendar} onChange={handleInputChange} error={fieldErrors.birthYear} />
-                  <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} />
-                  <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} />
+                  <PremiumInput label="שם מלא לתיק הלקוח" name="fullName" value={formData.fullName} placeholder="ישראל ישראלי" icon={User} onChange={handleInputChange} error={fieldErrors.fullName} tooltip="הזן את שמך המלא כפי שמופיע בתעודת הזהות" />
+                  <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} tooltip="9 ספרות של תעודת הזהות שלך לאימות זהות" />
+                  <PremiumInput label="שנת לידה" name="birthYear" value={formData.birthYear} placeholder="1985" icon={Calendar} onChange={handleInputChange} error={fieldErrors.birthYear} tooltip="שנת הלידה שלך משפיעה על תקופת ההלוואה המקסימלית (עד גיל 80)" />
+                  <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} tooltip="מספר נייד לקבלת קוד אימות ויצירת קשר מהיועץ" />
+                  <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} tooltip="דוא״ל לקבלת הדוח המפורט והתכתבות עם היועץ" />
                   <div className="mt-4 flex items-start gap-3 p-5 rounded-xl border-2 bg-slate-50 shadow-inner">
                     <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-[#001a33] focus:ring-[#001a33]" checked={formData.consent} onChange={(e) => handleInputChange('consent', e.target.checked)} />
                     <p className="text-[11px] text-slate-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
@@ -428,17 +428,17 @@ export default function MortgageCalculator() {
 
               {step === 2 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="גיל לווה מבוגר ביותר" name="age" value={formData.age} icon={Calendar} onChange={handleInputChange} placeholder="40" error={fieldErrors.age} />
-                  <PremiumInput label="סטטוס תעסוקתי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} options={[{val:'employee', label:'שכיר/ה'}, {val:'self_employed', label:'עצמאי/ת'}, {val:'both', label:'גם וגם'}]} />
-                  <PremiumInput label="דירוג אשראי BDI" name="creditHistory" value={formData.creditHistory} icon={ShieldCheck} onChange={handleInputChange} options={[{val:'clean', label:'תקין לחלוטין (ירוק)'}, {val:'issues', label:'מורכב (היו עיכובים)'}]} />
+                  <PremiumInput label="גיל לווה מבוגר ביותר" name="age" value={formData.age} icon={Calendar} onChange={handleInputChange} placeholder="40" error={fieldErrors.age} tooltip="הגיל של הלווה המבוגר ביותר קובע את תקופת המשכנתא המקסימלית (עד גיל 80)" />
+                  <PremiumInput label="סטטוס תעסוקתי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} options={[{val:'employee', label:'שכיר/ה'}, {val:'self_employed', label:'עצמאי/ת'}, {val:'both', label:'גם וגם'}]} tooltip="סוג העסקה שלך משפיע על דרישות הבנק ואישור ההכנסות" />
+                  <PremiumInput label="דירוג אשראי BDI" name="creditHistory" value={formData.creditHistory} icon={ShieldCheck} onChange={handleInputChange} options={[{val:'clean', label:'תקין לחלוטין (ירוק)'}, {val:'issues', label:'מורכב (היו עיכובים)'}]} tooltip="דירוג האשראי שלך משפיע על הסיכוי לאישור ועל תנאי המשכנתא" />
                 </div>
               )}
 
               {step === 3 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="מטרת המשכנתא" name="purpose" value={formData.purpose} icon={Target} onChange={handleInputChange} 
-                    options={[{val:'first_home', label:'דירה ראשונה'}, {val:'improvement', label:'משפרי דיור / חליפית'}, {val:'contractor', label:'רכישה מקבלן'}, {val:'any_purpose', label:'לכל מטרה / השקעה'}]} />
-                  <PremiumInput label="שווי הנכס (חוזה או הערכה)" name="propertyPrice" value={formData.propertyPrice} placeholder="שווי שוק מוערך" icon={Home} onChange={handleInputChange} error={fieldErrors.propertyPrice} />
+                    options={[{val:'first_home', label:'דירה ראשונה'}, {val:'improvement', label:'משפרי דיור / חליפית'}, {val:'contractor', label:'רכישה מקבלן'}, {val:'any_purpose', label:'לכל מטרה / השקעה'}]} tooltip="מטרת המשכנתא משפיעה על אחוז המימון המקסימלי והתנאים" />
+                  <PremiumInput label="שווי הנכס (חוזה או הערכה)" name="propertyPrice" value={formData.propertyPrice} placeholder="שווי שוק מוערך" icon={Home} onChange={handleInputChange} error={fieldErrors.propertyPrice} tooltip="מחיר הדירה או שווי השוק המוערך - קובע את סכום המשכנתא הנדרש" />
                   <PremiumInput label="סטטוס וסוג הנכס" name="propertyStatus" value={formData.propertyStatus} icon={Building2} onChange={handleInputChange} 
                     options={[
                       {val:'first_home', label:'דירה ראשונה (עד 75% מימון)'}, 
@@ -454,22 +454,22 @@ export default function MortgageCalculator() {
 
               {step === 4 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} />
-                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} />
-                  <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} />
+                  <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו (לאחר ניכויים) - ממוצע 3 חודשים אחרונים" />
+                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו - משפרת את יכולת ההחזר והסיכוי לאישור" />
+                  <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג) - משפיע על יחס החוב להכנסה" />
                 </div>
               )}
 
               {step === 5 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} />
+                  <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} tooltip="הסכום שיש לכם במזומן/חסכונות למטרת רכישת הנכס - משפיע על אחוז המימון" />
                   <div className="space-y-4">
                     <PremiumInput label="סוג הכנסה נוספת" name="additionalIncomeType" value={formData.additionalIncomeType} icon={HeartHandshake} onChange={handleInputChange} 
-                      options={[{val:'none', label:'אין לי הכנסות נוספות'}, {val:'rent', label:'הכנסה משכירות'}, {val:'child', label:'קצבאות ילדים'}, {val:'other', label:'אחר'}]} />
-                    
+                      options={[{val:'none', label:'אין לי הכנסות נוספות'}, {val:'rent', label:'הכנסה משכירות'}, {val:'child', label:'קצבאות ילדים'}, {val:'other', label:'אחר'}]} tooltip="הכנסות נוספות יכולות לשפר את יכולת ההחזר (בכפוף לאישור הבנק)" />
+
                     {formData.additionalIncomeType !== 'none' && (
                       <div className="animate-in slide-in-from-top-2 duration-300">
-                        <PremiumInput label="סכום חודשי נוסף" name="additionalIncomeAmount" value={formData.additionalIncomeAmount} icon={Coins} onChange={handleInputChange} />
+                        <PremiumInput label="סכום חודשי נוסף" name="additionalIncomeAmount" value={formData.additionalIncomeAmount} icon={Coins} onChange={handleInputChange} tooltip="סכום ההכנסה החודשית הנוספת - ייבדק על ידי הבנק" />
                         <div className="p-4 bg-red-50 border-r-8 border-red-600 rounded-xl flex items-start gap-4 shadow-sm text-right">
                           <ShieldAlert size={24} className="text-red-600 shrink-0" />
                           <div className="text-right">
@@ -487,7 +487,7 @@ export default function MortgageCalculator() {
 
               {step === 6 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500 text-center py-10">
-                  <PremiumInput label="תקופת הלוואה רצויה (בשנים)" name="loanDuration" type="range" value={formData.loanDuration} min={4} max={maxTerm} onChange={handleInputChange} icon={Building2} />
+                  <PremiumInput label="תקופת הלוואה רצויה (בשנים)" name="loanDuration" type="range" value={formData.loanDuration} min={4} max={maxTerm} onChange={handleInputChange} icon={Building2} tooltip="תקופה ארוכה יותר = החזר חודשי נמוך יותר אך ריבית כוללת גבוהה יותר" />
                   <div className="mt-16 w-full text-center">
                     <p className="text-3xl sm:text-4xl font-black text-[#d4af37] italic animate-pulse tracking-tight drop-shadow-md leading-tight">
                       מיד מסיימים ואל תשכחו: <br/> מיקוד משכנתאות - המטרה שלנו, החיסכון שלכם
