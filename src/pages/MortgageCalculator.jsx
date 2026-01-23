@@ -303,7 +303,7 @@ export default function MortgageCalculator() {
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm backdrop-blur-xl h-20 px-6 sm:px-10 flex items-center justify-between">
         <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/c3cbe376c_Screenshot_20260117_000002_Gallery.jpg" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg" 
             alt="מיקוד משכנתאות - המטרה שלנו, החיסכון שלכם" 
             className="h-16 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
           />
