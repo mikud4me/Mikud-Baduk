@@ -33,7 +33,7 @@ export default function BankLogosCarousel() {
                 case 'הפועלים': return '110px';
                 case 'דיסקונט': return '38px';
                 case 'מזרחי טפחות': return '110px';
-                case 'ירושלים': return '110px';
+                case 'ירושלים': return '55px';
                 case 'מרכנתיל': return '38px';
                 default: return '38px';
               }
