@@ -308,6 +308,14 @@ export default function MortgageCalculator() {
             className="h-24 sm:h-28 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
           />
         </div>
+        <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 flex-col items-center">
+          <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#c9a961] via-[#d4b975] to-[#c9a961] tracking-tight leading-none animate-pulse" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+            המטרה שלנו
+          </h2>
+          <p className="text-2xl font-bold text-[#1e3a5f] tracking-wider mt-1">
+            החיסכון שלכם !!!
+          </p>
+        </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsChatOpen(!isChatOpen)}
