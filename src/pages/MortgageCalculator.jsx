@@ -548,84 +548,84 @@ export default function MortgageCalculator() {
             </div>
           </div>
         ) : (
-          <div className="animate-in fade-in zoom-in-95 duration-1000 max-w-5xl mx-auto text-right px-2 sm:px-0" dir="rtl">
-              <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-10 md:p-16 border border-gray-100 relative">
-                <div className="mb-8 sm:mb-12 pb-6 sm:pb-10 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-right">
+          <div className="animate-in fade-in zoom-in-95 duration-1000 max-w-5xl mx-auto text-right px-3 sm:px-4" dir="rtl">
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 md:p-12 border border-gray-100 relative">
+                <div className="mb-6 sm:mb-10 pb-4 sm:pb-8 border-b border-gray-200 flex flex-col gap-3 text-right">
                   <div>
-                    <div className="flex items-center gap-2 mb-2 text-[#c9a961] font-semibold text-xs uppercase tracking-wide">
-                      <BadgeCheck size={18}/>דוח היתכנות משכנתא
+                    <div className="flex items-center gap-2 mb-2 text-[#c9a961] font-semibold text-[10px] sm:text-xs uppercase tracking-wide">
+                      <BadgeCheck size={16} className="sm:w-[18px] sm:h-[18px]"/>דוח היתכנות משכנתא
                     </div>
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1e3a5f] leading-tight">{formData.fullName}</h2>
-                    <p className="text-gray-400 font-medium text-sm mt-2">{TODAY_DATE}</p>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1e3a5f] leading-tight break-words">{formData.fullName}</h2>
+                    <p className="text-gray-400 font-medium text-xs sm:text-sm mt-2">{TODAY_DATE}</p>
                   </div>
-                <div className="bg-gray-50 px-5 py-3 rounded-2xl border border-gray-200 text-left">
-                  <p className="text-xs text-gray-400 font-medium mb-1">מזהה תיק</p>
-                  <p className="text-lg font-bold text-[#1e3a5f]">MK-{Math.random().toString(36).substr(2, 5).toUpperCase()}</p>
+                <div className="bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-200 text-left w-fit">
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-medium mb-1">מזהה תיק</p>
+                  <p className="text-base sm:text-lg font-bold text-[#1e3a5f]">MK-{Math.random().toString(36).substr(2, 5).toUpperCase()}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-right">
-                <div className="p-8 rounded-2xl bg-[#1e3a5f] text-white">
-                  <span className="font-semibold text-xs uppercase tracking-wide text-[#c9a961]">סכום משכנתא מבוקש</span>
-                  <div className="text-4xl sm:text-5xl font-bold mt-3 leading-none">₪{formatCurrency(results.loanAmount)}</div>
-                  <div className="mt-3 font-medium text-sm text-gray-300">{results.ltv.toFixed(1)}% מימון מהנכס</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10 text-right">
+                <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-[#1e3a5f] text-white">
+                  <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#c9a961]">סכום משכנתא מבוקש</span>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none break-all">₪{formatCurrency(results.loanAmount)}</div>
+                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-300">{results.ltv.toFixed(1)}% מימון מהנכס</div>
                 </div>
-                <div className="p-8 rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
+                <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
                   <div>
-                    <span className="font-semibold text-xs uppercase tracking-wide text-[#8b7e5c]">ציון היתכנות</span>
-                    <div className="text-4xl sm:text-5xl font-bold mt-3 leading-none text-[#1e3a5f]">{results.score}%</div>
+                    <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">ציון היתכנות</span>
+                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none text-[#1e3a5f]">{results.score}%</div>
                   </div>
-                  <div className="mt-6 h-2 bg-white/50 rounded-full overflow-hidden">
+                  <div className="mt-4 sm:mt-6 h-2 bg-white/50 rounded-full overflow-hidden">
                     <div className="h-full bg-[#c9a961] transition-all duration-2000" style={{width: `${results.score}%`}} />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-8 sm:p-10 rounded-2xl border border-gray-200 mb-12 text-right">
-                <h3 className="text-2xl sm:text-3xl font-bold text-[#1e3a5f] mb-6 flex items-center gap-3">
-                  <Sparkles size={24} className="text-[#c9a961]" /> ניתוח מקצועי מלא
+              <div className="bg-gray-50 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border border-gray-200 mb-6 sm:mb-10 text-right">
+                <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                  <Sparkles size={18} className="sm:w-6 sm:h-6 text-[#c9a961]" /> ניתוח מקצועי מלא
                 </h3>
-                <div className="text-gray-700 text-base sm:text-lg leading-relaxed font-normal whitespace-pre-line">
+                <div className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed font-normal whitespace-pre-line">
                   {loading ? (
-                    <div className="flex items-center gap-4 italic text-xl text-right">
-                      <Loader2 className="animate-spin text-blue-600" /> המערכת מנתחת את התיק שלכם...
+                    <div className="flex items-center gap-3 italic text-base sm:text-lg text-right">
+                      <Loader2 size={18} className="sm:w-5 sm:h-5 animate-spin text-blue-600" /> המערכת מנתחת את התיק שלכם...
                     </div>
                   ) : aiAnalysis}
                 </div>
-                <div className="mt-4 pt-4 border-t border-slate-200 text-xs text-slate-400 font-bold italic">
+                <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 text-[10px] sm:text-xs text-slate-400 font-bold italic">
                   * החישוב מבוסס על ריביות עדכניות מבנק ישראל{ratesLastUpdated && ` (עודכן: ${new Date(ratesLastUpdated).toLocaleDateString('he-IL')})`}.
                 </div>
               </div>
 
-              <div className="text-center mb-6 sm:mb-8">
-                <h4 className="text-base sm:text-xl md:text-2xl font-black text-[#001a33] italic px-2">לחצו כאן לקבלת חומרים ואסטרטגיות נוספות ממיקו ה-AI</h4>
+              <div className="text-center mb-4 sm:mb-6">
+                <h4 className="text-sm sm:text-base md:text-xl font-black text-[#001a33] italic px-2 leading-tight">לחצו כאן לקבלת חומרים ואסטרטגיות נוספות ממיקו ה-AI</h4>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12 text-right">
-                <button onClick={() => getAiInsight('roadmap')} className={`p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-[2rem] font-black flex flex-col sm:flex-row items-center justify-between shadow-2xl transition-all active:scale-95 group border-b-4 sm:border-b-8 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
-                  <div className="flex items-center gap-2 sm:gap-4 text-sm sm:text-base"><Rocket size={20} className="sm:w-6 sm:h-6 text-[#d4af37]" /><span>✨ אסטרטגיה</span></div>
-                  <ChevronLeft size={16} className="hidden sm:block sm:w-5 sm:h-5" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-10 text-right">
+                <button onClick={() => getAiInsight('roadmap')} className={`p-3 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center sm:justify-between shadow-xl transition-all active:scale-95 group border-b-4 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><Rocket size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>✨ אסטרטגיה</span></div>
+                  <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
                 </button>
-                <button onClick={() => getAiInsight('negotiation')} className={`p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-[2rem] font-black flex flex-col sm:flex-row items-center justify-between shadow-2xl transition-all active:scale-95 group border-b-4 sm:border-b-8 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
-                  <div className="flex items-center gap-2 sm:gap-4 text-sm sm:text-base"><MessageSquareQuote size={20} className="sm:w-6 sm:h-6 text-[#d4af37]" /><span>✨ מו"מ</span></div>
-                  <ChevronLeft size={16} className="hidden sm:block sm:w-5 sm:h-5" />
+                <button onClick={() => getAiInsight('negotiation')} className={`p-3 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center sm:justify-between shadow-xl transition-all active:scale-95 group border-b-4 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><MessageSquareQuote size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>✨ מו"מ</span></div>
+                  <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
                 </button>
-                <button onClick={() => getAiInsight('documents')} className={`p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-[2rem] font-black flex flex-col sm:flex-row items-center justify-between shadow-2xl transition-all active:scale-95 group border-b-4 sm:border-b-8 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
-                  <div className="flex items-center gap-2 sm:gap-4 text-sm sm:text-base"><ClipboardList size={20} className="sm:w-6 sm:h-6 text-[#d4af37]" /><span>✨ מסמכים</span></div>
-                  <ChevronLeft size={16} className="hidden sm:block sm:w-5 sm:h-5" />
+                <button onClick={() => getAiInsight('documents')} className={`p-3 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center sm:justify-between shadow-xl transition-all active:scale-95 group border-b-4 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><ClipboardList size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>✨ מסמכים</span></div>
+                  <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
                 </button>
               </div>
 
               {aiInsights && (
-                <div className="bg-[#FDF9F0] p-5 sm:p-8 md:p-10 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] border-2 border-[#EAD9B5] mb-8 sm:mb-12 animate-in slide-in-from-bottom-4 duration-500 text-right shadow-sm relative">
-                  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-[#EAD9B5]/30">
-                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-[#785C28]" />
-                    <h4 className="text-base sm:text-lg md:text-xl font-black text-[#785C28] uppercase tracking-wide sm:tracking-widest italic">{aiInsights.type}</h4>
+                <div className="bg-[#FDF9F0] p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-[2rem] border-2 border-[#EAD9B5] mb-6 sm:mb-10 animate-in slide-in-from-bottom-4 duration-500 text-right shadow-sm">
+                  <div className="flex items-center gap-2 mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-[#EAD9B5]/30">
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#785C28]" />
+                    <h4 className="text-sm sm:text-base md:text-lg font-black text-[#785C28] uppercase tracking-wide italic">{aiInsights.type}</h4>
                   </div>
-                  <div className="text-[#785C28] text-sm sm:text-base md:text-lg font-medium leading-relaxed whitespace-pre-wrap">
+                  <div className="text-[#785C28] text-xs sm:text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap">
                     {insightLoading ? (
-                      <div className="flex items-center gap-3">
-                        <Loader2 size={14} className="sm:w-4 sm:h-4 animate-spin" />
+                      <div className="flex items-center gap-2">
+                        <Loader2 size={14} className="animate-spin" />
                         <span>מייצר ניתוח...</span>
                       </div>
                     ) : String(aiInsights.content)}
@@ -633,47 +633,45 @@ export default function MortgageCalculator() {
                 </div>
               )}
 
-              <div className="relative min-h-[300px] mb-8 sm:mb-12">
+              <div className="relative min-h-[200px] sm:min-h-[300px] mb-6 sm:mb-10">
                 {!isPurchased && (
-                  <div className="absolute inset-0 z-20 backdrop-blur-xl bg-white/40 rounded-[2rem] sm:rounded-[3rem] flex flex-col items-center justify-center border-2 sm:border-4 border-dashed border-[#d4af37]/40 p-6 sm:p-10 text-center shadow-2xl">
-                    <Lock size={40} className="sm:w-16 sm:h-16 text-[#001a33] mb-4 sm:mb-6" />
-                    <h4 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#001a33] mb-3 sm:mb-4 leading-tight px-4">דוח תמהילים אופטימלי נעול</h4>
-                    <p className="text-slate-700 font-bold text-sm sm:text-base md:text-lg max-w-sm mb-6 sm:mb-10 leading-relaxed italic px-4">הפקת התמהילים המדויקים, פירוט הריביות והחזרים חודשיים מלאים דורשת פתיחת תיק בחברת מיקוד משכנתאות.</p>
-                    <button onClick={handlePurchaseClick} className="bg-[#001a33] text-white px-6 sm:px-10 md:px-12 py-4 sm:py-5 rounded-xl sm:rounded-[2.5rem] font-black text-lg sm:text-2xl md:text-3xl shadow-3xl hover:bg-[#d4af37] hover:text-[#001a33] transition-all transform hover:scale-105 active:scale-95 flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
-                      <span className="text-center">רכוש דוח מלא<br className="sm:hidden"/> ב-₪499 + מע"מ</span>
-                      <ChevronLeft size={24} className="sm:w-7 sm:h-7"/>
+                  <div className="absolute inset-0 z-20 backdrop-blur-xl bg-white/40 rounded-xl sm:rounded-[2rem] flex flex-col items-center justify-center border-2 border-dashed border-[#d4af37]/40 p-4 sm:p-8 text-center shadow-2xl">
+                    <Lock size={32} className="sm:w-12 sm:h-12 md:w-16 md:h-16 text-[#001a33] mb-3 sm:mb-5" />
+                    <h4 className="text-lg sm:text-2xl md:text-3xl font-black text-[#001a33] mb-2 sm:mb-3 leading-tight px-2">דוח תמהילים אופטימלי נעול</h4>
+                    <p className="text-slate-700 font-bold text-xs sm:text-sm md:text-base max-w-sm mb-4 sm:mb-8 leading-relaxed italic px-2">הפקת התמהילים המדויקים, פירוט הריביות והחזרים חודשיים מלאים דורשת פתיחת תיק בחברת מיקוד משכנתאות.</p>
+                    <button onClick={handlePurchaseClick} className="bg-[#001a33] text-white px-5 sm:px-8 md:px-10 py-3 sm:py-4 rounded-xl sm:rounded-[2rem] font-black text-base sm:text-xl md:text-2xl shadow-2xl hover:bg-[#d4af37] hover:text-[#001a33] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 sm:gap-4">
+                      <span>רכוש דוח מלא ב-₪499 + מע"מ</span>
+                      <ChevronLeft size={20} className="sm:w-6 sm:h-6"/>
                     </button>
                   </div>
                 )}
-                <div className={`space-y-6 sm:space-y-12 transition-all duration-1000 ${!isPurchased ? 'blur-3xl opacity-20 pointer-events-none' : ''}`}>
+                <div className={`space-y-4 sm:space-y-8 transition-all duration-1000 ${!isPurchased ? 'blur-3xl opacity-20 pointer-events-none' : ''}`}>
                   <MixTable title='תמהיל אסטרטגי משולב (מומלץ)' tracks={results.mixB.tracks} totalPmt={results.mixB.total} isRecommended={true} />
                   <MixTable title='תמהיל שמרני (100% קבועה)' tracks={results.mixA.tracks} totalPmt={results.mixA.total} />
                   <MixTable title='תמהיל פריים weighted' tracks={results.mixC.tracks} totalPmt={results.mixC.total} />
                 </div>
               </div>
 
-              <div className={`p-5 sm:p-8 md:p-10 bg-[#001a33] rounded-xl sm:rounded-[2rem] md:rounded-[3rem] mb-8 sm:mb-12 text-white shadow-2xl transition-all duration-1000 ${!isPurchased ? 'opacity-30 blur-md pointer-events-none' : ''}`}>
-                <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4 sm:gap-6 text-center sm:text-right">
-                  <div className="text-center sm:text-right">
-                    <h4 className="text-xl sm:text-2xl md:text-3xl font-black flex items-center gap-3 sm:gap-4 justify-center sm:justify-start leading-none mb-2">
-                      <Mail size={24} className="sm:w-8 sm:h-8 text-[#d4af37]" /> ✨ טיוטת פנייה לבנק
-                    </h4>
-                    <p className="text-slate-400 text-xs sm:text-sm font-bold italic">מיקו יצר עבורכם את המייל המקצועי ביותר להגשה לבנקאי.</p>
-                  </div>
+              <div className={`p-4 sm:p-6 md:p-8 bg-[#001a33] rounded-xl sm:rounded-[2rem] mb-6 sm:mb-10 text-white shadow-xl transition-all duration-1000 ${!isPurchased ? 'opacity-30 blur-md pointer-events-none' : ''}`}>
+                <div className="flex flex-col items-center mb-4 sm:mb-6 gap-2 sm:gap-3 text-center">
+                  <h4 className="text-lg sm:text-xl md:text-2xl font-black flex items-center gap-2 sm:gap-3 leading-none">
+                    <Mail size={20} className="sm:w-6 sm:h-6 text-[#d4af37]" /> ✨ טיוטת פנייה לבנק
+                  </h4>
+                  <p className="text-slate-400 text-[10px] sm:text-xs font-bold italic">מיקו יצר עבורכם את המייל המקצועי ביותר להגשה לבנקאי.</p>
                 </div>
-                <div className="bg-white/5 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-[2rem] border border-white/10 shadow-inner font-bold text-sm sm:text-base md:text-lg text-slate-100 leading-relaxed sm:leading-loose text-right whitespace-pre-wrap">
+                <div className="bg-white/5 p-3 sm:p-5 md:p-6 rounded-xl border border-white/10 shadow-inner font-bold text-xs sm:text-sm md:text-base text-slate-100 leading-relaxed text-right whitespace-pre-wrap overflow-x-auto">
                   {bankerEmail || "הטיוטה תופיע כאן לאחר רכישת הדוח..."}
                 </div>
               </div>
 
-              <div className="mt-8 sm:mt-12 bg-[#001a33] rounded-[2rem] sm:rounded-[3rem] md:rounded-[4rem] p-6 sm:p-10 md:p-16 text-white flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-12 border-b-[6px] sm:border-b-[10px] border-[#d4af37] shadow-3xl text-right">
-                <div className="text-right max-w-xl">
-                  <h4 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-4 sm:mb-6 md:mb-8 leading-tight tracking-tighter italic uppercase">המטרה שלנו היא<br/>החיסכון הגדול שלכם.</h4>
-                  <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl font-bold leading-relaxed italic">הניתוח הוא רק ההתחלה. מומחי מיקוד משכנתאות ישיגו לכם את התנאים המנצחים במערכת הבנקאית.</p>
+              <div className="mt-6 sm:mt-10 bg-[#001a33] rounded-xl sm:rounded-[2rem] p-5 sm:p-8 md:p-12 text-white flex flex-col items-center gap-5 sm:gap-8 border-b-4 sm:border-b-8 border-[#d4af37] shadow-2xl text-center">
+                <div className="max-w-xl">
+                  <h4 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black mb-3 sm:mb-5 leading-tight tracking-tight italic">המטרה שלנו היא<br/>החיסכון הגדול שלכם.</h4>
+                  <p className="text-slate-400 text-xs sm:text-sm md:text-base font-bold leading-relaxed italic">הניתוח הוא רק ההתחלה. מומחי מיקוד משכנתאות ישיגו לכם את התנאים המנצחים במערכת הבנקאית.</p>
                 </div>
-                <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 text-center">
-                  <a href="tel:2324" className="bg-[#d4af37] text-[#001a33] px-10 sm:px-12 md:px-16 py-5 sm:py-6 md:py-8 rounded-[1.5rem] sm:rounded-[2rem] font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl hover:bg-white transition-all transform hover:scale-105 active:scale-95 leading-none">2324*</a>
-                  <p className="text-[#d4af37] font-black tracking-widest uppercase text-[10px] sm:text-xs">פגישת ייעוץ אישית ללא התחייבות</p>
+                <div className="flex flex-col items-center gap-3 sm:gap-5">
+                  <a href="tel:2324" className="bg-[#d4af37] text-[#001a33] px-12 sm:px-16 md:px-20 py-5 sm:py-6 md:py-7 rounded-[1.5rem] font-black text-4xl sm:text-5xl md:text-6xl shadow-2xl hover:bg-white transition-all transform hover:scale-105 active:scale-95 leading-none">2324*</a>
+                  <p className="text-[#d4af37] font-black tracking-widest uppercase text-[9px] sm:text-[10px]">פגישת ייעוץ אישית ללא התחייבות</p>
                 </div>
               </div>
             </div>
