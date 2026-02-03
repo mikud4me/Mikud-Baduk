@@ -10,6 +10,7 @@ import PremiumInput from '@/components/mikud/PremiumInput';
 import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
 import BankLogosCarousel from '@/components/mikud/BankLogosCarousel';
+import NegotiationPack from '@/components/mikud/NegotiationPack';
 
 
 const TODAY_DATE = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -663,6 +664,16 @@ export default function MortgageCalculator() {
                   {bankerEmail || "הטיוטה תופיע כאן לאחר רכישת הדוח..."}
                 </div>
               </div>
+
+              {isPurchased && (
+                <div className="mt-8 sm:mt-12">
+                  <NegotiationPack 
+                    formData={formData} 
+                    results={results} 
+                    selectedMix={results.mixB}
+                  />
+                </div>
+              )}
 
               <div className="mt-6 sm:mt-10 bg-[#001a33] rounded-xl sm:rounded-[2rem] p-5 sm:p-8 md:p-12 text-white flex flex-col items-center gap-5 sm:gap-8 border-b-4 sm:border-b-8 border-[#d4af37] shadow-2xl text-center">
                 <div className="max-w-xl">
