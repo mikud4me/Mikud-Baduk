@@ -66,10 +66,13 @@ export default function MortgageCalculator() {
     maritalStatus: 'single', childrenUnder18: '0',
     purpose: 'first_home', loanDuration: '25',
     propertyPrice: '', propertyStatus: 'first_home',
-    age: '', employmentStatusA: 'employee', employmentSeniority: '',
+    age: '', employmentStatusA: 'employee', workStartDay: '', workStartMonth: '', workStartYear: '', employmentSeniority: '',
     netIncome: '', partnerNetIncome: '0',
     monthlyDebts: '0', monthlyOverdraft: '0', creditHistory: 'clean', equity: '',
-    additionalIncomeType: 'none', additionalIncomeAmount: '0'
+    additionalIncomeType: 'none', additionalIncomeAmount: '0',
+    partnerFullName: '', partnerIdNumber: '', partnerBirthDay: '', partnerBirthMonth: '', partnerBirthYear: '', partnerAge: '',
+    partnerEmploymentStatus: 'employee', partnerWorkStartDay: '', partnerWorkStartMonth: '', partnerWorkStartYear: '', partnerEmploymentSeniority: '',
+    partnerCreditHistory: 'clean'
   });
 
   useEffect(() => {
@@ -516,11 +519,239 @@ export default function MortgageCalculator() {
 
               {step === 2 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+                  <div className="mb-6 p-4 bg-[#1e3a5f]/5 rounded-xl border-2 border-[#1e3a5f]/20">
+                    <h3 className="text-base font-bold text-[#1e3a5f] mb-1">לווה א' - פרטים אישיים</h3>
+                    <p className="text-xs text-gray-500">הגיל שלך: <span className="font-bold text-[#c9a961]">{formData.age || 'טרם חושב'}</span></p>
+                  </div>
+                  
                   <PremiumInput label="מצב משפחתי" name="maritalStatus" value={formData.maritalStatus} icon={User} onChange={handleInputChange} options={[{val:'single', label:'רווק/ה'}, {val:'married', label:'נשוי/אה'}, {val:'divorced', label:'גרוש/ה'}, {val:'widowed', label:'אלמן/ה'}]} tooltip="מצב המשפחתי משפיע על יכולת ההחזר והתאמת התמהיל" />
                   <PremiumInput label="מספר ילדים מתחת לגיל 18" name="childrenUnder18" value={formData.childrenUnder18} icon={User} onChange={handleInputChange} placeholder="0" tooltip="מספר הילדים מתחת לגיל 18 משפיע על חישוב ההוצאות החודשיות" />
                   <PremiumInput label="סטטוס תעסוקתי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} options={[{val:'employee', label:'שכיר/ה'}, {val:'self_employed', label:'עצמאי/ת'}, {val:'both', label:'גם וגם'}]} tooltip="סוג העסקה שלך משפיע על דרישות הבנק ואישור ההכנסות" />
-                  <PremiumInput label="ותק בעבודה הנוכחית (שנים)" name="employmentSeniority" value={formData.employmentSeniority} icon={Briefcase} onChange={handleInputChange} placeholder="5" error={fieldErrors.employmentSeniority} tooltip="ותק של 2+ שנים משפר משמעותית את הסיכוי לאישור" />
+                  
+                  <div className="mb-5 text-right w-full">
+                    <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+                      <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                        <Briefcase size={16} className="text-gray-500" />
+                      </div>
+                      <span>תאריך התחלת עבודה נוכחית</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <input 
+                        type="number" 
+                        placeholder="יום"
+                        min="1"
+                        max="31"
+                        className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                        value={formData.workStartDay || ''}
+                        onChange={(e) => {
+                          handleInputChange('workStartDay', e.target.value);
+                          if (formData.workStartMonth && formData.workStartYear && e.target.value) {
+                            const startDate = new Date(formData.workStartYear, formData.workStartMonth - 1, e.target.value);
+                            const today = new Date();
+                            const years = (today - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+                            handleInputChange('employmentSeniority', Math.max(0, years.toFixed(1)));
+                          }
+                        }}
+                      />
+                      <input 
+                        type="number" 
+                        placeholder="חודש"
+                        min="1"
+                        max="12"
+                        className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                        value={formData.workStartMonth || ''}
+                        onChange={(e) => {
+                          handleInputChange('workStartMonth', e.target.value);
+                          if (formData.workStartDay && formData.workStartYear && e.target.value) {
+                            const startDate = new Date(formData.workStartYear, e.target.value - 1, formData.workStartDay);
+                            const today = new Date();
+                            const years = (today - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+                            handleInputChange('employmentSeniority', Math.max(0, years.toFixed(1)));
+                          }
+                        }}
+                      />
+                      <input 
+                        type="number" 
+                        placeholder="שנה"
+                        min="1960"
+                        max="2026"
+                        className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                        value={formData.workStartYear || ''}
+                        onChange={(e) => {
+                          handleInputChange('workStartYear', e.target.value);
+                          if (formData.workStartDay && formData.workStartMonth && e.target.value) {
+                            const startDate = new Date(e.target.value, formData.workStartMonth - 1, formData.workStartDay);
+                            const today = new Date();
+                            const years = (today - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+                            handleInputChange('employmentSeniority', Math.max(0, years.toFixed(1)));
+                          }
+                        }}
+                      />
+                    </div>
+                    {formData.employmentSeniority && (
+                      <div className="mt-3 p-3 bg-green-50 border-2 border-green-300 rounded-xl text-center">
+                        <p className="text-green-800 font-bold text-sm">ותק: {formData.employmentSeniority} שנים</p>
+                      </div>
+                    )}
+                  </div>
+                  
                   <PremiumInput label="דירוג אשראי BDI" name="creditHistory" value={formData.creditHistory} icon={ShieldCheck} onChange={handleInputChange} options={[{val:'clean', label:'תקין לחלוטין (ירוק)'}, {val:'issues', label:'מורכב (היו עיכובים)'}]} tooltip="דירוג האשראי שלך משפיע על הסיכוי לאישור ועל תנאי המשכנתא" />
+                  
+                  {formData.maritalStatus === 'married' && (
+                    <div className="mt-8 p-5 bg-gradient-to-br from-[#c9a961]/10 to-[#c9a961]/5 rounded-2xl border-2 border-[#c9a961]/30 animate-in slide-in-from-top-4 duration-500">
+                      <h3 className="text-base font-bold text-[#1e3a5f] mb-4 flex items-center gap-2">
+                        <HeartHandshake size={20} className="text-[#c9a961]" />
+                        לווה ב' - פרטים אישיים (בן/בת זוג)
+                      </h3>
+                      
+                      <PremiumInput label="שם מלא לווה ב'" name="partnerFullName" value={formData.partnerFullName} placeholder="שם מלא" icon={User} onChange={handleInputChange} />
+                      <PremiumInput label="מספר תעודת זהות לווה ב'" name="partnerIdNumber" value={formData.partnerIdNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} />
+                      
+                      <div className="mb-5 text-right w-full">
+                        <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+                          <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                            <Calendar size={16} className="text-gray-500" />
+                          </div>
+                          <span>תאריך לידה לווה ב'</span>
+                        </label>
+                        <div className="grid grid-cols-3 gap-3">
+                          <input 
+                            type="number" 
+                            placeholder="יום"
+                            min="1"
+                            max="31"
+                            className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                            value={formData.partnerBirthDay || ''}
+                            onChange={(e) => {
+                              handleInputChange('partnerBirthDay', e.target.value);
+                              if (formData.partnerBirthMonth && formData.partnerBirthYear && e.target.value) {
+                                const birthDate = new Date(formData.partnerBirthYear, formData.partnerBirthMonth - 1, e.target.value);
+                                const today = new Date();
+                                let age = today.getFullYear() - birthDate.getFullYear();
+                                const monthDiff = today.getMonth() - birthDate.getMonth();
+                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+                                handleInputChange('partnerAge', age.toString());
+                              }
+                            }}
+                          />
+                          <input 
+                            type="number" 
+                            placeholder="חודש"
+                            min="1"
+                            max="12"
+                            className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                            value={formData.partnerBirthMonth || ''}
+                            onChange={(e) => {
+                              handleInputChange('partnerBirthMonth', e.target.value);
+                              if (formData.partnerBirthDay && formData.partnerBirthYear && e.target.value) {
+                                const birthDate = new Date(formData.partnerBirthYear, e.target.value - 1, formData.partnerBirthDay);
+                                const today = new Date();
+                                let age = today.getFullYear() - birthDate.getFullYear();
+                                const monthDiff = today.getMonth() - birthDate.getMonth();
+                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+                                handleInputChange('partnerAge', age.toString());
+                              }
+                            }}
+                          />
+                          <input 
+                            type="number" 
+                            placeholder="שנה"
+                            min="1920"
+                            max="2008"
+                            className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                            value={formData.partnerBirthYear || ''}
+                            onChange={(e) => {
+                              handleInputChange('partnerBirthYear', e.target.value);
+                              if (formData.partnerBirthDay && formData.partnerBirthMonth && e.target.value) {
+                                const birthDate = new Date(e.target.value, formData.partnerBirthMonth - 1, formData.partnerBirthDay);
+                                const today = new Date();
+                                let age = today.getFullYear() - birthDate.getFullYear();
+                                const monthDiff = today.getMonth() - birthDate.getMonth();
+                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+                                handleInputChange('partnerAge', age.toString());
+                              }
+                            }}
+                          />
+                        </div>
+                        {formData.partnerAge && (
+                          <div className="mt-3 p-3 bg-green-50 border-2 border-green-300 rounded-xl text-center">
+                            <p className="text-green-800 font-bold text-sm">גיל: {formData.partnerAge}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <PremiumInput label="סטטוס תעסוקתי לווה ב'" name="partnerEmploymentStatus" value={formData.partnerEmploymentStatus} icon={Briefcase} onChange={handleInputChange} options={[{val:'employee', label:'שכיר/ה'}, {val:'self_employed', label:'עצמאי/ת'}, {val:'both', label:'גם וגם'}]} />
+                      
+                      <div className="mb-5 text-right w-full">
+                        <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+                          <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                            <Briefcase size={16} className="text-gray-500" />
+                          </div>
+                          <span>תאריך התחלת עבודה לווה ב'</span>
+                        </label>
+                        <div className="grid grid-cols-3 gap-3">
+                          <input 
+                            type="number" 
+                            placeholder="יום"
+                            min="1"
+                            max="31"
+                            className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                            value={formData.partnerWorkStartDay || ''}
+                            onChange={(e) => {
+                              handleInputChange('partnerWorkStartDay', e.target.value);
+                              if (formData.partnerWorkStartMonth && formData.partnerWorkStartYear && e.target.value) {
+                                const startDate = new Date(formData.partnerWorkStartYear, formData.partnerWorkStartMonth - 1, e.target.value);
+                                const today = new Date();
+                                const years = (today - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+                                handleInputChange('partnerEmploymentSeniority', Math.max(0, years.toFixed(1)));
+                              }
+                            }}
+                          />
+                          <input 
+                            type="number" 
+                            placeholder="חודש"
+                            min="1"
+                            max="12"
+                            className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                            value={formData.partnerWorkStartMonth || ''}
+                            onChange={(e) => {
+                              handleInputChange('partnerWorkStartMonth', e.target.value);
+                              if (formData.partnerWorkStartDay && formData.partnerWorkStartYear && e.target.value) {
+                                const startDate = new Date(formData.partnerWorkStartYear, e.target.value - 1, formData.partnerWorkStartDay);
+                                const today = new Date();
+                                const years = (today - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+                                handleInputChange('partnerEmploymentSeniority', Math.max(0, years.toFixed(1)));
+                              }
+                            }}
+                          />
+                          <input 
+                            type="number" 
+                            placeholder="שנה"
+                            min="1960"
+                            max="2026"
+                            className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                            value={formData.partnerWorkStartYear || ''}
+                            onChange={(e) => {
+                              handleInputChange('partnerWorkStartYear', e.target.value);
+                              if (formData.partnerWorkStartDay && formData.partnerWorkStartMonth && e.target.value) {
+                                const startDate = new Date(e.target.value, formData.partnerWorkStartMonth - 1, formData.partnerWorkStartDay);
+                                const today = new Date();
+                                const years = (today - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+                                handleInputChange('partnerEmploymentSeniority', Math.max(0, years.toFixed(1)));
+                              }
+                            }}
+                          />
+                        </div>
+                        {formData.partnerEmploymentSeniority && (
+                          <div className="mt-3 p-3 bg-green-50 border-2 border-green-300 rounded-xl text-center">
+                            <p className="text-green-800 font-bold text-sm">ותק: {formData.partnerEmploymentSeniority} שנים</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <PremiumInput label="דירוג אשראי BDI לווה ב'" name="partnerCreditHistory" value={formData.partnerCreditHistory} icon={ShieldCheck} onChange={handleInputChange} options={[{val:'clean', label:'תקין לחלוטין (ירוק)'}, {val:'issues', label:'מורכב (היו עיכובים)'}]} />
+                    </div>
+                  )}
                 </div>
               )}
 
