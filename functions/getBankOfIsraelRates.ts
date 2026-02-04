@@ -51,12 +51,73 @@ async function getCachedSnapshot(ttlSeconds) {
   return snap;
 }
 
-// Fallback rates (אם ה-API נכשל) - מבוסס על נתוני קנטה ינואר 2026
+// טבלת ריביות מפורטת - עדכון פברואר 2026
+const MORTGAGE_RATES_CONFIG = {
+  last_updated: "2026-02-04",
+  market_anchors: {
+    prime_rate: 0.0550
+  },
+  rates_table: [
+    {
+      path_name: "Prime",
+      ltv_under_45: 0.0490,
+      ltv_over_60: 0.0525,
+      max_years: 30,
+      is_linked: false
+    },
+    {
+      path_name: "Fixed_Unlinked_Short",
+      description: "קלצ עד 15 שנה",
+      ltv_under_45: 0.0465,
+      ltv_over_60: 0.0495,
+      max_years: 15,
+      is_linked: false
+    },
+    {
+      path_name: "Fixed_Unlinked_Long",
+      description: "קלצ 20-25 שנה",
+      ltv_under_45: 0.0505,
+      ltv_over_60: 0.0535,
+      max_years: 25,
+      is_linked: false
+    },
+    {
+      path_name: "Variable_Unlinked",
+      description: "מלצ כל 5 שנים",
+      ltv_under_45: 0.0458,
+      ltv_over_60: 0.0485,
+      max_years: 30,
+      is_linked: false
+    },
+    {
+      path_name: "Variable_Linked",
+      description: "מצ כל 5 שנים",
+      ltv_under_45: 0.0310,
+      ltv_over_60: 0.0340,
+      max_years: 30,
+      is_linked: true
+    }
+  ],
+  affidavit_settings: {
+    risk_premium_fixed: 0.0040,
+    description: "תוספת ריבית להגשה על פי תצהיר בגלל רמת סיכון גבוהה"
+  }
+};
+
+// פונקציה לבחירת ריבית לפי LTV
+function selectRateByLTV(rateConfig, ltv) {
+  if (ltv > 60) {
+    return Math.ceil(rateConfig.ltv_over_60 * 2000) / 2000; // עיגול כלפי מעלה לדיוק 0.05%
+  }
+  return Math.ceil(rateConfig.ltv_under_45 * 2000) / 2000;
+}
+
+// Fallback rates (לתאימות לאחור)
 const FALLBACK_RATES = {
-  FIXED_UNLINKED: 0.0498,    // קבועה לא צמודה 20-25 שנים
-  VAR_UNLINKED: 0.0496,      // משתנה לא צמודה 5-10 שנים
-  FIXED_LINKED: 0.0353,      // קבועה צמודה 20-25 שנים
-  VAR_LINKED: 0.0361         // משתנה צמודה 0-5 שנים
+  FIXED_UNLINKED: 0.0505,
+  VAR_UNLINKED: 0.0458,
+  FIXED_LINKED: 0.0310,
+  VAR_LINKED: 0.0340
 };
 
 Deno.serve(async (req) => {
@@ -81,6 +142,7 @@ Deno.serve(async (req) => {
         FIXED_LINKED: FALLBACK_RATES.FIXED_LINKED,
         VAR_LINKED: FALLBACK_RATES.VAR_LINKED
       },
+      rates_config: MORTGAGE_RATES_CONFIG,
       bank_of_israel_rate: snapshot.boiRate,
       last_updated: snapshot.fetchedAt,
       prime: snapshot.prime
@@ -104,6 +166,7 @@ Deno.serve(async (req) => {
         FIXED_LINKED: FALLBACK_RATES.FIXED_LINKED,
         VAR_LINKED: FALLBACK_RATES.VAR_LINKED
       },
+      rates_config: MORTGAGE_RATES_CONFIG,
       bank_of_israel_rate: fallbackBankRate,
       last_updated: new Date().toISOString(),
       prime: fallbackPrime

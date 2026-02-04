@@ -87,6 +87,17 @@ export default function MortgageCalculator() {
     loadRates();
   }, []);
 
+  // פונקציה לבחירת ריבית מדויקת לפי LTV
+  const getRateByLTV = (baseRate, ltv, isAffidavit = false) => {
+    let rate = baseRate;
+    // תוספת ריבית לתצהיר (0.4%)
+    if (isAffidavit) {
+      rate += 0.004;
+    }
+    // עיגול כלפי מעלה לדיוק 0.05%
+    return Math.ceil(rate * 2000) / 2000;
+  };
+
   const maxTerm = useMemo(() => {
     const ageNum = Number(formData.age) || 35;
     return Math.min(30, Math.max(1, 80 - ageNum));
