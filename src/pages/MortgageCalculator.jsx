@@ -62,7 +62,7 @@ export default function MortgageCalculator() {
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
   const [formData, setFormData] = useState({
-    fullName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false,
+    fullName: '', phone: '', email: '', idNumber: '', birthDay: '', birthMonth: '', birthYear: '', consent: false,
     maritalStatus: 'single', childrenUnder18: '0',
     purpose: 'first_home', loanDuration: '25',
     propertyPrice: '', propertyStatus: 'first_home',
@@ -119,20 +119,28 @@ export default function MortgageCalculator() {
     if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
     
     // חישוב גיל מתאריך לידה
-    if (!formData.birthDate) {
-      errors.birthDate = "נא להזין תאריך לידה";
+    if (!formData.birthDay || !formData.birthMonth || !formData.birthYear) {
+      errors.birthDate = "נא להזין תאריך לידה מלא";
     } else {
-      const birthDate = new Date(formData.birthDate);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      if (age < 18 || age > 100) {
-        errors.birthDate = "גיל לא תקין";
+      const day = parseInt(formData.birthDay);
+      const month = parseInt(formData.birthMonth);
+      const year = parseInt(formData.birthYear);
+      
+      if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1920 || year > 2008) {
+        errors.birthDate = "תאריך לא תקין";
       } else {
-        setFormData(prev => ({ ...prev, age: age.toString() }));
+        const birthDate = new Date(year, month - 1, day);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        if (age < 18 || age > 100) {
+          errors.birthDate = "גיל לא תקין";
+        } else {
+          setFormData(prev => ({ ...prev, age: age.toString() }));
+        }
       }
     }
     
@@ -445,7 +453,49 @@ export default function MortgageCalculator() {
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="שם מלא לתיק הלקוח" name="fullName" value={formData.fullName} placeholder="ישראל ישראלי" icon={User} onChange={handleInputChange} error={fieldErrors.fullName} tooltip="הזן את שמך המלא כפי שמופיע בתעודת הזהות" />
                   <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} tooltip="9 ספרות של תעודת הזהות שלך לאימות זהות" />
-                  <PremiumInput label="תאריך לידה מלא" name="birthDate" type="date" value={formData.birthDate} icon={Calendar} onChange={handleInputChange} error={fieldErrors.birthDate} tooltip="תאריך הלידה שלך משפיע על תקופת ההלוואה המקסימלית (עד גיל 80)" />
+                  <div className="mb-5 text-right w-full">
+                    <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+                      <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                        <Calendar size={16} className="text-gray-500" />
+                      </div>
+                      <span>תאריך לידה מלא</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <input 
+                        type="number" 
+                        placeholder="יום"
+                        min="1"
+                        max="31"
+                        className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                        value={formData.birthDay || ''}
+                        onChange={(e) => handleInputChange('birthDay', e.target.value)}
+                      />
+                      <input 
+                        type="number" 
+                        placeholder="חודש"
+                        min="1"
+                        max="12"
+                        className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                        value={formData.birthMonth || ''}
+                        onChange={(e) => handleInputChange('birthMonth', e.target.value)}
+                      />
+                      <input 
+                        type="number" 
+                        placeholder="שנה"
+                        min="1920"
+                        max="2008"
+                        className="bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-center"
+                        value={formData.birthYear || ''}
+                        onChange={(e) => handleInputChange('birthYear', e.target.value)}
+                      />
+                    </div>
+                    {fieldErrors.birthDate && (
+                      <div className="mt-3 flex items-center gap-3 bg-red-50 border-3 border-red-500 px-5 py-3 rounded-2xl">
+                        <AlertCircle size={20} className="text-red-600" />
+                        <p className="text-red-700 text-sm font-bold">{fieldErrors.birthDate}</p>
+                      </div>
+                    )}
+                  </div>
                   <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} tooltip="מספר נייד לקבלת קוד אימות ויצירת קשר מהיועץ" />
                   <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} tooltip="דוא״ל לקבלת הדוח המפורט והתכתבות עם היועץ" />
                   <div className="mt-4 flex items-start gap-3 p-5 rounded-xl border-2 bg-slate-50 shadow-inner">
