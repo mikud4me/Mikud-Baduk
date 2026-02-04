@@ -62,12 +62,13 @@ export default function MortgageCalculator() {
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
   const [formData, setFormData] = useState({
-    fullName: '', phone: '', email: '', idNumber: '', birthYear: '', consent: false,
+    fullName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false,
+    maritalStatus: 'single', childrenUnder18: '0',
     purpose: 'first_home', loanDuration: '25',
     propertyPrice: '', propertyStatus: 'first_home',
-    age: '', employmentStatusA: 'employee', employmentStatusB: 'none',
+    age: '', employmentStatusA: 'employee', employmentSeniority: '',
     netIncome: '', partnerNetIncome: '0',
-    monthlyDebts: '0', creditHistory: 'clean', equity: '',
+    monthlyDebts: '0', monthlyOverdraft: '0', creditHistory: 'clean', equity: '',
     additionalIncomeType: 'none', additionalIncomeAmount: '0'
   });
 
@@ -106,9 +107,23 @@ export default function MortgageCalculator() {
     
     if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
     
-    const year = Number(formData.birthYear);
-    const currentYear = new Date().getFullYear();
-    if (!formData.birthYear || year < 1920 || year > currentYear - 18) errors.birthYear = "שנת לידה לא תקינה";
+    // חישוב גיל מתאריך לידה
+    if (!formData.birthDate) {
+      errors.birthDate = "נא להזין תאריך לידה";
+    } else {
+      const birthDate = new Date(formData.birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 18 || age > 100) {
+        errors.birthDate = "גיל לא תקין";
+      } else {
+        setFormData(prev => ({ ...prev, age: age.toString() }));
+      }
+    }
     
     if (!formData.consent) errors.consent = "חובה לאשר יצירת קשר";
 
@@ -419,7 +434,7 @@ export default function MortgageCalculator() {
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="שם מלא לתיק הלקוח" name="fullName" value={formData.fullName} placeholder="ישראל ישראלי" icon={User} onChange={handleInputChange} error={fieldErrors.fullName} tooltip="הזן את שמך המלא כפי שמופיע בתעודת הזהות" />
                   <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} tooltip="9 ספרות של תעודת הזהות שלך לאימות זהות" />
-                  <PremiumInput label="שנת לידה" name="birthYear" value={formData.birthYear} placeholder="1985" icon={Calendar} onChange={handleInputChange} error={fieldErrors.birthYear} tooltip="שנת הלידה שלך משפיעה על תקופת ההלוואה המקסימלית (עד גיל 80)" />
+                  <PremiumInput label="תאריך לידה מלא" name="birthDate" type="date" value={formData.birthDate} icon={Calendar} onChange={handleInputChange} error={fieldErrors.birthDate} tooltip="תאריך הלידה שלך משפיע על תקופת ההלוואה המקסימלית (עד גיל 80)" />
                   <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} tooltip="מספר נייד לקבלת קוד אימות ויצירת קשר מהיועץ" />
                   <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} tooltip="דוא״ל לקבלת הדוח המפורט והתכתבות עם היועץ" />
                   <div className="mt-4 flex items-start gap-3 p-5 rounded-xl border-2 bg-slate-50 shadow-inner">
@@ -440,8 +455,10 @@ export default function MortgageCalculator() {
 
               {step === 2 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="גיל לווה מבוגר ביותר" name="age" value={formData.age} icon={Calendar} onChange={handleInputChange} placeholder="40" error={fieldErrors.age} tooltip="הגיל של הלווה המבוגר ביותר קובע את תקופת המשכנתא המקסימלית (עד גיל 80)" />
+                  <PremiumInput label="מצב משפחתי" name="maritalStatus" value={formData.maritalStatus} icon={User} onChange={handleInputChange} options={[{val:'single', label:'רווק/ה'}, {val:'married', label:'נשוי/אה'}, {val:'divorced', label:'גרוש/ה'}, {val:'widowed', label:'אלמן/ה'}]} tooltip="מצב המשפחתי משפיע על יכולת ההחזר והתאמת התמהיל" />
+                  <PremiumInput label="מספר ילדים מתחת לגיל 18" name="childrenUnder18" value={formData.childrenUnder18} icon={User} onChange={handleInputChange} placeholder="0" tooltip="מספר הילדים מתחת לגיל 18 משפיע על חישוב ההוצאות החודשיות" />
                   <PremiumInput label="סטטוס תעסוקתי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} options={[{val:'employee', label:'שכיר/ה'}, {val:'self_employed', label:'עצמאי/ת'}, {val:'both', label:'גם וגם'}]} tooltip="סוג העסקה שלך משפיע על דרישות הבנק ואישור ההכנסות" />
+                  <PremiumInput label="ותק בעבודה הנוכחית (שנים)" name="employmentSeniority" value={formData.employmentSeniority} icon={Briefcase} onChange={handleInputChange} placeholder="5" error={fieldErrors.employmentSeniority} tooltip="ותק של 2+ שנים משפר משמעותית את הסיכוי לאישור" />
                   <PremiumInput label="דירוג אשראי BDI" name="creditHistory" value={formData.creditHistory} icon={ShieldCheck} onChange={handleInputChange} options={[{val:'clean', label:'תקין לחלוטין (ירוק)'}, {val:'issues', label:'מורכב (היו עיכובים)'}]} tooltip="דירוג האשראי שלך משפיע על הסיכוי לאישור ועל תנאי המשכנתא" />
                 </div>
               )}
@@ -469,6 +486,7 @@ export default function MortgageCalculator() {
                   <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו (לאחר ניכויים) - ממוצע 3 חודשים אחרונים" />
                   <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו - משפרת את יכולת ההחזר והסיכוי לאישור" />
                   <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג) - משפיע על יחס החוב להכנסה" />
+                  <PremiumInput label="סחירות חודשיות (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום הסחירות החודשית הממוצעת - משפיעה על הערכת היציבות הפיננסית" />
                 </div>
               )}
 
@@ -477,19 +495,36 @@ export default function MortgageCalculator() {
                   <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} tooltip="הסכום שיש לכם במזומן/חסכונות למטרת רכישת הנכס - משפיע על אחוז המימון" />
                   <div className="space-y-4">
                     <PremiumInput label="סוג הכנסה נוספת" name="additionalIncomeType" value={formData.additionalIncomeType} icon={HeartHandshake} onChange={handleInputChange} 
-                      options={[{val:'none', label:'אין לי הכנסות נוספות'}, {val:'rent', label:'הכנסה משכירות'}, {val:'child', label:'קצבאות ילדים'}, {val:'other', label:'אחר'}]} tooltip="הכנסות נוספות יכולות לשפר את יכולת ההחזר (בכפוף לאישור הבנק)" />
+                      options={[
+                        {val:'none', label:'אין לי הכנסות נוספות'}, 
+                        {val:'rent', label:'הכנסה משכירות'}, 
+                        {val:'maternity', label:'דמי לידה/מילואים'}, 
+                        {val:'child_allowance', label:'קצבאות ילדים'}, 
+                        {val:'pension', label:'פנסיה'}, 
+                        {val:'second_job', label:'עבודה נוספת'}, 
+                        {val:'other', label:'אחר'}
+                      ]} tooltip="הכנסות נוספות יכולות לשפר את יכולת ההחזר (בכפוף לאישור הבנק)" />
 
                     {formData.additionalIncomeType !== 'none' && (
                       <div className="animate-in slide-in-from-top-2 duration-300">
                         <PremiumInput label="סכום חודשי נוסף" name="additionalIncomeAmount" value={formData.additionalIncomeAmount} icon={Coins} onChange={handleInputChange} tooltip="סכום ההכנסה החודשית הנוספת - ייבדק על ידי הבנק" />
-                        <div className="p-4 bg-red-50 border-r-8 border-red-600 rounded-xl flex items-start gap-4 shadow-sm text-right">
-                          <ShieldAlert size={24} className="text-red-600 shrink-0" />
-                          <div className="text-right">
-                            <p className="text-red-900 font-black text-sm">אזהרה רגולטורית</p>
-                            <p className="text-red-700 text-xs font-bold leading-relaxed">
-                              שימו לב: הבנק יכיר בשכירות אך ורק אם מדובר בהכנסה עסקית מתועדת ומדווחת כחוק.
-                            </p>
-                          </div>
+                        <div className="p-4 bg-blue-50 border-r-4 border-blue-600 rounded-xl text-right">
+                          <p className="text-blue-900 font-bold text-sm mb-1">💡 מקור ההכנסה: {
+                            formData.additionalIncomeType === 'rent' ? 'שכירות (דורש דיווח רשמי)' :
+                            formData.additionalIncomeType === 'maternity' ? 'דמי לידה/מילואים' :
+                            formData.additionalIncomeType === 'child_allowance' ? 'קצבאות ילדים' :
+                            formData.additionalIncomeType === 'pension' ? 'פנסיה' :
+                            formData.additionalIncomeType === 'second_job' ? 'עבודה נוספת' :
+                            'הכנסה נוספת'
+                          }</p>
+                          <p className="text-blue-700 text-xs leading-relaxed">
+                            {formData.additionalIncomeType === 'rent' && 'הבנק יכיר רק בהכנסה מתועדת ומדווחת רשמית למס הכנסה'}
+                            {formData.additionalIncomeType === 'maternity' && 'דמי לידה/מילואים נחשבים כהכנסה זמנית - הבנק עשוי לקחת בחשבון חלקית'}
+                            {formData.additionalIncomeType === 'child_allowance' && 'קצבאות ילדים מוכרות בדרך כלל על ידי רוב הבנקים'}
+                            {formData.additionalIncomeType === 'pension' && 'פנסיה מוכרת כהכנסה קבועה ויציבה'}
+                            {formData.additionalIncomeType === 'second_job' && 'יש לצרף תלושי שכר/אישור הכנסה'}
+                            {formData.additionalIncomeType === 'other' && 'יש לפרט את מקור ההכנסה ליועץ'}
+                          </p>
                         </div>
                       </div>
                     )}

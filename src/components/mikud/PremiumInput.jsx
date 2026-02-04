@@ -27,8 +27,8 @@ export default function PremiumInput({
   tooltip 
 }) {
   const [isFocused, setIsFocused] = useState(false);
-  const isNumeric = ['propertyPrice', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'birthYear'].includes(name);
-  const displayValue = isNumeric && value !== "" && !['age', 'loanDuration', 'idNumber', 'birthYear'].includes(name)
+  const isNumeric = ['propertyPrice', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name);
+  const displayValue = isNumeric && value !== "" && !['age', 'loanDuration', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name)
     ? formatCurrency(value) 
     : value;
 
@@ -99,14 +99,14 @@ export default function PremiumInput({
             placeholder={placeholder} 
             className={`w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-right hover:border-[#c9a961] hover:shadow-xl shadow-lg active:scale-[0.99] ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200 animate-shake' : 'border-[#1e3a5f]'} ${isFocused ? 'scale-[1.01]' : ''}`} 
             value={displayValue} 
-            onChange={(['age', 'loanDuration', 'idNumber', 'birthYear'].includes(name)) 
+            onChange={(['age', 'loanDuration', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name)) 
               ? (e) => onChange(name, e.target.value) 
               : (e) => onChange(name, isNumeric ? parseInputToNumber(e.target.value) : e.target.value)
             }
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)} 
           />
-          {isNumeric && !['loanDuration', 'age', 'idNumber', 'birthYear'].includes(name) && (
+          {isNumeric && !['loanDuration', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name) && (
             <div className="absolute left-5 top-1/2 -translate-y-1/2">
               <span className="text-[#c9a961] font-bold text-2xl">₪</span>
             </div>
