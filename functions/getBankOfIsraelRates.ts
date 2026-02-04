@@ -51,7 +51,7 @@ async function getCachedSnapshot(ttlSeconds) {
   return snap;
 }
 
-// טבלת ריביות מפורטת - עדכון פברואר 2026
+// טבלת ריביות מפורטת - עדכון פברואר 2026 (הגשה על פי תצהיר)
 const MORTGAGE_RATES_CONFIG = {
   last_updated: "2026-02-04",
   market_anchors: {
@@ -60,40 +60,40 @@ const MORTGAGE_RATES_CONFIG = {
   rates_table: [
     {
       path_name: "Prime",
-      ltv_under_45: 0.0490,
-      ltv_over_60: 0.0525,
+      ltv_under_45: 0.0450,
+      ltv_over_60: 0.0480,
       max_years: 30,
       is_linked: false
     },
     {
       path_name: "Fixed_Unlinked_Short",
       description: "קלצ עד 15 שנה",
-      ltv_under_45: 0.0465,
-      ltv_over_60: 0.0495,
+      ltv_under_45: 0.0420,
+      ltv_over_60: 0.0450,
       max_years: 15,
       is_linked: false
     },
     {
       path_name: "Fixed_Unlinked_Long",
       description: "קלצ 20-25 שנה",
-      ltv_under_45: 0.0505,
-      ltv_over_60: 0.0535,
+      ltv_under_45: 0.0460,
+      ltv_over_60: 0.0490,
       max_years: 25,
       is_linked: false
     },
     {
       path_name: "Variable_Unlinked",
       description: "מלצ כל 5 שנים",
-      ltv_under_45: 0.0458,
-      ltv_over_60: 0.0485,
+      ltv_under_45: 0.0410,
+      ltv_over_60: 0.0440,
       max_years: 30,
       is_linked: false
     },
     {
       path_name: "Variable_Linked",
       description: "מצ כל 5 שנים",
-      ltv_under_45: 0.0310,
-      ltv_over_60: 0.0340,
+      ltv_under_45: 0.0270,
+      ltv_over_60: 0.0300,
       max_years: 30,
       is_linked: true
     }
@@ -114,10 +114,10 @@ function selectRateByLTV(rateConfig, ltv) {
 
 // Fallback rates (לתאימות לאחור)
 const FALLBACK_RATES = {
-  FIXED_UNLINKED: 0.0505,
-  VAR_UNLINKED: 0.0458,
-  FIXED_LINKED: 0.0310,
-  VAR_LINKED: 0.0340
+  FIXED_UNLINKED: 0.0460,
+  VAR_UNLINKED: 0.0410,
+  FIXED_LINKED: 0.0270,
+  VAR_LINKED: 0.0300
 };
 
 Deno.serve(async (req) => {
