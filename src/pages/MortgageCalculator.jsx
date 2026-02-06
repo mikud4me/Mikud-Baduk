@@ -215,13 +215,70 @@ export default function MortgageCalculator() {
       desc: "משתנה צמודה" 
     };
     const pmtB = mixB_T1.pmt + mixB_T2.pmt + mixB_T3.pmt;
+    
+    // מנוע הדירוג - Underwriting Engine
+    const dti = (pmtB / freeIncome) * 100;
+    const ltvPercent = ltv * 100;
+    
+    // קביעת סטטוס כשירות לפי תקני בנק ישראל
+    let status = { 
+      color: 'green', 
+      text: 'כשיר להגשה לבנק', 
+      subtitle: 'התיק עומד בתקני בנק ישראל',
+      action: null,
+      icon: 'check'
+    };
+    
+    // בדיקת חריגות קריטיות
+    if (dti > 45) {
+      const excessPayment = pmtB - (freeIncome * 0.40);
+      status = { 
+        color: 'red', 
+        text: 'דורש התאמת נתונים', 
+        subtitle: `יחס החזר ${dti.toFixed(1)}% חורג מהמותר`,
+        action: `יש להקטין את ההחזר החודשי ב-₪${formatCurrency(Math.floor(excessPayment))} או להגדיל הכנסות.`,
+        icon: 'alert'
+      };
+    } else if (ltvPercent > 75) {
+      const excessLoan = loanAmount - (price * 0.75);
+      status = { 
+        color: 'red', 
+        text: 'דורש התאמת נתונים', 
+        subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר`,
+        action: `נדרש הון עצמי נוסף של ₪${formatCurrency(Math.floor(excessLoan))} להורדת אחוז המימון ל-75%.`,
+        icon: 'alert'
+      };
+    } else if (dti > 40) {
+      status = { 
+        color: 'yellow', 
+        text: 'דורש אישור מיוחד', 
+        subtitle: `יחס החזר ${dti.toFixed(1)}% גבולי`,
+        action: 'מומלץ להאריך תקופת הלוואה, לצמצם הלוואות קיימות, או להגדיל הכנסות.',
+        icon: 'warning'
+      };
+    } else if (dti > 35) {
+      status = { 
+        color: 'yellow', 
+        text: 'כשיר עם המלצה לשיפור', 
+        subtitle: `יחס החזר ${dti.toFixed(1)}% טוב`,
+        action: 'תיק תקין. ניתן לשפר ע"י הארכת תקופה או תמהיל אסטרטגי לחיסכון בריבית.',
+        icon: 'info'
+      };
+    }
+    
+    // ציון איכות משוקלל
+    const qualityScore = Math.min(100, Math.max(0, 
+      100 - (dti > 35 ? (dti - 35) * 4 : 0) - (ltvPercent > 70 ? (ltvPercent - 70) * 2 : 0)
+    ));
 
     return {
       loanAmount, 
-      ltv: ltv * 100, 
+      ltv: ltvPercent, 
       totalIncome: totalInc, 
-      dti: (pmtB / freeIncome) * 100, 
+      dti, 
       actualDuration: duration,
+      status,
+      score: qualityScore,
       mixA: { 
         tracks: [{ 
           name: "100% קבועה לא צמודה", 
@@ -254,8 +311,7 @@ export default function MortgageCalculator() {
           }
         ], 
         total: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration) + calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration) 
-      },
-      score: Math.min(100, Math.max(0, (ltv <= 0.75 ? 50 : 5) + ((pmtB / freeIncome) <= 0.40 ? 50 : 10)))
+      }
     };
   }, [formData, maxTerm, rates]);
 
@@ -892,6 +948,69 @@ export default function MortgageCalculator() {
                 </div>
               </div>
 
+              {/* תעודת כשירות מיקוד */}
+              <div className={`p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border-4 mb-8 sm:mb-12 text-center relative overflow-hidden ${
+                results.status.color === 'green' ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50' : 
+                results.status.color === 'yellow' ? 'border-yellow-500 bg-gradient-to-br from-yellow-50 to-amber-50' : 
+                'border-red-500 bg-gradient-to-br from-red-50 to-rose-50'
+              }`}>
+                <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
+                
+                <div className="flex justify-center mb-4 sm:mb-6">
+                  {results.status.icon === 'check' && <BadgeCheck size={56} className="sm:w-16 sm:h-16 md:w-20 md:h-20 text-green-600" />}
+                  {results.status.icon === 'warning' && <ShieldAlert size={56} className="sm:w-16 sm:h-16 md:w-20 md:h-20 text-yellow-600" />}
+                  {results.status.icon === 'alert' && <ShieldAlert size={56} className="sm:w-16 sm:h-16 md:w-20 md:h-20 text-red-600" />}
+                  {results.status.icon === 'info' && <BadgeCheck size={56} className="sm:w-16 sm:h-16 md:w-20 md:h-20 text-yellow-600" />}
+                </div>
+                
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e3a5f] mb-2">{results.status.text}</h2>
+                <p className="text-sm sm:text-base md:text-lg font-bold text-gray-600 mb-6">{results.status.subtitle}</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
+                    <p className="text-xs text-gray-500 font-semibold mb-1">יחס החזר (DTI)</p>
+                    <p className={`text-2xl font-black ${results.dti > 40 ? 'text-red-600' : results.dti > 35 ? 'text-yellow-600' : 'text-green-600'}`}>
+                      {results.dti.toFixed(1)}%
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-1">תקן: עד 40%</p>
+                  </div>
+                  
+                  <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
+                    <p className="text-xs text-gray-500 font-semibold mb-1">אחוז מימון (LTV)</p>
+                    <p className={`text-2xl font-black ${results.ltv > 75 ? 'text-red-600' : results.ltv > 70 ? 'text-yellow-600' : 'text-green-600'}`}>
+                      {results.ltv.toFixed(1)}%
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-1">תקן: עד 75%</p>
+                  </div>
+                  
+                  <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
+                    <p className="text-xs text-gray-500 font-semibold mb-1">ציון איכות</p>
+                    <p className="text-2xl font-black text-[#1e3a5f]">{results.score}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">מתוך 100</p>
+                  </div>
+                </div>
+                
+                {results.status.action && (
+                  <div className={`p-4 sm:p-6 rounded-xl border-2 shadow-sm ${
+                    results.status.color === 'red' ? 'bg-red-100 border-red-300' : 'bg-yellow-100 border-yellow-300'
+                  }`}>
+                    <p className={`font-bold text-sm sm:text-base leading-relaxed ${
+                      results.status.color === 'red' ? 'text-red-800' : 'text-yellow-800'
+                    }`}>
+                      💡 <strong>המלצת מיקוד:</strong> {results.status.action}
+                    </p>
+                  </div>
+                )}
+                
+                <div className="mt-6 pt-6 border-t-2 border-gray-200">
+                  <p className="text-xs sm:text-sm text-gray-500 font-bold italic flex items-center justify-center gap-2">
+                    <Sparkles size={14} className="text-[#c9a961]" />
+                    מיקוד משכנתאות - המטרה שלנו, החיסכון שלכם
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-2">* הדירוג מבוסס על תקני בנק ישראל ונתוני ההצהרה שמילאת</p>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10 text-right">
                 <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-[#1e3a5f] text-white">
                   <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#c9a961]">סכום משכנתא מבוקש</span>
@@ -899,13 +1018,9 @@ export default function MortgageCalculator() {
                   <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-300">{results.ltv.toFixed(1)}% מימון מהנכס</div>
                 </div>
                 <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
-                  <div>
-                    <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">ציון היתכנות</span>
-                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none text-[#1e3a5f]">{results.score}%</div>
-                  </div>
-                  <div className="mt-4 sm:mt-6 h-2 bg-white/50 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#c9a961] transition-all duration-2000" style={{width: `${results.score}%`}} />
-                  </div>
+                  <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">החזר חודשי משוער</span>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none text-[#1e3a5f]">₪{formatCurrency(Math.floor(results.mixB.total))}</div>
+                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">תמהיל מאוזן מומלץ</div>
                 </div>
               </div>
 
