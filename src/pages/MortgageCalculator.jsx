@@ -924,36 +924,58 @@ export default function MortgageCalculator() {
 
               {step === 5 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} tooltip="הסכום שיש לכם במזומן/חסכונות למטרת רכישת הנכס - משפיע על אחוז המימון" />
+                  {!isReverseMortgage && (
+                    <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} tooltip="הסכום שיש לכם במזומן/חסכונות למטרת רכישת הנכס" />
+                  )}
+                  {isReverseMortgage && (
+                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl">
+                      <p className="text-amber-800 font-bold text-sm">📋 מסמכים נדרשים - משכנתא לגיל הזהב</p>
+                      <ul className="mt-2 text-amber-700 text-xs space-y-1 list-disc list-inside">
+                        <li>תעודת זהות + ספח (לווידוא גיל)</li>
+                        <li>אישור הסכמת יורשים (חתום)</li>
+                        <li>נסח טאבו מעודכן</li>
+                        <li>דפי בנק 3 חודשים אחרונים</li>
+                      </ul>
+                    </div>
+                  )}
+                  {formData.employmentStatusA === 'pensioner' && !isReverseMortgage && (
+                    <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-300 rounded-2xl">
+                      <p className="text-blue-800 font-bold text-sm">📋 מסמכים נדרשים - פנסיונר/ית</p>
+                      <ul className="mt-2 text-blue-700 text-xs space-y-1 list-disc list-inside">
+                        <li>אישור גמלה/פנסיה (מקרן/ביטוח לאומי)</li>
+                        <li>דפי בנק 3 חודשים אחרונים</li>
+                      </ul>
+                    </div>
+                  )}
                   <div className="space-y-4">
-                    <PremiumInput label="סוג הכנסה נוספת" name="additionalIncomeType" value={formData.additionalIncomeType} icon={HeartHandshake} onChange={handleInputChange} 
+                    <PremiumInput label="הכנסות נוספות (מחוץ לתלוש/קצבה)" name="additionalIncomeType" value={formData.additionalIncomeType} icon={HeartHandshake} onChange={handleInputChange} 
                       options={[
-                        {val:'none', label:'אין לי הכנסות נוספות'}, 
-                        {val:'rent', label:'הכנסה משכירות'}, 
-                        {val:'maternity', label:'דמי לידה/מילואים'}, 
+                        {val:'none', label:'אין הכנסות נוספות'}, 
+                        {val:'rent', label:'שכירות נכנסת'}, 
+                        {val:'national_insurance', label:'קצבת ביטוח לאומי'}, 
+                        {val:'disability', label:'קצבת נכות'}, 
                         {val:'child_allowance', label:'קצבאות ילדים'}, 
-                        {val:'pension', label:'פנסיה'}, 
                         {val:'second_job', label:'עבודה נוספת'}, 
                         {val:'other', label:'אחר'}
-                      ]} tooltip="הכנסות נוספות יכולות לשפר את יכולת ההחזר (בכפוף לאישור הבנק)" />
+                      ]} tooltip="הכנסות נוספות יכולות לחזק את התיק (בכפוף לאישור הבנק)" />
 
                     {formData.additionalIncomeType !== 'none' && (
                       <div className="animate-in slide-in-from-top-2 duration-300">
-                        <PremiumInput label="סכום חודשי נוסף" name="additionalIncomeAmount" value={formData.additionalIncomeAmount} icon={Coins} onChange={handleInputChange} tooltip="סכום ההכנסה החודשית הנוספת - ייבדק על ידי הבנק" />
+                        <PremiumInput label="סכום חודשי נוסף" name="additionalIncomeAmount" value={formData.additionalIncomeAmount} icon={Coins} onChange={handleInputChange} tooltip="סכום ההכנסה החודשית הנוספת" />
                         <div className="p-4 bg-blue-50 border-r-4 border-blue-600 rounded-xl text-right">
                           <p className="text-blue-900 font-bold text-sm mb-1">💡 מקור ההכנסה: {
-                            formData.additionalIncomeType === 'rent' ? 'שכירות (דורש דיווח רשמי)' :
-                            formData.additionalIncomeType === 'maternity' ? 'דמי לידה/מילואים' :
+                            formData.additionalIncomeType === 'rent' ? 'שכירות נכנסת (דורש דיווח רשמי)' :
+                            formData.additionalIncomeType === 'national_insurance' ? 'קצבת ביטוח לאומי' :
+                            formData.additionalIncomeType === 'disability' ? 'קצבת נכות' :
                             formData.additionalIncomeType === 'child_allowance' ? 'קצבאות ילדים' :
-                            formData.additionalIncomeType === 'pension' ? 'פנסיה' :
                             formData.additionalIncomeType === 'second_job' ? 'עבודה נוספת' :
                             'הכנסה נוספת'
                           }</p>
                           <p className="text-blue-700 text-xs leading-relaxed">
                             {formData.additionalIncomeType === 'rent' && 'הבנק יכיר רק בהכנסה מתועדת ומדווחת רשמית למס הכנסה'}
-                            {formData.additionalIncomeType === 'maternity' && 'דמי לידה/מילואים נחשבים כהכנסה זמנית - הבנק עשוי לקחת בחשבון חלקית'}
+                            {formData.additionalIncomeType === 'national_insurance' && 'קצבת ביטוח לאומי מוכרת כהכנסה קבועה על ידי הבנקים'}
+                            {formData.additionalIncomeType === 'disability' && 'קצבת נכות מוכרת כהכנסה קבועה - יש לצרף אישור'}
                             {formData.additionalIncomeType === 'child_allowance' && 'קצבאות ילדים מוכרות בדרך כלל על ידי רוב הבנקים'}
-                            {formData.additionalIncomeType === 'pension' && 'פנסיה מוכרת כהכנסה קבועה ויציבה'}
                             {formData.additionalIncomeType === 'second_job' && 'יש לצרף תלושי שכר/אישור הכנסה'}
                             {formData.additionalIncomeType === 'other' && 'יש לפרט את מקור ההכנסה ליועץ'}
                           </p>
