@@ -169,115 +169,189 @@ export default function MortgageCalculator() {
     }
   };
 
-  const validateStep = (currentStep) => {
-    const errors = {};
-    const isReverse = formData.mortgageType === 'reverse_mortgage';
-    if (currentStep === 2 && !formData.age) errors.age = "חובה להזין גיל";
-    if (currentStep === 3 && !formData.propertyPrice) errors.propertyPrice = "חובה להזין שווי נכס";
-    if (currentStep === 3 && isReverse && (!formData.youngestBorrowerAge || Number(formData.youngestBorrowerAge) < 60)) {
-      errors.youngestBorrowerAge = "גיל מינימלי למשכנתא לגיל הזהב הוא 60";
-    }
-    if (currentStep === 4 && !isReverse && !formData.netIncome) errors.netIncome = "חובה להזין הכנסה";
-    if (currentStep === 5 && !isReverse && !formData.equity) errors.equity = "חובה להזין הון עצמי";
-    setFieldErrors(errors);
-    return Object.keys(errors).filter(k => errors[k]).length === 0;
-  };
-
   const isReverseMortgage = formData.mortgageType === 'reverse_mortgage';
 
   // חישוב LTV מקסימלי למשכנתא הפוכה לפי גיל
   const getReverseMortgageMaxLTV = (age) => {
-    if (age >= 80) return 0.50;
-    if (age >= 75) return 0.40;
-    if (age >= 70) return 0.30;
-    if (age >= 65) return 0.25;
-    return 0.20; // גיל 60-64
+    const a = Number(age) || 60;
+    if (a >= 80) return 50;
+    if (a >= 75) return 40;
+    if (a >= 70) return 30;
+    if (a >= 65) return 25;
+    return 20; // גיל 60-64
+  };
+
+  const validateStep = (currentStep) => {
+    const errors = {};
+    if (currentStep === 2 && !formData.age) errors.age = "חובה להזין גיל";
+    if (currentStep === 2 && isReverseMortgage && !formData.youngestBorrowerAge) errors.youngestBorrowerAge = "חובה להזין גיל הלווה הצעיר ביותר";
+    if (currentStep === 2 && isReverseMortgage && Number(formData.youngestBorrowerAge) < 60) errors.youngestBorrowerAge = "מינימום גיל 60 למשכנתא לגיל הזהב";
+    if (currentStep === 3 && !formData.propertyPrice) errors.propertyPrice = "חובה להזין שווי נכס";
+    if (currentStep === 3 && !formData.loanAmount) errors.loanAmount = "חובה להזין סכום מבוקש";
+    if (currentStep === 4 && !formData.netIncome && !isReverseMortgage) errors.netIncome = "חובה להזין הכנסה";
+    if (currentStep === 5 && !isReverseMortgage && !formData.equity) errors.equity = "חובה להזין הון עצמי";
+    setFieldErrors(errors);
+    return Object.keys(errors).filter(k => errors[k]).length === 0;
   };
 
   const results = useMemo(() => {
     const price = Number(String(formData.propertyPrice).replace(/,/g, '')) || 0;
-    const requestedLoan = Number(String(formData.loanAmount).replace(/,/g, '')) || 0;
     const eq = Number(String(formData.equity).replace(/,/g, '')) || 0;
     const duration = Math.min(maxTerm, Number(formData.loanDuration) || maxTerm);
-    
-    // לוגיקת חישוב שונה למשכנתא הפוכה
-    let loanAmount, ltvPercent, status;
-    
-    if (isReverseMortgage) {
-      const youngestAge = Number(formData.youngestBorrowerAge) || Number(formData.age) || 70;
-      const maxLTV = getReverseMortgageMaxLTV(youngestAge);
-      const maxLoanAllowed = price * maxLTV;
-      loanAmount = requestedLoan || maxLoanAllowed;
-      ltvPercent = price > 0 ? (loanAmount / price) * 100 : 0;
-      
-      if (youngestAge < 60) {
-        status = { color: 'red', text: 'לא עומד בתנאי הגיל', subtitle: 'משכנתא לגיל הזהב מחייבת גיל מינימלי 60', action: 'הלווה הצעיר ביותר חייב להיות בן 60 לפחות.', icon: 'alert' };
-      } else if (ltvPercent > maxLTV * 100) {
-        status = { color: 'red', text: 'אחוז מימון חורג', subtitle: `מקסימום מותר בגיל ${youngestAge}: ${(maxLTV * 100).toFixed(0)}%`, action: `הסכום המקסימלי למשכנתא הפוכה בגיל זה הוא ₪${formatCurrency(Math.floor(maxLoanAllowed))}.`, icon: 'alert' };
-      } else {
-        status = { color: 'green', text: 'כשיר למשכנתא לגיל הזהב', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% - תקין לגיל ${youngestAge}`, action: null, icon: 'check' };
-      }
-      
-      const qualityScore = Math.min(100, Math.max(0, 100 - Math.max(0, ltvPercent - (maxLTV * 100)) * 3));
-      return { loanAmount, ltv: ltvPercent, totalIncome: 0, dti: 0, actualDuration: duration, status, score: qualityScore, isReverse: true, maxLTV, youngestAge,
-        mixA: { tracks: [{ name: "ריבית קבועה", amount: loanAmount, rate: rates.FIXED_UNLINKED + 0.005, years: duration, pmt: 0, desc: "אין החזר חודשי" }], total: 0 },
-        mixB: { tracks: [{ name: "ריבית משתנה", amount: loanAmount, rate: rates.PRIME_CALC + 0.005, years: duration, pmt: 0, desc: "אין החזר חודשי" }], total: 0 },
-        mixC: { tracks: [{ name: "מסלול משולב", amount: loanAmount, rate: rates.FIXED_UNLINKED + 0.003, years: duration, pmt: 0, desc: "אין החזר חודשי" }], total: 0 }
-      };
-    }
-
-    const loanAmountCalc = requestedLoan || Math.max(0, price - eq);
-    loanAmount = loanAmountCalc;
+    // בחירת סכום הלוואה: אם הוזן סכום מפורש נשתמש בו, אחרת נחשב מהון עצמי
+    const requestedLoan = Number(String(formData.loanAmount || '').replace(/,/g, '')) || 0;
+    const loanAmount = requestedLoan > 0 ? requestedLoan : Math.max(0, price - eq);
     const ltv = price > 0 ? (loanAmount / price) : 0;
-    ltvPercent = ltv * 100;
-    
     const netInc = Number(String(formData.netIncome).replace(/,/g, '')) || 0;
     const partnerInc = Number(String(formData.partnerNetIncome).replace(/,/g, '')) || 0;
     const additionalInc = Number(String(formData.additionalIncomeAmount).replace(/,/g, '')) || 0;
     const debts = Number(String(formData.monthlyDebts).replace(/,/g, '')) || 0;
     const totalInc = netInc + partnerInc + additionalInc;
     const freeIncome = Math.max(1, totalInc - debts);
+    const isReverse = formData.mortgageType === 'reverse_mortgage';
 
-    // קביעת LTV מקסימלי לפי סוג משכנתא
-    const maxLTVByType = {
-      'purchase_first': 0.75,
-      'purchase_replacement': 0.70,
-      'contractor': 0.75,
-      'refinance': 0.70,
-      'any_purpose': 0.50,
+    const mixB_T1 = { 
+      name: "פריים (Prime)", 
+      amount: loanAmount * 0.33, 
+      rate: rates.PRIME_CALC, 
+      years: duration, 
+      pmt: calculatePayment(loanAmount * 0.33, rates.PRIME_CALC, duration), 
+      desc: "P-0.5%" 
     };
-    const maxAllowedLTV = maxLTVByType[formData.mortgageType] || 0.75;
-
-    const mixB_T1 = { name: "פריים (Prime)", amount: loanAmount * 0.33, rate: rates.PRIME_CALC, years: duration, pmt: calculatePayment(loanAmount * 0.33, rates.PRIME_CALC, duration), desc: "P-0.5%" };
-    const mixB_T2 = { name: "קבועה לא צמודה (קל\"צ)", amount: loanAmount * 0.33, rate: rates.FIXED_UNLINKED, years: duration, pmt: calculatePayment(loanAmount * 0.33, rates.FIXED_UNLINKED, duration), desc: "החזר קבוע" };
-    const mixB_T3 = { name: "משתנה כל 5 שנים צמודה", amount: loanAmount * 0.34, rate: rates.VAR_LINKED, years: duration, pmt: calculatePayment(loanAmount * 0.34, rates.VAR_LINKED, duration), desc: "משתנה צמודה" };
+    const mixB_T2 = { 
+      name: "קבועה לא צמודה (קל\"צ)", 
+      amount: loanAmount * 0.33, 
+      rate: rates.FIXED_UNLINKED, 
+      years: duration, 
+      pmt: calculatePayment(loanAmount * 0.33, rates.FIXED_UNLINKED, duration), 
+      desc: "החזר קבוע" 
+    };
+    const mixB_T3 = { 
+      name: "משתנה כל 5 שנים צמודה", 
+      amount: loanAmount * 0.34, 
+      rate: rates.VAR_LINKED, 
+      years: duration, 
+      pmt: calculatePayment(loanAmount * 0.34, rates.VAR_LINKED, duration), 
+      desc: "משתנה צמודה" 
+    };
     const pmtB = mixB_T1.pmt + mixB_T2.pmt + mixB_T3.pmt;
     
-    const dti = (pmtB / freeIncome) * 100;
+    // מנוע הדירוג - Underwriting Engine
+    const dti = isReverse ? 0 : (pmtB / freeIncome) * 100;
+    const ltvPercent = ltv * 100;
+    const youngestAge = Number(formData.youngestBorrowerAge) || Number(formData.age) || 60;
+    const maxReverseLTV = isReverse ? getReverseMortgageMaxLTV(youngestAge) : 75;
     
-    if (dti > 45) {
-      const excessPayment = pmtB - (freeIncome * 0.40);
-      status = { color: 'red', text: 'דורש התאמת נתונים', subtitle: `יחס החזר ${dti.toFixed(1)}% חורג מהמותר`, action: `יש להקטין את ההחזר החודשי ב-₪${formatCurrency(Math.floor(excessPayment))} או להגדיל הכנסות.`, icon: 'alert' };
-    } else if (ltvPercent > maxAllowedLTV * 100) {
-      const excessLoan = loanAmount - (price * maxAllowedLTV);
-      status = { color: 'red', text: 'דורש התאמת נתונים', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר (${(maxAllowedLTV*100).toFixed(0)}%)`, action: `נדרש הון עצמי נוסף של ₪${formatCurrency(Math.floor(excessLoan))} להורדת אחוז המימון.`, icon: 'alert' };
-    } else if (dti > 40) {
-      status = { color: 'yellow', text: 'דורש אישור מיוחד', subtitle: `יחס החזר ${dti.toFixed(1)}% גבולי`, action: 'מומלץ להאריך תקופת הלוואה, לצמצם הלוואות קיימות, או להגדיל הכנסות.', icon: 'warning' };
-    } else if (dti > 35) {
-      status = { color: 'yellow', text: 'כשיר עם המלצה לשיפור', subtitle: `יחס החזר ${dti.toFixed(1)}% טוב`, action: 'תיק תקין. ניתן לשפר ע"י הארכת תקופה או תמהיל אסטרטגי לחיסכון בריבית.', icon: 'info' };
+    // קביעת סטטוס כשירות לפי תקני בנק ישראל
+    let status = { 
+      color: 'green', 
+      text: isReverse ? 'כשיר למשכנתא לגיל הזהב' : 'כשיר להגשה לבנק', 
+      subtitle: isReverse ? `אחוז מימון מקסימלי לגילך: ${maxReverseLTV}%` : 'התיק עומד בתקני בנק ישראל',
+      action: null,
+      icon: 'check'
+    };
+    
+    if (isReverse) {
+      // בדיקת LTV מיוחדת למשכנתא הפוכה
+      if (ltvPercent > maxReverseLTV) {
+        const excessLoan = loanAmount - (price * maxReverseLTV / 100);
+        status = {
+          color: 'red',
+          text: 'דורש התאמה',
+          subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר לגילך`,
+          action: `יש להקטין את הסכום המבוקש ב-₪${formatCurrency(Math.floor(excessLoan))} (מקסימום ${maxReverseLTV}% מימון בגיל ${youngestAge}).`,
+          icon: 'alert'
+        };
+      }
     } else {
-      status = { color: 'green', text: 'כשיר להגשה לבנק', subtitle: 'התיק עומד בתקני בנק ישראל', action: null, icon: 'check' };
+      // בדיקות רגילות
+      if (dti > 45) {
+        const excessPayment = pmtB - (freeIncome * 0.40);
+        status = { 
+          color: 'red', 
+          text: 'דורש התאמת נתונים', 
+          subtitle: `יחס החזר ${dti.toFixed(1)}% חורג מהמותר`,
+          action: `יש להקטין את ההחזר החודשי ב-₪${formatCurrency(Math.floor(excessPayment))} או להגדיל הכנסות.`,
+          icon: 'alert'
+        };
+      } else if (ltvPercent > 75) {
+        const excessLoan = loanAmount - (price * 0.75);
+        status = { 
+          color: 'red', 
+          text: 'דורש התאמת נתונים', 
+          subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר`,
+          action: `נדרש הון עצמי נוסף של ₪${formatCurrency(Math.floor(excessLoan))} להורדת אחוז המימון ל-75%.`,
+          icon: 'alert'
+        };
+      } else if (dti > 40) {
+        status = { 
+          color: 'yellow', 
+          text: 'דורש אישור מיוחד', 
+          subtitle: `יחס החזר ${dti.toFixed(1)}% גבולי`,
+          action: 'מומלץ להאריך תקופת הלוואה, לצמצם הלוואות קיימות, או להגדיל הכנסות.',
+          icon: 'warning'
+        };
+      } else if (dti > 35) {
+        status = { 
+          color: 'yellow', 
+          text: 'כשיר עם המלצה לשיפור', 
+          subtitle: `יחס החזר ${dti.toFixed(1)}% טוב`,
+          action: 'תיק תקין. ניתן לשפר ע"י הארכת תקופה או תמהיל אסטרטגי לחיסכון בריבית.',
+          icon: 'info'
+        };
+      }
     }
     
-    const qualityScore = Math.min(100, Math.max(0, 100 - (dti > 35 ? (dti - 35) * 4 : 0) - (ltvPercent > 70 ? (ltvPercent - 70) * 2 : 0)));
+    // ציון איכות משוקלל
+    const qualityScore = isReverse 
+      ? Math.min(100, Math.max(0, 100 - (ltvPercent > maxReverseLTV ? (ltvPercent - maxReverseLTV) * 3 : 0)))
+      : Math.min(100, Math.max(0, 
+          100 - (dti > 35 ? (dti - 35) * 4 : 0) - (ltvPercent > 70 ? (ltvPercent - 70) * 2 : 0)
+        ));
 
     return {
-      loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration, status, score: qualityScore, isReverse: false,
-      mixA: { tracks: [{ name: "100% קבועה לא צמודה", amount: loanAmount, rate: rates.FIXED_UNLINKED, years: duration, pmt: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration), desc: "הגנה מלאה" }], total: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration) },
+      loanAmount, 
+      ltv: ltvPercent, 
+      totalIncome: totalInc, 
+      dti, 
+      actualDuration: duration,
+      status,
+      score: qualityScore,
+      mixA: { 
+        tracks: [{ 
+          name: "100% קבועה לא צמודה", 
+          amount: loanAmount, 
+          rate: rates.FIXED_UNLINKED, 
+          years: duration, 
+          pmt: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration), 
+          desc: "הגנה מלאה" 
+        }], 
+        total: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration) 
+      },
       mixB: { tracks: [mixB_T1, mixB_T2, mixB_T3], total: pmtB },
-      mixC: { tracks: [{ name: "50% פריים (Prime)", amount: loanAmount * 0.5, rate: rates.PRIME_CALC, years: duration, pmt: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration), desc: "ניצול שוק" }, { name: "50% קבועה (קל\"צ)", amount: loanAmount * 0.5, rate: rates.FIXED_UNLINKED, years: duration, pmt: calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration), desc: "עוגן יציבות" }], total: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration) + calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration) }
+      mixC: { 
+        tracks: [
+          { 
+            name: "50% פריים (Prime)", 
+            amount: loanAmount * 0.5, 
+            rate: rates.PRIME_CALC, 
+            years: duration, 
+            pmt: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration), 
+            desc: "ניצול שוק" 
+          }, 
+          { 
+            name: "50% קבועה (קל\"צ)", 
+            amount: loanAmount * 0.5, 
+            rate: rates.FIXED_UNLINKED, 
+            years: duration, 
+            pmt: calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration), 
+            desc: "עוגן יציבות" 
+          }
+        ], 
+        total: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration) + calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration) 
+      }
     };
-  }, [formData, maxTerm, rates, isReverseMortgage]);
+  }, [formData, maxTerm, rates]);
 
   const generateFullAnalysis = async () => {
     if (!validateStep(6)) return;
@@ -546,23 +620,22 @@ export default function MortgageCalculator() {
                   
                   <PremiumInput label="מצב משפחתי" name="maritalStatus" value={formData.maritalStatus} icon={User} onChange={handleInputChange} options={[{val:'single', label:'רווק/ה'}, {val:'married', label:'נשוי/אה'}, {val:'divorced', label:'גרוש/ה'}, {val:'widowed', label:'אלמן/ה'}]} tooltip="מצב המשפחתי משפיע על יכולת ההחזר והתאמת התמהיל" />
                   <PremiumInput label="מספר ילדים מתחת לגיל 18" name="childrenUnder18" value={formData.childrenUnder18} icon={User} onChange={handleInputChange} placeholder="0" tooltip="מספר הילדים מתחת לגיל 18 משפיע על חישוב ההוצאות החודשיות" />
-                  <PremiumInput label="סוג הכנסה עיקרי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} 
-                    options={[
-                      {val:'employee', label:'שכיר/ה'}, 
-                      {val:'self_employed', label:'עצמאי/ת'}, 
-                      {val:'controlling_shareholder', label:'בעל שליטה'}, 
-                      {val:'foreign_income', label:'הכנסה מחו"ל'}, 
-                      {val:'pensioner', label:'פנסיונר/ית'},
-                      {val:'both', label:'שכיר + עצמאי'}
-                    ]} 
-                    tooltip="סוג ההכנסה משפיע על דרישות הבנק ואישור ההכנסות" />
+                  <PremiumInput label="סוג הכנסה עיקרי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} options={[
+                    {val:'employee', label:'שכיר/ה'},
+                    {val:'self_employed', label:'עצמאי/ת'},
+                    {val:'controlling_shareholder', label:'בעל שליטה'},
+                    {val:'foreign_income', label:'הכנסה מחו"ל'},
+                    {val:'pensioner', label:'פנסיונר/ית'},
+                    {val:'both', label:'גם וגם'}
+                  ]} tooltip="סוג ההכנסה העיקרי משפיע על דרישות הבנק ואישור ההכנסות" />
                   
-                  {/* שדה גיל לווה הצעיר ביותר - רלוונטי לפנסיונרים ומשכנתא לגיל הזהב */}
-                  {(formData.employmentStatusA === 'pensioner' || isReverseMortgage) && (
-                    <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-xl mb-5 animate-in slide-in-from-top-2 duration-300">
-                      <p className="text-amber-800 font-bold text-sm mb-3">🏅 מצב פנסיונר - נא להזין גיל הלווה הצעיר ביותר</p>
-                      <PremiumInput label="גיל הלווה הצעיר ביותר" name="youngestBorrowerAge" value={formData.youngestBorrowerAge} placeholder="גיל" icon={Calendar} onChange={handleInputChange} tooltip="נדרש לחישוב תוחלת חיים ואחוז מימון למשכנתא לגיל הזהב" />
-                      <p className="text-amber-700 text-xs">* עבור פנסיונרים: יש לצרף אישור גמלה/פנסיה + דפי בנק 3 חודשים</p>
+                  {/* שדה גיל לווה צעיר - מופיע רק לפנסיונר + משכנתא הפוכה */}
+                  {formData.employmentStatusA === 'pensioner' && isReverseMortgage && (
+                    <div className="animate-in slide-in-from-top-2 duration-300">
+                      <PremiumInput label="גיל הלווה הצעיר ביותר" name="youngestBorrowerAge" value={formData.youngestBorrowerAge} placeholder="גיל מינימלי (60+)" icon={Calendar} onChange={handleInputChange} error={fieldErrors.youngestBorrowerAge} tooltip="לצורך חישוב אחוז המימון המקסימלי במשכנתא הפוכה" />
+                      <div className="p-3 bg-amber-50 border-r-4 border-amber-500 rounded-xl text-right text-xs text-amber-800 font-medium mb-4">
+                        💡 אחוז המימון המקסימלי עולה עם הגיל: גיל 60-64 = 20%, גיל 65-69 = 25%, גיל 70-74 = 30%, גיל 75-79 = 40%, גיל 80+ = 50%
+                      </div>
                     </div>
                   )}
                   
@@ -795,71 +868,47 @@ export default function MortgageCalculator() {
 
               {step === 3 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput 
-                    label="סוג ומטרת המשכנתא" 
-                    name="mortgageType" 
-                    value={formData.mortgageType} 
-                    icon={Target} 
-                    onChange={handleInputChange} 
+                  <PremiumInput label="סוג ומטרת המשכנתא" name="mortgageType" value={formData.mortgageType} icon={Target} onChange={handleInputChange} 
                     options={[
-                      {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75% מימון)'}, 
-                      {val:'purchase_replacement', label:'רכישה - דירה חליפית/שנייה (עד 70% מימון)'}, 
-                      {val:'contractor', label:'רכישה מקבלן (עד 75% מימון)'}, 
-                      {val:'refinance', label:'מחזור משכנתא (שיפור תנאים)'}, 
-                      {val:'any_purpose', label:'הלוואה לכל מטרה (עד 50% מימון)'},
+                      {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75%)'},
+                      {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
+                      {val:'refinance', label:'מחזור (שיפור תנאים)'},
+                      {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
                       {val:'reverse_mortgage', label:'משכנתא לגיל הזהב (Reverse Mortgage)'}
                     ]} 
-                    tooltip="סוג המשכנתא קובע את אחוז המימון המקסימלי ואת תנאי ההלוואה" 
-                  />
+                    tooltip="מטרת המשכנתא קובעת את אחוז המימון המקסימלי ותנאי ההלוואה" />
                   
                   {isReverseMortgage && (
-                    <div className="mb-5 p-4 bg-purple-50 border-2 border-purple-300 rounded-xl animate-in slide-in-from-top-2 duration-300">
-                      <p className="text-purple-800 font-bold text-sm mb-1">🏅 משכנתא לגיל הזהב</p>
-                      <p className="text-purple-700 text-xs leading-relaxed">אחוז מימון מקסימלי עולה עם הגיל: גיל 60 → 20% | גיל 65 → 25% | גיל 70 → 30% | גיל 75 → 40% | גיל 80+ → 50%</p>
-                      <p className="text-purple-600 text-xs mt-2">⚠️ נדרש: אישור הסכמת יורשים + תעודת זהות עם ספח לווידוא גיל</p>
+                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-amber-800 font-bold text-sm">🏛️ משכנתא לגיל הזהב</p>
+                      <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
                     </div>
                   )}
+
+                  <PremiumInput label="שווי הנכס המשוער" name="propertyPrice" value={formData.propertyPrice} placeholder="שווי שוק מוערך" icon={Home} onChange={handleInputChange} error={fieldErrors.propertyPrice} tooltip="שווי הנכס על פי הערכה או חוזה רכישה" />
+                  <PremiumInput label="סכום מבוקש" name="loanAmount" value={formData.loanAmount} placeholder="כמה כסף אתם צריכים?" icon={Coins} onChange={handleInputChange} error={fieldErrors.loanAmount} tooltip="הסכום שברצונכם לקבל כמשכנתא" />
                   
-                  <PremiumInput label="שווי הנכס המשוער" name="propertyPrice" value={formData.propertyPrice} placeholder="שווי שוק מוערך" icon={Home} onChange={handleInputChange} error={fieldErrors.propertyPrice} tooltip="מחיר הדירה או שווי השוק המוערך" />
-                  
-                  <PremiumInput label="סכום מבוקש" name="loanAmount" value={formData.loanAmount} placeholder="סכום המשכנתא הרצוי" icon={Coins} onChange={handleInputChange} tooltip="הסכום שתרצה לקבל כמשכנתא מהבנק" />
-                  
-                  {isReverseMortgage && (
-                    <div className="animate-in slide-in-from-top-2 duration-300">
-                      <PremiumInput label="גיל הלווה הצעיר ביותר" name="youngestBorrowerAge" value={formData.youngestBorrowerAge} placeholder="גיל (מינימום 60)" icon={Calendar} onChange={handleInputChange} tooltip="גיל הלווה הצעיר ביותר קובע את אחוז המימון המקסימלי" />
-                      {formData.youngestBorrowerAge && Number(formData.youngestBorrowerAge) >= 60 && formData.propertyPrice && (
-                        <div className="p-4 bg-green-50 border-2 border-green-300 rounded-xl">
-                          <p className="text-green-800 font-bold text-sm">
-                            ✅ מקסימום מותר בגיל {formData.youngestBorrowerAge}: ₪{formatCurrency(Math.floor(Number(String(formData.propertyPrice).replace(/,/g,'')) * getReverseMortgageMaxLTV(Number(formData.youngestBorrowerAge))))}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                  {!isReverseMortgage && (
+                    <PremiumInput label="סטטוס וסוג הנכס" name="propertyStatus" value={formData.propertyStatus || 'first_home'} icon={Building2} onChange={handleInputChange} 
+                      options={[
+                        {val:'first_home', label:'דירה ראשונה (עד 75% מימון)'}, 
+                        {val:'second_hand', label:'דירה יד שנייה / חליפית (עד 70% מימון)'}, 
+                        {val:'contractor', label:'רכישה מקבלן (עד 75% מימון)'}, 
+                        {val:'investment', label:'דירה להשקעה (עד 50% מימון)'}, 
+                        {val:'self_build', label:'מגרש / בנייה עצמית (עד 75% מימון)'}, 
+                        {val:'any_purpose', label:'הלוואה לכל מטרה (עד 50% מימון)'}
+                      ]} 
+                    />
                   )}
                 </div>
               )}
 
               {step === 4 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  {isReverseMortgage ? (
-                    <div className="p-6 bg-purple-50 border-2 border-purple-300 rounded-2xl text-center">
-                      <p className="text-purple-800 font-black text-lg mb-2">✅ משכנתא לגיל הזהב</p>
-                      <p className="text-purple-700 text-sm leading-relaxed">
-                        במשכנתא לגיל הזהב <strong>אין החזר חודשי חובה</strong> - הסכום מוחזר בסוף התקופה או בעת מכירת הנכס.<br/>
-                        לכן, בדיקת יחס החזר (DTI) אינה רלוונטית.
-                      </p>
-                      <div className="mt-4 p-3 bg-purple-100 rounded-xl">
-                        <p className="text-purple-800 text-xs font-bold">📋 מסמכים נדרשים: תעודת זהות עם ספח + אישור בעלות על הנכס + אישור הסכמת יורשים</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו (לאחר ניכויים) - ממוצע 3 חודשים אחרונים" />
-                      <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו - משפרת את יכולת ההחזר והסיכוי לאישור" />
-                      <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג) - משפיע על יחס החוב להכנסה" />
-                      <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית הממוצעת - משפיעה על הערכת היציבות הפיננסית" />
-                    </>
-                  )}
+                  <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו (לאחר ניכויים) - ממוצע 3 חודשים אחרונים" />
+                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו - משפרת את יכולת ההחזר והסיכוי לאישור" />
+                  <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג) - משפיע על יחס החוב להכנסה" />
+                  <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית הממוצעת - משפיעה על הערכת היציבות הפיננסית" />
                 </div>
               )}
 
@@ -867,13 +916,13 @@ export default function MortgageCalculator() {
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} tooltip="הסכום שיש לכם במזומן/חסכונות למטרת רכישת הנכס - משפיע על אחוז המימון" />
                   <div className="space-y-4">
-                    <PremiumInput label="הכנסות נוספות (מחוץ לתלוש/קצבה)" name="additionalIncomeType" value={formData.additionalIncomeType} icon={HeartHandshake} onChange={handleInputChange} 
+                    <PremiumInput label="סוג הכנסה נוספת" name="additionalIncomeType" value={formData.additionalIncomeType} icon={HeartHandshake} onChange={handleInputChange} 
                       options={[
                         {val:'none', label:'אין לי הכנסות נוספות'}, 
-                        {val:'rent', label:'שכירות נכנסת מנכס'}, 
+                        {val:'rent', label:'הכנסה משכירות'}, 
                         {val:'maternity', label:'דמי לידה/מילואים'}, 
-                        {val:'child_allowance', label:'קצבאות ביטוח לאומי/נכות'}, 
-                        {val:'pension', label:'גמלת פנסיה'}, 
+                        {val:'child_allowance', label:'קצבאות ילדים'}, 
+                        {val:'pension', label:'פנסיה'}, 
                         {val:'second_job', label:'עבודה נוספת'}, 
                         {val:'other', label:'אחר'}
                       ]} tooltip="הכנסות נוספות יכולות לשפר את יכולת ההחזר (בכפוף לאישור הבנק)" />
