@@ -1005,7 +1005,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       <p className="text-blue-700 text-xs mt-1">אין חובת הוכחת יחס החזר (DTI). הכנסות משמשות לחיזוק התיק בלבד.</p>
                     </div>
                   )}
-                  <PremiumInput label={formData.employmentStatusA === 'pensioner' ? 'גמלה/פנסיה חודשית נטו' : 'נטו לווה א\' (ממוצע 3 חודשים)'} name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו - ממוצע 3 חודשים אחרונים" />
+                  <PremiumInput label={(formData.employmentTypes || []).includes('pensioner') ? 'גמלה/פנסיה חודשית נטו' : 'נטו לווה א\' (ממוצע 3 חודשים)'} name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו - ממוצע 3 חודשים אחרונים" />
                   <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו" />
                   {!isReverseMortgage && (
                     <>
