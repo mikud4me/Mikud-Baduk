@@ -905,10 +905,20 @@ export default function MortgageCalculator() {
 
               {step === 4 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו (לאחר ניכויים) - ממוצע 3 חודשים אחרונים" />
-                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו - משפרת את יכולת ההחזר והסיכוי לאישור" />
-                  <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג) - משפיע על יחס החוב להכנסה" />
-                  <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית הממוצעת - משפיעה על הערכת היציבות הפיננסית" />
+                  {isReverseMortgage && (
+                    <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-300 rounded-2xl">
+                      <p className="text-blue-800 font-bold text-sm">💡 משכנתא לגיל הזהב - מסלול ייעודי</p>
+                      <p className="text-blue-700 text-xs mt-1">אין חובת הוכחת יחס החזר (DTI). הכנסות משמשות לחיזוק התיק בלבד.</p>
+                    </div>
+                  )}
+                  <PremiumInput label={formData.employmentStatusA === 'pensioner' ? 'גמלה/פנסיה חודשית נטו' : 'נטו לווה א\' (ממוצע 3 חודשים)'} name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו - ממוצע 3 חודשים אחרונים" />
+                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו" />
+                  {!isReverseMortgage && (
+                    <>
+                      <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג)" />
+                      <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית" />
+                    </>
+                  )}
                 </div>
               )}
 
