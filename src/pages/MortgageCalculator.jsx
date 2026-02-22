@@ -64,12 +64,13 @@ export default function MortgageCalculator() {
   const [formData, setFormData] = useState({
     fullName: '', phone: '', email: '', idNumber: '', birthDay: '', birthMonth: '', birthYear: '', consent: false,
     maritalStatus: 'single', childrenUnder18: '0',
-    purpose: 'first_home', loanDuration: '25',
-    propertyPrice: '', propertyStatus: 'first_home',
+    mortgageType: 'purchase_first', loanDuration: '25',
+    propertyPrice: '', loanAmount: '',
     age: '', employmentStatusA: 'employee', workStartDay: '', workStartMonth: '', workStartYear: '', employmentSeniority: '',
     netIncome: '', partnerNetIncome: '0',
     monthlyDebts: '0', monthlyOverdraft: '0', creditHistory: 'clean', equity: '',
     additionalIncomeType: 'none', additionalIncomeAmount: '0',
+    youngestBorrowerAge: '',
     partnerFullName: '', partnerIdNumber: '', partnerBirthDay: '', partnerBirthMonth: '', partnerBirthYear: '', partnerAge: '',
     partnerEmploymentStatus: 'employee', partnerWorkStartDay: '', partnerWorkStartMonth: '', partnerWorkStartYear: '', partnerEmploymentSeniority: '',
     partnerCreditHistory: 'clean'
