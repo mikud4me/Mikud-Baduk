@@ -66,7 +66,7 @@ export default function MortgageCalculator() {
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false, creditConsent: false,
     maritalStatus: 'single', childrenUnder18: '0',
-    mortgageType: 'purchase_first', loanDuration: '25',
+    mortgageType: 'purchase_first', loanDuration: '25', seniorBalloon: false, balloonExitStrategy: '',
     propertyPrice: '', loanAmount: '',
     age: '', employmentTypes: ['employee'], workStartDay: '', workStartMonth: '', workStartYear: '', employmentSeniority: '',
     netIncome: '', partnerNetIncome: '0',
@@ -966,67 +966,34 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
               {step === 3 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="סוג ומטרת המשכנתא" name="mortgageType" value={formData.mortgageType} icon={Target} onChange={(n,v) => { handleInputChange(n,v); handleInputChange('seniorBalloon', false); }} 
+                  <PremiumInput label="סוג ומטרת המשכנתא" name="mortgageType" value={formData.mortgageType} icon={Target} onChange={handleInputChange} 
                     options={[
                       {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75%)'},
                       {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
                       {val:'refinance', label:'מחזור (שיפור תנאים)'},
                       {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
-                      {val:'senior_bank', label:'🏦 משכנתא בנקאית לגיל הזהב (עד 45% | 30 שנה)'},
-                      {val:'reverse_mortgage', label:'משכנתא הפוכה - ללא החזר חודשי (Reverse Mortgage)'}
+                      {val:'reverse_mortgage', label:'משכנתא הפוכה (Reverse Mortgage)'},
+                      {val:'senior_bank', label:'משכנתא בנקאית לגיל הזהב – כל מטרה (45% LTV | עד 30 שנה)'}
                     ]} 
                     tooltip="מטרת המשכנתא קובעת את אחוז המימון המקסימלי ותנאי ההלוואה" />
                   
-                  {isSeniorBankMortgage && (
-                    <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl animate-in slide-in-from-top-2 duration-300 space-y-3">
-                      <p className="text-blue-800 font-bold text-sm">🏦 משכנתא בנקאית לגיל הזהב - מוצר פרימיום</p>
-                      <ul className="text-blue-700 text-xs space-y-1 list-disc list-inside leading-relaxed">
-                        <li>פריסה עד 30 שנה – ללא קשר לגיל הלווה</li>
-                        <li>מקסימום 45% מימון (LTV) מהנכס</li>
-                        <li>ללא חובת ביטוח חיים</li>
-                        <li>ריביות מחירון "כל מטרה"</li>
-                        <li>חתימת ילדים/יורשים על מודעות – חובה</li>
-                      </ul>
-                      {/* מסלול בלון */}
-                      <div className="mt-3 pt-3 border-t border-blue-200">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                          <div 
-                            onClick={() => handleInputChange('seniorBalloon', !formData.seniorBalloon)}
-                            className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${formData.seniorBalloon ? 'bg-[#1e3a5f]' : 'bg-gray-300'}`}
-                          >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.seniorBalloon ? 'translate-x-7' : 'translate-x-1'}`} />
-                          </div>
-                          <div>
-                            <p className="text-blue-900 font-black text-sm">הלוואת בלון – ריבית בלבד</p>
-                            <p className="text-blue-600 text-xs">תשלום ריבית בלבד (עד 15 שנה). הקרן נפרעת בסיום.</p>
-                          </div>
-                        </label>
-                        {formData.seniorBalloon && (
-                          <div className="mt-3 p-3 bg-amber-50 border-2 border-amber-400 rounded-xl animate-in slide-in-from-top-2 duration-200">
-                            <p className="text-amber-800 font-black text-xs mb-2">⚠️ הלוואת בלון – אזהרה חשובה</p>
-                            <p className="text-amber-700 text-xs leading-relaxed">הקרן אינה נפרעת במהלך התקופה ותשולם במלואה בתום עד 15 שנה. יש לציין אסטרטגיית יציאה.</p>
-                            <div className="mt-3">
-                              <PremiumInput label="אסטרטגיית פירעון הקרן בסיום" name="balloonExitStrategy" value={formData.balloonExitStrategy || ''} icon={Target} onChange={handleInputChange}
-                                options={[
-                                  {val:'', label:'בחר אסטרטגיית יציאה...'},
-                                  {val:'sell_property', label:'מכירת הנכס'},
-                                  {val:'inheritance', label:'פירעון מירושה'},
-                                  {val:'regular_mortgage', label:'מעבר למשכנתא רגילה'},
-                                  {val:'savings', label:'פירעון מחסכונות'},
-                                  {val:'other', label:'אחר (יפורט ביועץ)'},
-                                ]}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                  {isReverseMortgage && (
+                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-amber-800 font-bold text-sm">🏛️ משכנתא הפוכה</p>
+                      <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
                     </div>
                   )}
 
-                  {isReverseMortgage && (
-                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
-                      <p className="text-amber-800 font-bold text-sm">🏛️ משכנתא הפוכה - ללא החזר חודשי</p>
-                      <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
+                  {isSeniorBankMortgage && (
+                    <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-blue-900 font-black text-sm mb-2">🏦 משכנתא בנקאית לגיל הזהב – כל מטרה</p>
+                      <ul className="text-blue-800 text-xs space-y-1 list-none">
+                        <li>✅ פריסה עד 30 שנה ללא הגבלת גיל עליונה</li>
+                        <li>✅ LTV מקסימלי: 45% (עד 50% בבנקים ספציפיים)</li>
+                        <li>✅ ללא חובת ביטוח חיים</li>
+                        <li>✅ ריביות מחירון "כל מטרה" (All-Purpose)</li>
+                        <li>⚠️ חובת יידוע יורשים וחתימתם</li>
+                      </ul>
                     </div>
                   )}
 
