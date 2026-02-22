@@ -25,17 +25,33 @@ Deno.serve(async (req) => {
 
   console.log('Stripe webhook event:', event.type);
 
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const leadId = session.metadata?.leadId;
+
+    if (leadId && session.payment_status === 'paid') {
+      try {
+        await base44.asServiceRole.entities.Lead.update(leadId, {
+          isPurchased: true,
+          status: 'contacted'
+        });
+        console.log(`Lead ${leadId} marked as purchased via checkout`);
+      } catch (error) {
+        console.error('Failed to update lead:', error);
+      }
+    }
+  }
+
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object;
     const leadId = paymentIntent.metadata?.leadId;
-
     if (leadId) {
       try {
         await base44.asServiceRole.entities.Lead.update(leadId, {
           isPurchased: true,
           status: 'contacted'
         });
-        console.log(`Lead ${leadId} marked as purchased`);
+        console.log(`Lead ${leadId} marked as purchased via payment_intent`);
       } catch (error) {
         console.error('Failed to update lead:', error);
       }
