@@ -1075,11 +1075,21 @@ export default function MortgageCalculator() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                   <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
-                    <p className="text-xs text-gray-500 font-semibold mb-1">יחס החזר (DTI)</p>
-                    <p className={`text-2xl font-black ${results.dti > 40 ? 'text-red-600' : results.dti > 35 ? 'text-yellow-600' : 'text-green-600'}`}>
-                      {results.dti.toFixed(1)}%
-                    </p>
-                    <p className="text-[10px] text-gray-400 mt-1">תקן: עד 40%</p>
+                    {results.isReverse ? (
+                      <>
+                        <p className="text-xs text-gray-500 font-semibold mb-1">סוג משכנתא</p>
+                        <p className="text-lg font-black text-[#c9a961]">גיל הזהב</p>
+                        <p className="text-[10px] text-gray-400 mt-1">ללא DTI חובה</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs text-gray-500 font-semibold mb-1">יחס החזר (DTI)</p>
+                        <p className={`text-2xl font-black ${results.dti > 40 ? 'text-red-600' : results.dti > 35 ? 'text-yellow-600' : 'text-green-600'}`}>
+                          {results.dti.toFixed(1)}%
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">תקן: עד 40%</p>
+                      </>
+                    )}
                   </div>
                   
                   <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
@@ -1087,7 +1097,9 @@ export default function MortgageCalculator() {
                     <p className={`text-2xl font-black ${results.ltv > 75 ? 'text-red-600' : results.ltv > 70 ? 'text-yellow-600' : 'text-green-600'}`}>
                       {results.ltv.toFixed(1)}%
                     </p>
-                    <p className="text-[10px] text-gray-400 mt-1">תקן: עד 75%</p>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      {results.isReverse ? `מקסימום: ${getReverseMortgageMaxLTV(formData.youngestBorrowerAge || formData.age)}%` : 'תקן: עד 75%'}
+                    </p>
                   </div>
                   
                   <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
