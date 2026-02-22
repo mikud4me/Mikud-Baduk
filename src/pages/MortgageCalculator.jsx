@@ -128,7 +128,7 @@ export default function MortgageCalculator() {
     
     if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
     
-    // חישוב גיל מתאריך לידה
+    // חישוב גיל מ-input type=date
     if (!formData.birthDate) {
       errors.birthDate = "נא להזין תאריך לידה";
     } else {
