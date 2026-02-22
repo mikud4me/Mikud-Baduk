@@ -441,6 +441,12 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
     };
     
     try {
+      if (type === 'documents') {
+        // רשימת מסמכים - קבועה ומדויקת, לא LLM
+        setAiInsights({ type: types[type].label, content: types[type].prompt });
+        setInsightLoading(false);
+        return;
+      }
       const response = await base44.integrations.Core.InvokeLLM({ 
         prompt: types[type].prompt,
         add_context_from_internet: false 
