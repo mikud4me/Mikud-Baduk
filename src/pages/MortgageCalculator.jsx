@@ -119,7 +119,8 @@ export default function MortgageCalculator() {
 
   const startVerification = () => {
     const errors = {};
-    if (!formData.fullName || formData.fullName.trim().length < 2) errors.fullName = "אנא הזן שם מלא תקין";
+    if (!formData.firstName || formData.firstName.trim().length < 2) errors.firstName = "אנא הזן שם פרטי תקין";
+    if (!formData.lastName || formData.lastName.trim().length < 2) errors.lastName = "אנא הזן שם משפחה תקין";
     if (!/^05\d{8}$/.test(formData.phone)) errors.phone = "טלפון נייד לא תקין (10 ספרות)";
     
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -128,28 +129,18 @@ export default function MortgageCalculator() {
     if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
     
     // חישוב גיל מתאריך לידה
-    if (!formData.birthDay || !formData.birthMonth || !formData.birthYear) {
-      errors.birthDate = "נא להזין תאריך לידה מלא";
+    if (!formData.birthDate) {
+      errors.birthDate = "נא להזין תאריך לידה";
     } else {
-      const day = parseInt(formData.birthDay);
-      const month = parseInt(formData.birthMonth);
-      const year = parseInt(formData.birthYear);
-      
-      if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1920 || year > 2008) {
-        errors.birthDate = "תאריך לא תקין";
+      const birthDate = new Date(formData.birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+      if (age < 18 || age > 100) {
+        errors.birthDate = "גיל לא תקין (18–100)";
       } else {
-        const birthDate = new Date(year, month - 1, day);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          age--;
-        }
-        if (age < 18 || age > 100) {
-          errors.birthDate = "גיל לא תקין";
-        } else {
-          setFormData(prev => ({ ...prev, age: age.toString() }));
-        }
+        setFormData(prev => ({ ...prev, age: age.toString() }));
       }
     }
     
