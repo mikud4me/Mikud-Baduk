@@ -61,12 +61,13 @@ export default function MortgageCalculator() {
   const [rates, setRates] = useState(DEFAULT_RATES);
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
+  const [showCreditModal, setShowCreditModal] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '', phone: '', email: '', idNumber: '', birthDay: '', birthMonth: '', birthYear: '', consent: false,
+    firstName: '', lastName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false, creditConsent: false,
     maritalStatus: 'single', childrenUnder18: '0',
     mortgageType: 'purchase_first', loanDuration: '25',
     propertyPrice: '', loanAmount: '',
-    age: '', employmentStatusA: 'employee', workStartDay: '', workStartMonth: '', workStartYear: '', employmentSeniority: '',
+    age: '', employmentTypes: ['employee'], workStartDay: '', workStartMonth: '', workStartYear: '', employmentSeniority: '',
     netIncome: '', partnerNetIncome: '0',
     monthlyDebts: '0', monthlyOverdraft: '0', creditHistory: 'clean', equity: '',
     additionalIncomeType: 'none', additionalIncomeAmount: '0',
@@ -75,6 +76,9 @@ export default function MortgageCalculator() {
     partnerEmploymentStatus: 'employee', partnerWorkStartDay: '', partnerWorkStartMonth: '', partnerWorkStartYear: '', partnerEmploymentSeniority: '',
     partnerCreditHistory: 'clean'
   });
+
+  // fullName computed for display/save
+  const fullName = `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
 
   useEffect(() => {
     const loadRates = async () => {
