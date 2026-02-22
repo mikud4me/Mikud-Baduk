@@ -109,11 +109,13 @@ export default function MortgageCalculator() {
   };
 
   const maxTerm = useMemo(() => {
+    // בלון: מקסימום 15 שנה
+    if (isSeniorBankMortgage && formData.seniorBalloon) return BALLOON_MAX_TERM;
     // משכנתא בנקאית לגיל הזהב: מקסימום 30 שנה ללא קשר לגיל
     if (isSeniorBankMortgage) return SENIOR_BANK_MAX_TERM;
     const ageNum = Number(formData.age) || 35;
     return Math.min(30, Math.max(1, 80 - ageNum));
-  }, [formData.age, isSeniorBankMortgage]);
+  }, [formData.age, isSeniorBankMortgage, formData.seniorBalloon]);
 
   const handleInputChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
