@@ -396,35 +396,9 @@ export default function MortgageCalculator() {
   };
 
   const handlePurchaseClick = async () => {
-    // בדיקה אם רץ מתוך iframe
-    if (window.self !== window.top) {
-      alert('התשלום זמין רק מהאפליקציה המפורסמת. אנא פתח את הקישור בדפדפן.');
-      return;
-    }
-
-    if (!currentLeadId) {
-      alert('שגיאה: לא נמצא תיק. אנא נסה שנית.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await base44.functions.invoke('createCheckoutSession', {
-        leadId: currentLeadId,
-        successUrl: window.location.href.split('?')[0],
-        cancelUrl: window.location.href.split('?')[0]
-      });
-
-      if (response.data?.url) {
-        window.location.href = response.data.url;
-      } else {
-        throw new Error(response.data?.error || 'שגיאה ביצירת תשלום');
-      }
-    } catch (err) {
-      console.error('Purchase error:', err);
-      alert('אירעה שגיאה. אנא נסה שנית או צור קשר: *2324');
-    } finally {
-      setLoading(false);
+    setIsPurchased(true);
+    if (currentLeadId) {
+      await base44.entities.Lead.update(currentLeadId, { isPurchased: true });
     }
   };
 
