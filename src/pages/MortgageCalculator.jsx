@@ -317,6 +317,7 @@ export default function MortgageCalculator() {
       actualDuration: duration,
       status,
       score: qualityScore,
+      isReverse,
       mixA: { 
         tracks: [{ 
           name: "100% קבועה לא צמודה", 
