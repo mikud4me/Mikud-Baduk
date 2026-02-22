@@ -698,14 +698,43 @@ ${!results.isReverse ? `יחס החזר (DTI): ${results.dti.toFixed(1)}%` : 'ס
                   
                   <PremiumInput label="מצב משפחתי" name="maritalStatus" value={formData.maritalStatus} icon={User} onChange={handleInputChange} options={[{val:'single', label:'רווק/ה'}, {val:'married', label:'נשוי/אה'}, {val:'divorced', label:'גרוש/ה'}, {val:'widowed', label:'אלמן/ה'}]} tooltip="מצב המשפחתי משפיע על יכולת ההחזר והתאמת התמהיל" />
                   <PremiumInput label="מספר ילדים מתחת לגיל 18" name="childrenUnder18" value={formData.childrenUnder18} icon={User} onChange={handleInputChange} placeholder="0" tooltip="מספר הילדים מתחת לגיל 18 משפיע על חישוב ההוצאות החודשיות" />
-                  <PremiumInput label="סוג הכנסה עיקרי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} options={[
-                    {val:'employee', label:'שכיר/ה'},
-                    {val:'self_employed', label:'עצמאי/ת'},
-                    {val:'controlling_shareholder', label:'בעל שליטה'},
-                    {val:'foreign_income', label:'הכנסה מחו"ל'},
-                    {val:'pensioner', label:'פנסיונר/ית'},
-                    {val:'both', label:'גם וגם'}
-                  ]} tooltip="סוג ההכנסה העיקרי משפיע על דרישות הבנק ואישור ההכנסות" />
+                  {/* בחירת סוג הכנסה - מולטי-סלקט עם צ'קבוקסים */}
+                  <div className="mb-5 text-right w-full">
+                    <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-3">
+                      <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                        <Briefcase size={16} className="text-gray-500" />
+                      </div>
+                      <span>סוג הכנסה (ניתן לבחור מספר אפשרויות)</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        {val:'employee', label:'שכיר/ה'},
+                        {val:'self_employed', label:'עצמאי/ת'},
+                        {val:'controlling_shareholder', label:'בעל שליטה'},
+                        {val:'foreign_income', label:'הכנסה מחו"ל'},
+                        {val:'pensioner', label:'פנסיונר/ית'},
+                      ].map(opt => {
+                        const isChecked = (formData.employmentTypes || []).includes(opt.val);
+                        return (
+                          <label key={opt.val} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${isChecked ? 'border-[#c9a961] bg-[#c9a961]/10' : 'border-gray-200 bg-gray-50 hover:border-[#1e3a5f]/40'}`}>
+                            <input 
+                              type="checkbox" 
+                              className="w-5 h-5 rounded border-gray-300 accent-[#1e3a5f]"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                const current = formData.employmentTypes || [];
+                                const updated = e.target.checked ? [...current, opt.val] : current.filter(v => v !== opt.val);
+                                handleInputChange('employmentTypes', updated.length > 0 ? updated : ['employee']);
+                                // keep employmentStatusA in sync for backward compat
+                                handleInputChange('employmentStatusA', updated[0] || 'employee');
+                              }}
+                            />
+                            <span className={`font-semibold text-sm ${isChecked ? 'text-[#1e3a5f]' : 'text-gray-600'}`}>{opt.label}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
                   
                   {/* שדה גיל לווה צעיר - מופיע רק לפנסיונר + משכנתא הפוכה */}
                   {formData.employmentStatusA === 'pensioner' && isReverseMortgage && (
