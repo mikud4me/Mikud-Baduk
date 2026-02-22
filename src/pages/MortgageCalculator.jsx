@@ -542,7 +542,25 @@ export default function MortgageCalculator() {
                   
                   <PremiumInput label="מצב משפחתי" name="maritalStatus" value={formData.maritalStatus} icon={User} onChange={handleInputChange} options={[{val:'single', label:'רווק/ה'}, {val:'married', label:'נשוי/אה'}, {val:'divorced', label:'גרוש/ה'}, {val:'widowed', label:'אלמן/ה'}]} tooltip="מצב המשפחתי משפיע על יכולת ההחזר והתאמת התמהיל" />
                   <PremiumInput label="מספר ילדים מתחת לגיל 18" name="childrenUnder18" value={formData.childrenUnder18} icon={User} onChange={handleInputChange} placeholder="0" tooltip="מספר הילדים מתחת לגיל 18 משפיע על חישוב ההוצאות החודשיות" />
-                  <PremiumInput label="סטטוס תעסוקתי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} options={[{val:'employee', label:'שכיר/ה'}, {val:'self_employed', label:'עצמאי/ת'}, {val:'both', label:'גם וגם'}]} tooltip="סוג העסקה שלך משפיע על דרישות הבנק ואישור ההכנסות" />
+                  <PremiumInput label="סוג הכנסה עיקרי" name="employmentStatusA" value={formData.employmentStatusA} icon={Briefcase} onChange={handleInputChange} 
+                    options={[
+                      {val:'employee', label:'שכיר/ה'}, 
+                      {val:'self_employed', label:'עצמאי/ת'}, 
+                      {val:'controlling_shareholder', label:'בעל שליטה'}, 
+                      {val:'foreign_income', label:'הכנסה מחו"ל'}, 
+                      {val:'pensioner', label:'פנסיונר/ית'},
+                      {val:'both', label:'שכיר + עצמאי'}
+                    ]} 
+                    tooltip="סוג ההכנסה משפיע על דרישות הבנק ואישור ההכנסות" />
+                  
+                  {/* שדה גיל לווה הצעיר ביותר - רלוונטי לפנסיונרים ומשכנתא לגיל הזהב */}
+                  {(formData.employmentStatusA === 'pensioner' || isReverseMortgage) && (
+                    <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-xl mb-5 animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-amber-800 font-bold text-sm mb-3">🏅 מצב פנסיונר - נא להזין גיל הלווה הצעיר ביותר</p>
+                      <PremiumInput label="גיל הלווה הצעיר ביותר" name="youngestBorrowerAge" value={formData.youngestBorrowerAge} placeholder="גיל" icon={Calendar} onChange={handleInputChange} tooltip="נדרש לחישוב תוחלת חיים ואחוז מימון למשכנתא לגיל הזהב" />
+                      <p className="text-amber-700 text-xs">* עבור פנסיונרים: יש לצרף אישור גמלה/פנסיה + דפי בנק 3 חודשים</p>
+                    </div>
+                  )}
                   
                   <div className="mb-5 text-right w-full">
                     <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
