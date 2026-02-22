@@ -128,7 +128,7 @@ export default function MortgageCalculator() {
     
     if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
     
-    // חישוב גיל מ-input type=date
+    // חישוב גיל מתאריך לידה
     if (!formData.birthDate) {
       errors.birthDate = "נא להזין תאריך לידה";
     } else {
@@ -354,19 +354,46 @@ export default function MortgageCalculator() {
     setLoading(true);
     setStep(7);
     
-    const prompt = `נתח תיק משכנתא: סכום ${results.loanAmount}₪, הון ${formData.equity}₪, מימון ${results.ltv.toFixed(1)}%. כתוב 4 סעיפים ממוספרים של המלצות אסטרטגיות וסיכונים. ענה בעברית בלבד ללא Markdown.`;
-    const emailPrompt = `צור טיוטת אימייל מקצועית ✨ לבנקאי עבור תיק משכנתא זה.`;
+    const employmentLabel = {
+      employee: 'שכיר', self_employed: 'עצמאי', controlling_shareholder: 'בעל שליטה',
+      foreign_income: 'הכנסה מחו"ל', pensioner: 'פנסיונר', both: 'שכיר+עצמאי'
+    };
+    const empTypes = (formData.employmentTypes || ['employee']).map(t => employmentLabel[t] || t).join(' + ');
+    const mortgageTypeLabel = {
+      purchase_first: 'רכישה דירה ראשונה', purchase_improve: 'משפרי דיור', 
+      refinance: 'מחזור', any_purpose: 'כל מטרה', reverse_mortgage: 'משכנתא לגיל הזהב'
+    }[formData.mortgageType] || formData.mortgageType;
+
+    const prompt = `אתה יועץ משכנתאות מנוסה בישראל. נתח את תיק המשכנתא הבא וכתוב ניתוח מקצועי ומקיף בעברית:
+
+לקוח: ${fullName}, גיל ${formData.age}
+מטרת המשכנתא: ${mortgageTypeLabel}
+סכום מבוקש: ₪${formatCurrency(results.loanAmount)}
+שווי נכס: ₪${formatCurrency(Number(String(formData.propertyPrice).replace(/,/g,'')))}
+אחוז מימון (LTV): ${results.ltv.toFixed(1)}%
+תקופה: ${results.actualDuration} שנים
+${!results.isReverse ? `יחס החזר (DTI): ${results.dti.toFixed(1)}%` : 'סוג: משכנתא הפוכה - ללא DTI'}
+הכנסה כוללת: ₪${formatCurrency(results.totalIncome)}/חודש
+סוג תעסוקה: ${empTypes}
+היסטוריית אשראי: ${formData.creditHistory === 'clean' ? 'תקינה' : 'מורכבת'}
+ציון תיק: ${results.score}/100
+סטטוס: ${results.status.text}
+
+כתוב ניתוח ב-5 נקודות ממוספרות:
+1. הערכת כשירות התיק ועמידה בתקני בנק ישראל
+2. ניתוח יחס המימון וההתאמה לסוג העסקה
+3. חוזקות התיק ונקודות להדגשה מול הבנקים
+4. סיכונים ואתגרים צפויים בהגשה
+5. המלצות אסטרטגיות ספציפיות לשיפור תנאי המשכנתא
+
+ענה בעברית בלבד, בסגנון מקצועי ואינפורמטיבי, ללא Markdown.`;
+
+    const emailPrompt = `צור טיוטת אימייל מקצועית לבנקאי עבור לקוח ${fullName} המבקש משכנתא של ₪${formatCurrency(results.loanAmount)} ב-${results.ltv.toFixed(1)}% מימון לתקופה של ${results.actualDuration} שנים. כלול פרטי פנייה, הצגת הלקוח ובקשה לפגישה. ענה בעברית בלבד.`;
 
     try {
       const [analysisResponse, emailResponse] = await Promise.all([
-        base44.integrations.Core.InvokeLLM({ 
-          prompt, 
-          add_context_from_internet: false 
-        }),
-        base44.integrations.Core.InvokeLLM({ 
-          prompt: emailPrompt, 
-          add_context_from_internet: false 
-        })
+        base44.integrations.Core.InvokeLLM({ prompt, add_context_from_internet: false }),
+        base44.integrations.Core.InvokeLLM({ prompt: emailPrompt, add_context_from_internet: false })
       ]);
       
       const analysis = analysisResponse?.output || analysisResponse || "הניתוח הושלם. קיימת היתכנות גבוהה לעסקה.";
@@ -377,6 +404,7 @@ export default function MortgageCalculator() {
       
       const lead = await base44.entities.Lead.create({
         ...formData,
+        fullName,
         loanAmount: results.loanAmount,
         ltv: results.ltv,
         score: results.score,
