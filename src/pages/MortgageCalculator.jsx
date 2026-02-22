@@ -128,7 +128,7 @@ export default function MortgageCalculator() {
     
     if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
     
-    // חישוב גיל מתאריך לידה
+    // חישוב גיל מ-input type=date
     if (!formData.birthDate) {
       errors.birthDate = "נא להזין תאריך לידה";
     } else {
@@ -354,46 +354,44 @@ export default function MortgageCalculator() {
     setLoading(true);
     setStep(7);
     
-    const employmentLabel = {
-      employee: 'שכיר', self_employed: 'עצמאי', controlling_shareholder: 'בעל שליטה',
-      foreign_income: 'הכנסה מחו"ל', pensioner: 'פנסיונר', both: 'שכיר+עצמאי'
-    };
-    const empTypes = (formData.employmentTypes || ['employee']).map(t => employmentLabel[t] || t).join(' + ');
-    const mortgageTypeLabel = {
-      purchase_first: 'רכישה דירה ראשונה', purchase_improve: 'משפרי דיור', 
-      refinance: 'מחזור', any_purpose: 'כל מטרה', reverse_mortgage: 'משכנתא לגיל הזהב'
-    }[formData.mortgageType] || formData.mortgageType;
-
-    const prompt = `אתה יועץ משכנתאות מנוסה בישראל. נתח את תיק המשכנתא הבא וכתוב ניתוח מקצועי ומקיף בעברית:
+    const incomeTypes = (formData.employmentTypes || ['employee']).join(', ');
+    const prompt = `אתה יועץ משכנתאות בכיר בישראל. נתח את תיק המשכנתא הבא באופן מקצועי ומלא:
 
 לקוח: ${fullName}, גיל ${formData.age}
-מטרת המשכנתא: ${mortgageTypeLabel}
-סכום מבוקש: ₪${formatCurrency(results.loanAmount)}
-שווי נכס: ₪${formatCurrency(Number(String(formData.propertyPrice).replace(/,/g,'')))}
+סוג הכנסה: ${incomeTypes}
+הכנסה חודשית נטו: ₪${formData.netIncome}${formData.partnerNetIncome && formData.partnerNetIncome !== '0' ? ` + ₪${formData.partnerNetIncome} (לווה ב')` : ''}
+מצב משפחתי: ${formData.maritalStatus}, ילדים מתחת ל-18: ${formData.childrenUnder18}
+חובות חודשיים קיימים: ₪${formData.monthlyDebts || 0}
+שווי נכס: ₪${formData.propertyPrice}
+סכום משכנתא מבוקש: ₪${results.loanAmount}
 אחוז מימון (LTV): ${results.ltv.toFixed(1)}%
-תקופה: ${results.actualDuration} שנים
-${!results.isReverse ? `יחס החזר (DTI): ${results.dti.toFixed(1)}%` : 'סוג: משכנתא הפוכה - ללא DTI'}
-הכנסה כוללת: ₪${formatCurrency(results.totalIncome)}/חודש
-סוג תעסוקה: ${empTypes}
-היסטוריית אשראי: ${formData.creditHistory === 'clean' ? 'תקינה' : 'מורכבת'}
-ציון תיק: ${results.score}/100
-סטטוס: ${results.status.text}
+${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
+תקופת הלוואה: ${formData.loanDuration} שנים
+סוג משכנתא: ${formData.mortgageType}
+ותק בעבודה: ${formData.employmentSeniority || 'לא צוין'} שנים
+היסטוריית אשראי: ${formData.creditHistory === 'clean' ? 'תקינה' : 'עם הערות'}
 
-כתוב ניתוח ב-5 נקודות ממוספרות:
-1. הערכת כשירות התיק ועמידה בתקני בנק ישראל
-2. ניתוח יחס המימון וההתאמה לסוג העסקה
-3. חוזקות התיק ונקודות להדגשה מול הבנקים
-4. סיכונים ואתגרים צפויים בהגשה
-5. המלצות אסטרטגיות ספציפיות לשיפור תנאי המשכנתא
+כתוב ניתוח מקצועי ומפורט הכולל:
+1. סיכום כשירות התיק ורמת הסיכון (פרט מדוע)
+2. ניתוח יחס ההחזר והמשמעות המעשית עבור הלקוח
+3. המלצות אסטרטגיות ספציפיות לשיפור התיק
+4. נקודות חוזק של התיק שיש להדגיש מול הבנק
+5. אזהרות וסיכונים שהלקוח צריך לדעת
 
-ענה בעברית בלבד, בסגנון מקצועי ואינפורמטיבי, ללא Markdown.`;
-
-    const emailPrompt = `צור טיוטת אימייל מקצועית לבנקאי עבור לקוח ${fullName} המבקש משכנתא של ₪${formatCurrency(results.loanAmount)} ב-${results.ltv.toFixed(1)}% מימון לתקופה של ${results.actualDuration} שנים. כלול פרטי פנייה, הצגת הלקוח ובקשה לפגישה. ענה בעברית בלבד.`;
+ענה בעברית בלבד, ברורה ומקצועית, ללא Markdown. כל סעיף בשורה נפרדת.`;
+    
+    const emailPrompt = `צור טיוטת אימייל קצרה ומקצועית לבנקאי עבור לקוח בשם ${fullName} המבקש משכנתא של ₪${formatCurrency(results.loanAmount)} עם LTV ${results.ltv.toFixed(1)}%. ענה בעברית בלבד.`;
 
     try {
       const [analysisResponse, emailResponse] = await Promise.all([
-        base44.integrations.Core.InvokeLLM({ prompt, add_context_from_internet: false }),
-        base44.integrations.Core.InvokeLLM({ prompt: emailPrompt, add_context_from_internet: false })
+        base44.integrations.Core.InvokeLLM({ 
+          prompt, 
+          add_context_from_internet: false 
+        }),
+        base44.integrations.Core.InvokeLLM({ 
+          prompt: emailPrompt, 
+          add_context_from_internet: false 
+        })
       ]);
       
       const analysis = analysisResponse?.output || analysisResponse || "הניתוח הושלם. קיימת היתכנות גבוהה לעסקה.";
@@ -404,7 +402,6 @@ ${!results.isReverse ? `יחס החזר (DTI): ${results.dti.toFixed(1)}%` : 'ס
       
       const lead = await base44.entities.Lead.create({
         ...formData,
-        fullName,
         loanAmount: results.loanAmount,
         ltv: results.ltv,
         score: results.score,
@@ -426,28 +423,21 @@ ${!results.isReverse ? `יחס החזר (DTI): ${results.dti.toFixed(1)}%` : 'ס
     if (!isPurchased) return;
     setInsightLoading(true);
     
-    const empType = (formData.employmentTypes || ['employee'])[0];
-    const isReverse = formData.mortgageType === 'reverse_mortgage';
-    const isPensioner = formData.employmentTypes?.includes('pensioner');
-    const isSelfEmployed = formData.employmentTypes?.includes('self_employed') || formData.employmentTypes?.includes('controlling_shareholder');
+    const isPensioner = (formData.employmentTypes || []).includes('pensioner');
+    const isSelfEmployed = (formData.employmentTypes || []).includes('self_employed');
     
-    const docPrompt = `צור רשימת מסמכים מדויקת להגשת משכנתא לבנק בישראל עבור לקוח עם הפרופיל הבא:
-- סוג תעסוקה: ${(formData.employmentTypes || ['employee']).join(', ')}
-- סוג משכנתא: ${isReverse ? 'משכנתא לגיל הזהב (הפוכה)' : formData.mortgageType}
-- מצב משפחתי: ${formData.maritalStatus === 'married' ? 'נשוי (שני לווים)' : 'יחיד'}
-
-כללי חשוב: 
-- שכיר: 3 תלושי שכר אחרונים (לא 36), עו"ש 3 חודשים (לא 36).
-- עצמאי/בעל שליטה: שומות מס 2 שנים + אישור רו"ח + עו"ש 3 חודשים.
-- פנסיונר: אישור קצבה + עו"ש 3 חודשים.
-- משכנתא הפוכה: ת"ז + ספח + נסח טאבו + הסכמת יורשים.
-
-כתוב רשימה ממוספרת נקייה ומדויקת בעברית, ללא Markdown.`;
+    const docsList = isReverseMortgage 
+      ? `רשימת מסמכים נדרשים למשכנתא לגיל הזהב:\n1. תעודת זהות + ספח מעודכן\n2. נסח טאבו מעודכן\n3. דפי בנק 3 חודשים אחרונים\n4. אישור הסכמת יורשים חתום\n5. אישור קצבה/פנסיה חודשית\n6. שמאות נכס (תואם מוסד פיננסי)`
+      : isPensioner 
+        ? `רשימת מסמכים נדרשים - פנסיונר/ית:\n1. תעודת זהות + ספח מעודכן\n2. אישור גמלה/פנסיה חודשית (מקרן הפנסיה / ביטוח לאומי)\n3. דפי בנק 3 חודשים אחרונים\n4. נסח טאבו מעודכן\n5. חוזה רכישה / הסכם\n6. שמאות נכס (תואם מוסד פיננסי)`
+        : isSelfEmployed
+          ? `רשימת מסמכים נדרשים - עצמאי/ת:\n1. תעודת זהות + ספח מעודכן\n2. 2 שנות דוחות מס הכנסה אחרונים (עם אישור רו"ח)\n3. דפי בנק 3 חודשים אחרונים (עסקי + פרטי)\n4. נסח טאבו מעודכן\n5. חוזה רכישה / הסכם\n6. שמאות נכס (תואם מוסד פיננסי)\n7. אישור ניהול ספרים מרשות המסים`
+          : `רשימת מסמכים נדרשים - שכיר/ה:\n1. תעודת זהות + ספח מעודכן\n2. 3 תלושי שכר אחרונים\n3. דפי בנק 3 חודשים אחרונים\n4. נסח טאבו מעודכן\n5. חוזה רכישה / הסכם\n6. שמאות נכס (תואם מוסד פיננסי)`;
 
     const types = {
-      roadmap: { label: "אסטרטגיית חיסכון", prompt: `צור 3 טיפים אסטרטגיים לחיסכון בריבית וקיצור תקופת משכנתא של ₪${formatCurrency(results.loanAmount)} ל-${results.actualDuration} שנים. ענה כרשימה ממוספרת נקייה בעברית.` },
-      negotiation: { label: "הכנה למשא ומתן", prompt: `צור 5 שאלות מפתח שהלקוח צריך לשאול את הבנקאי לשיפור תנאי משכנתא של ₪${formatCurrency(results.loanAmount)}. ענה כרשימה ממוספרת בעברית.` },
-      documents: { label: "רשימת מסמכים להגשה", prompt: docPrompt }
+      roadmap: { label: "אסטרטגיית חיסכון", prompt: `צור 3 טיפים אסטרטגיים מדויקים לחיסכון בריבית ו/או קיצור תקופת משכנתא של ₪${formatCurrency(results.loanAmount)} ל-${formData.loanDuration} שנים. ענה כרשימה ממוספרת נקייה בעברית.` },
+      negotiation: { label: "הכנה למשא ומתן", prompt: `צור 3 שאלות חדות ומקצועיות לבנקאי לשיפור תנאי משכנתא של ₪${formatCurrency(results.loanAmount)}, LTV ${results.ltv.toFixed(1)}%. ענה כרשימה ממוספרת בעברית.` },
+      documents: { label: "רשימת מסמכים להגשה", prompt: docsList }
     };
     
     try {
