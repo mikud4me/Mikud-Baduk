@@ -209,7 +209,6 @@ export default function MortgageCalculator() {
     const price = Number(String(formData.propertyPrice).replace(/,/g, '')) || 0;
     const eq = Number(String(formData.equity).replace(/,/g, '')) || 0;
     const duration = Math.min(maxTerm, Number(formData.loanDuration) || maxTerm);
-    // בחירת סכום הלוואה: אם הוזן סכום מפורש נשתמש בו, אחרת נחשב מהון עצמי
     const requestedLoan = Number(String(formData.loanAmount || '').replace(/,/g, '')) || 0;
     const loanAmount = requestedLoan > 0 ? requestedLoan : Math.max(0, price - eq);
     const ltv = price > 0 ? (loanAmount / price) : 0;
@@ -220,50 +219,62 @@ export default function MortgageCalculator() {
     const totalInc = netInc + partnerInc + additionalInc;
     const freeIncome = Math.max(1, totalInc - debts);
     const isReverse = formData.mortgageType === 'reverse_mortgage';
+    const isSenior = formData.mortgageType === 'senior_bank';
+    const isBalloon = formData.seniorBalloon === true;
+
+    // בחירת ריביות: משכנתא בנקאית לגיל הזהב = ALL_PURPOSE_RATES
+    const activeRates = isSenior ? ALL_PURPOSE_RATES : rates;
+
+    // חישוב החזר: בלון = ריבית בלבד (principal * rate / 12)
+    const calcPmt = (principal, rate, years) => {
+      if (isSenior && isBalloon) return principal * rate / 12;
+      return calculatePayment(principal, rate, years);
+    };
 
     const mixB_T1 = { 
       name: "פריים (Prime)", 
       amount: loanAmount * 0.33, 
-      rate: rates.PRIME_CALC, 
+      rate: activeRates.PRIME_CALC, 
       years: duration, 
-      pmt: calculatePayment(loanAmount * 0.33, rates.PRIME_CALC, duration), 
-      desc: "P-0.5%" 
+      pmt: calcPmt(loanAmount * 0.33, activeRates.PRIME_CALC, duration), 
+      desc: isSenior && isBalloon ? "ריבית בלבד" : "P-0.5%" 
     };
     const mixB_T2 = { 
       name: "קבועה לא צמודה (קל\"צ)", 
       amount: loanAmount * 0.33, 
-      rate: rates.FIXED_UNLINKED, 
+      rate: activeRates.FIXED_UNLINKED, 
       years: duration, 
-      pmt: calculatePayment(loanAmount * 0.33, rates.FIXED_UNLINKED, duration), 
-      desc: "החזר קבוע" 
+      pmt: calcPmt(loanAmount * 0.33, activeRates.FIXED_UNLINKED, duration), 
+      desc: isSenior && isBalloon ? "ריבית בלבד" : "החזר קבוע" 
     };
     const mixB_T3 = { 
       name: "משתנה כל 5 שנים צמודה", 
       amount: loanAmount * 0.34, 
-      rate: rates.VAR_LINKED, 
+      rate: activeRates.VAR_LINKED, 
       years: duration, 
-      pmt: calculatePayment(loanAmount * 0.34, rates.VAR_LINKED, duration), 
-      desc: "משתנה צמודה" 
+      pmt: calcPmt(loanAmount * 0.34, activeRates.VAR_LINKED, duration), 
+      desc: isSenior && isBalloon ? "ריבית בלבד" : "משתנה צמודה" 
     };
     const pmtB = mixB_T1.pmt + mixB_T2.pmt + mixB_T3.pmt;
-    
-    // מנוע הדירוג - Underwriting Engine
-    const dti = isReverse ? 0 : (pmtB / freeIncome) * 100;
+
+    // בלון: חישוב DTI על ריבית בלבד
+    const balloonInterestOnly = isSenior && isBalloon ? loanAmount * activeRates.FIXED_UNLINKED / 12 : null;
+    const dtiBase = isSenior && isBalloon ? balloonInterestOnly : pmtB;
+    const dti = (isReverse || isSenior) ? 0 : (dtiBase / freeIncome) * 100;
     const ltvPercent = ltv * 100;
     const youngestAge = Number(formData.youngestBorrowerAge) || Number(formData.age) || 60;
     const maxReverseLTV = isReverse ? getReverseMortgageMaxLTV(youngestAge) : 75;
     
-    // קביעת סטטוס כשירות לפי תקני בנק ישראל
+    // קביעת סטטוס כשירות
     let status = { 
       color: 'green', 
-      text: isReverse ? 'כשיר למשכנתא לגיל הזהב' : 'כשיר להגשה לבנק', 
-      subtitle: isReverse ? `אחוז מימון מקסימלי לגילך: ${maxReverseLTV}%` : 'התיק עומד בתקני בנק ישראל',
+      text: isReverse ? 'כשיר למשכנתא לגיל הזהב' : isSenior ? 'כשיר - משכנתא בנקאית לגיל הזהב' : 'כשיר להגשה לבנק', 
+      subtitle: isReverse ? `אחוז מימון מקסימלי לגילך: ${maxReverseLTV}%` : isSenior ? `מקסימום ${SENIOR_BANK_MAX_LTV}% מימון | עד 30 שנה | ללא ביטוח חיים חובה` : 'התיק עומד בתקני בנק ישראל',
       action: null,
       icon: 'check'
     };
     
     if (isReverse) {
-      // בדיקת LTV מיוחדת למשכנתא הפוכה
       if (ltvPercent > maxReverseLTV) {
         const excessLoan = loanAmount - (price * maxReverseLTV / 100);
         status = {
@@ -274,96 +285,60 @@ export default function MortgageCalculator() {
           icon: 'alert'
         };
       }
+    } else if (isSenior) {
+      // בדיקת LTV קשיחה: מקסימום 45%
+      if (ltvPercent > SENIOR_BANK_MAX_LTV) {
+        const excessLoan = loanAmount - (price * SENIOR_BANK_MAX_LTV / 100);
+        status = { 
+          color: 'red', 
+          text: 'דורש התאמה', 
+          subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר (מקסימום ${SENIOR_BANK_MAX_LTV}%)`,
+          action: `יש להקטין את הסכום המבוקש ב-₪${formatCurrency(Math.floor(excessLoan))} להורדת המימון ל-${SENIOR_BANK_MAX_LTV}%.`,
+          icon: 'alert'
+        };
+      }
     } else {
-      // בדיקות רגילות
       if (dti > 45) {
         const excessPayment = pmtB - (freeIncome * 0.40);
-        status = { 
-          color: 'red', 
-          text: 'דורש התאמת נתונים', 
-          subtitle: `יחס החזר ${dti.toFixed(1)}% חורג מהמותר`,
-          action: `יש להקטין את ההחזר החודשי ב-₪${formatCurrency(Math.floor(excessPayment))} או להגדיל הכנסות.`,
-          icon: 'alert'
-        };
+        status = { color: 'red', text: 'דורש התאמת נתונים', subtitle: `יחס החזר ${dti.toFixed(1)}% חורג מהמותר`, action: `יש להקטין את ההחזר החודשי ב-₪${formatCurrency(Math.floor(excessPayment))} או להגדיל הכנסות.`, icon: 'alert' };
       } else if (ltvPercent > 75) {
         const excessLoan = loanAmount - (price * 0.75);
-        status = { 
-          color: 'red', 
-          text: 'דורש התאמת נתונים', 
-          subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר`,
-          action: `נדרש הון עצמי נוסף של ₪${formatCurrency(Math.floor(excessLoan))} להורדת אחוז המימון ל-75%.`,
-          icon: 'alert'
-        };
+        status = { color: 'red', text: 'דורש התאמת נתונים', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר`, action: `נדרש הון עצמי נוסף של ₪${formatCurrency(Math.floor(excessLoan))} להורדת אחוז המימון ל-75%.`, icon: 'alert' };
       } else if (dti > 40) {
-        status = { 
-          color: 'yellow', 
-          text: 'דורש אישור מיוחד', 
-          subtitle: `יחס החזר ${dti.toFixed(1)}% גבולי`,
-          action: 'מומלץ להאריך תקופת הלוואה, לצמצם הלוואות קיימות, או להגדיל הכנסות.',
-          icon: 'warning'
-        };
+        status = { color: 'yellow', text: 'דורש אישור מיוחד', subtitle: `יחס החזר ${dti.toFixed(1)}% גבולי`, action: 'מומלץ להאריך תקופת הלוואה, לצמצם הלוואות קיימות, או להגדיל הכנסות.', icon: 'warning' };
       } else if (dti > 35) {
-        status = { 
-          color: 'yellow', 
-          text: 'כשיר עם המלצה לשיפור', 
-          subtitle: `יחס החזר ${dti.toFixed(1)}% טוב`,
-          action: 'תיק תקין. ניתן לשפר ע"י הארכת תקופה או תמהיל אסטרטגי לחיסכון בריבית.',
-          icon: 'info'
-        };
+        status = { color: 'yellow', text: 'כשיר עם המלצה לשיפור', subtitle: `יחס החזר ${dti.toFixed(1)}% טוב`, action: 'תיק תקין. ניתן לשפר ע"י הארכת תקופה או תמהיל אסטרטגי לחיסכון בריבית.', icon: 'info' };
       }
     }
     
-    // ציון איכות משוקלל
     const qualityScore = isReverse 
       ? Math.min(100, Math.max(0, 100 - (ltvPercent > maxReverseLTV ? (ltvPercent - maxReverseLTV) * 3 : 0)))
-      : Math.min(100, Math.max(0, 
-          100 - (dti > 35 ? (dti - 35) * 4 : 0) - (ltvPercent > 70 ? (ltvPercent - 70) * 2 : 0)
-        ));
+      : isSenior
+        ? Math.min(100, Math.max(0, 100 - (ltvPercent > SENIOR_BANK_MAX_LTV ? (ltvPercent - SENIOR_BANK_MAX_LTV) * 3 : 0)))
+        : Math.min(100, Math.max(0, 100 - (dti > 35 ? (dti - 35) * 4 : 0) - (ltvPercent > 70 ? (ltvPercent - 70) * 2 : 0)));
+
+    // בלון: החזר ריבית בלבד (למסך השוואה)
+    const balloonMonthly = isSenior && isBalloon ? loanAmount * activeRates.FIXED_UNLINKED / 12 : null;
+    const regularMonthly = isSenior ? calculatePayment(loanAmount, activeRates.FIXED_UNLINKED, duration) : null;
 
     return {
-      loanAmount, 
-      ltv: ltvPercent, 
-      totalIncome: totalInc, 
-      dti, 
-      actualDuration: duration,
-      status,
-      score: qualityScore,
-      isReverse,
+      loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration,
+      status, score: qualityScore, isReverse, isSenior, isBalloon,
+      balloonMonthly, regularMonthly,
       mixA: { 
-        tracks: [{ 
-          name: "100% קבועה לא צמודה", 
-          amount: loanAmount, 
-          rate: rates.FIXED_UNLINKED, 
-          years: duration, 
-          pmt: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration), 
-          desc: "הגנה מלאה" 
-        }], 
-        total: calculatePayment(loanAmount, rates.FIXED_UNLINKED, duration) 
+        tracks: [{ name: isSenior ? "100% קבועה לא צמודה (כל מטרה)" : "100% קבועה לא צמודה", amount: loanAmount, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "⚠️ בלון - ריבית בלבד" : "הגנה מלאה" }], 
+        total: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration) 
       },
       mixB: { tracks: [mixB_T1, mixB_T2, mixB_T3], total: pmtB },
       mixC: { 
         tracks: [
-          { 
-            name: "50% פריים (Prime)", 
-            amount: loanAmount * 0.5, 
-            rate: rates.PRIME_CALC, 
-            years: duration, 
-            pmt: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration), 
-            desc: "ניצול שוק" 
-          }, 
-          { 
-            name: "50% קבועה (קל\"צ)", 
-            amount: loanAmount * 0.5, 
-            rate: rates.FIXED_UNLINKED, 
-            years: duration, 
-            pmt: calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration), 
-            desc: "עוגן יציבות" 
-          }
+          { name: "50% פריים (Prime)", amount: loanAmount * 0.5, rate: activeRates.PRIME_CALC, years: duration, pmt: calcPmt(loanAmount*0.5, activeRates.PRIME_CALC, duration), desc: isSenior && isBalloon ? "ריבית בלבד" : "ניצול שוק" }, 
+          { name: isSenior ? "50% קבועה (כל מטרה)" : "50% קבועה (קל\"צ)", amount: loanAmount * 0.5, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount*0.5, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "ריבית בלבד" : "עוגן יציבות" }
         ], 
-        total: calculatePayment(loanAmount*0.5, rates.PRIME_CALC, duration) + calculatePayment(loanAmount*0.5, rates.FIXED_UNLINKED, duration) 
+        total: calcPmt(loanAmount*0.5, activeRates.PRIME_CALC, duration) + calcPmt(loanAmount*0.5, activeRates.FIXED_UNLINKED, duration)
       }
     };
-  }, [formData, maxTerm, rates]);
+  }, [formData, maxTerm, rates, ALL_PURPOSE_RATES, isSeniorBankMortgage]);
 
   const generateFullAnalysis = async () => {
     if (!validateStep(6)) return;
