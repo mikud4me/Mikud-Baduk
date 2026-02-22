@@ -1108,9 +1108,12 @@ export default function MortgageCalculator() {
                     <Lock size={32} className="sm:w-12 sm:h-12 md:w-16 md:h-16 text-[#001a33] mb-3 sm:mb-5" />
                     <h4 className="text-lg sm:text-2xl md:text-3xl font-black text-[#001a33] mb-2 sm:mb-3 leading-tight px-2">דוח תמהילים אופטימלי נעול</h4>
                     <p className="text-slate-700 font-bold text-xs sm:text-sm md:text-base max-w-sm mb-4 sm:mb-8 leading-relaxed italic px-2">הפקת התמהילים המדויקים, פירוט הריביות והחזרים חודשיים מלאים דורשת פתיחת תיק בחברת מיקוד משכנתאות.</p>
-                    <button onClick={handlePurchaseClick} className="bg-[#001a33] text-white px-5 sm:px-8 md:px-10 py-3 sm:py-4 rounded-xl sm:rounded-[2rem] font-black text-base sm:text-xl md:text-2xl shadow-2xl hover:bg-[#d4af37] hover:text-[#001a33] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 sm:gap-4">
-                      <span>רכוש דוח מלא ב-₪499 + מע"מ</span>
-                      <ChevronLeft size={20} className="sm:w-6 sm:h-6"/>
+                    <button onClick={handlePurchaseClick} disabled={loading} className="bg-[#001a33] text-white px-5 sm:px-8 md:px-10 py-3 sm:py-4 rounded-xl sm:rounded-[2rem] font-black text-base sm:text-xl md:text-2xl shadow-2xl hover:bg-[#d4af37] hover:text-[#001a33] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 sm:gap-4 disabled:opacity-70 disabled:cursor-not-allowed">
+                      {loading ? (
+                        <><Loader2 size={20} className="animate-spin" /><span>מכין תשלום...</span></>
+                      ) : (
+                        <><span>רכוש דוח מלא ב-₪499 + מע"מ</span><ChevronLeft size={20} className="sm:w-6 sm:h-6"/></>
+                      )}
                     </button>
                   </div>
                 )}
