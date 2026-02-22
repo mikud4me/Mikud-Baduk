@@ -88,6 +88,17 @@ export default function MortgageCalculator() {
       }
     };
     loadRates();
+
+    // בדיקת חזרה מתשלום Stripe
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    const leadId = urlParams.get('lead_id');
+    if (sessionId && leadId) {
+      setCurrentLeadId(leadId);
+      setIsPurchased(true);
+      setStep(7);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   // פונקציה לבחירת ריבית מדויקת לפי LTV
