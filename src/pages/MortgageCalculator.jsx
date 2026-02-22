@@ -109,9 +109,11 @@ export default function MortgageCalculator() {
   };
 
   const maxTerm = useMemo(() => {
+    // משכנתא בנקאית לגיל הזהב: מקסימום 30 שנה ללא קשר לגיל
+    if (isSeniorBankMortgage) return SENIOR_BANK_MAX_TERM;
     const ageNum = Number(formData.age) || 35;
     return Math.min(30, Math.max(1, 80 - ageNum));
-  }, [formData.age]);
+  }, [formData.age, isSeniorBankMortgage]);
 
   const handleInputChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
