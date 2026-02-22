@@ -18,11 +18,33 @@ export default function NegotiationPack({ formData, results, selectedMix }) {
   const scoreColor = powerScore >= 80 ? '#22c55e' : powerScore >= 60 ? '#f59e0b' : '#ef4444';
   const scoreLabel = powerScore >= 80 ? 'חזק מאוד' : powerScore >= 60 ? 'בינוני-גבוה' : 'בינוני';
 
+  const isReverse = formData.mortgageType === 'reverse_mortgage';
+  const empTypes = formData.employmentTypes || [formData.employmentStatusA || 'employee'];
+  const isSelfEmployed = empTypes.some(t => ['self_employed', 'controlling_shareholder'].includes(t));
+  const isPensioner = empTypes.includes('pensioner');
+  const isMarried = formData.maritalStatus === 'married';
+
   const documents = [
-    'תעודת זהות + ספח מעודכן',
-    '3 תלושי שכר אחרונים (או אישור רו"ח לעצמאים)',
-    'עו"ש 3 חודשים (נקי מחזרות/חריגות)',
-    'נסח טאבו מעודכן (דיגיטלי)'
+    'תעודת זהות + ספח מעודכן (לכל לווה)',
+    ...(isSelfEmployed ? [
+      'שומות מס 2 השנים האחרונות',
+      'אישור הכנסה מרואה חשבון',
+      'דפי עו"ש 3 חודשים אחרונים',
+    ] : isPensioner ? [
+      'אישור קצבה/גמלה מקרן פנסיה / ביטוח לאומי',
+      'דפי עו"ש 3 חודשים אחרונים',
+    ] : [
+      '3 תלושי שכר אחרונים',
+      'דפי עו"ש 3 חודשים אחרונים',
+    ]),
+    ...(isReverse ? [
+      'נסח טאבו מעודכן',
+      'אישור הסכמת יורשים (חתום נוטריון)',
+    ] : [
+      'נסח טאבו / נסח בית משותף מעודכן',
+    ]),
+    ...(isMarried ? ['תיעוד זהות + מסמכים תואמים של לווה ב\''] : []),
+    'אישור BDI / דוח נתוני אשראי',
   ];
 
   return (
