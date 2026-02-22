@@ -837,10 +837,25 @@ export default function MortgageCalculator() {
 
               {step === 4 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו (לאחר ניכויים) - ממוצע 3 חודשים אחרונים" />
-                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו - משפרת את יכולת ההחזר והסיכוי לאישור" />
-                  <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג) - משפיע על יחס החוב להכנסה" />
-                  <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית הממוצעת - משפיעה על הערכת היציבות הפיננסית" />
+                  {isReverseMortgage ? (
+                    <div className="p-6 bg-purple-50 border-2 border-purple-300 rounded-2xl text-center">
+                      <p className="text-purple-800 font-black text-lg mb-2">✅ משכנתא לגיל הזהב</p>
+                      <p className="text-purple-700 text-sm leading-relaxed">
+                        במשכנתא לגיל הזהב <strong>אין החזר חודשי חובה</strong> - הסכום מוחזר בסוף התקופה או בעת מכירת הנכס.<br/>
+                        לכן, בדיקת יחס החזר (DTI) אינה רלוונטית.
+                      </p>
+                      <div className="mt-4 p-3 bg-purple-100 rounded-xl">
+                        <p className="text-purple-800 text-xs font-bold">📋 מסמכים נדרשים: תעודת זהות עם ספח + אישור בעלות על הנכס + אישור הסכמת יורשים</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <PremiumInput label="נטו לווה א' (ממוצע 3 חודשים)" name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו (לאחר ניכויים) - ממוצע 3 חודשים אחרונים" />
+                      <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו - משפרת את יכולת ההחזר והסיכוי לאישור" />
+                      <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג) - משפיע על יחס החוב להכנסה" />
+                      <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית הממוצעת - משפיעה על הערכת היציבות הפיננסית" />
+                    </>
+                  )}
                 </div>
               )}
 
