@@ -972,7 +972,8 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
                       {val:'refinance', label:'מחזור (שיפור תנאים)'},
                       {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
-                      {val:'reverse_mortgage', label:'משכנתא לגיל הזהב (Reverse Mortgage)'}
+                      {val:'reverse_mortgage', label:'משכנתא הפוכה (Reverse Mortgage)'},
+                      {val:'senior_bank', label:'משכנתא בנקאית לגיל הזהב – כל מטרה (45% LTV | עד 30 שנה)'}
                     ]} 
                     tooltip="מטרת המשכנתא קובעת את אחוז המימון המקסימלי ותנאי ההלוואה" />
                   
