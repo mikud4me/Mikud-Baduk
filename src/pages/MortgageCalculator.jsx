@@ -13,6 +13,7 @@ import BankLogosCarousel from '@/components/mikud/BankLogosCarousel';
 import NegotiationPack from '@/components/mikud/NegotiationPack';
 
 
+// v2.1
 const TODAY_DATE = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const DEFAULT_RATES = {
