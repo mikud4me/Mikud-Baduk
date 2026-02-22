@@ -198,7 +198,9 @@ export default function MortgageCalculator() {
     const price = Number(String(formData.propertyPrice).replace(/,/g, '')) || 0;
     const eq = Number(String(formData.equity).replace(/,/g, '')) || 0;
     const duration = Math.min(maxTerm, Number(formData.loanDuration) || maxTerm);
-    const loanAmount = Math.max(0, price - eq);
+    // בחירת סכום הלוואה: אם הוזן סכום מפורש נשתמש בו, אחרת נחשב מהון עצמי
+    const requestedLoan = Number(String(formData.loanAmount || '').replace(/,/g, '')) || 0;
+    const loanAmount = requestedLoan > 0 ? requestedLoan : Math.max(0, price - eq);
     const ltv = price > 0 ? (loanAmount / price) : 0;
     const netInc = Number(String(formData.netIncome).replace(/,/g, '')) || 0;
     const partnerInc = Number(String(formData.partnerNetIncome).replace(/,/g, '')) || 0;
@@ -206,6 +208,7 @@ export default function MortgageCalculator() {
     const debts = Number(String(formData.monthlyDebts).replace(/,/g, '')) || 0;
     const totalInc = netInc + partnerInc + additionalInc;
     const freeIncome = Math.max(1, totalInc - debts);
+    const isReverse = formData.mortgageType === 'reverse_mortgage';
 
     const mixB_T1 = { 
       name: "פריים (Prime)", 
