@@ -420,7 +420,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
     
     const isSeniorBank = formData.mortgageType === 'senior_bank';
     const docsList = isSeniorBank
-      ? `רשימת מסמכים נדרשים - משכנתא בנקאית לגיל הזהב:\n1. תעודת זהות + ספח מעודכן (לכל לווה)\n2. אישור קצבה/פנסיה/הכנסה חודשית\n3. דפי בנק 3 חודשים אחרונים\n4. נסח טאבו מעודכן\n5. שמאות נכס (תואם מוסד פיננסי)\n6. ✅ טופס חתימת ילדים/יורשים על מודעות למשכנתא (חובה!)\n7. הצהרת אסטרטגיית יציאה${formData.balloonExitStrategy ? ` (${formData.balloonExitStrategy})` : ''}`
+      ? `רשימת מסמכים נדרשים – משכנתא בנקאית לגיל הזהב (כל מטרה):\n1. תעודת זהות + ספח מעודכן (לכל לווה)\n2. טופס חתימת ילדים/יורשים על מודעות למשכנתא (חובה!)\n3. אישור קצבה/פנסיה חודשית (3 חודשים אחרונים)\n4. דפי בנק 3 חודשים אחרונים\n5. נסח טאבו מעודכן\n6. שמאות נכס (תואם מוסד פיננסי)\n7. אישור BDI / דוח נתוני אשראי${formData.seniorBalloon ? '\n8. הצהרת אסטרטגיית יציאה (בלון) – חתומה' : ''}`
       : isReverseMortgage 
       ? `רשימת מסמכים נדרשים למשכנתא הפוכה:\n1. תעודת זהות + ספח מעודכן\n2. נסח טאבו מעודכן\n3. דפי בנק 3 חודשים אחרונים\n4. אישור הסכמת יורשים חתום\n5. אישור קצבה/פנסיה חודשית\n6. שמאות נכס (תואם מוסד פיננסי)`
       : isPensioner 
@@ -969,67 +969,34 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
               {step === 3 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  <PremiumInput label="סוג ומטרת המשכנתא" name="mortgageType" value={formData.mortgageType} icon={Target} onChange={(n,v) => { handleInputChange(n,v); handleInputChange('seniorBalloon', false); }} 
+                  <PremiumInput label="סוג ומטרת המשכנתא" name="mortgageType" value={formData.mortgageType} icon={Target} onChange={handleInputChange} 
                     options={[
                       {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75%)'},
                       {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
                       {val:'refinance', label:'מחזור (שיפור תנאים)'},
                       {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
-                      {val:'senior_bank', label:'🏦 משכנתא בנקאית לגיל הזהב (עד 45% | 30 שנה)'},
-                      {val:'reverse_mortgage', label:'משכנתא הפוכה - ללא החזר חודשי (Reverse Mortgage)'}
+                      {val:'reverse_mortgage', label:'משכנתא הפוכה (Reverse Mortgage)'},
+                      {val:'senior_bank', label:'משכנתא בנקאית לגיל הזהב – כל מטרה (45% LTV | עד 30 שנה)'}
                     ]} 
                     tooltip="מטרת המשכנתא קובעת את אחוז המימון המקסימלי ותנאי ההלוואה" />
                   
-                  {isSeniorBankMortgage && (
-                    <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl animate-in slide-in-from-top-2 duration-300 space-y-3">
-                      <p className="text-blue-800 font-bold text-sm">🏦 משכנתא בנקאית לגיל הזהב - מוצר פרימיום</p>
-                      <ul className="text-blue-700 text-xs space-y-1 list-disc list-inside leading-relaxed">
-                        <li>פריסה עד 30 שנה – ללא קשר לגיל הלווה</li>
-                        <li>מקסימום 45% מימון (LTV) מהנכס</li>
-                        <li>ללא חובת ביטוח חיים</li>
-                        <li>ריביות מחירון "כל מטרה"</li>
-                        <li>חתימת ילדים/יורשים על מודעות – חובה</li>
-                      </ul>
-                      {/* מסלול בלון */}
-                      <div className="mt-3 pt-3 border-t border-blue-200">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                          <div 
-                            onClick={() => handleInputChange('seniorBalloon', !formData.seniorBalloon)}
-                            className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${formData.seniorBalloon ? 'bg-[#1e3a5f]' : 'bg-gray-300'}`}
-                          >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.seniorBalloon ? 'translate-x-7' : 'translate-x-1'}`} />
-                          </div>
-                          <div>
-                            <p className="text-blue-900 font-black text-sm">הלוואת בלון – ריבית בלבד</p>
-                            <p className="text-blue-600 text-xs">תשלום ריבית בלבד (עד 15 שנה). הקרן נפרעת בסיום.</p>
-                          </div>
-                        </label>
-                        {formData.seniorBalloon && (
-                          <div className="mt-3 p-3 bg-amber-50 border-2 border-amber-400 rounded-xl animate-in slide-in-from-top-2 duration-200">
-                            <p className="text-amber-800 font-black text-xs mb-2">⚠️ הלוואת בלון – אזהרה חשובה</p>
-                            <p className="text-amber-700 text-xs leading-relaxed">הקרן אינה נפרעת במהלך התקופה ותשולם במלואה בתום עד 15 שנה. יש לציין אסטרטגיית יציאה.</p>
-                            <div className="mt-3">
-                              <PremiumInput label="אסטרטגיית פירעון הקרן בסיום" name="balloonExitStrategy" value={formData.balloonExitStrategy || ''} icon={Target} onChange={handleInputChange}
-                                options={[
-                                  {val:'', label:'בחר אסטרטגיית יציאה...'},
-                                  {val:'sell_property', label:'מכירת הנכס'},
-                                  {val:'inheritance', label:'פירעון מירושה'},
-                                  {val:'regular_mortgage', label:'מעבר למשכנתא רגילה'},
-                                  {val:'savings', label:'פירעון מחסכונות'},
-                                  {val:'other', label:'אחר (יפורט ביועץ)'},
-                                ]}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                  {isReverseMortgage && (
+                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-amber-800 font-bold text-sm">🏛️ משכנתא הפוכה</p>
+                      <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
                     </div>
                   )}
 
-                  {isReverseMortgage && (
-                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
-                      <p className="text-amber-800 font-bold text-sm">🏛️ משכנתא הפוכה - ללא החזר חודשי</p>
-                      <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
+                  {isSeniorBankMortgage && (
+                    <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-blue-900 font-black text-sm mb-2">🏦 משכנתא בנקאית לגיל הזהב – כל מטרה</p>
+                      <ul className="text-blue-800 text-xs space-y-1 list-none">
+                        <li>✅ פריסה עד 30 שנה ללא הגבלת גיל עליונה</li>
+                        <li>✅ LTV מקסימלי: 45% (עד 50% בבנקים ספציפיים)</li>
+                        <li>✅ ללא חובת ביטוח חיים</li>
+                        <li>✅ ריביות מחירון "כל מטרה" (All-Purpose)</li>
+                        <li>⚠️ חובת יידוע יורשים וחתימתם</li>
+                      </ul>
                     </div>
                   )}
 
@@ -1123,7 +1090,58 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
               {step === 6 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500 text-center py-10">
-                  <PremiumInput label={isSeniorBankMortgage && formData.seniorBalloon ? "תקופת הבלון (עד 15 שנה)" : "תקופת הלוואה רצויה (בשנים)"} name="loanDuration" type="range" value={formData.loanDuration} min={4} max={isSeniorBankMortgage && formData.seniorBalloon ? 15 : maxTerm} onChange={handleInputChange} icon={Building2} tooltip={isSeniorBankMortgage ? "משכנתא בנקאית לגיל הזהב: עד 30 שנה ללא קשר לגיל. בלון: מקסימום 15 שנה." : "תקופה ארוכה יותר = החזר חודשי נמוך יותר אך ריבית כוללת גבוהה יותר"} />
+                  <PremiumInput label={isSeniorBankMortgage ? "תקופת הלוואה (עד 30 שנה, ללא הגבלת גיל)" : "תקופת הלוואה רצויה (בשנים)"} name="loanDuration" type="range" value={formData.loanDuration} min={4} max={maxTerm} onChange={handleInputChange} icon={Building2} tooltip="תקופה ארוכה יותר = החזר חודשי נמוך יותר אך ריבית כוללת גבוהה יותר" />
+
+                  {isSeniorBankMortgage && (
+                    <div className="mt-6 space-y-4 text-right animate-in slide-in-from-top-2 duration-300">
+                      {/* מתג בלון */}
+                      <div className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${formData.seniorBalloon ? 'bg-blue-900 border-blue-400 text-white' : 'bg-blue-50 border-blue-300 text-blue-900'}`}
+                        onClick={() => {
+                          const next = !formData.seniorBalloon;
+                          handleInputChange('seniorBalloon', next);
+                          if (next) handleInputChange('loanDuration', Math.min(Number(formData.loanDuration), 15).toString());
+                        }}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-all ${formData.seniorBalloon ? 'bg-blue-400 justify-end' : 'bg-gray-300 justify-start'}`}>
+                            <div className="w-4 h-4 rounded-full bg-white shadow" />
+                          </div>
+                          <p className="font-black text-base">🎈 מסלול בלון (ריבית בלבד)</p>
+                        </div>
+                        <p className={`text-xs leading-relaxed ${formData.seniorBalloon ? 'text-blue-200' : 'text-blue-700'}`}>
+                          תשלום חודשי של ריבית בלבד. הקרן נפרעת בתום התקופה. מקסימום 15 שנה.
+                          {formData.seniorBalloon && results.loanAmount > 0 && (
+                            <span className="block mt-2 font-black text-green-300 text-sm">
+                              החזר חודשי בלון: ₪{formatCurrency(Math.floor(results.loanAmount * ALL_PURPOSE_RATES.FIXED_UNLINKED / 12))} | במשכנתא רגילה: ₪{formatCurrency(Math.floor(calculatePayment(results.loanAmount, ALL_PURPOSE_RATES.FIXED_UNLINKED, Number(formData.loanDuration))))} | חיסכון חודשי: ₪{formatCurrency(Math.floor(calculatePayment(results.loanAmount, ALL_PURPOSE_RATES.FIXED_UNLINKED, Number(formData.loanDuration)) - results.loanAmount * ALL_PURPOSE_RATES.FIXED_UNLINKED / 12))}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+
+                      {formData.seniorBalloon && (
+                        <div className="animate-in slide-in-from-top-2 duration-300">
+                          <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl mb-4">
+                            <p className="text-red-800 font-black text-xs">⚠️ גילוי נאות חובה: מדובר בהלוואת בלון. הקרן אינה נפרעת במהלך התקופה ותשולם במלואה בתום {formData.loanDuration} שנה.</p>
+                          </div>
+                          <PremiumInput label="אסטרטגיית יציאה – כיצד תפרע הקרן בסיום?" name="balloonExitStrategy" value={formData.balloonExitStrategy} icon={Target} onChange={handleInputChange}
+                            options={[
+                              {val: '', label: 'בחר אסטרטגיית יציאה...'},
+                              {val: 'sell_property', label: 'מכירת הנכס'},
+                              {val: 'inheritance', label: 'פירעון מירושה / עזבון'},
+                              {val: 'refinance', label: 'מעבר למשכנתא רגילה'},
+                              {val: 'savings', label: 'חסכונות / השקעות עתידיות'},
+                              {val: 'other', label: 'אחר (יפורט מול יועץ)'},
+                            ]}
+                            tooltip="שדה חובה: הבנק ידרוש הצהרה מפורשת על אופן פירעון הקרן" />
+                        </div>
+                      )}
+
+                      {/* מסמך יורשים */}
+                      <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-xl text-right">
+                        <p className="text-amber-900 font-black text-xs mb-1">📋 מסמך חובה: חתימת ילדים/יורשים</p>
+                        <p className="text-amber-700 text-xs">טופס יידוע ואישור יורשים על נטילת המשכנתא יידרש על ידי הבנק ויצורף להגשה.</p>
+                      </div>
+                    </div>
+                  )}
                   <div className="mt-16 w-full text-center">
                     <p className="text-3xl sm:text-4xl font-black text-[#d4af37] italic animate-pulse tracking-tight drop-shadow-md leading-tight">
                       מיד מסיימים ואל תשכחו: <br/> מיקוד משכנתאות - המטרה שלנו, החיסכון שלכם
@@ -1228,11 +1246,11 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   
                   <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
                     <p className="text-xs text-gray-500 font-semibold mb-1">אחוז מימון (LTV)</p>
-                    <p className={`text-2xl font-black ${results.ltv > (results.isSenior ? SENIOR_BANK_MAX_LTV : 75) ? 'text-red-600' : results.ltv > (results.isSenior ? 40 : 70) ? 'text-yellow-600' : 'text-green-600'}`}>
+                    <p className={`text-2xl font-black ${results.ltv > 75 ? 'text-red-600' : results.ltv > 70 ? 'text-yellow-600' : 'text-green-600'}`}>
                       {results.ltv.toFixed(1)}%
                     </p>
                     <p className="text-[10px] text-gray-400 mt-1">
-                      {results.isReverse ? `מקסימום: ${getReverseMortgageMaxLTV(formData.youngestBorrowerAge || formData.age)}%` : results.isSenior ? `מקסימום: ${SENIOR_BANK_MAX_LTV}%` : 'תקן: עד 75%'}
+                      {results.isReverse ? `מקסימום: ${getReverseMortgageMaxLTV(formData.youngestBorrowerAge || formData.age)}%` : results.isSenior ? `תקרה קשיחה: ${SENIOR_BANK_MAX_LTV}%` : 'תקן: עד 75%'}
                     </p>
                   </div>
                   
@@ -1273,37 +1291,40 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
                   <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">החזר חודשי משוער</span>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none text-[#1e3a5f]">₪{formatCurrency(Math.floor(results.mixB.total))}</div>
-                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{results.isSenior && results.isBalloon ? 'בלון - ריבית בלבד' : 'תמהיל מאוזן מומלץ'}</div>
+                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{results.isBalloon ? '🎈 בלון – ריבית בלבד' : 'תמהיל מאוזן מומלץ'}</div>
                 </div>
               </div>
 
-              {/* השוואת בלון מול רגיל - למשכנתא בנקאית לגיל הזהב */}
-              {results.isSenior && results.balloonMonthly && results.regularMonthly && (
-                <div className="mb-6 sm:mb-10 p-5 sm:p-7 rounded-2xl border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-sky-50 animate-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="text-base sm:text-lg font-black text-blue-900 mb-4 flex items-center gap-2">
-                    <Coins size={20} className="text-blue-600" />
-                    השוואת תזרים: בלון מול החזר רגיל
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-xl border-2 border-blue-300 text-center">
-                      <p className="text-xs text-blue-600 font-bold mb-1">ריבית בלבד (בלון)</p>
-                      <p className="text-2xl sm:text-3xl font-black text-blue-800">₪{formatCurrency(Math.floor(results.balloonMonthly))}</p>
-                      <p className="text-[10px] text-blue-500 mt-1">לחודש</p>
+              {/* פאנל השוואת בלון */}
+              {results.isSenior && results.isBalloon && results.balloonMonthly > 0 && (
+                <div className="mb-6 sm:mb-10 p-5 sm:p-8 rounded-2xl border-2 border-blue-400 bg-gradient-to-br from-blue-900 to-blue-800 text-white animate-in slide-in-from-bottom-4 duration-700">
+                  <h3 className="text-xl font-black mb-5 flex items-center gap-2">🎈 השוואת תזרים – מסלול בלון vs. משכנתא רגילה</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+                    <div className="bg-white/10 rounded-xl p-4 text-center border border-white/20">
+                      <p className="text-xs text-blue-300 font-semibold mb-1">בלון – ריבית בלבד</p>
+                      <p className="text-3xl font-black text-green-300">₪{formatCurrency(Math.floor(results.balloonMonthly))}</p>
+                      <p className="text-[10px] text-blue-300 mt-1">לחודש</p>
                     </div>
-                    <div className="bg-white p-4 rounded-xl border-2 border-gray-200 text-center">
-                      <p className="text-xs text-gray-500 font-bold mb-1">קרן + ריבית (רגיל)</p>
-                      <p className="text-2xl sm:text-3xl font-black text-gray-700">₪{formatCurrency(Math.floor(results.regularMonthly))}</p>
-                      <p className="text-[10px] text-gray-400 mt-1">לחודש</p>
+                    <div className="bg-white/10 rounded-xl p-4 text-center border border-white/20">
+                      <p className="text-xs text-blue-300 font-semibold mb-1">משכנתא רגילה</p>
+                      <p className="text-3xl font-black text-white">₪{formatCurrency(Math.floor(results.regularMonthly))}</p>
+                      <p className="text-[10px] text-blue-300 mt-1">לחודש</p>
+                    </div>
+                    <div className="bg-green-500/20 rounded-xl p-4 text-center border border-green-400">
+                      <p className="text-xs text-green-300 font-semibold mb-1">✅ תזרים פנוי נוסף</p>
+                      <p className="text-3xl font-black text-green-300">₪{formatCurrency(Math.floor(results.regularMonthly - results.balloonMonthly))}</p>
+                      <p className="text-[10px] text-green-300 mt-1">לחודש לשימושך האישי</p>
                     </div>
                   </div>
-                  <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-xl">
-                    <p className="text-green-800 font-black text-sm">
-                      💰 תזרים פנוי נוסף בגישת הבלון: <span className="text-green-600 text-lg">₪{formatCurrency(Math.floor(results.regularMonthly - results.balloonMonthly))}</span> לחודש
-                    </p>
-                    <p className="text-green-700 text-xs mt-1">כסף פנוי למחיה, רפואה, או עזרה לילדים – בכל חודש</p>
-                  </div>
-                  <div className="mt-3 p-3 bg-amber-50 border border-amber-300 rounded-xl">
-                    <p className="text-amber-800 font-black text-xs">⚠️ לתשומת לבכם: הקרן (₪{formatCurrency(results.loanAmount)}) אינה נפרעת במהלך התקופה ותשולם במלואה בתום עד 15 שנה.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-white/10 rounded-xl p-4 border border-white/20">
+                      <p className="text-xs text-blue-300 font-semibold mb-2">🏠 כרית הון (Equity Buffer)</p>
+                      <p className="text-sm text-white leading-relaxed">בהנחת עליית ערך של 3% בשנה, הנכס יהיה שווה כ-₪{formatCurrency(Math.floor(Number(String(formData.propertyPrice).replace(/,/g,'')) * Math.pow(1.03, Number(formData.loanDuration))))} בתום {formData.loanDuration} שנה, כאשר הקרן הנפרעת תהיה ₪{formatCurrency(Math.floor(results.loanAmount))} בלבד.</p>
+                    </div>
+                    <div className="bg-red-500/20 rounded-xl p-4 border border-red-400">
+                      <p className="text-xs text-red-300 font-semibold mb-2">⚠️ גילוי נאות חובה</p>
+                      <p className="text-xs text-red-200 leading-relaxed">הלוואת בלון: הקרן (₪{formatCurrency(Math.floor(results.loanAmount))}) אינה נפרעת במהלך התקופה ותשולם במלואה בתום {formData.loanDuration} שנה לפי אסטרטגיית היציאה שבחרת.</p>
+                    </div>
                   </div>
                 </div>
               )}
