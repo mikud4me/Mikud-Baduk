@@ -737,7 +737,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   </div>
                   
                   {/* שדה גיל לווה צעיר - מופיע רק לפנסיונר + משכנתא הפוכה */}
-                  {formData.employmentStatusA === 'pensioner' && isReverseMortgage && (
+                  {(formData.employmentTypes || []).includes('pensioner') && isReverseMortgage && (
                     <div className="animate-in slide-in-from-top-2 duration-300">
                       <PremiumInput label="גיל הלווה הצעיר ביותר" name="youngestBorrowerAge" value={formData.youngestBorrowerAge} placeholder="גיל מינימלי (60+)" icon={Calendar} onChange={handleInputChange} error={fieldErrors.youngestBorrowerAge} tooltip="לצורך חישוב אחוז המימון המקסימלי במשכנתא הפוכה" />
                       <div className="p-3 bg-amber-50 border-r-4 border-amber-500 rounded-xl text-right text-xs text-amber-800 font-medium mb-4">
