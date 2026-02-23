@@ -66,18 +66,39 @@ export default function MortgageCalculator() {
   const [showCreditModal, setShowCreditModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false, creditConsent: false,
-    maritalStatus: 'single', childrenUnder18: '0',
     mortgageType: 'purchase_first', loanDuration: '25', seniorBalloon: false, balloonExitStrategy: '',
     propertyPrice: '', loanAmount: '',
-    age: '', employmentTypes: ['employee'], workStartDay: '', workStartMonth: '', workStartYear: '', employmentSeniority: '',
-    netIncome: '', partnerNetIncome: '0',
-    monthlyDebts: '0', monthlyOverdraft: '0', creditHistory: 'clean', equity: '',
-    additionalIncomeType: 'none', additionalIncomeAmount: '0',
+    monthlyDebts: '0', monthlyOverdraft: '0', equity: '',
     youngestBorrowerAge: '',
-    partnerFullName: '', partnerIdNumber: '', partnerBirthDay: '', partnerBirthMonth: '', partnerBirthYear: '', partnerAge: '',
-    partnerEmploymentStatus: 'employee', partnerWorkStartDay: '', partnerWorkStartMonth: '', partnerWorkStartYear: '', partnerEmploymentSeniority: '',
-    partnerCreditHistory: 'clean'
   });
+
+  const defaultBorrower = () => ({
+    maritalStatus: 'single',
+    childrenUnder18: '0',
+    creditHistory: 'clean',
+    employmentTypes: ['employee'],
+    incomeSources: {},
+    youngestBorrowerAge: '',
+    borrowerType: 'primary', // primary | additional
+  });
+
+  const [borrowers, setBorrowers] = useState([defaultBorrower()]);
+  const [activeBorrowerTab, setActiveBorrowerTab] = useState(0);
+
+  const updateBorrower = (index, data) => {
+    setBorrowers(prev => prev.map((b, i) => i === index ? data : b));
+  };
+
+  const addBorrower = () => {
+    setBorrowers(prev => [...prev, { ...defaultBorrower(), borrowerType: 'primary' }]);
+    setActiveBorrowerTab(borrowers.length);
+  };
+
+  const removeBorrower = (index) => {
+    if (borrowers.length <= 1) return;
+    setBorrowers(prev => prev.filter((_, i) => i !== index));
+    setActiveBorrowerTab(Math.max(0, activeBorrowerTab - 1));
+  };
 
   // fullName computed for display/save
   const fullName = `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
