@@ -64,19 +64,25 @@ export default function MortgageCalculator() {
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
   const [showCreditModal, setShowCreditModal] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '', lastName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false, creditConsent: false,
+  // borrowers: מערך לווים – כל לווה הוא אובייקט עם כל שדותיו
+  const createEmptyBorrower = (index) => ({
+    firstName: '', lastName: '', idNumber: '', birthDate: '', age: '',
     maritalStatus: 'single', childrenUnder18: '0',
+    employmentTypes: ['employee'],
+    creditHistory: 'clean',
+    youngestBorrowerAge: '',
+    additionalIncomeType: 'none', additionalIncomeAmount: '0',
+    borrowerRole: index === 0 ? 'primary' : '',
+  });
+
+  const [borrowers, setBorrowers] = useState([createEmptyBorrower(0)]);
+  const [currentBorrowerIdx, setCurrentBorrowerIdx] = useState(0);
+
+  const [formData, setFormData] = useState({
+    phone: '', email: '', consent: false, creditConsent: false,
     mortgageType: 'purchase_first', loanDuration: '25', seniorBalloon: false, balloonExitStrategy: '',
     propertyPrice: '', loanAmount: '',
-    age: '', employmentTypes: ['employee'], workStartDay: '', workStartMonth: '', workStartYear: '', employmentSeniority: '',
-    netIncome: '', partnerNetIncome: '0',
-    monthlyDebts: '0', monthlyOverdraft: '0', creditHistory: 'clean', equity: '',
-    additionalIncomeType: 'none', additionalIncomeAmount: '0',
-    youngestBorrowerAge: '',
-    partnerFullName: '', partnerIdNumber: '', partnerBirthDay: '', partnerBirthMonth: '', partnerBirthYear: '', partnerAge: '',
-    partnerEmploymentStatus: 'employee', partnerWorkStartDay: '', partnerWorkStartMonth: '', partnerWorkStartYear: '', partnerEmploymentSeniority: '',
-    partnerCreditHistory: 'clean'
+    monthlyDebts: '0', monthlyOverdraft: '0', equity: '',
   });
 
   // fullName computed for display/save
