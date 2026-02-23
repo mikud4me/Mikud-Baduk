@@ -3,7 +3,7 @@ import {
   User, Home, Briefcase, AlertCircle, ChevronLeft, Loader2, Phone, 
   Wallet, Building2, ShieldCheck, Sparkles, Mail, BadgeCheck, 
   Calendar, Coins, TrendingDown, Rocket, MessageSquareQuote, 
-  ClipboardList, Lock, HelpCircle, Smartphone, Key, Target, HeartHandshake, ShieldAlert, X
+  ClipboardList, Lock, HelpCircle, Smartphone, Key, Target, HeartHandshake, ShieldAlert, X, UserPlus, Trash2
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import PremiumInput from '@/components/mikud/PremiumInput';
@@ -11,6 +11,7 @@ import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
 import BankLogosCarousel from '@/components/mikud/BankLogosCarousel';
 import NegotiationPack from '@/components/mikud/NegotiationPack';
+import BorrowerForm from '@/components/mikud/BorrowerForm';
 
 
 // v2.1
