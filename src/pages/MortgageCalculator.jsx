@@ -225,7 +225,7 @@ export default function MortgageCalculator() {
     if (currentStep === 2 && isReverseMortgage && Number(formData.youngestBorrowerAge) < 60) errors.youngestBorrowerAge = "מינימום גיל 60 למשכנתא לגיל הזהב";
     if (currentStep === 3 && !formData.propertyPrice) errors.propertyPrice = "חובה להזין שווי נכס";
     if (currentStep === 3 && !formData.loanAmount) errors.loanAmount = "חובה להזין סכום מבוקש";
-    if (currentStep === 4 && !formData.netIncome && !isReverseMortgage) errors.netIncome = "חובה להזין הכנסה";
+    if (currentStep === 4 && !isReverseMortgage && calcTotalIncome() <= 0) errors.netIncome = "חובה להזין הכנסה לפחות ללווה אחד";
     if (currentStep === 5 && !isReverseMortgage && !formData.equity) errors.equity = "חובה להזין הון עצמי";
     setFieldErrors(errors);
     return Object.keys(errors).filter(k => errors[k]).length === 0;
