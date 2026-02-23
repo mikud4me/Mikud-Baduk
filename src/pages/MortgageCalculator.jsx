@@ -427,6 +427,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
         ltv: results.ltv,
         score: results.score,
         aiAnalysis: analysis,
+        netIncome: calcTotalIncome(),
         isPurchased: false,
         status: 'new'
       });
