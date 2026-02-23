@@ -238,11 +238,8 @@ export default function MortgageCalculator() {
     const requestedLoan = Number(String(formData.loanAmount || '').replace(/,/g, '')) || 0;
     const loanAmount = requestedLoan > 0 ? requestedLoan : Math.max(0, price - eq);
     const ltv = price > 0 ? (loanAmount / price) : 0;
-    const netInc = Number(String(formData.netIncome).replace(/,/g, '')) || 0;
-    const partnerInc = Number(String(formData.partnerNetIncome).replace(/,/g, '')) || 0;
-    const additionalInc = Number(String(formData.additionalIncomeAmount).replace(/,/g, '')) || 0;
+    const totalInc = calcTotalIncome();
     const debts = Number(String(formData.monthlyDebts).replace(/,/g, '')) || 0;
-    const totalInc = netInc + partnerInc + additionalInc;
     const freeIncome = Math.max(1, totalInc - debts);
     const isReverse = formData.mortgageType === 'reverse_mortgage';
     const isSenior = formData.mortgageType === 'senior_bank';
