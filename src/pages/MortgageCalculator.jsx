@@ -105,6 +105,13 @@ export default function MortgageCalculator() {
   const isReverseMortgage = formData.mortgageType === 'reverse_mortgage';
   const isSeniorBankMortgage = formData.mortgageType === 'senior_bank';
 
+  // ריביות "כל מטרה" - ALL_PURPOSE_RATES (גבוהות מעט מדיור רגיל)
+  const ALL_PURPOSE_RATES = useMemo(() => ({
+    FIXED_UNLINKED: (rates.FIXED_UNLINKED || 0.0505) + 0.004,
+    VAR_LINKED: (rates.VAR_LINKED || 0.0361) + 0.003,
+    PRIME_CALC: rates.PRIME_CALC || 0.0500,
+  }), [rates]);
+
   const maxTerm = useMemo(() => {
     if (isSeniorBankMortgage && formData.seniorBalloon) return BALLOON_MAX_TERM;
     if (isSeniorBankMortgage) return SENIOR_BANK_MAX_TERM;
