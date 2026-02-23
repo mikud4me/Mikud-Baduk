@@ -361,7 +361,7 @@ export default function MortgageCalculator() {
         total: calcPmt(loanAmount*0.5, activeRates.PRIME_CALC, duration) + calcPmt(loanAmount*0.5, activeRates.FIXED_UNLINKED, duration)
       }
     };
-  }, [formData, maxTerm, rates, ALL_PURPOSE_RATES, isSeniorBankMortgage]);
+  }, [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES, isSeniorBankMortgage]);
 
   const generateFullAnalysis = async () => {
     if (!validateStep(6)) return;
