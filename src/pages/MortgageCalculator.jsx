@@ -804,32 +804,32 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     </div>
                   )}
 
-                  {/* סיכום הכנסות מהלווים שהוזנו */}
-                  <div className="mb-5 p-4 bg-green-50 border-2 border-green-300 rounded-2xl">
-                    <p className="font-bold text-green-800 text-sm mb-2 flex items-center gap-2">
-                      <Coins size={16} /> סיכום הכנסות לחישוב כושר החזר
-                    </p>
+                  {/* סיכום הכנסות לפי לווה */}
+                  <div className="mb-5 p-4 bg-[#1e3a5f]/5 rounded-xl border border-[#1e3a5f]/15">
+                    <p className="text-sm font-bold text-[#1e3a5f] mb-3 flex items-center gap-2"><Coins size={16} className="text-[#c9a961]" /> סיכום הכנסות לווים</p>
                     {borrowers.map((b, idx) => {
-                      const factor = (idx > 0 && b.borrowerType === 'additional') ? 0.5 : 1.0;
                       const sources = b.incomeSources || {};
-                      const totalForBorrower = Object.values(sources).reduce((acc, src) => acc + (src && (src.amount || src.enabled) ? Number(String(src.amount || '0').replace(/,/g, '')) : 0), 0);
-                      const effective = totalForBorrower * factor;
+                      const factor = idx > 0 && b.borrowerType === 'additional' ? 0.5 : 1;
+                      const totalB = Object.values(sources).reduce((acc, src) => {
+                        if (!src || (!src.amount && !src.enabled)) return acc;
+                        return acc + Number(String(src.amount || '0').replace(/,/g, ''));
+                      }, 0);
                       return (
-                        <div key={idx} className="flex items-center justify-between text-xs text-green-700 font-medium mb-1">
-                          <span>לווה {['א','ב','ג','ד','ה'][idx]} {idx > 0 && b.borrowerType === 'additional' ? '(נוסף – 50%)' : '(עיקרי – 100%)'}</span>
-                          <span className="font-black">₪{formatCurrency(Math.floor(effective))}</span>
+                        <div key={idx} className="flex justify-between items-center py-1.5 border-b border-gray-200 last:border-0 text-sm">
+                          <span className="text-gray-600 font-medium">לווה {['א','ב','ג','ד','ה'][idx] || idx+1} {idx > 0 && b.borrowerType === 'additional' ? <span className="text-amber-600 text-xs">(נוסף - 50%)</span> : ''}</span>
+                          <span className="font-bold text-[#1e3a5f]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(totalB * factor))}</span>
                         </div>
                       );
                     })}
-                    <div className="border-t border-green-300 mt-2 pt-2 flex justify-between font-black text-green-900 text-sm">
-                      <span>סה"כ להכרה בבנק</span>
-                      <span>₪{formatCurrency(Math.floor(calcTotalIncome()))}</span>
+                    <div className="flex justify-between items-center pt-2 text-sm font-black text-[#1e3a5f]">
+                      <span>סה"כ מוכר לבנק</span>
+                      <span className="text-[#c9a961]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(calcTotalIncome()))}</span>
                     </div>
                   </div>
 
                   {!isReverseMortgage && (
                     <>
-                      <PremiumInput label="החזרי הלוואות חודשיים קיימים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג)" />
+                      <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג)" />
                       <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית" />
                     </>
                   )}
@@ -852,7 +852,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       </ul>
                     </div>
                   )}
-                  {(formData.employmentTypes || []).includes('pensioner') && !isReverseMortgage && (
+                  {borrowers.some(b => (b.employmentTypes || []).includes('pensioner')) && !isReverseMortgage && (
                     <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-300 rounded-2xl">
                       <p className="text-blue-800 font-bold text-sm">📋 מסמכים נדרשים - פנסיונר/ית</p>
                       <ul className="mt-2 text-blue-700 text-xs space-y-1 list-disc list-inside">
@@ -861,42 +861,6 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       </ul>
                     </div>
                   )}
-                  <div className="space-y-4">
-                    <PremiumInput label="הכנסות נוספות (מחוץ לתלוש/קצבה)" name="additionalIncomeType" value={formData.additionalIncomeType} icon={HeartHandshake} onChange={handleInputChange} 
-                      options={[
-                        {val:'none', label:'אין הכנסות נוספות'}, 
-                        {val:'rent', label:'שכירות נכנסת'}, 
-                        {val:'national_insurance', label:'קצבת ביטוח לאומי'}, 
-                        {val:'disability', label:'קצבת נכות'}, 
-                        {val:'child_allowance', label:'קצבאות ילדים'}, 
-                        {val:'second_job', label:'עבודה נוספת'}, 
-                        {val:'other', label:'אחר'}
-                      ]} tooltip="הכנסות נוספות יכולות לחזק את התיק (בכפוף לאישור הבנק)" />
-
-                    {formData.additionalIncomeType !== 'none' && (
-                      <div className="animate-in slide-in-from-top-2 duration-300">
-                        <PremiumInput label="סכום חודשי נוסף" name="additionalIncomeAmount" value={formData.additionalIncomeAmount} icon={Coins} onChange={handleInputChange} tooltip="סכום ההכנסה החודשית הנוספת" />
-                        <div className="p-4 bg-blue-50 border-r-4 border-blue-600 rounded-xl text-right">
-                          <p className="text-blue-900 font-bold text-sm mb-1">💡 מקור ההכנסה: {
-                            formData.additionalIncomeType === 'rent' ? 'שכירות נכנסת (דורש דיווח רשמי)' :
-                            formData.additionalIncomeType === 'national_insurance' ? 'קצבת ביטוח לאומי' :
-                            formData.additionalIncomeType === 'disability' ? 'קצבת נכות' :
-                            formData.additionalIncomeType === 'child_allowance' ? 'קצבאות ילדים' :
-                            formData.additionalIncomeType === 'second_job' ? 'עבודה נוספת' :
-                            'הכנסה נוספת'
-                          }</p>
-                          <p className="text-blue-700 text-xs leading-relaxed">
-                            {formData.additionalIncomeType === 'rent' && 'הבנק יכיר רק בהכנסה מתועדת ומדווחת רשמית למס הכנסה'}
-                            {formData.additionalIncomeType === 'national_insurance' && 'קצבת ביטוח לאומי מוכרת כהכנסה קבועה על ידי הבנקים'}
-                            {formData.additionalIncomeType === 'disability' && 'קצבת נכות מוכרת כהכנסה קבועה - יש לצרף אישור'}
-                            {formData.additionalIncomeType === 'child_allowance' && 'קצבאות ילדים מוכרות בדרך כלל על ידי רוב הבנקים'}
-                            {formData.additionalIncomeType === 'second_job' && 'יש לצרף תלושי שכר/אישור הכנסה'}
-                            {formData.additionalIncomeType === 'other' && 'יש לפרט את מקור ההכנסה ליועץ'}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
 
