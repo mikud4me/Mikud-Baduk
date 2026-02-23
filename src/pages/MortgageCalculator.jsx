@@ -803,8 +803,30 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       <p className="text-blue-700 text-xs mt-1">אין חובת הוכחת יחס החזר (DTI). הכנסות משמשות לחיזוק התיק בלבד.</p>
                     </div>
                   )}
-                  <PremiumInput label={(formData.employmentTypes || []).includes('pensioner') ? 'גמלה/פנסיה חודשית נטו' : 'נטו לווה א\' (ממוצע 3 חודשים)'} name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו - ממוצע 3 חודשים אחרונים" />
-                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו" />
+
+                  {/* סיכום הכנסות לפי לווה */}
+                  <div className="mb-5 p-4 bg-[#1e3a5f]/5 rounded-xl border border-[#1e3a5f]/15">
+                    <p className="text-sm font-bold text-[#1e3a5f] mb-3 flex items-center gap-2"><Coins size={16} className="text-[#c9a961]" /> סיכום הכנסות לווים</p>
+                    {borrowers.map((b, idx) => {
+                      const sources = b.incomeSources || {};
+                      const factor = idx > 0 && b.borrowerType === 'additional' ? 0.5 : 1;
+                      const totalB = Object.values(sources).reduce((acc, src) => {
+                        if (!src || (!src.amount && !src.enabled)) return acc;
+                        return acc + Number(String(src.amount || '0').replace(/,/g, ''));
+                      }, 0);
+                      return (
+                        <div key={idx} className="flex justify-between items-center py-1.5 border-b border-gray-200 last:border-0 text-sm">
+                          <span className="text-gray-600 font-medium">לווה {['א','ב','ג','ד','ה'][idx] || idx+1} {idx > 0 && b.borrowerType === 'additional' ? <span className="text-amber-600 text-xs">(נוסף - 50%)</span> : ''}</span>
+                          <span className="font-bold text-[#1e3a5f]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(totalB * factor))}</span>
+                        </div>
+                      );
+                    })}
+                    <div className="flex justify-between items-center pt-2 text-sm font-black text-[#1e3a5f]">
+                      <span>סה"כ מוכר לבנק</span>
+                      <span className="text-[#c9a961]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(calcTotalIncome()))}</span>
+                    </div>
+                  </div>
+
                   {!isReverseMortgage && (
                     <>
                       <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג)" />
