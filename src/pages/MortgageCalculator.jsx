@@ -371,7 +371,7 @@ ${borrowersSummary}
 
 הכנסה כוללת מוכרת: ₪${results.totalIncome}
 לווה ראשי: ${fullName}, גיל ${mainBorrower.age}
-מצב משפחתי: ${formData.maritalStatus}, ילדים מתחת ל-18: ${formData.childrenUnder18}
+מצב משפחתי: ${mainBorrower.maritalStatus || 'לא צוין'}, ילדים מתחת ל-18: ${mainBorrower.childrenUnder18 || 0}
 חובות חודשיים קיימים: ₪${formData.monthlyDebts || 0}
 שווי נכס: ₪${formData.propertyPrice}
 סכום משכנתא מבוקש: ₪${results.loanAmount}
