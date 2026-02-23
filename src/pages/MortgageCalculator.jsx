@@ -200,12 +200,11 @@ export default function MortgageCalculator() {
 
   const validateStep = (currentStep) => {
     const errors = {};
-    if (currentStep === 2 && !formData.age) errors.age = "חובה להזין גיל";
-    if (currentStep === 2 && isReverseMortgage && !formData.youngestBorrowerAge) errors.youngestBorrowerAge = "חובה להזין גיל הלווה הצעיר ביותר";
-    if (currentStep === 2 && isReverseMortgage && Number(formData.youngestBorrowerAge) < 60) errors.youngestBorrowerAge = "מינימום גיל 60 למשכנתא לגיל הזהב";
+    if (currentStep === 2 && !mainBorrower.age) errors.age = "חובה להזין תאריך לידה";
+    if (currentStep === 2 && isReverseMortgage && !mainBorrower.youngestBorrowerAge) errors.youngestBorrowerAge = "חובה להזין גיל הלווה הצעיר ביותר";
+    if (currentStep === 2 && isReverseMortgage && Number(mainBorrower.youngestBorrowerAge) < 60) errors.youngestBorrowerAge = "מינימום גיל 60 למשכנתא לגיל הזהב";
     if (currentStep === 3 && !formData.propertyPrice) errors.propertyPrice = "חובה להזין שווי נכס";
     if (currentStep === 3 && !formData.loanAmount) errors.loanAmount = "חובה להזין סכום מבוקש";
-    if (currentStep === 4 && !formData.netIncome && !isReverseMortgage) errors.netIncome = "חובה להזין הכנסה";
     if (currentStep === 5 && !isReverseMortgage && !formData.equity) errors.equity = "חובה להזין הון עצמי";
     setFieldErrors(errors);
     return Object.keys(errors).filter(k => errors[k]).length === 0;
