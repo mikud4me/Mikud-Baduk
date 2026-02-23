@@ -121,6 +121,7 @@ export default function MortgageCalculator() {
 
   const isReverseMortgage = formData.mortgageType === 'reverse_mortgage';
   const isSeniorBankMortgage = formData.mortgageType === 'senior_bank';
+  const mainAge = Number(borrowers[0]?.age) || 35;
 
   // ריביות "כל מטרה" - ALL_PURPOSE_RATES (גבוהות מעט מדיור רגיל)
   const ALL_PURPOSE_RATES = useMemo(() => ({
