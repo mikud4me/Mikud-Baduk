@@ -274,7 +274,7 @@ export default function MortgageCalculator() {
     const dtiBase = isSenior && isBalloon ? balloonInterestOnly : pmtB;
     const dti = (isReverse || isSenior) ? 0 : (dtiBase / freeIncome) * 100;
     const ltvPercent = ltv * 100;
-    const youngestAge = Number(formData.youngestBorrowerAge) || Number(formData.age) || 60;
+    const youngestAge = Number(mainBorrower.youngestBorrowerAge) || Number(mainBorrower.age) || 60;
     const maxReverseLTV = isReverse ? getReverseMortgageMaxLTV(youngestAge) : 75;
     
     // קביעת סטטוס כשירות
