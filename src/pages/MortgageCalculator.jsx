@@ -85,8 +85,18 @@ export default function MortgageCalculator() {
     monthlyDebts: '0', monthlyOverdraft: '0', equity: '',
   });
 
-  // fullName computed for display/save
-  const fullName = `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
+  const mainBorrower = borrowers[0] || {};
+  const fullName = `${mainBorrower.firstName || ''} ${mainBorrower.lastName || ''}`.trim();
+
+  const handleBorrowerChange = (idx, updatedBorrower) => {
+    setBorrowers(prev => prev.map((b, i) => i === idx ? updatedBorrower : b));
+  };
+
+  const addBorrower = () => {
+    const newIdx = borrowers.length;
+    setBorrowers(prev => [...prev, createEmptyBorrower(newIdx)]);
+    setCurrentBorrowerIdx(newIdx);
+  };
 
   useEffect(() => {
     const loadRates = async () => {
