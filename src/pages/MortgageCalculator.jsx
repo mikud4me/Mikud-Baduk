@@ -779,8 +779,26 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       <p className="text-blue-700 text-xs mt-1">אין חובת הוכחת יחס החזר (DTI). הכנסות משמשות לחיזוק התיק בלבד.</p>
                     </div>
                   )}
-                  <PremiumInput label={(formData.employmentTypes || []).includes('pensioner') ? 'גמלה/פנסיה חודשית נטו' : 'נטו לווה א\' (ממוצע 3 חודשים)'} name="netIncome" value={formData.netIncome} icon={Coins} onChange={handleInputChange} error={fieldErrors.netIncome} tooltip="ההכנסה החודשית נטו - ממוצע 3 חודשים אחרונים" />
-                  <PremiumInput label="נטו לווה ב' (אם קיים)" name="partnerNetIncome" value={formData.partnerNetIncome} icon={Coins} onChange={handleInputChange} tooltip="הכנסת בן/בת הזוג נטו" />
+                  {/* סיכום הכנסות מכל הלווים */}
+                  {borrowers.map((b, i) => {
+                    const types = b.employmentTypes || [];
+                    const fromTypes = types.reduce((s, t) => s + (Number(b[`income_${t}`]) || 0), 0);
+                    const additional = Number(b.additionalIncomeAmount) || 0;
+                    const gross = fromTypes + additional;
+                    const isSecondary = i > 0 && b.borrowerRole === 'secondary';
+                    const effective = isSecondary ? gross * 0.5 : gross;
+                    if (gross === 0) return null;
+                    return (
+                      <div key={i} className="mb-3 p-3 bg-green-50 border border-green-300 rounded-xl text-sm">
+                        <span className="font-bold text-green-800">לווה {i+1} {b.firstName && `(${b.firstName})`}: </span>
+                        <span className="text-green-700">₪{new Intl.NumberFormat('he-IL').format(gross)}</span>
+                        {isSecondary && <span className="text-amber-700 font-semibold"> → מוכר 50%: ₪{new Intl.NumberFormat('he-IL').format(effective)}</span>}
+                      </div>
+                    );
+                  })}
+                  <div className="mb-5 p-4 bg-[#1e3a5f]/5 border-2 border-[#1e3a5f]/20 rounded-xl">
+                    <p className="font-bold text-[#1e3a5f] text-sm">סה"כ הכנסה מוכרת לבנק: <span className="text-[#c9a961]">₪{new Intl.NumberFormat('he-IL').format(results.totalIncome)}</span></p>
+                  </div>
                   {!isReverseMortgage && (
                     <>
                       <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג)" />
