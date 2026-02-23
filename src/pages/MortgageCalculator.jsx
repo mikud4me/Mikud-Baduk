@@ -133,9 +133,8 @@ export default function MortgageCalculator() {
   const maxTerm = useMemo(() => {
     if (isSeniorBankMortgage && formData.seniorBalloon) return BALLOON_MAX_TERM;
     if (isSeniorBankMortgage) return SENIOR_BANK_MAX_TERM;
-    const ageNum = Number(formData.age) || 35;
-    return Math.min(30, Math.max(1, 80 - ageNum));
-  }, [formData.age, isSeniorBankMortgage, formData.seniorBalloon]);
+    return Math.min(30, Math.max(1, 80 - mainAge));
+  }, [mainAge, isSeniorBankMortgage, formData.seniorBalloon]);
 
   const handleInputChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
