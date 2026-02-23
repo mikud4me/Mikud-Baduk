@@ -357,12 +357,20 @@ export default function MortgageCalculator() {
     setLoading(true);
     setStep(7);
     
-    const incomeTypes = (formData.employmentTypes || ['employee']).join(', ');
+    const borrowersSummary = borrowers.map((b, i) => {
+      const empTypes = (b.employmentTypes || []).join(', ');
+      const totalInc = (b.employmentTypes || []).reduce((s, t) => s + (Number(b[`income_${t}`]) || 0), 0) + (Number(b.additionalIncomeAmount) || 0);
+      const isSecondary = i > 0 && b.borrowerRole === 'secondary';
+      return `לווה ${i+1}: ${b.firstName} ${b.lastName}, גיל ${b.age}, סוגי הכנסה: ${empTypes}, הכנסה: ₪${totalInc}${isSecondary ? ' (מוכרת 50%)' : ''}`;
+    }).join('\n');
+
     const prompt = `אתה יועץ משכנתאות בכיר בישראל. נתח את תיק המשכנתא הבא באופן מקצועי ומלא:
 
-לקוח: ${fullName}, גיל ${formData.age}
-סוג הכנסה: ${incomeTypes}
-הכנסה חודשית נטו: ₪${formData.netIncome}${formData.partnerNetIncome && formData.partnerNetIncome !== '0' ? ` + ₪${formData.partnerNetIncome} (לווה ב')` : ''}
+לקוחות:
+${borrowersSummary}
+
+הכנסה כוללת מוכרת: ₪${results.totalIncome}
+לווה ראשי: ${fullName}, גיל ${mainBorrower.age}
 מצב משפחתי: ${formData.maritalStatus}, ילדים מתחת ל-18: ${formData.childrenUnder18}
 חובות חודשיים קיימים: ₪${formData.monthlyDebts || 0}
 שווי נכס: ₪${formData.propertyPrice}
