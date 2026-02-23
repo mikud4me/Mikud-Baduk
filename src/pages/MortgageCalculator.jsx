@@ -412,6 +412,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
       
       const lead = await base44.entities.Lead.create({
         ...formData,
+        ...mainBorrower,
         fullName,
         loanAmount: results.loanAmount,
         ltv: results.ltv,
