@@ -444,8 +444,8 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
     if (!isPurchased) return;
     setInsightLoading(true);
     
-    const isPensioner = (formData.employmentTypes || []).includes('pensioner');
-    const isSelfEmployed = (formData.employmentTypes || []).includes('self_employed');
+    const isPensioner = borrowers.some(b => (b.employmentTypes || []).includes('pensioner'));
+    const isSelfEmployed = borrowers.some(b => (b.employmentTypes || []).includes('self_employed'));
     
     const isSeniorBank = formData.mortgageType === 'senior_bank';
     const docsList = isSeniorBank
