@@ -11,6 +11,7 @@ import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
 import BankLogosCarousel from '@/components/mikud/BankLogosCarousel';
 import NegotiationPack from '@/components/mikud/NegotiationPack';
+import BorrowerForm from '@/components/mikud/BorrowerForm';
 
 
 // v2.1
