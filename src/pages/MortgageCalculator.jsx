@@ -379,8 +379,7 @@ ${borrowersSummary}
 ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 תקופת הלוואה: ${formData.loanDuration} שנים
 סוג משכנתא: ${formData.mortgageType}
-ותק בעבודה: ${formData.employmentSeniority || 'לא צוין'} שנים
-היסטוריית אשראי: ${formData.creditHistory === 'clean' ? 'תקינה' : 'עם הערות'}
+היסטוריית אשראי: ${mainBorrower.creditHistory === 'clean' ? 'תקינה' : 'עם הערות'}
 
 כתוב ניתוח מקצועי ומפורט הכולל:
 1. סיכום כשירות התיק ורמת הסיכון (פרט מדוע)
