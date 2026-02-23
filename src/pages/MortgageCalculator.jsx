@@ -164,13 +164,6 @@ export default function MortgageCalculator() {
     }
   };
 
-  // ריביות "כל מטרה" - ALL_PURPOSE_RATES (גבוהות מעט מדיור רגיל)
-  const ALL_PURPOSE_RATES = useMemo(() => ({
-    FIXED_UNLINKED: (rates.FIXED_UNLINKED || 0.0505) + 0.004,
-    VAR_LINKED: (rates.VAR_LINKED || 0.0361) + 0.003,
-    PRIME_CALC: rates.PRIME_CALC || 0.0500,
-  }), [rates]);
-
   // חישוב LTV מקסימלי למשכנתא הפוכה לפי גיל
   const getReverseMortgageMaxLTV = (age) => {
     const a = Number(age) || 60;
