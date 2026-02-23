@@ -336,7 +336,7 @@ export default function MortgageCalculator() {
     return {
       loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration,
       status, score: qualityScore, isReverse, isSenior, isBalloon,
-      balloonMonthly, regularMonthly,
+      balloonMonthly, regularMonthly, youngestAge,
       mixA: { 
         tracks: [{ name: isSenior ? "100% קבועה לא צמודה (כל מטרה)" : "100% קבועה לא צמודה", amount: loanAmount, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "⚠️ בלון - ריבית בלבד" : "הגנה מלאה" }], 
         total: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration) 
