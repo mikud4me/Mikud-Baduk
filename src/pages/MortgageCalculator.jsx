@@ -164,15 +164,6 @@ export default function MortgageCalculator() {
     }
   };
 
-  // חוק ה-30 שנה - ללא הגבלת גיל + LTV Max 45%
-  const SENIOR_BANK_MAX_LTV = 45;
-  const SENIOR_BANK_MAX_TERM = 30;
-  const BALLOON_MAX_TERM = 15;
-
-  const isReverseMortgage = formData.mortgageType === 'reverse_mortgage';
-  // משכנתא בנקאית לגיל הזהב (all-purpose senior bank loan)
-  const isSeniorBankMortgage = formData.mortgageType === 'senior_bank';
-
   // ריביות "כל מטרה" - ALL_PURPOSE_RATES (גבוהות מעט מדיור רגיל)
   const ALL_PURPOSE_RATES = useMemo(() => ({
     FIXED_UNLINKED: (rates.FIXED_UNLINKED || 0.0505) + 0.004,
