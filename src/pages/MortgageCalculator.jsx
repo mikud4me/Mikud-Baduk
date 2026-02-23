@@ -97,21 +97,16 @@ export default function MortgageCalculator() {
 
   }, []);
 
-  // פונקציה לבחירת ריבית מדויקת לפי LTV
-  const getRateByLTV = (baseRate, ltv, isAffidavit = false) => {
-    let rate = baseRate;
-    // תוספת ריבית לתצהיר (0.4%)
-    if (isAffidavit) {
-      rate += 0.004;
-    }
-    // עיגול כלפי מעלה לדיוק 0.05%
-    return Math.ceil(rate * 2000) / 2000;
-  };
+  // חוק ה-30 שנה - ללא הגבלת גיל + LTV Max 45%
+  const SENIOR_BANK_MAX_LTV = 45;
+  const SENIOR_BANK_MAX_TERM = 30;
+  const BALLOON_MAX_TERM = 15;
+
+  const isReverseMortgage = formData.mortgageType === 'reverse_mortgage';
+  const isSeniorBankMortgage = formData.mortgageType === 'senior_bank';
 
   const maxTerm = useMemo(() => {
-    // בלון: מקסימום 15 שנה
     if (isSeniorBankMortgage && formData.seniorBalloon) return BALLOON_MAX_TERM;
-    // משכנתא בנקאית לגיל הזהב: מקסימום 30 שנה ללא קשר לגיל
     if (isSeniorBankMortgage) return SENIOR_BANK_MAX_TERM;
     const ageNum = Number(formData.age) || 35;
     return Math.min(30, Math.max(1, 80 - ageNum));
