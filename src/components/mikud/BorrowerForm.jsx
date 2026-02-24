@@ -224,14 +224,17 @@ export default function BorrowerForm({ borrower, index, onChange, isReverseMortg
                   <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">{opt.label}</span>
                 </label>
                 {src.enabled && (
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    className="flex-1 bg-white h-10 px-3 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold text-sm"
-                    placeholder="סכום חודשי ₪"
-                    value={src.amount || ''}
-                    onChange={e => updateIncomeSource(opt.val, 'amount', e.target.value)}
-                  />
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      className="w-full bg-white h-10 px-3 pr-8 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold text-sm"
+                      placeholder="סכום חודשי"
+                      value={formatAmount(src.amount)}
+                      onChange={e => updateIncomeSource(opt.val, 'amount', e.target.value)}
+                    />
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#c9a961] font-bold text-base">₪</span>
+                  </div>
                 )}
               </div>
             );
