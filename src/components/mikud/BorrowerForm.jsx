@@ -168,14 +168,17 @@ export default function BorrowerForm({ borrower, index, onChange, isReverseMortg
               <label className="text-xs font-semibold text-gray-600 mb-1 block">
                 {type === 'pensioner' ? 'גמלה/פנסיה חודשית נטו (₪)' : 'הכנסה חודשית נטו (₪)'}
               </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                className="w-full bg-white h-12 px-4 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold"
-                placeholder="סכום חודשי"
-                value={src.amount || ''}
-                onChange={e => updateIncomeSource(type, 'amount', e.target.value)}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  className="w-full bg-white h-12 px-4 pr-10 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold"
+                  placeholder="סכום חודשי"
+                  value={formatAmount(src.amount)}
+                  onChange={e => updateIncomeSource(type, 'amount', e.target.value)}
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#c9a961] font-bold text-xl">₪</span>
+              </div>
             </div>
 
             {/* תאריך התחלה - רק אם לא פנסיונר */}
@@ -184,24 +187,14 @@ export default function BorrowerForm({ borrower, index, onChange, isReverseMortg
                 <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
                   <Calendar size={13} /> תאריך התחלת עבודה ({INCOME_TYPE_LABELS[type]})
                 </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { ph: 'יום', field: 'startDay', min: 1, max: 31 },
-                    { ph: 'חודש', field: 'startMonth', min: 1, max: 12 },
-                    { ph: 'שנה', field: 'startYear', min: 1960, max: 2026 },
-                  ].map(({ ph, field, min, max }) => (
-                    <input
-                      key={field}
-                      type="number"
-                      placeholder={ph}
-                      min={min}
-                      max={max}
-                      className="bg-white h-11 px-3 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold text-sm text-center"
-                      value={src[field] || ''}
-                      onChange={e => updateIncomeSource(type, field, e.target.value)}
-                    />
-                  ))}
-                </div>
+                <input
+                  type="date"
+                  min="1960-01-01"
+                  max="2026-12-31"
+                  className="w-full bg-white h-12 px-4 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold"
+                  value={src.startDate || ''}
+                  onChange={e => updateIncomeSource(type, 'startDate', e.target.value)}
+                />
                 {src.seniority && (
                   <div className="mt-2 p-2 bg-green-50 border-2 border-green-300 rounded-xl text-center">
                     <p className="text-green-800 font-bold text-xs">ותק: {src.seniority} שנים</p>
