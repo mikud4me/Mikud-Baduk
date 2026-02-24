@@ -104,16 +104,16 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
     <div className="fixed bottom-4 left-4 z-[300] flex flex-col items-start" dir="rtl">
       {isOpen && (
         <div className="bg-gradient-to-br from-white via-slate-50 to-white w-[80vw] sm:w-[320px] h-[420px] mb-3 rounded-2xl shadow-2xl border-2 border-[#d4af37]/30 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 backdrop-blur-xl">
-          <div className="bg-gradient-to-r from-[#001a33] to-[#003d66] p-4 text-white flex justify-between items-center shadow-xl">
-            <div className="flex items-center gap-3 font-bold">
-              <MikoAvatar className="w-12 h-12 ring-2 ring-[#d4af37]" />
+          <div className="bg-gradient-to-r from-[#001a33] to-[#003d66] p-3 text-white flex justify-between items-center shadow-xl">
+            <div className="flex items-center gap-2 font-bold">
+              <MikoAvatar className="w-8 h-8 ring-2 ring-[#d4af37]" />
               <div>
-                <span className="text-base block">מיקו AI</span>
-                <span className="text-xs text-[#d4af37] block">המומחה הדיגיטלי שלך</span>
+                <span className="text-sm block">מיקו AI</span>
+                <span className="text-[10px] text-[#d4af37] block">המומחה הדיגיטלי שלך</span>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:text-[#d4af37] transition-colors p-2 hover:bg-white/10 rounded-xl">
-              <X size={22}/>
+            <button onClick={() => setIsOpen(false)} className="hover:text-[#d4af37] transition-colors p-1.5 hover:bg-white/10 rounded-lg">
+              <X size={18}/>
             </button>
           </div>
           
