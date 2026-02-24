@@ -103,7 +103,7 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
   return (
     <div className="fixed bottom-4 left-4 z-[300] flex flex-col items-start" dir="rtl">
       {isOpen && (
-        <div className="bg-gradient-to-br from-white via-slate-50 to-white w-[88vw] sm:w-[380px] h-[550px] mb-4 rounded-[2rem] shadow-2xl border-4 border-[#d4af37]/30 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 backdrop-blur-xl">
+        <div className="bg-gradient-to-br from-white via-slate-50 to-white w-[80vw] sm:w-[320px] h-[420px] mb-3 rounded-2xl shadow-2xl border-2 border-[#d4af37]/30 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 backdrop-blur-xl">
           <div className="bg-gradient-to-r from-[#001a33] to-[#003d66] p-4 text-white flex justify-between items-center shadow-xl">
             <div className="flex items-center gap-3 font-bold">
               <MikoAvatar className="w-12 h-12 ring-2 ring-[#d4af37]" />
