@@ -117,11 +117,11 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
             </button>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-br from-slate-50 to-white">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gradient-to-br from-slate-50 to-white">
             {messages.length === 0 && (
-              <div className="text-center mt-12">
-                <div className="bg-gradient-to-r from-[#d4af37]/10 to-[#f4d03f]/10 border-2 border-[#d4af37]/20 rounded-2xl p-6">
-                  <p className="text-slate-600 text-sm font-bold leading-relaxed">
+              <div className="text-center mt-6">
+                <div className="bg-gradient-to-r from-[#d4af37]/10 to-[#f4d03f]/10 border-2 border-[#d4af37]/20 rounded-2xl p-4">
+                  <p className="text-slate-600 text-xs font-bold leading-relaxed">
                     👋 שלום! אני מיקו, המומחה הדיגיטלי שלך.<br/>
                     כיצד אוכל לסייע לך היום?
                   </p>
