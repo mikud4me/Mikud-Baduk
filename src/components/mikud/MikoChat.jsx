@@ -147,19 +147,19 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
             <div ref={chatEndRef} />
           </div>
           
-          <div className="p-4 bg-gradient-to-r from-slate-50 to-white border-t-2 border-slate-200 flex gap-3">
+          <div className="p-3 bg-gradient-to-r from-slate-50 to-white border-t border-slate-200 flex gap-2">
             <input 
-              className="flex-1 bg-white border-2 border-slate-200 focus:border-[#d4af37] rounded-2xl px-5 py-3 text-sm outline-none text-right font-medium shadow-sm transition-all" 
-              placeholder="שאל את מיקו כל שאלה..." 
+              className="flex-1 bg-white border-2 border-slate-200 focus:border-[#d4af37] rounded-xl px-3 py-2 text-sm outline-none text-right font-medium shadow-sm transition-all" 
+              placeholder="שאל את מיקו..." 
               value={input} 
               onChange={e => setInput(e.target.value)} 
               onKeyDown={e => e.key === 'Enter' && handleSend()} 
             />
             <button 
               onClick={handleSend} 
-              className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] p-3 rounded-2xl active:scale-95 transition-all shadow-lg hover:shadow-xl"
+              className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#001a33] p-2 rounded-xl active:scale-95 transition-all shadow-md"
             >
-              <Send size={18}/>
+              <Send size={16}/>
             </button>
           </div>
         </div>
