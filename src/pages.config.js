@@ -48,10 +48,12 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import MortgageCalculator from './pages/MortgageCalculator';
+import ClientQuestionnaire from './pages/ClientQuestionnaire';
 
 
 export const PAGES = {
     "MortgageCalculator": MortgageCalculator,
+    "ClientQuestionnaire": ClientQuestionnaire,
 }
 
 export const pagesConfig = {
