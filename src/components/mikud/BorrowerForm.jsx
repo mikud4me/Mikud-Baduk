@@ -48,15 +48,12 @@ export default function BorrowerForm({ borrower, index, onChange, isReverseMortg
 
   const updateIncomeSource = (type, field, value) => {
     const sources = { ...(borrower.incomeSources || {}) };
+    if (field === 'amount') {
+      value = parseAmount(value);
+    }
     sources[type] = { ...(sources[type] || {}), [field]: value };
-    // חישוב ותק אם שינוי תאריך
-    if (field === 'startDay' || field === 'startMonth' || field === 'startYear') {
-      const s = sources[type];
-      const sen = calcSeniority(
-        field === 'startDay' ? value : s.startDay,
-        field === 'startMonth' ? value : s.startMonth,
-        field === 'startYear' ? value : s.startYear
-      );
+    if (field === 'startDate') {
+      const sen = calcSeniorityFromDate(value);
       if (sen !== null) sources[type].seniority = sen;
     }
     onChange({ ...borrower, incomeSources: sources });
