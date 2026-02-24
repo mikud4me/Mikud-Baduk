@@ -12,25 +12,12 @@ const parseInputToNumber = (val) => {
   return val.replace(/[^\d]/g, "");
 };
 
-export default function PremiumInput({ 
-  label, 
-  icon: IconComponent, 
-  name, 
-  value, 
-  placeholder, 
-  options, 
-  onChange, 
-  error, 
-  min, 
-  max, 
-  type = "text",
-  tooltip 
-}) {
+const NON_FORMAT_FIELDS = ['age', 'loanDuration', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'youngestBorrowerAge'];
+
+export default function PremiumInput({ label, icon: IconComponent, name, value, placeholder, options, onChange, error, min, max, type = "text", tooltip }) {
   const [isFocused, setIsFocused] = useState(false);
   const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name);
-  const displayValue = isNumeric && value !== "" && !['age', 'loanDuration', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name)
-    ? formatCurrency(value) 
-    : value;
+  const displayValue = isNumeric && value !== "" && !NON_FORMAT_FIELDS.includes(name) ? formatCurrency(value) : value;
 
   return (
     <div className="mb-5 text-right w-full group">
@@ -56,33 +43,29 @@ export default function PremiumInput({
           </TooltipProvider>
         )}
       </label>
-      
+
       {options ? (
-        <select 
-          className="w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base appearance-none text-right cursor-pointer hover:border-[#c9a961] shadow-lg hover:shadow-xl active:scale-[0.99]" 
-          dir="rtl" 
-          value={value} 
+        <select
+          className="w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-2 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base appearance-none text-right cursor-pointer shadow-md"
+          dir="rtl"
+          value={value}
           onChange={(e) => onChange(name, e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
         >
           {options.map(opt => <option key={opt.val} value={opt.val}>{opt.label}</option>)}
         </select>
       ) : type === "range" ? (
-        <div className={`flex flex-col gap-4 p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl border-3 shadow-lg transition-all ${isFocused ? 'border-[#c9a961] ring-4 ring-[#c9a961]/20 shadow-xl' : 'border-[#1e3a5f]'}`} dir="ltr">
-          <input 
-            type="range" 
-            min={min} 
-            max={max} 
-            step="1" 
-            className="w-full h-3 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f] rounded-full appearance-none cursor-pointer hover:scale-[1.02] transition-transform active:scale-100" 
-            style={{
-              background: `linear-gradient(to right, #1e3a5f 0%, #c9a961 ${((value - min) / (max - min)) * 100}%, #e5e7eb ${((value - min) / (max - min)) * 100}%, #e5e7eb 100%)`
-            }}
-            value={value} 
+        <div className={`flex flex-col gap-4 p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 shadow-md transition-all ${isFocused ? 'border-[#c9a961] ring-4 ring-[#c9a961]/20' : 'border-[#1e3a5f]'}`} dir="ltr">
+          <input
+            type="range"
+            min={min}
+            max={max}
+            step="1"
+            className="w-full h-3 rounded-full appearance-none cursor-pointer"
+            style={{ background: `linear-gradient(to right, #1e3a5f 0%, #c9a961 ${((value - min) / (max - min)) * 100}%, #e5e7eb ${((value - min) / (max - min)) * 100}%, #e5e7eb 100%)` }}
+            value={value}
             onChange={(e) => onChange(name, e.target.value)}
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)} 
+            onBlur={() => setIsFocused(false)}
           />
           <div className="flex justify-between text-xs font-bold text-gray-500" dir="rtl">
             <span className="text-[#1e3a5f] text-base">{max} שנים</span>
@@ -94,27 +77,28 @@ export default function PremiumInput({
         </div>
       ) : (
         <div className="relative">
-          <input 
-            type={type} 
-            placeholder={placeholder} 
-            className={`w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-right hover:border-[#c9a961] hover:shadow-xl shadow-lg active:scale-[0.99] ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200 animate-shake' : 'border-[#1e3a5f]'} ${isFocused ? 'scale-[1.01]' : ''}`} 
-            value={displayValue} 
-            onChange={(['age', 'loanDuration', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name)) 
-              ? (e) => onChange(name, e.target.value) 
+          <input
+            type={type}
+            placeholder={placeholder}
+            className={`w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-2 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base text-right shadow-md ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-[#1e3a5f]'}`}
+            value={displayValue}
+            onChange={NON_FORMAT_FIELDS.includes(name)
+              ? (e) => onChange(name, e.target.value)
               : (e) => onChange(name, isNumeric ? parseInputToNumber(e.target.value) : e.target.value)
             }
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)} 
+            onBlur={() => setIsFocused(false)}
           />
-          {isNumeric && !['loanDuration', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name) && (
+          {isNumeric && !NON_FORMAT_FIELDS.includes(name) && (
             <div className="absolute left-5 top-1/2 -translate-y-1/2">
               <span className="text-[#c9a961] font-bold text-2xl">₪</span>
             </div>
           )}
         </div>
       )}
+
       {error && (
-        <div className="mt-3 flex items-center gap-3 bg-red-50 border-3 border-red-500 px-5 py-3 rounded-2xl shadow-lg">
+        <div className="mt-3 flex items-center gap-3 bg-red-50 border-2 border-red-500 px-5 py-3 rounded-2xl">
           <AlertCircle size={20} className="text-red-600" />
           <p className="text-red-700 text-sm font-bold">{error}</p>
         </div>
