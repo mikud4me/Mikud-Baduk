@@ -27,7 +27,7 @@ export default function PremiumInput({
   tooltip 
 }) {
   const [isFocused, setIsFocused] = useState(false);
-  const isNumeric = ['propertyPrice', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name);
+  const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name);
   const displayValue = isNumeric && value !== "" && !['age', 'loanDuration', 'idNumber', 'childrenUnder18', 'employmentSeniority'].includes(name)
     ? formatCurrency(value) 
     : value;

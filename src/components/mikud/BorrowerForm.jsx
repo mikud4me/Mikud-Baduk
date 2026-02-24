@@ -18,13 +18,25 @@ const INCOME_TYPE_LABELS = {
   pensioner: 'פנסיה/גמלה',
 };
 
-function calcSeniority(day, month, year) {
-  if (!day || !month || !year) return null;
-  const startDate = new Date(year, month - 1, day);
+function calcSeniorityFromDate(dateStr) {
+  if (!dateStr) return null;
+  const startDate = new Date(dateStr);
+  if (isNaN(startDate)) return null;
   const today = new Date();
   const years = (today - startDate) / (1000 * 60 * 60 * 24 * 365.25);
   return Math.max(0, years.toFixed(1));
 }
+
+const formatAmount = (val) => {
+  if (!val) return '';
+  const num = String(val).replace(/[^\d]/g, '');
+  if (!num) return '';
+  return new Intl.NumberFormat('he-IL').format(num);
+};
+
+const parseAmount = (val) => {
+  return String(val).replace(/[^\d]/g, '');
+};
 
 export default function BorrowerForm({ borrower, index, onChange, isReverseMortgage, errors = {} }) {
   const isFirst = index === 0;
