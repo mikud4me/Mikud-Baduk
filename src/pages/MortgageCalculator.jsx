@@ -659,7 +659,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   {isReverseMortgage && (
                     <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-300 rounded-2xl">
-                      <p className="text-blue-800 font-bold text-sm">💡 משכנתא לגיל הזהב - מסלול ייעודי</p>
+                      <p className="text-blue-800 font-bold text-sm">משכנתא לגיל הזהב — מסלול ייעודי</p>
                       <p className="text-blue-700 text-xs mt-1">אין חובת הוכחת יחס החזר (DTI). הכנסות משמשות לחיזוק התיק בלבד.</p>
                     </div>
                   )}
