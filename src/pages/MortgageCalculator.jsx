@@ -947,7 +947,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       <p className="text-[10px] text-blue-300 mt-1">לחודש</p>
                     </div>
                     <div className="bg-green-500/20 rounded-xl p-4 text-center border border-green-400">
-                      <p className="text-xs text-green-300 font-semibold mb-1">✅ תזרים פנוי נוסף</p>
+                      <p className="text-xs text-green-300 font-semibold mb-1">תזרים פנוי נוסף</p>
                       <p className="text-3xl font-black text-green-300">₪{formatCurrency(Math.floor(results.regularMonthly - results.balloonMonthly))}</p>
                       <p className="text-[10px] text-green-300 mt-1">לחודש לשימושך האישי</p>
                     </div>
