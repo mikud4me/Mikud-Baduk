@@ -47,13 +47,13 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import MortgageCalculator from './pages/MortgageCalculator';
 import ClientQuestionnaire from './pages/ClientQuestionnaire';
+import MortgageCalculator from './pages/MortgageCalculator';
 
 
 export const PAGES = {
-    "MortgageCalculator": MortgageCalculator,
     "ClientQuestionnaire": ClientQuestionnaire,
+    "MortgageCalculator": MortgageCalculator,
 }
 
 export const pagesConfig = {

@@ -60,6 +60,7 @@ export default function MortgageCalculator() {
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [userInputOtp, setUserInputOtp] = useState("");
   const [currentLeadId, setCurrentLeadId] = useState(null);
+  const [caseId] = useState(() => 'MK-' + Math.random().toString(36).substr(2, 5).toUpperCase());
   const [rates, setRates] = useState(DEFAULT_RATES);
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
