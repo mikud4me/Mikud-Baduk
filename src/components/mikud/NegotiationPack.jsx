@@ -148,7 +148,7 @@ export default function NegotiationPack({ formData, results, selectedMix }) {
       >
         <div className="flex items-center gap-3 mb-6">
           <FileCheck className="w-6 h-6 sm:w-8 sm:h-8 text-[#c9a961]" />
-          <h3 className="text-xl sm:text-2xl font-bold text-[#1e3a5f]">רשימת ה"בונקר" - מסמכים להגשה</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-[#1e3a5f]">רשימת המסמכים להגשה</h3>
         </div>
 
         <div className="grid grid-cols-1 gap-3">
