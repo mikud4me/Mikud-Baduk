@@ -714,7 +714,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   )}
                   {borrowers.some(b => (b.employmentTypes || []).includes('pensioner')) && !isReverseMortgage && (
                     <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-300 rounded-2xl">
-                      <p className="text-blue-800 font-bold text-sm">📋 מסמכים נדרשים - פנסיונר/ית</p>
+                      <p className="text-blue-800 font-bold text-sm">מסמכים נדרשים — פנסיונר/ית</p>
                       <ul className="mt-2 text-blue-700 text-xs space-y-1 list-disc list-inside">
                         <li>אישור גמלה/פנסיה (מקרן/ביטוח לאומי)</li>
                         <li>דפי בנק 3 חודשים אחרונים</li>
