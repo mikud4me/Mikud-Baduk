@@ -632,7 +632,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   
                   {isReverseMortgage && (
                     <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
-                      <p className="text-amber-800 font-bold text-sm">🏛️ משכנתא הפוכה</p>
+                      <p className="text-amber-800 font-bold text-sm">משכנתא הפוכה</p>
                       <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
                     </div>
                   )}
