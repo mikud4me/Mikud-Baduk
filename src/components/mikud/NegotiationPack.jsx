@@ -90,7 +90,7 @@ export default function NegotiationPack({ formData, results, selectedMix }) {
 
         <div className="bg-blue-50 border-r-4 border-blue-600 p-4 rounded-xl">
           <p className="text-sm sm:text-base text-gray-800 font-medium leading-relaxed">
-            💪 <strong>הסבר:</strong> בזכות יחס החזר (DTI) של {results.dti.toFixed(1)}% {results.dti < 35 ? 'ויציבות תעסוקתית' : ''}, 
+            <strong>הסבר:</strong> בזכות יחס החזר (DTI) של {results.dti.toFixed(1)}% {results.dti < 35 ? 'ויציבות תעסוקתית' : ''}, 
             אתה נחשב ללקוח {powerScore >= 80 ? 'מועדף ביותר' : powerScore >= 60 ? 'איכותי' : 'סולידי'}. 
             הבנקים {powerScore >= 80 ? 'יילחמו עליך' : 'יתעניינו בך'} – אל תתפשר על פחות מריביות היעד שהצגנו!
           </p>
