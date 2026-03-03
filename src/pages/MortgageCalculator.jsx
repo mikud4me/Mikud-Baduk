@@ -19,36 +19,8 @@ import NegotiationPack from '@/components/mikud/NegotiationPack';
 import BorrowerForm from '@/components/mikud/BorrowerForm';
 
 
-// v2.1
+// v2.2
 const TODAY_DATE = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
-
-const DEFAULT_RATES = {
-  FIXED_UNLINKED: 0.0505, 
-  VAR_UNLINKED: 0.0498,   
-  FIXED_LINKED: 0.0347,   
-  VAR_LINKED: 0.0361,    
-  PRIME: 0.0550,          
-  PRIME_CALC: 0.0500
-};
-
-const formatCurrency = (val) => {
-  if (!val || isNaN(val)) return "0";
-  return new Intl.NumberFormat('he-IL').format(val);
-};
-
-const calculatePayment = (principal, rate, years) => {
-  if (!principal || !rate || !years || years <= 0) return 0;
-  const i = rate / 12;
-  const n = years * 12;
-  if (i === 0) return principal / n;
-  return (principal * i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1);
-};
-
-const cleanAiText = (text) => {
-  if (!text) return "";
-  const lines = text.replace(/[*#_\\-]/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  return lines.map((line, i) => `${i + 1}. ${line.replace(/^[0-9]+\.\s*/, '')}`).join('\n\n');
-};
 
 export default function MortgageCalculator() {
   const [step, setStep] = useState(1);
