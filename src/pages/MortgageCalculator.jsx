@@ -81,20 +81,8 @@ export default function MortgageCalculator() {
   // fullName computed for display/save
   const fullName = `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
 
-  // חישוב הכנסה כוללת מכל הלווים (לווה נוסף = 50% בלבד)
-  const calcTotalIncome = () => {
-    let total = 0;
-    borrowers.forEach((b, idx) => {
-      const factor = (idx > 0 && b.borrowerType === 'additional') ? 0.5 : 1.0;
-      const sources = b.incomeSources || {};
-      Object.values(sources).forEach(src => {
-        if (src && (src.amount || src.enabled)) {
-          total += Number(String(src.amount || '0').replace(/,/g, '')) * factor;
-        }
-      });
-    });
-    return total;
-  };
+  // wrapper נוח לשימוש ב-component בלי להעביר borrowers בכל פעם
+  const getTotalIncome = () => calcTotalIncome(borrowers);
 
   useEffect(() => {
     const loadRates = async () => {
