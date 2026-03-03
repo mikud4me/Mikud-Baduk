@@ -904,7 +904,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     <p className={`font-bold text-sm sm:text-base leading-relaxed ${
                       results.status.color === 'red' ? 'text-red-800' : 'text-yellow-800'
                     }`}>
-                      💡 <strong>המלצת מיקוד:</strong> {results.status.action}
+                      <strong>המלצת מיקוד:</strong> {results.status.action}
                     </p>
                   </div>
                 )}
