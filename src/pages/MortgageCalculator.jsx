@@ -6,6 +6,11 @@ import {
   ClipboardList, Lock, HelpCircle, Smartphone, Key, Target, HeartHandshake, ShieldAlert, X, UserPlus, Trash2
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import {
+  DEFAULT_RATES, formatCurrency, calculatePayment, cleanAiText,
+  getReverseMortgageMaxLTV, calcTotalIncome, calculateResults,
+  SENIOR_BANK_MAX_LTV, SENIOR_BANK_MAX_TERM, BALLOON_MAX_TERM,
+} from '@/components/mortgage/mortgageUtils';
 import PremiumInput from '@/components/mikud/PremiumInput';
 import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
