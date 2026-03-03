@@ -100,11 +100,6 @@ export default function MortgageCalculator() {
 
   }, []);
 
-  // חוק ה-30 שנה - ללא הגבלת גיל + LTV Max 45%
-  const SENIOR_BANK_MAX_LTV = 45;
-  const SENIOR_BANK_MAX_TERM = 30;
-  const BALLOON_MAX_TERM = 15;
-
   const isReverseMortgage = formData.mortgageType === 'reverse_mortgage';
   const isSeniorBankMortgage = formData.mortgageType === 'senior_bank';
 
