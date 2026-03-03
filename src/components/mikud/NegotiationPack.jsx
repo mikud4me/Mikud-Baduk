@@ -120,7 +120,7 @@ export default function NegotiationPack({ formData, results, selectedMix }) {
           </div>
 
           <div className="bg-white/10 rounded-xl p-4 border-r-4 border-[#c9a961]">
-            <p className="font-bold text-[#c9a961] mb-2">🛡️ התמודדות עם התנגדות:</p>
+            <p className="font-bold text-[#c9a961] mb-2">התמודדות עם התנגדות:</p>
             <p className="leading-relaxed">
               אם הבנקאי אומר <span className="text-red-300 font-bold">"זה נמוך מדי לשוק"</span>, 
               התשובה שלך: <span className="text-green-300 font-bold italic">
