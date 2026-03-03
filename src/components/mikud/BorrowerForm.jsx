@@ -1,5 +1,5 @@
-import React from 'react';
-import { User, Briefcase, Calendar, ShieldCheck, Coins } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Briefcase, Calendar, ShieldCheck, Coins, AlertTriangle } from 'lucide-react';
 import PremiumInput from './PremiumInput';
 
 const EMPLOYMENT_OPTIONS = [
