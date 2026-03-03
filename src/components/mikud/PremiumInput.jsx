@@ -55,7 +55,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
           {options.map(opt => <option key={opt.val} value={opt.val}>{opt.label}</option>)}
         </select>
       ) : type === "range" ? (
-        <div className={`flex flex-col gap-4 p-4 rounded-2xl border transition-all ${isFocused ? 'border-[#c9a961] ring-2 ring-[#c9a961]/20' : 'border-white/20'}`} style={{background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(10px)'}} dir="ltr">
+        <div className={`flex flex-col gap-4 p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 shadow-md transition-all ${isFocused ? 'border-[#c9a961] ring-4 ring-[#c9a961]/20' : 'border-[#1e3a5f]'}`} dir="ltr">
           <input
             type="range"
             min={min}
