@@ -927,7 +927,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
                   <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">החזר חודשי משוער</span>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none text-[#1e3a5f]">₪{formatCurrency(Math.floor(results.mixB.total))}</div>
-                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{results.isBalloon ? '🎈 בלון – ריבית בלבד' : 'תמהיל מאוזן מומלץ'}</div>
+                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{results.isBalloon ? 'בלון — ריבית בלבד' : 'תמהיל מאוזן מומלץ'}</div>
                 </div>
               </div>
 
