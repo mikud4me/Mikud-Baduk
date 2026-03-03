@@ -33,7 +33,7 @@ export default function BankLogosCarousel() {
         {banks.map((bank) => (
           <div
             key={bank.name}
-            className="flex items-center justify-center p-3 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
+            className="flex items-center justify-center p-3 rounded-xl hover:bg-white/10 transition-all duration-300 group"
           >
             <img
               src={bank.img}
