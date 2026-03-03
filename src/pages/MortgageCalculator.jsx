@@ -773,7 +773,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
                       {/* מסמך יורשים */}
                       <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-xl text-right">
-                        <p className="text-amber-900 font-black text-xs mb-1">📋 מסמך חובה: חתימת ילדים/יורשים</p>
+                        <p className="text-amber-900 font-black text-xs mb-1">מסמך חובה: חתימת ילדים / יורשים</p>
                         <p className="text-amber-700 text-xs">טופס יידוע ואישור יורשים על נטילת המשכנתא יידרש על ידי הבנק ויצורף להגשה.</p>
                       </div>
                     </div>
