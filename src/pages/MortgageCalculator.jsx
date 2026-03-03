@@ -193,9 +193,18 @@ export default function MortgageCalculator() {
     const borrowersSummary = borrowers.map((b, i) => {
       const types = (b.employmentTypes || []).join(', ');
       const sources = b.incomeSources || {};
-      const totalB = Object.values(sources).reduce((acc, src) => acc + Number(String(src?.amount || '0').replace(/,/g, '')), 0);
       const factor = i > 0 && b.borrowerType === 'additional' ? 0.5 : 1;
-      return `לווה ${i+1}: ${b.borrowerType === 'additional' ? 'נוסף (50%)' : 'עיקרי'}, סוגי הכנסה: ${types}, הכנסה: ₪${Math.floor(totalB * factor)}`;
+      // Breakdown per income type
+      const breakdown = Object.entries(sources)
+        .filter(([, src]) => src && (src.amount || src.enabled))
+        .map(([type, src]) => {
+          const amt = Number(String(src.amount || '0').replace(/,/g, ''));
+          const sen = src.seniority ? `, ותק: ${src.seniority} שנים` : '';
+          const typeLabel = { employee: 'שכיר', self_employed: 'עצמאי', pensioner: 'פנסיה', controlling_shareholder: 'בעל שליטה', foreign_income: 'הכנסה מחו"ל' }[type] || type;
+          return `  - ${typeLabel}: ₪${Math.floor(amt)}${sen}`;
+        }).join('\n');
+      const totalB = Object.values(sources).reduce((acc, src) => acc + Number(String(src?.amount || '0').replace(/,/g, '')), 0);
+      return `לווה ${i+1}: ${b.borrowerType === 'additional' ? 'נוסף (50%)' : 'עיקרי'}, סוגי הכנסה: ${types}\n${breakdown}\n  סה"כ מוכר לבנק: ₪${Math.floor(totalB * factor)}`;
     }).join('\n');
     const prompt = `אתה יועץ משכנתאות בכיר בישראל. נתח את תיק המשכנתא הבא באופן מקצועי ומלא:
 
