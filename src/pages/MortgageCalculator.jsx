@@ -958,7 +958,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       <p className="text-sm text-white leading-relaxed">בהנחת עליית ערך של 3% בשנה, הנכס יהיה שווה כ-₪{formatCurrency(Math.floor(Number(String(formData.propertyPrice).replace(/,/g,'')) * Math.pow(1.03, Number(formData.loanDuration))))} בתום {formData.loanDuration} שנה, כאשר הקרן הנפרעת תהיה ₪{formatCurrency(Math.floor(results.loanAmount))} בלבד.</p>
                     </div>
                     <div className="bg-red-500/20 rounded-xl p-4 border border-red-400">
-                      <p className="text-xs text-red-300 font-semibold mb-2">⚠️ גילוי נאות חובה</p>
+                      <p className="text-xs text-red-300 font-semibold mb-2">גילוי נאות חובה</p>
                       <p className="text-xs text-red-200 leading-relaxed">הלוואת בלון: הקרן (₪{formatCurrency(Math.floor(results.loanAmount))}) אינה נפרעת במהלך התקופה ותשולם במלואה בתום {formData.loanDuration} שנה לפי אסטרטגיית היציאה שבחרת.</p>
                     </div>
                   </div>
