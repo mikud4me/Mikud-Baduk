@@ -131,7 +131,7 @@ export default function NegotiationPack({ formData, results, selectedMix }) {
           </div>
 
           <div className="bg-white/10 rounded-xl p-4 border-r-4 border-[#c9a961]">
-            <p className="font-bold text-[#c9a961] mb-2">⚡ המשפט המנצח:</p>
+            <p className="font-bold text-[#c9a961] mb-2">המשפט המנצח:</p>
             <p className="leading-relaxed text-lg font-bold">
               "אני מחפש בנק שרואה בי שותף, לא סתם לווה. מי ייתן לי את התנאים הטובים ביותר?"
             </p>
