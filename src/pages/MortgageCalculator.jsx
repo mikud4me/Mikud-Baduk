@@ -583,6 +583,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     onChange={(data) => updateBorrower(activeBorrowerTab, data)}
                     isReverseMortgage={isReverseMortgage}
                     errors={fieldErrors}
+                    borrowerAge={formData.age}
                   />
                 </div>
               )}
