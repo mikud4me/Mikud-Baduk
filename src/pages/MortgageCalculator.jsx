@@ -190,7 +190,7 @@ export default function MortgageCalculator() {
     if (currentStep === 2 && isReverseMortgage && Number(formData.youngestBorrowerAge) < 60) errors.youngestBorrowerAge = "מינימום גיל 60 למשכנתא לגיל הזהב";
     if (currentStep === 3 && !formData.propertyPrice) errors.propertyPrice = "חובה להזין שווי נכס";
     if (currentStep === 3 && !formData.loanAmount) errors.loanAmount = "חובה להזין סכום מבוקש";
-    if (currentStep === 4 && !isReverseMortgage && calcTotalIncome() <= 0) errors.netIncome = "חובה להזין הכנסה לפחות ללווה אחד";
+    if (currentStep === 4 && !isReverseMortgage && getTotalIncome() <= 0) errors.netIncome = "חובה להזין הכנסה לפחות ללווה אחד";
     if (currentStep === 5 && !isReverseMortgage && !formData.equity) errors.equity = "חובה להזין הון עצמי";
     setFieldErrors(errors);
     return Object.keys(errors).filter(k => errors[k]).length === 0;
@@ -216,7 +216,7 @@ export default function MortgageCalculator() {
 
 לקוח: ${fullName}, גיל ${formData.age}
 ${borrowersSummary}
-הכנסה כוללת מוכרת: ₪${Math.floor(calcTotalIncome())}
+הכנסה כוללת מוכרת: ₪${Math.floor(getTotalIncome())}
 מצב משפחתי: ${formData.maritalStatus}, ילדים מתחת ל-18: ${formData.childrenUnder18}
 חובות חודשיים קיימים: ₪${formData.monthlyDebts || 0}
 שווי נכס: ₪${formData.propertyPrice}
@@ -264,7 +264,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
         ltv: results.ltv,
         score: results.score,
         aiAnalysis: analysis,
-        netIncome: calcTotalIncome(),
+        netIncome: getTotalIncome(),
         isPurchased: false,
         status: 'new'
       });
@@ -668,7 +668,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     })}
                     <div className="flex justify-between items-center pt-2 text-sm font-black text-[#1e3a5f]">
                       <span>סה"כ מוכר לבנק</span>
-                      <span className="text-[#c9a961]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(calcTotalIncome()))}</span>
+                      <span className="text-[#c9a961]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(getTotalIncome()))}</span>
                     </div>
                   </div>
 
