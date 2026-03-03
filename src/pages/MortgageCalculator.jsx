@@ -315,16 +315,9 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
   };
 
   return (
-    <div className="min-h-screen font-sans text-right overflow-x-hidden" style={{background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1829 40%, #0f1f35 70%, #0a0f1e 100%)'}} dir="rtl">
+    <div className="min-h-screen font-sans text-right bg-white overflow-x-hidden" dir="rtl">
 
-      {/* Mesh gradient background blobs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-20" style={{background: 'radial-gradient(circle, #1e3a5f 0%, transparent 70%)'}} />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-15" style={{background: 'radial-gradient(circle, #c9a961 0%, transparent 70%)'}} />
-        <div className="absolute top-[40%] left-[30%] w-[400px] h-[400px] rounded-full opacity-10" style={{background: 'radial-gradient(circle, #2a5298 0%, transparent 70%)'}} />
-      </div>
-
-      <nav className="sticky top-0 z-50 border-b border-white/10 h-28 sm:h-32 px-6 sm:px-10 flex items-center justify-between" style={{background: 'rgba(10,15,30,0.85)', backdropFilter: 'blur(20px)'}}>
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm backdrop-blur-xl h-28 sm:h-32 px-6 sm:px-10 flex items-center justify-between">
         <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg" 
@@ -339,74 +332,77 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
             <span className="text-[#c9a961] text-lg">✦</span>
           </div>
           <div className="flex items-baseline gap-3 mt-0.5">
-            <span className="text-2xl font-black text-white" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.02em' }}>המטרה שלנו</span>
-            <span className="w-8 h-px bg-gradient-to-r from-white to-[#c9a961] self-center"></span>
+            <span className="text-2xl font-black text-[#1e3a5f]" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.02em' }}>המטרה שלנו</span>
+            <span className="w-8 h-px bg-gradient-to-r from-[#1e3a5f] to-[#c9a961] self-center"></span>
             <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#c9a961] to-[#d4b975]" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.02em' }}>החיסכון שלכם</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsChatOpen(!isChatOpen)}
-            className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white/80 font-bold hover:bg-white/10 hover:border-[#c9a961] hover:text-[#c9a961] transition-all group"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-[#1e3a5f] text-[#1e3a5f] font-bold hover:bg-[#1e3a5f] hover:text-white transition-all group"
           >
             <HelpCircle size={18} className="group-hover:rotate-12 transition-transform" />
             <span>שאלות?</span>
           </button>
-          <a href="tel:2324" className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-[#0a0f1e] px-8 py-3 rounded-full font-black text-base hover:opacity-90 transition-all shadow-lg shadow-[#c9a961]/20 text-center">
+          <a href="tel:2324" className="bg-[#1e3a5f] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#152d47] transition-all shadow-md hover:shadow-lg text-center">
             2324*
           </a>
         </div>
       </nav>
 
-      <div className="relative z-10">
-        <BankLogosCarousel />
-      </div>
+      <BankLogosCarousel />
 
-      <main className="relative z-10 max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
+      <main className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
         {step <= 6 ? (
           <div className="w-full max-w-4xl">
             {/* Hero Section Above Form */}
             {step === 1 && !otpSent && (
               <div className="text-center mb-16 animate-in fade-in slide-in-from-top-8 duration-1000">
-                <div className="inline-block mb-6">
-                  <div className="border border-[#c9a961]/40 text-[#c9a961] px-6 py-2 rounded-full font-semibold text-xs tracking-widest uppercase" style={{background: 'rgba(201,169,97,0.1)', backdropFilter: 'blur(10px)'}}>
-                    ✦ מערכת AI לבניית תמהילי משכנתא ✦
+                <div className="inline-block mb-4">
+                  <div className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-white px-6 py-2 rounded-full font-semibold text-xs tracking-wide shadow-sm">
+                    מערכת AI לבניית תמהילי משכנתא
                   </div>
                 </div>
-                <h1 className="text-5xl sm:text-7xl font-black text-white mb-6 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+                <h1 className="text-5xl sm:text-7xl font-bold text-[#1e3a5f] mb-6 leading-tight">
                   המשכנתא הנכונה<br/>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c9a961] via-[#d4b975] to-[#c9a961]">
+                  <span className="text-[#c9a961]">
                     מתחילה כאן
                   </span>
                 </h1>
-                <p className="text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light">
                   קבלו 3 תמהילים אופטימליים תוך 3 דקות, בחינם ובלי התחייבות
                 </p>
-                <div className="flex justify-center gap-8 mt-12 text-sm">
-                  {[{val:'₪150K', label:'חיסכון ממוצע'}, {val:"3 דק׳", label:'זמן תגובה'}, {val:'0₪', label:'עלות'}].map(s => (
-                    <div key={s.label} className="flex flex-col items-center gap-2 px-6 py-4 rounded-2xl border border-white/10" style={{background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)'}}>
-                      <div className="text-3xl font-black text-[#c9a961]">{s.val}</div>
-                      <span className="text-white/50 text-xs font-medium">{s.label}</span>
-                    </div>
-                  ))}
+                <div className="flex justify-center gap-12 mt-10 text-sm">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-3xl font-bold text-[#1e3a5f]">₪150K</div>
+                    <span className="text-gray-500">חיסכון ממוצע</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-3xl font-bold text-[#1e3a5f]">3 דק׳</div>
+                    <span className="text-gray-500">זמן תגובה</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-3xl font-bold text-[#1e3a5f]">0₪</div>
+                    <span className="text-gray-500">עלות</span>
+                  </div>
                 </div>
               </div>
             )}
             
-            {/* Glass morphism form card */}
-            <div className="rounded-3xl p-8 sm:p-12 md:p-16 transition-all duration-700 relative overflow-hidden border border-white/10" style={{background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(24px)', boxShadow: '0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)'}}>
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c9a961]/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c9a961]/30 to-transparent" />
+            <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-12 md:p-16 border-4 border-[#1e3a5f] transition-all duration-700 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
+              <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
               <div className="flex items-center justify-between mb-12">
               <div className="text-right flex-1">
-                <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full mb-3 border border-white/15" style={{background: 'rgba(255,255,255,0.07)'}}>
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c9a961] to-[#d4b975] flex items-center justify-center shadow-lg shadow-[#c9a961]/30">
-                    {step === 1 && <User size={18} className="text-[#0a0f1e]" />}
-                    {step === 2 && <Calendar size={18} className="text-[#0a0f1e]" />}
-                    {step === 3 && <Home size={18} className="text-[#0a0f1e]" />}
-                    {step === 4 && <Coins size={18} className="text-[#0a0f1e]" />}
-                    {step === 5 && <Wallet size={18} className="text-[#0a0f1e]" />}
-                    {step === 6 && <Building2 size={18} className="text-[#0a0f1e]" />}
+                <div className="inline-flex items-center gap-3 bg-[#1e3a5f] px-5 py-2.5 rounded-full shadow-sm mb-3">
+                  <div className="w-9 h-9 rounded-full bg-[#c9a961] flex items-center justify-center">
+                    {step === 1 && <User size={18} className="text-white" />}
+                    {step === 2 && <Calendar size={18} className="text-white" />}
+                    {step === 3 && <Home size={18} className="text-white" />}
+                    {step === 4 && <Coins size={18} className="text-white" />}
+                    {step === 5 && <Wallet size={18} className="text-white" />}
+                    {step === 6 && <Building2 size={18} className="text-white" />}
                   </div>
                   <div>
                     <h2 className="text-base sm:text-xl font-bold text-white leading-none">
@@ -765,7 +761,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
               {step > 1 && (
                 <button 
                   onClick={() => {if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1);}} 
-                  className="flex-1 h-14 rounded-full font-bold text-base text-white/60 border border-white/15 hover:border-white/30 hover:bg-white/5 transition-all active:scale-95 text-center group"
+                  className="flex-1 h-14 rounded-full font-bold text-base text-gray-600 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 text-center group"
                 >
                   <span className="group-hover:-translate-x-1 inline-block transition-transform">← חזור</span>
                 </button>
@@ -776,7 +772,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   else if (step === 1 && otpSent) verifyOtp();
                   else if (validateStep(step)) step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
                 }} 
-                className={`h-14 rounded-full font-black text-lg transition-all active:scale-95 text-center group text-[#0a0f1e] bg-gradient-to-r from-[#c9a961] to-[#d4b975] hover:opacity-90 shadow-xl shadow-[#c9a961]/25 ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
+                className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
               >
                 <span className="flex items-center justify-center gap-2">
                   {step === 6 ? (

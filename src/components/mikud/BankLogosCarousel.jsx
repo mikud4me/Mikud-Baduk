@@ -12,7 +12,7 @@ const banks = [
 
 export default function BankLogosCarousel() {
   return (
-    <div className="border-y border-white/10 py-10" style={{background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(10px)'}}>
+    <div className="bg-white border-y border-gray-100 py-10">
       {/* Styled Title */}
       <div className="max-w-7xl mx-auto px-4 mb-10 text-center">
         <div className="inline-flex flex-col items-center gap-2">
@@ -21,7 +21,7 @@ export default function BankLogosCarousel() {
             <span className="text-xs font-bold tracking-[0.3em] text-[#c9a961] uppercase">הסכמי שיתוף פעולה</span>
             <span className="h-px w-12 bg-gradient-to-l from-transparent to-[#c9a961]" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.01em' }}>
+          <h2 className="text-2xl sm:text-3xl font-black text-[#1e3a5f]" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.01em' }}>
             בשיתוף פעולה עם כל הבנקים המובילים במשק
           </h2>
           <div className="h-1 w-24 rounded-full bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f] mt-1" />
@@ -33,7 +33,7 @@ export default function BankLogosCarousel() {
         {banks.map((bank) => (
           <div
             key={bank.name}
-            className="flex items-center justify-center p-3 rounded-xl hover:bg-white/10 transition-all duration-300 group"
+            className="flex items-center justify-center p-3 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
           >
             <img
               src={bank.img}
