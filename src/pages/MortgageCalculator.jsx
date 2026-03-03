@@ -741,7 +741,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                           <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-all ${formData.seniorBalloon ? 'bg-blue-400 justify-end' : 'bg-gray-300 justify-start'}`}>
                             <div className="w-4 h-4 rounded-full bg-white shadow" />
                           </div>
-                          <p className="font-black text-base">🎈 מסלול בלון (ריבית בלבד)</p>
+                          <p className="font-black text-base">מסלול בלון (ריבית בלבד)</p>
                         </div>
                         <p className={`text-xs leading-relaxed ${formData.seniorBalloon ? 'text-blue-200' : 'text-blue-700'}`}>
                           תשלום חודשי של ריבית בלבד. הקרן נפרעת בתום התקופה. מקסימום 15 שנה.
