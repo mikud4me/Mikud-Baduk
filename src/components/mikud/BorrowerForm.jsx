@@ -36,8 +36,10 @@ const formatAmount = (val) => {
 
 const parseAmount = (val) => String(val).replace(/[^\d]/g, '');
 
-export default function BorrowerForm({ borrower, index, onChange, errors = {} }) {
+export default function BorrowerForm({ borrower, index, onChange, errors = {}, borrowerAge }) {
   const isFirst = index === 0;
+  const [showPensionerWarning, setShowPensionerWarning] = useState(false);
+  const [pendingPensioner, setPendingPensioner] = useState(false);
 
   const update = (field, value) => onChange({ ...borrower, [field]: value });
 
