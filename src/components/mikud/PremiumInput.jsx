@@ -81,8 +81,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
           <input
             type={type}
             placeholder={placeholder}
-            className={`w-full h-14 px-5 border rounded-2xl outline-none focus:border-[#c9a961] focus:ring-2 focus:ring-[#c9a961]/20 transition-all text-white font-semibold text-base text-right ${error ? 'border-red-400 focus:border-red-400' : 'border-white/20'}`}
-          style={{background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(10px)'}}
+            className={`w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-2 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base text-right shadow-md ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-[#1e3a5f]'}`}
             value={displayValue}
             onChange={NON_FORMAT_FIELDS.includes(name)
               ? (e) => onChange(name, e.target.value)
