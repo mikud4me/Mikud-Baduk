@@ -21,7 +21,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
 
   return (
     <div className="mb-5 text-right w-full group">
-      <label className="flex items-center text-white/80 font-semibold text-sm mb-2 group-focus-within:text-[#c9a961] transition-colors">
+      <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2 group-focus-within:text-[#c9a961] transition-colors">
         {IconComponent && (
           <div className="w-7 h-7 rounded-full flex items-center justify-center ml-2 transition-all border border-white/15" style={{background: 'rgba(255,255,255,0.07)'}}>
             <IconComponent size={16} className="text-white/50 group-focus-within:text-[#c9a961]" />
