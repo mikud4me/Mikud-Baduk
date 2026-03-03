@@ -170,7 +170,7 @@ export default function NegotiationPack({ formData, results, selectedMix }) {
 
         <div className="mt-6 p-4 bg-yellow-50 border-r-4 border-yellow-600 rounded-xl">
           <p className="text-sm sm:text-base text-gray-800 font-bold">
-            💡 <strong>טיפ פרו:</strong> הכן את כל המסמכים בפורמט PDF מסודר, 
+            <strong>טיפ מקצועי:</strong> הכן את כל המסמכים בפורמט PDF מסודר, 
             עם שם קובץ ברור (לדוגמה: "תלושים_3חודשים_ינואר2026.pdf"). 
             זה יחסוך זמן ויעשה רושם מקצועי.
           </p>
