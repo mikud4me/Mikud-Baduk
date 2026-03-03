@@ -12,7 +12,7 @@ const banks = [
 
 export default function BankLogosCarousel() {
   return (
-    <div className="bg-white border-y border-gray-100 py-10">
+    <div className="border-y border-white/10 py-10" style={{background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(10px)'}}>
       {/* Styled Title */}
       <div className="max-w-7xl mx-auto px-4 mb-10 text-center">
         <div className="inline-flex flex-col items-center gap-2">
