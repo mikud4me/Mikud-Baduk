@@ -46,7 +46,8 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
 
       {options ? (
         <select
-          className="w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-2 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base appearance-none text-right cursor-pointer shadow-md"
+          className="w-full h-14 px-5 border border-white/20 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-2 focus:ring-[#c9a961]/20 transition-all text-white font-semibold text-base appearance-none text-right cursor-pointer"
+          style={{background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(10px)'}}
           dir="rtl"
           value={value}
           onChange={(e) => onChange(name, e.target.value)}
