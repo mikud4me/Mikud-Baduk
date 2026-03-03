@@ -93,6 +93,37 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
   return (
     <div className="space-y-4">
 
+      {/* אזהרת פנסיונר צעיר */}
+      {showPensionerWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-amber-400 text-right animate-in zoom-in-95 duration-300">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertTriangle size={32} className="text-amber-500 flex-shrink-0" />
+              <h3 className="text-lg font-black text-[#1e3a5f]">האם אתה בטוח שאתה פנסיונר?</h3>
+            </div>
+            <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 mb-5">
+              <p className="text-amber-800 font-bold text-sm leading-relaxed">
+                לפי תאריך הלידה, גיל הלווה הוא <span className="text-amber-900 font-black">{borrowerAge} שנים</span>.
+              </p>
+              <p className="text-amber-700 text-xs mt-2 leading-relaxed">
+                פנסיונרים בגיל זה נדירים. ייתכן מדובר בגמלת נכות, קצבת ביטוח לאומי, או מקור הכנסה אחר.
+                האם אתה בטוח שהגדרת "פנסיונר" נכונה?
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={cancelPensioner}
+                className="py-3 px-4 rounded-2xl border-2 border-gray-300 font-bold text-sm text-gray-600 hover:bg-gray-50 transition-all">
+                לא, ביטול
+              </button>
+              <button onClick={confirmPensioner}
+                className="py-3 px-4 rounded-2xl bg-amber-500 text-white font-black text-sm hover:bg-amber-600 transition-all">
+                כן, אני פנסיונר
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* סוג לווה - רק מלווה 2 ומעלה */}
       {!isFirst && (
         <div className="p-4 bg-[#1e3a5f]/5 rounded-xl border-2 border-[#1e3a5f]/20 mb-4">
