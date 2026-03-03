@@ -756,7 +756,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       {formData.seniorBalloon && (
                         <div className="animate-in slide-in-from-top-2 duration-300">
                           <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl mb-4">
-                            <p className="text-red-800 font-black text-xs">⚠️ גילוי נאות חובה: מדובר בהלוואת בלון. הקרן אינה נפרעת במהלך התקופה ותשולם במלואה בתום {formData.loanDuration} שנה.</p>
+                            <p className="text-red-800 font-black text-xs">גילוי נאות חובה: מדובר בהלוואת בלון. הקרן אינה נפרעת במהלך התקופה ותשולם במלואה בתום {formData.loanDuration} שנה.</p>
                           </div>
                           <PremiumInput label="אסטרטגיית יציאה – כיצד תפרע הקרן בסיום?" name="balloonExitStrategy" value={formData.balloonExitStrategy} icon={Target} onChange={handleInputChange}
                             options={[
