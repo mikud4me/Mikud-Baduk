@@ -765,7 +765,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
               {step > 1 && (
                 <button 
                   onClick={() => {if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1);}} 
-                  className="flex-1 h-14 rounded-full font-bold text-base text-gray-600 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 text-center group"
+                  className="flex-1 h-14 rounded-full font-bold text-base text-white/60 border border-white/15 hover:border-white/30 hover:bg-white/5 transition-all active:scale-95 text-center group"
                 >
                   <span className="group-hover:-translate-x-1 inline-block transition-transform">← חזור</span>
                 </button>
@@ -776,7 +776,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   else if (step === 1 && otpSent) verifyOtp();
                   else if (validateStep(step)) step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
                 }} 
-                className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
+                className={`h-14 rounded-full font-black text-lg transition-all active:scale-95 text-center group text-[#0a0f1e] bg-gradient-to-r from-[#c9a961] to-[#d4b975] hover:opacity-90 shadow-xl shadow-[#c9a961]/25 ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
               >
                 <span className="flex items-center justify-center gap-2">
                   {step === 6 ? (
