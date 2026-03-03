@@ -29,7 +29,7 @@ export default function BankLogosCarousel() {
       </div>
 
       {/* Logos */}
-      <div className="flex flex-wrap items-center justify-center gap-10 px-8">
+      <div className="flex flex-wrap items-center justify-center gap-16 px-12">
         {banks.map((bank) => (
           <div
             key={bank.name}
