@@ -399,14 +399,14 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
               <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c9a961]/30 to-transparent" />
               <div className="flex items-center justify-between mb-12">
               <div className="text-right flex-1">
-                <div className="inline-flex items-center gap-3 bg-[#1e3a5f] px-5 py-2.5 rounded-full shadow-sm mb-3">
-                  <div className="w-9 h-9 rounded-full bg-[#c9a961] flex items-center justify-center">
-                    {step === 1 && <User size={18} className="text-white" />}
-                    {step === 2 && <Calendar size={18} className="text-white" />}
-                    {step === 3 && <Home size={18} className="text-white" />}
-                    {step === 4 && <Coins size={18} className="text-white" />}
-                    {step === 5 && <Wallet size={18} className="text-white" />}
-                    {step === 6 && <Building2 size={18} className="text-white" />}
+                <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full mb-3 border border-white/15" style={{background: 'rgba(255,255,255,0.07)'}}>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c9a961] to-[#d4b975] flex items-center justify-center shadow-lg shadow-[#c9a961]/30">
+                    {step === 1 && <User size={18} className="text-[#0a0f1e]" />}
+                    {step === 2 && <Calendar size={18} className="text-[#0a0f1e]" />}
+                    {step === 3 && <Home size={18} className="text-[#0a0f1e]" />}
+                    {step === 4 && <Coins size={18} className="text-[#0a0f1e]" />}
+                    {step === 5 && <Wallet size={18} className="text-[#0a0f1e]" />}
+                    {step === 6 && <Building2 size={18} className="text-[#0a0f1e]" />}
                   </div>
                   <div>
                     <h2 className="text-base sm:text-xl font-bold text-white leading-none">
