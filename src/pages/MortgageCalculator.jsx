@@ -987,16 +987,16 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-10 text-right">
                 <button onClick={() => getAiInsight('roadmap')} className={`p-3 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center sm:justify-between shadow-xl transition-all active:scale-95 group border-b-4 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><Rocket size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>✨ אסטרטגיה</span></div>
-                  <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
+                 <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><Rocket size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>אסטרטגיית חיסכון</span></div>
+                 <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
                 </button>
                 <button onClick={() => getAiInsight('negotiation')} className={`p-3 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center sm:justify-between shadow-xl transition-all active:scale-95 group border-b-4 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><MessageSquareQuote size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>✨ מו"מ</span></div>
-                  <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
+                 <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><MessageSquareQuote size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>הכנה למשא ומתן</span></div>
+                 <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
                 </button>
                 <button onClick={() => getAiInsight('documents')} className={`p-3 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center sm:justify-between shadow-xl transition-all active:scale-95 group border-b-4 ${isPurchased ? 'bg-[#001a33] text-white border-[#d4af37] cursor-pointer' : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'}`} disabled={!isPurchased}>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><ClipboardList size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>✨ מסמכים</span></div>
-                  <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
+                 <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base"><ClipboardList size={18} className="sm:w-5 sm:h-5 text-[#d4af37]" /><span>רשימת מסמכים</span></div>
+                 <ChevronLeft size={14} className="hidden sm:block sm:w-4 sm:h-4" />
                 </button>
               </div>
 
