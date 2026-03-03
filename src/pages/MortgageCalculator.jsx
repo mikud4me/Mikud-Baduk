@@ -934,7 +934,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
               {/* פאנל השוואת בלון */}
               {results.isSenior && results.isBalloon && results.balloonMonthly > 0 && (
                 <div className="mb-6 sm:mb-10 p-5 sm:p-8 rounded-2xl border-2 border-blue-400 bg-gradient-to-br from-blue-900 to-blue-800 text-white animate-in slide-in-from-bottom-4 duration-700">
-                  <h3 className="text-xl font-black mb-5 flex items-center gap-2">🎈 השוואת תזרים – מסלול בלון vs. משכנתא רגילה</h3>
+                  <h3 className="text-xl font-black mb-5 flex items-center gap-2">השוואת תזרים — מסלול בלון מול משכנתא רגילה</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
                     <div className="bg-white/10 rounded-xl p-4 text-center border border-white/20">
                       <p className="text-xs text-blue-300 font-semibold mb-1">בלון – ריבית בלבד</p>
