@@ -56,9 +56,28 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
 
   const toggleEmploymentType = (val) => {
     const cur = borrower.employmentTypes || [];
+    // If adding pensioner and borrower age <= 40, show warning first
+    if (val === 'pensioner' && !cur.includes(val) && borrowerAge && Number(borrowerAge) <= 40) {
+      setPendingPensioner(true);
+      setShowPensionerWarning(true);
+      return;
+    }
     let next = cur.includes(val) ? cur.filter(v => v !== val) : [...cur, val];
     if (next.length === 0) next = ['employee'];
     onChange({ ...borrower, employmentTypes: next });
+  };
+
+  const confirmPensioner = () => {
+    const cur = borrower.employmentTypes || [];
+    const next = [...cur, 'pensioner'];
+    onChange({ ...borrower, employmentTypes: next });
+    setShowPensionerWarning(false);
+    setPendingPensioner(false);
+  };
+
+  const cancelPensioner = () => {
+    setShowPensionerWarning(false);
+    setPendingPensioner(false);
   };
 
   const selectedTypes = borrower.employmentTypes || ['employee'];
