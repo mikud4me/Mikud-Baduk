@@ -72,7 +72,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
             <span className="text-white/60 text-base">{max} שנים</span>
             <span>{min} שנים</span>
           </div>
-          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4a6f] text-white self-center px-8 py-2.5 rounded-full text-lg font-bold shadow-lg">
+          <div className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-[#0a0f1e] self-center px-8 py-2.5 rounded-full text-lg font-black shadow-lg shadow-[#c9a961]/30">
             {value} שנים
           </div>
         </div>
