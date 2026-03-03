@@ -703,7 +703,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   )}
                   {isReverseMortgage && (
                     <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl">
-                      <p className="text-amber-800 font-bold text-sm">📋 מסמכים נדרשים - משכנתא לגיל הזהב</p>
+                      <p className="text-amber-800 font-bold text-sm">מסמכים נדרשים — משכנתא לגיל הזהב</p>
                       <ul className="mt-2 text-amber-700 text-xs space-y-1 list-disc list-inside">
                         <li>תעודת זהות + ספח (לווידוא גיל)</li>
                         <li>אישור הסכמת יורשים (חתום)</li>
