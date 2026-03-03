@@ -639,13 +639,13 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
                   {isSeniorBankMortgage && (
                     <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
-                      <p className="text-blue-900 font-black text-sm mb-2">🏦 משכנתא בנקאית לגיל הזהב – כל מטרה</p>
+                      <p className="text-blue-900 font-black text-sm mb-2">משכנתא בנקאית לגיל הזהב – כל מטרה</p>
                       <ul className="text-blue-800 text-xs space-y-1 list-none">
-                        <li>✅ פריסה עד 30 שנה ללא הגבלת גיל עליונה</li>
-                        <li>✅ LTV מקסימלי: 45% (עד 50% בבנקים ספציפיים)</li>
-                        <li>✅ ללא חובת ביטוח חיים</li>
-                        <li>✅ ריביות מחירון "כל מטרה" (All-Purpose)</li>
-                        <li>⚠️ חובת יידוע יורשים וחתימתם</li>
+                        <li>פריסה עד 30 שנה ללא הגבלת גיל עליונה</li>
+                        <li>LTV מקסימלי: 45% (עד 50% בבנקים ספציפיים)</li>
+                        <li>ללא חובת ביטוח חיים</li>
+                        <li>ריביות מחירון "כל מטרה" (All-Purpose)</li>
+                        <li className="font-bold">חובת יידוע יורשים וחתימתם</li>
                       </ul>
                     </div>
                   )}
