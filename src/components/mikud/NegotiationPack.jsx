@@ -111,7 +111,7 @@ export default function NegotiationPack({ formData, results, selectedMix }) {
 
         <div className="space-y-4 text-sm sm:text-base">
           <div className="bg-white/10 rounded-xl p-4 border-r-4 border-[#c9a961]">
-            <p className="font-bold text-[#c9a961] mb-2">🎯 הפתיחה:</p>
+            <p className="font-bold text-[#c9a961] mb-2">הפתיחה:</p>
             <p className="leading-relaxed italic">
               "שלום, הגשתי תצהיר דיגיטלי דרך מערכת 'מיקוד משכנתאות' וקיבלתי אישור עקרוני למחזור. 
               אני מכוון למרווח של P-0.5% בפריים, {((selectedMix?.tracks[0]?.rate || 0.05) * 100).toFixed(2)}% קבועה. 
