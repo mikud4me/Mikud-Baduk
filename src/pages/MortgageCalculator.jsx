@@ -168,16 +168,6 @@ export default function MortgageCalculator() {
     }
   };
 
-  // חישוב LTV מקסימלי למשכנתא הפוכה לפי גיל
-  const getReverseMortgageMaxLTV = (age) => {
-    const a = Number(age) || 60;
-    if (a >= 80) return 50;
-    if (a >= 75) return 40;
-    if (a >= 70) return 30;
-    if (a >= 65) return 25;
-    return 20; // גיל 60-64
-  };
-
   const validateStep = (currentStep) => {
     const errors = {};
     if (currentStep === 2 && !formData.age) errors.age = "חובה להזין גיל";
