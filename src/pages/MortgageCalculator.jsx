@@ -988,7 +988,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   </div>
                 <div className="bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-200 text-left w-fit">
                   <p className="text-[10px] sm:text-xs text-gray-400 font-medium mb-1">מזהה תיק</p>
-                  <p className="text-base sm:text-lg font-bold text-[#1e3a5f]">MK-{Math.random().toString(36).substr(2, 5).toUpperCase()}</p>
+                  <p className="text-base sm:text-lg font-bold text-[#1e3a5f]">{caseId}</p>
                 </div>
               </div>
 
