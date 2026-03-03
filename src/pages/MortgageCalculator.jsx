@@ -954,7 +954,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-                      <p className="text-xs text-blue-300 font-semibold mb-2">🏠 כרית הון (Equity Buffer)</p>
+                      <p className="text-xs text-blue-300 font-semibold mb-2">כרית הון (Equity Buffer)</p>
                       <p className="text-sm text-white leading-relaxed">בהנחת עליית ערך של 3% בשנה, הנכס יהיה שווה כ-₪{formatCurrency(Math.floor(Number(String(formData.propertyPrice).replace(/,/g,'')) * Math.pow(1.03, Number(formData.loanDuration))))} בתום {formData.loanDuration} שנה, כאשר הקרן הנפרעת תהיה ₪{formatCurrency(Math.floor(results.loanAmount))} בלבד.</p>
                     </div>
                     <div className="bg-red-500/20 rounded-xl p-4 border border-red-400">
