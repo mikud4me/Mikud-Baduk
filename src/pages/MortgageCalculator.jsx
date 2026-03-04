@@ -1038,17 +1038,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 </div>
               </div>
 
-              <div className={`p-4 sm:p-6 md:p-8 bg-[#001a33] rounded-xl sm:rounded-[2rem] mb-6 sm:mb-10 text-white shadow-xl transition-all duration-1000 ${!isPurchased ? 'opacity-30 blur-md pointer-events-none' : ''}`}>
-                <div className="flex flex-col items-center mb-4 sm:mb-6 gap-2 sm:gap-3 text-center">
-                  <h4 className="text-lg sm:text-xl md:text-2xl font-black flex items-center gap-2 sm:gap-3 leading-none">
-                   <Mail size={20} className="sm:w-6 sm:h-6 text-[#d4af37]" /> טיוטת פנייה לבנק
-                  </h4>
-                  <p className="text-slate-400 text-[10px] sm:text-xs font-bold italic">מיקו יצר עבורכם את המייל המקצועי ביותר להגשה לבנקאי.</p>
-                </div>
-                <div className="bg-white/5 p-3 sm:p-5 md:p-6 rounded-xl border border-white/10 shadow-inner font-bold text-xs sm:text-sm md:text-base text-slate-100 leading-relaxed text-right whitespace-pre-wrap overflow-x-auto">
-                  {bankerEmail || "הטיוטה תופיע כאן לאחר רכישת הדוח..."}
-                </div>
-              </div>
+
 
               {isPurchased && (
                 <div className="mt-8 sm:mt-12">
