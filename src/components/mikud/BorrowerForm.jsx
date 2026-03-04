@@ -150,7 +150,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
       {/* מצב משפחתי + ילדים - ללווה ראשי בלבד */}
       {isFirst && (
         <>
-          <PremiumInput label="מצב משפחתי" name="maritalStatus" value={borrower.maritalStatus || 'single'} icon={User} onChange={(_, v) => update('maritalStatus', v)}
+          <PremiumInput label="מצב משפחתי" name="maritalStatus" value={borrower.maritalStatus || 'single'} icon={User} onChange={(_, v) => { update('maritalStatus', v); if (onMaritalChange) onMaritalChange(v); }}
             options={[{ val: 'single', label: 'רווק/ה' }, { val: 'married', label: 'נשוי/אה' }, { val: 'divorced', label: 'גרוש/ה' }, { val: 'widowed', label: 'אלמן/ה' }]} />
           <PremiumInput label="מספר ילדים מתחת לגיל 18" name="childrenUnder18" value={borrower.childrenUnder18 || '0'} icon={User} onChange={(_, v) => update('childrenUnder18', v)} placeholder="0" />
         </>
