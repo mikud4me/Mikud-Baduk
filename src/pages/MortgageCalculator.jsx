@@ -1056,6 +1056,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     formData={formData} 
                     results={results} 
                     selectedMix={results.mixB}
+                    fullName={fullName}
                   />
                 </div>
               )}
