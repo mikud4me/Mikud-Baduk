@@ -1158,6 +1158,16 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
       </main>
 
       <MikoChat formData={formData} results={results} isPurchased={isPurchased} isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
+
+      {/* סקשנים תחתונים — מוצגים רק בשלב 1 לפני מילוי */}
+      {step === 1 && !otpSent && (
+        <>
+          <HowItWorks />
+          <SocialProof />
+        </>
+      )}
+
+      <FooterCTA />
     </div>
   );
 }
