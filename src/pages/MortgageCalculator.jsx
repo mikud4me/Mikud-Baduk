@@ -15,7 +15,7 @@ import PremiumInput from '@/components/mikud/PremiumInput';
 import MixTable from '@/components/mikud/MixTable';
 import MikoChat from '@/components/mikud/MikoChat';
 import BankLogosCarousel from '@/components/mikud/BankLogosCarousel';
-import NegotiationPack from '@/components/mikud/NegotiationPack';
+import NegotiationPack from '@/components/mikud/NegotiationPack.jsx';
 import BorrowerForm from '@/components/mikud/BorrowerForm';
 
 
