@@ -637,14 +637,20 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   {/* טאבים לווים */}
                   <div className="flex gap-2 mb-5 flex-wrap">
-                    {borrowers.map((b, idx) => (
+                    {borrowers.map((b, idx) => {
+                      const bIncome = Object.values(b.incomeSources || {}).reduce((acc, src) => {
+                        return acc + (src?.amount ? Number(String(src.amount).replace(/,/g,'')) : 0);
+                      }, 0);
+                      const needsAttention = idx > 0 && bIncome === 0;
+                      return (
                       <button
                         key={idx}
                         onClick={() => setActiveBorrowerTab(idx)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${activeBorrowerTab === idx ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white text-[#1e3a5f] border-[#1e3a5f]/30 hover:border-[#1e3a5f]'}`}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${activeBorrowerTab === idx ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : needsAttention ? 'bg-amber-50 text-amber-700 border-amber-400 animate-pulse' : 'bg-white text-[#1e3a5f] border-[#1e3a5f]/30 hover:border-[#1e3a5f]'}`}
                       >
                         <User size={14} />
                         לווה {['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}
+                        {needsAttention && <span className="text-amber-500 text-xs font-black">!</span>}
                         {idx > 0 && (
                           <span
                             onClick={e => { e.stopPropagation(); removeBorrower(idx); }}
@@ -652,7 +658,8 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                           >×</span>
                         )}
                       </button>
-                    ))}
+                      );
+                    })}
                     {borrowers.length < 5 && (
                       <button
                         onClick={addBorrower}
