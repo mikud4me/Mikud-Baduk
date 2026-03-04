@@ -165,10 +165,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
 
   const targetRate = selectedMix?.tracks?.[0]?.rate || 0.05;
   const displayName = fullName || formData.fullName || '';
-
-  // Banker letter — institutional format
   const today = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
-  const caseId = formData.caseId || '';
 
   return (
     <div className="space-y-4">
