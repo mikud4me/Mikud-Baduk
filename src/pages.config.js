@@ -49,11 +49,15 @@
  */
 import ClientQuestionnaire from './pages/ClientQuestionnaire';
 import MortgageCalculator from './pages/MortgageCalculator';
+import AdminDashboard from './pages/AdminDashboard';
+import LeadProfile from './pages/LeadProfile';
 
 
 export const PAGES = {
     "ClientQuestionnaire": ClientQuestionnaire,
     "MortgageCalculator": MortgageCalculator,
+    "AdminDashboard": AdminDashboard,
+    "LeadProfile": LeadProfile,
 }
 
 export const pagesConfig = {
