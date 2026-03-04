@@ -1049,9 +1049,9 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
               <div className="mb-6 sm:mb-10">
                 <div className={`grid grid-cols-1 lg:grid-cols-3 gap-4 transition-all duration-1000 ${!isPurchased ? 'blur-3xl opacity-20 pointer-events-none' : ''}`}>
-                  <MixTable title='תמהיל אסטרטגי משולב' tracks={results.mixB.tracks} totalPmt={results.mixB.total} isRecommended={true} />
-                  <MixTable title='תמהיל שמרני' tracks={results.mixA.tracks} totalPmt={results.mixA.total} />
-                  <MixTable title='תמהיל פריים' tracks={results.mixC.tracks} totalPmt={results.mixC.total} />
+                  <MixTable title='תמהיל אסטרטגי משולב' tracks={results.mixB.tracks} totalPmt={results.mixB.total} isRecommended={true} mixType="recommended" loanAmount={results.loanAmount} durationYears={results.actualDuration} />
+                  <MixTable title='תמהיל שמרני' tracks={results.mixA.tracks} totalPmt={results.mixA.total} mixType="conservative" loanAmount={results.loanAmount} durationYears={results.actualDuration} />
+                  <MixTable title='תמהיל פריים' tracks={results.mixC.tracks} totalPmt={results.mixC.total} mixType="prime" loanAmount={results.loanAmount} durationYears={results.actualDuration} />
                 </div>
               </div>
 
