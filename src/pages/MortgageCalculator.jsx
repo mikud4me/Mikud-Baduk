@@ -42,6 +42,7 @@ export default function MortgageCalculator() {
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
 
   const [showCreditModal, setShowCreditModal] = useState(false);
+  const [showSpouseReminderModal, setShowSpouseReminderModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false, creditConsent: false,
     mortgageType: 'purchase_first', loanDuration: '25', seniorBalloon: false, balloonExitStrategy: '',
