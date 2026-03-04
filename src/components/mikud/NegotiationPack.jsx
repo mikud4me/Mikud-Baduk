@@ -204,48 +204,70 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
 
       {/* מכתב לבנקאי */}
       <Section icon={Mail} title="מכתב פנייה מקצועי לבנק">
-        <div className="mt-3 bg-gray-50 border border-gray-200 rounded-xl p-5 font-mono text-sm text-gray-800 leading-relaxed whitespace-pre-wrap text-right" dir="rtl">
-{`לכבוד
-מנהל/ת תחום משכנתאות
-[שם הבנק]
+        <div className="mt-3 bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm" dir="rtl">
+          {/* נייר מכתבים */}
+          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4a75] px-6 py-4 flex items-center justify-between">
+            <span className="text-[#c9a961] font-bold text-sm">מכתב פנייה למשכנתא</span>
+            <button
+              onClick={downloadLetter}
+              className="flex items-center gap-2 bg-[#c9a961] text-[#1e3a5f] px-4 py-2 rounded-lg font-bold text-xs hover:bg-[#d4b975] transition-all"
+            >
+              <Download size={14} />
+              הורד מכתב
+            </button>
+          </div>
+          <div ref={letterRef} className="p-6 sm:p-8 text-sm text-gray-800 leading-8 space-y-4" style={{ fontFamily: 'Assistant, Arial, sans-serif' }}>
+            <div className="text-left text-gray-500 text-xs">{today}</div>
 
-${today}
+            <div className="space-y-0.5">
+              <p className="font-bold">לכבוד,</p>
+              <p>מנהל/ת תחום משכנתאות</p>
+              <p className="text-[#1e3a5f] font-semibold">[שם הבנק]</p>
+            </div>
 
-הנדון: בקשה לאישור עקרוני למשכנתא — ${displayName}
+            <div className="border-r-4 border-[#c9a961] pr-4 py-1">
+              <p className="font-bold text-[#1e3a5f]">הנדון: בקשה לאישור עקרוני למשכנתא — {displayName}</p>
+            </div>
 
-שלום רב,
+            <p>שלום רב,</p>
+            <p>הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>{displayName}</strong>, בתנאים המפורטים להלן.</p>
 
-הריני לפנות אליכם בשם הלקוח/ה ${displayName}, המעוניין/ת לקבל אישור עקרוני למשכנתא בתנאים המפורטים להלן.
+            <div className="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-100">
+              <p className="font-bold text-[#1e3a5f] mb-3 text-sm uppercase tracking-wide">פרטי התיק</p>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
+                <span className="text-gray-500">שם לווה</span><span className="font-semibold">{displayName}</span>
+                <span className="text-gray-500">סכום מבוקש</span><span className="font-semibold">₪{formatCurrency(results.loanAmount)}</span>
+                <span className="text-gray-500">שווי נכס</span><span className="font-semibold">₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}</span>
+                <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}%</span>
+                <span className="text-gray-500">יחס החזר (DTI)</span><span className="font-semibold">{results.dti?.toFixed(1)}%</span>
+                <span className="text-gray-500">תקופת הלוואה</span><span className="font-semibold">{formData.loanDuration} שנים</span>
+                <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{formData.mortgageType === 'purchase_first' ? 'רכישת דירה ראשונה' : formData.mortgageType === 'purchase_improve' ? 'משפרי דיור' : formData.mortgageType === 'refinance' ? 'מחזור משכנתא' : 'כל מטרה'}</span>
+              </div>
+            </div>
 
-פרטי התיק:
-——————————————
-שם לווה:         ${displayName}
-סכום מבוקש:      ₪${formatCurrency(results.loanAmount)}
-שווי נכס:        ₪${formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}
-אחוז מימון (LTV): ${results.ltv?.toFixed(1)}%
-יחס החזר (DTI):  ${results.dti?.toFixed(1)}%
-הכנסה כוללת:     ₪${formatCurrency(results.monthlyIncome || 0)} לחודש
-תקופת הלוואה:    ${formData.loanDuration} שנים
-מטרת ההלוואה:    ${formData.mortgageType === 'purchase_first' ? 'רכישת דירה ראשונה' : formData.mortgageType === 'purchase_improve' ? 'משפרי דיור' : formData.mortgageType === 'refinance' ? 'מחזור משכנתא' : 'כל מטרה'}
+            <div className="bg-[#1e3a5f]/5 rounded-xl p-4 border border-[#1e3a5f]/10">
+              <p className="font-bold text-[#1e3a5f] mb-2 text-sm">ריביות יעד מבוקשות</p>
+              <p>פריים: <strong>P{targetRate <= 0.05 ? '-0.5%' : '+0.1%'}</strong> &nbsp;|&nbsp; קבועה לא צמודה: <strong>{((targetRate) * 100).toFixed(2)}%</strong></p>
+            </div>
 
-ריביות יעד מבוקשות:
-——————————————
-פריים:            P${targetRate <= 0.05 ? '-0.5%' : '+0.1%'}
-קבועה לא צמודה:  ${((targetRate) * 100).toFixed(2)}%
+            <div>
+              <p className="font-bold text-[#1e3a5f] mb-2">נקודות חוזק התיק:</p>
+              <ul className="space-y-1 list-none">
+                <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> יחס החזר (DTI) של {results.dti?.toFixed(1)}% — מתחת לתקרת בנק ישראל (40%)</li>
+                <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> אחוז מימון של {results.ltv?.toFixed(1)}% — מתחת לתקרת {formData.mortgageType === 'purchase_first' ? '75%' : '70%'}</li>
+                <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> {borrowers.some(b => b.creditHistory === 'clean') ? 'היסטוריית אשראי תקינה' : 'לקוח ותיק עם פירעון עקבי'}</li>
+              </ul>
+            </div>
 
-נקודות חוזק התיק:
-——————————————
-• יחס החזר (DTI) של ${results.dti?.toFixed(1)}% — מתחת לתקרת בנק ישראל (40%)
-• אחוז מימון של ${results.ltv?.toFixed(1)}% — מתחת לתקרת ${formData.mortgageType === 'purchase_first' ? '75%' : '70%'}
-• ${formData.creditHistory === 'clean' ? 'היסטוריית אשראי תקינה' : 'לקוח ותיק עם פירעון עקבי'}
+            <p>אבקש לקבל הצעת ריבית עקרונית בכתב תוך <strong>5 ימי עסקים</strong>. אשמח לשלוח את מלוא מסמכי ההגשה בעקבות הצעתכם.</p>
 
-אבקש לקבל הצעת ריבית עקרונית בכתב תוך 5 ימי עסקים.
-אשמח לשלוח את מלוא מסמכי ההגשה בעקבות הצעתכם.
-
-בכבוד רב ובהוקרה,
-${displayName}
-טל׳: ${formData.phone || ''}
-דוא״ל: ${formData.email || ''}`}
+            <div className="pt-4 border-t border-gray-200 space-y-0.5">
+              <p className="font-bold">בכבוד רב,</p>
+              <p>{displayName}</p>
+              {formData.phone && <p>טל׳: {formData.phone}</p>}
+              {formData.email && <p>דוא״ל: {formData.email}</p>}
+            </div>
+          </div>
         </div>
         <p className="text-xs text-gray-400 mt-3 font-medium">* מלאו את שם הבנק לפני השליחה. ניתן לשלוח לכמה בנקים במקביל.</p>
       </Section>
