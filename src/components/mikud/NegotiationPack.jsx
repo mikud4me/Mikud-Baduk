@@ -290,13 +290,23 @@ ${displayName}
 
       {/* רשימת מסמכים */}
       <Section icon={FileCheck} title="רשימת מסמכים להגשה">
-        <div className="grid grid-cols-1 gap-2 mt-3">
-          {documents.map((doc, idx) => (
-            <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#c9a961] hover:bg-[#c9a961]/5 transition-all">
-              <div className="w-6 h-6 rounded-full bg-[#1e3a5f] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-white text-xs font-bold">{idx + 1}</span>
+        <div className="space-y-4 mt-3">
+          {docGroups.map((group, gIdx) => (
+            <div key={gIdx} className={`rounded-xl border-2 overflow-hidden ${group.color}`}>
+              <div className={`px-4 py-2.5 flex items-center gap-2 ${group.headerColor}`}>
+                <span className="text-base">{group.icon}</span>
+                <span className="font-bold text-sm">{group.title}</span>
               </div>
-              <p className="text-sm text-gray-800 font-medium">{doc}</p>
+              <div className="p-3 space-y-1.5">
+                {group.docs.map((doc, dIdx) => (
+                  <div key={dIdx} className="flex items-start gap-2.5">
+                    <div className="w-5 h-5 rounded-full bg-white border-2 border-current flex items-center justify-center flex-shrink-0 mt-0.5 opacity-70">
+                      <span className="text-[10px] font-bold">{dIdx + 1}</span>
+                    </div>
+                    <p className="text-sm text-gray-800 font-medium leading-snug">{doc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
