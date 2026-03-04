@@ -828,20 +828,46 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
           </div>
         ) : (
           <div className="animate-in fade-in zoom-in-95 duration-1000 max-w-5xl mx-auto text-right px-3 sm:px-4" dir="rtl">
-              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 md:p-12 border border-gray-100 relative">
-                <div className="mb-6 sm:mb-10 pb-4 sm:pb-8 border-b border-gray-200 flex flex-col gap-3 text-right">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2 text-[#c9a961] font-semibold text-[10px] sm:text-xs uppercase tracking-wide">
-                      <BadgeCheck size={16} className="sm:w-[18px] sm:h-[18px]"/>דוח היתכנות משכנתא
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 relative overflow-hidden">
+                {/* פס עליון */}
+                <div className="h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
+
+                {/* כותרת הדוח */}
+                <div className="bg-gradient-to-br from-[#1e3a5f] to-[#162e4a] px-6 sm:px-10 py-6 sm:py-8 text-right">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <BadgeCheck size={16} className="text-[#c9a961]" />
+                        <span className="text-[#c9a961] font-semibold text-xs uppercase tracking-widest">דוח היתכנות משכנתא</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">{fullName}</h2>
+                      <div className="flex flex-wrap items-center gap-4 mt-3">
+                        {formData.idNumber && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#c9a961]/70 text-xs">ת.ז:</span>
+                            <span className="text-white/90 font-bold text-sm">{formData.idNumber}</span>
+                          </div>
+                        )}
+                        {formData.phone && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#c9a961]/70 text-xs">טל׳:</span>
+                            <span className="text-white/90 font-bold text-sm" dir="ltr">{formData.phone}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[#c9a961]/70 text-xs">תאריך:</span>
+                          <span className="text-white/90 font-bold text-sm">{TODAY_DATE}</span>
+                        </div>
+                      </div>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1e3a5f] leading-tight break-words">{fullName}</h2>
-                    <p className="text-gray-400 font-medium text-xs sm:text-sm mt-2">{TODAY_DATE}</p>
+                    <div className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3 text-center sm:text-right flex-shrink-0">
+                      <p className="text-[#c9a961]/80 text-[10px] font-semibold uppercase tracking-wide mb-1">מזהה תיק</p>
+                      <p className="text-white font-black text-lg sm:text-xl">{caseId}</p>
+                    </div>
                   </div>
-                <div className="bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-200 text-left w-fit">
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-medium mb-1">מזהה תיק</p>
-                  <p className="text-base sm:text-lg font-bold text-[#1e3a5f]">{caseId}</p>
                 </div>
-              </div>
+
+                <div className="p-4 sm:p-8 md:p-12">
 
               {/* תעודת כשירות מיקוד */}
               <div className={`p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border-4 mb-8 sm:mb-12 text-center relative overflow-hidden ${
