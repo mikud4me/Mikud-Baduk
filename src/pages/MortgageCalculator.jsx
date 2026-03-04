@@ -548,6 +548,47 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 </div>
               )}
 
+              {/* מודל תזכורת למלא פרטי בן/בת זוג */}
+              {showSpouseReminderModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowSpouseReminderModal(false)}>
+                  <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-[#c9a961] text-right animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between mb-5">
+                      <button onClick={() => setShowSpouseReminderModal(false)} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
+                      <h3 className="text-xl font-black text-[#1e3a5f]">שכחת למלא פרטי בן/בת זוג</h3>
+                    </div>
+                    <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 mb-6 text-center">
+                      <div className="text-4xl mb-3">👫</div>
+                      <p className="text-amber-800 font-bold text-sm leading-relaxed">
+                        זיהינו שאתה נשוי/אה — הוספנו לווה ב' (בן/בת זוג) אוטומטית.
+                      </p>
+                      <p className="text-amber-700 text-xs mt-2 leading-relaxed">
+                        כדי לקבל חישוב מדויק, יש להזין את פרטי ההכנסה של בן/בת הזוג. זה יכול להגדיל משמעותית את סכום המשכנתא המאושרת.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => {
+                          setShowSpouseReminderModal(false);
+                          setActiveBorrowerTab(1);
+                        }}
+                        className="py-3 px-4 rounded-2xl bg-[#1e3a5f] text-white font-black text-sm hover:bg-[#152d47] transition-all"
+                      >
+                        למלא פרטים →
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowSpouseReminderModal(false);
+                          setStep(s => s + 1);
+                        }}
+                        className="py-3 px-4 rounded-2xl border-2 border-gray-300 font-bold text-sm text-gray-600 hover:bg-gray-50 transition-all"
+                      >
+                        המשך בלי זה
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* מודל הסבר חווי אשראי */}
               {showCreditModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowCreditModal(false)}>
