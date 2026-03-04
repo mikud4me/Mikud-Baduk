@@ -1023,10 +1023,10 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
               )}
 
               <div className="mb-6 sm:mb-10">
-                <div className={`space-y-4 sm:space-y-8 transition-all duration-1000 ${!isPurchased ? 'blur-3xl opacity-20 pointer-events-none' : ''}`}>
-                  <MixTable title='תמהיל אסטרטגי משולב (מומלץ)' tracks={results.mixB.tracks} totalPmt={results.mixB.total} isRecommended={true} />
-                  <MixTable title='תמהיל שמרני (100% קבועה)' tracks={results.mixA.tracks} totalPmt={results.mixA.total} />
-                  <MixTable title='תמהיל פריים weighted' tracks={results.mixC.tracks} totalPmt={results.mixC.total} />
+                <div className={`grid grid-cols-1 lg:grid-cols-3 gap-4 transition-all duration-1000 ${!isPurchased ? 'blur-3xl opacity-20 pointer-events-none' : ''}`}>
+                  <MixTable title='תמהיל אסטרטגי משולב' tracks={results.mixB.tracks} totalPmt={results.mixB.total} isRecommended={true} />
+                  <MixTable title='תמהיל שמרני' tracks={results.mixA.tracks} totalPmt={results.mixA.total} />
+                  <MixTable title='תמהיל פריים' tracks={results.mixC.tracks} totalPmt={results.mixC.total} />
                 </div>
               </div>
 
