@@ -18,13 +18,15 @@ export default function FooterCTA() {
 
         {/* סלוגן פרימיום */}
         <div className="flex flex-col items-center gap-0 mb-12">
-          <h2 className="text-4xl sm:text-6xl font-black text-white leading-none tracking-tight">
-            המטרה שלנו!!!
-          </h2>
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#c9a961] to-transparent my-4" />
-          <h2 className="text-4xl sm:text-6xl font-black text-[#c9a961] leading-none tracking-tight">
-            החיסכון שלכם!!!
-          </h2>
+          <div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
+            <h2 className="text-3xl sm:text-5xl font-black text-white leading-none tracking-tight whitespace-nowrap">
+              המטרה שלנו
+            </h2>
+            <div className="w-px h-10 sm:h-14 bg-[#c9a961]" />
+            <h2 className="text-3xl sm:text-5xl font-black text-[#c9a961] leading-none tracking-tight whitespace-nowrap">
+              החיסכון שלכם!!!
+            </h2>
+          </div>
         </div>
 
         <p className="text-gray-400 text-sm sm:text-base font-light mb-12 leading-relaxed max-w-xl mx-auto">
