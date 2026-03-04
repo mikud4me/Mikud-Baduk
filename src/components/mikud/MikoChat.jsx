@@ -214,12 +214,12 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
 
           {/* Quick questions */}
           {showQuickQuestions && (
-            <div className="px-3 pb-2 flex flex-wrap gap-1.5 bg-slate-50 border-t border-slate-100 pt-2 flex-shrink-0">
+            <div className="px-3 pb-2 grid grid-cols-3 gap-1.5 bg-slate-50 border-t border-slate-100 pt-2 flex-shrink-0">
               {QUICK_QUESTIONS.map((q, i) => (
                 <button
                   key={i}
                   onClick={() => sendMessage(q)}
-                  className="text-[11px] bg-white border border-[#d4af37]/50 text-[#1e3a5f] font-semibold px-2.5 py-1 rounded-full hover:bg-[#d4af37]/10 transition-all"
+                  className="text-[11px] bg-white border border-[#d4af37]/50 text-[#1e3a5f] font-semibold px-2 py-1.5 rounded-xl hover:bg-[#d4af37]/10 transition-all text-center leading-tight"
                 >
                   {q}
                 </button>
