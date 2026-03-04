@@ -67,6 +67,21 @@ export default function MortgageCalculator() {
     setBorrowers(prev => prev.map((b, i) => i === index ? data : b));
   };
 
+  const handleMaritalChange = (maritalStatus) => {
+    const isMarried = maritalStatus === 'married';
+    setBorrowers(prev => {
+      const hasSpouse = prev.length > 1 && prev[1].isSpouse;
+      if (isMarried && !hasSpouse) {
+        // הוסף לווה בן/בת זוג אוטומטית
+        return [...prev, { ...defaultBorrower(), borrowerType: 'primary', isSpouse: true }];
+      } else if (!isMarried && hasSpouse) {
+        // הסר לווה בן/בת זוג אוטומטית
+        return [prev[0]];
+      }
+      return prev;
+    });
+  };
+
   const addBorrower = () => {
     setBorrowers(prev => [...prev, { ...defaultBorrower(), borrowerType: 'primary' }]);
     setActiveBorrowerTab(borrowers.length);
@@ -74,6 +89,15 @@ export default function MortgageCalculator() {
 
   const removeBorrower = (index) => {
     if (borrowers.length <= 1) return;
+    // אם מסיר בן/בת זוג — עדכן גם מצב משפחתי ללווה ראשון
+    if (borrowers[index]?.isSpouse) {
+      setBorrowers(prev => {
+        const updated = [{ ...prev[0], maritalStatus: 'single' }];
+        return updated;
+      });
+      setActiveBorrowerTab(0);
+      return;
+    }
     setBorrowers(prev => prev.filter((_, i) => i !== index));
     setActiveBorrowerTab(Math.max(0, activeBorrowerTab - 1));
   };
