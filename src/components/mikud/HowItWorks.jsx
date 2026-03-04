@@ -12,52 +12,63 @@ const steps = [
     icon: Sparkles,
     num: '02',
     title: 'קבל ניתוח AI מיידי',
-    desc: 'המערכת שלנו מנתחת את התיק ומפיקה 3 תמהילי משכנתא אופטימליים במיוחד עבורך',
+    desc: 'המערכת מנתחת את התיק ומפיקה 3 תמהילי משכנתא אופטימליים במיוחד עבורך',
   },
   {
     icon: TrendingDown,
     num: '03',
-    title: 'חסוך בריבית',
+    title: 'חסוך עשרות אלפי שקלים',
     desc: 'הגע לבנק עם נתונים, תסריט שיחה ומכתב מקצועי — ותנהל משא ומתן כמו מומחה',
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="w-full bg-gradient-to-b from-white to-gray-50 py-20 px-4" dir="rtl">
+    <section className="w-full py-24 px-4 bg-white" dir="rtl">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-14">
-          <span className="inline-block bg-[#1e3a5f] text-[#c9a961] text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-4">
-            איך זה עובד
-          </span>
+
+        {/* כותרת */}
+        <div className="text-center mb-16">
+          <p className="text-xs font-bold tracking-[0.3em] uppercase text-[#c9a961] mb-3">התהליך שלנו</p>
           <h2 className="text-3xl sm:text-4xl font-black text-[#1e3a5f] leading-tight">
-            שלושה שלבים פשוטים<br/>
-            <span className="text-[#c9a961]">לחיסכון של עשרות אלפי שקלים</span>
+            שלושה שלבים.
+            <br />
+            <span className="text-[#c9a961]">תוצאה אחת.</span>
           </h2>
         </div>
 
-        <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-8">
-          {/* קו חיבור */}
-          <div className="hidden sm:block absolute top-10 right-[16.5%] left-[16.5%] h-0.5 bg-gradient-to-l from-[#c9a961] via-[#c9a961]/40 to-[#c9a961]" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative">
+
+          {/* קו מחבר */}
+          <div className="hidden sm:block absolute top-[2.75rem] right-[calc(16.5%+2.5rem)] left-[calc(16.5%+2.5rem)] h-px bg-gradient-to-l from-[#c9a961]/30 via-[#c9a961]/60 to-[#c9a961]/30" />
 
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
-              <div key={i} className="flex flex-col items-center text-center group">
-                <div className="relative mb-5">
-                  <div className="w-20 h-20 rounded-full bg-white border-4 border-[#c9a961] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 z-10 relative">
-                    <Icon size={32} className="text-[#1e3a5f]" />
+              <div
+                key={i}
+                className="relative flex flex-col items-center text-center group"
+              >
+                {/* מספר + אייקון */}
+                <div className="relative mb-6 z-10">
+                  {/* טבעת חיצונית */}
+                  <div className="w-[5.5rem] h-[5.5rem] rounded-full border border-[#c9a961]/30 absolute -inset-2 group-hover:scale-105 transition-transform duration-500" />
+                  <div className="w-[4.5rem] h-[4.5rem] rounded-full border-2 border-[#1e3a5f] bg-white flex items-center justify-center shadow-md group-hover:bg-[#1e3a5f] transition-colors duration-300">
+                    <Icon size={26} className="text-[#1e3a5f] group-hover:text-[#c9a961] transition-colors duration-300" />
                   </div>
-                  <span className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-[#1e3a5f] text-[#c9a961] text-xs font-black flex items-center justify-center">
+                  {/* מספר */}
+                  <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-[#c9a961] text-[#1e3a5f] text-[10px] font-black flex items-center justify-center shadow">
                     {step.num}
                   </span>
                 </div>
-                <h3 className="text-lg font-black text-[#1e3a5f] mb-2">{step.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
+
+                <h3 className="text-base font-black text-[#1e3a5f] mb-2 tracking-tight">{step.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed max-w-[220px]">{step.desc}</p>
               </div>
             );
           })}
         </div>
+
       </div>
     </section>
   );

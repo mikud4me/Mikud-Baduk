@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Quote } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 const stats = [
   { value: '₪148,000', label: 'חיסכון ממוצע ללקוח' },
@@ -18,58 +18,74 @@ const testimonials = [
   {
     name: 'אבי לוי',
     location: 'ירושלים',
-    text: 'הגעתי לבנק עם המכתב והניתוח מהמערכת — הבנקאי שינה את הריבית על המקום.',
+    text: 'הגעתי לבנק עם המכתב והניתוח — הבנקאי שינה את הריבית על המקום.',
     stars: 5,
   },
   {
     name: 'שרה ומשה גולן',
     location: 'חיפה',
-    text: 'תוך 5 דקות קיבלנו תמונה מלאה על המצב שלנו. מדהים כמה זה פשוט.',
+    text: 'תוך 5 דקות קיבלנו תמונה מלאה. מדהים כמה זה פשוט ויעיל.',
     stars: 5,
   },
 ];
 
 export default function SocialProof() {
   return (
-    <section className="w-full bg-white py-20 px-4" dir="rtl">
+    <section className="w-full bg-[#0d1b2e] py-24 px-4" dir="rtl">
       <div className="max-w-5xl mx-auto">
 
         {/* סטטיסטיקות */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-20">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 rounded-2xl overflow-hidden mb-20">
           {stats.map((s, i) => (
-            <div key={i} className="text-center p-6 rounded-2xl bg-gradient-to-br from-[#1e3a5f]/5 to-[#c9a961]/10 border border-[#c9a961]/20">
-              <div className="text-3xl sm:text-4xl font-black text-[#1e3a5f] mb-1">{s.value}</div>
-              <div className="text-xs text-gray-500 font-semibold">{s.label}</div>
+            <div
+              key={i}
+              className="flex flex-col items-center justify-center text-center py-10 px-4 bg-[#0d1b2e] hover:bg-[#1e3a5f]/60 transition-colors duration-300"
+            >
+              <div className="text-3xl sm:text-4xl font-black text-white mb-1 tracking-tight">{s.value}</div>
+              <div className="text-xs text-gray-500 font-semibold uppercase tracking-widest">{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* כותרת */}
-        <div className="text-center mb-10">
-          <span className="inline-block bg-[#1e3a5f] text-[#c9a961] text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-4">
-            לקוחות מרוצים
-          </span>
-          <h2 className="text-3xl font-black text-[#1e3a5f]">הם כבר חסכו — עכשיו תורכם</h2>
+        {/* כותרת המלצות */}
+        <div className="text-center mb-12">
+          <p className="text-xs font-bold tracking-[0.3em] uppercase text-[#c9a961] mb-3">לקוחות מרוצים</p>
+          <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
+            הם כבר חסכו.
+            <br />
+            <span className="text-[#c9a961]">עכשיו תורכם.</span>
+          </h2>
         </div>
 
         {/* המלצות */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <div key={i} className="bg-gray-50 rounded-2xl p-6 border border-gray-100 hover:shadow-md transition-shadow relative">
-              <Quote size={24} className="text-[#c9a961] mb-3 opacity-60" />
-              <p className="text-gray-700 text-sm leading-relaxed mb-4 italic">"{t.text}"</p>
-              <div className="flex items-center gap-1 mb-2">
+            <div
+              key={i}
+              className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-[#c9a961]/40 transition-all duration-300 bg-white/5 hover:bg-white/8 p-7 flex flex-col justify-between"
+            >
+              {/* פס עליון */}
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#c9a961]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+              {/* כוכבים */}
+              <div className="flex items-center gap-0.5 mb-4">
                 {Array.from({ length: t.stars }).map((_, j) => (
-                  <Star key={j} size={12} className="text-[#c9a961] fill-[#c9a961]" />
+                  <Star key={j} size={11} className="text-[#c9a961] fill-[#c9a961]" />
                 ))}
               </div>
-              <div>
-                <p className="font-black text-[#1e3a5f] text-sm">{t.name}</p>
-                <p className="text-gray-400 text-xs">{t.location}</p>
+
+              <p className="text-gray-300 text-sm leading-relaxed mb-6 flex-1">
+                "{t.text}"
+              </p>
+
+              <div className="border-t border-white/10 pt-4">
+                <p className="font-bold text-white text-sm">{t.name}</p>
+                <p className="text-gray-500 text-xs mt-0.5">{t.location}</p>
               </div>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );
