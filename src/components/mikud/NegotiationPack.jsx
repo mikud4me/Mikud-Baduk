@@ -42,7 +42,7 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
   );
 };
 
-export default function NegotiationPack({ formData, results, selectedMix, fullName }) {
+export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [] }) {
   const powerScore = Math.min(100, Math.max(0,
     (results.dti < 35 ? 40 : results.dti < 40 ? 25 : 10) +
     (formData.creditHistory === 'clean' ? 30 : 10) +
@@ -54,35 +54,98 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
   const scoreLabel = powerScore >= 80 ? 'חזק מאוד' : powerScore >= 60 ? 'בינוני-גבוה' : 'בינוני';
 
   const isReverse = formData.mortgageType === 'reverse_mortgage';
-  const empTypes = formData.employmentTypes || [formData.employmentStatusA || 'employee'];
-  const isSelfEmployed = empTypes.some(t => ['self_employed', 'controlling_shareholder'].includes(t));
-  const isPensioner = empTypes.includes('pensioner');
-  const isMarried = formData.maritalStatus === 'married';
+  const isSeniorBank = formData.mortgageType === 'senior_bank';
+
+  // מיפוי כל סוגי ההכנסה מכל הלווים
+  const allEmpTypes = borrowers.flatMap(b => b.employmentTypes || []);
+  const hasEmployee = allEmpTypes.includes('employee');
+  const hasSelfEmployed = allEmpTypes.some(t => ['self_employed', 'controlling_shareholder'].includes(t));
+  const hasForeignIncome = allEmpTypes.includes('foreign_income');
+  const hasPensioner = allEmpTypes.includes('pensioner');
+  const hasMultipleBorrowers = borrowers.length > 1;
+
+  // הכנסות נוספות (rent, national_insurance, disability, child_allowance)
+  const extraIncomeSources = borrowers.flatMap(b => {
+    const sources = b.incomeSources || {};
+    return Object.entries(sources)
+      .filter(([key, src]) => src?.enabled && ['rent','national_insurance','disability','child_allowance'].includes(key))
+      .map(([key]) => key);
+  });
+  const hasRent = extraIncomeSources.includes('rent');
+  const hasDisability = extraIncomeSources.includes('disability');
+  const hasNationalInsurance = extraIncomeSources.includes('national_insurance');
+
+  // האם יש לווה עם דירוג אשראי לא תקין
+  const hasCreditIssues = borrowers.some(b => b.creditHistory === 'issues');
 
   const documents = [
+    // בסיס לכולם
     'תעודת זהות + ספח מעודכן (לכל לווה)',
-    ...(isSelfEmployed ? [
-      'שומות מס 2 השנים האחרונות + אישור רו"ח',
-      'דפי עו"ש 3 חודשים אחרונים (חשבון עסקי + פרטי)',
-      'אישור ניהול ספרים מרשות המסים',
-    ] : isPensioner ? [
-      'אישור קצבה/גמלה מקרן פנסיה / ביטוח לאומי',
-      'דפי עו"ש 3 חודשים אחרונים',
-    ] : [
+    'דפי עו"ש 3 חודשים אחרונים',
+    'דוח נתוני אשראי BDI',
+
+    // שכיר
+    ...(hasEmployee ? [
       '3 תלושי שכר אחרונים',
       'אישור מעסיק על המשך העסקה',
-      'דפי עו"ש 3 חודשים אחרונים',
-    ]),
-    ...(isReverse ? [
+    ] : []),
+
+    // עצמאי / בעל שליטה
+    ...(hasSelfEmployed ? [
+      'שומות מס הכנסה 2 שנים אחרונות + אישור רו"ח',
+      'דפי עו"ש עסקי 3 חודשים אחרונים',
+      'אישור ניהול ספרים מרשות המסים',
+      'אישור תשלום מקדמות מס שוטף',
+    ] : []),
+
+    // הכנסה מחו"ל
+    ...(hasForeignIncome ? [
+      'אישור הכנסה מחו"ל (Pay Stubs / תלושים) + תרגום נוטריוני',
+      'אישור ניכוי מס במקור (אם רלוונטי)',
+    ] : []),
+
+    // פנסיונר
+    ...(hasPensioner ? [
+      'אישור קצבה/גמלה חודשית מקרן פנסיה / ביטוח לאומי',
+    ] : []),
+
+    // הכנסה מדמי שכירות
+    ...(hasRent ? [
+      'חוזה שכירות פעיל + קבלות תשלום',
+      'אישור תשלום מס על הכנסה מדמי שכירות (אם רלוונטי)',
+    ] : []),
+
+    // קצבת נכות
+    ...(hasDisability ? [
+      'אישור קצבת נכות מביטוח לאומי',
+    ] : []),
+
+    // ביטוח לאומי
+    ...(hasNationalInsurance ? [
+      'אישור קצבה מביטוח לאומי',
+    ] : []),
+
+    // לווה עם בעיות אשראי
+    ...(hasCreditIssues ? [
+      'הסבר בכתב על עיכובי תשלום עבר + אסמכתאות סיום',
+    ] : []),
+
+    // נכס
+    ...(isReverse || isSeniorBank ? [
       'נסח טאבו מעודכן',
-      'אישור הסכמת יורשים (חתום נוטריון)',
+      'אישור הסכמת יורשים (חתום)',
     ] : [
       'נסח טאבו / נסח בית משותף מעודכן',
-      'חוזה רכישה / הסכם (אם קיים)',
+      'חוזה רכישה / הסכם מכר (אם קיים)',
     ]),
-    ...(isMarried ? ['מסמכי זהות ותעסוקה של הלווה הנוסף'] : []),
-    'דוח נתוני אשראי (BDI)',
+
+    // שמאות
     'שמאות נכס (תואם מוסד פיננסי)',
+
+    // לווים מרובים
+    ...(hasMultipleBorrowers ? [
+      'מסמכי זהות ואסמכתאות הכנסה לכל לווה נוסף',
+    ] : []),
   ];
 
   const targetRate = selectedMix?.tracks?.[0]?.rate || 0.05;
