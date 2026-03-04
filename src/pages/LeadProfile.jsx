@@ -28,11 +28,11 @@ function InfoRow({ label, value }) {
   );
 }
 
-function Section({ title, icon: Icon, children }) {
+function Section({ title, icon: SectionIcon, children }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <h3 className="font-black text-[#1e3a5f] text-base mb-4 flex items-center gap-2">
-        <Icon size={18} className="text-[#c9a961]" />
+        <SectionIcon size={18} className="text-[#c9a961]" />
         {title}
       </h3>
       {children}
