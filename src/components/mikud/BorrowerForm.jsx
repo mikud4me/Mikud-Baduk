@@ -125,7 +125,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
       )}
 
       {/* סוג לווה - רק מלווה 2 ומעלה */}
-      {!isFirst && (
+      {!isFirst && !borrower.isSpouse && (
         <div className="p-4 bg-[#1e3a5f]/5 rounded-xl border-2 border-[#1e3a5f]/20 mb-4">
           <p className="text-sm font-bold text-[#1e3a5f] mb-3">סוג לווה</p>
           <div className="grid grid-cols-2 gap-3">
@@ -144,6 +144,20 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
               </div>
             </label>
           </div>
+        </div>
+      )}
+
+      {/* הסבר בן/בת זוג */}
+      {!isFirst && borrower.isSpouse && (
+        <div className="p-4 bg-green-50 rounded-xl border-2 border-green-400 mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-lg">👫</span>
+            <p className="text-sm font-black text-green-800">בן/בת זוג — לווה מלא</p>
+          </div>
+          <p className="text-xs text-green-700 leading-relaxed">
+            כבן/בת זוג, <strong>הבנק מכיר ב-100% מהכנסתך</strong> — בדיוק כמו הלווה הראשי.
+            זה שונה מ"לווה נוסף" (כגון קרוב משפחה) שהבנק מכיר רק ב-50% מהכנסתו.
+          </p>
         </div>
       )}
 
