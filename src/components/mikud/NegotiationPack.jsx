@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, FileCheck, Target, TrendingUp, Download, ChevronDown, ChevronUp, Mail } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 const formatCurrency = (val) => {
   if (!val || isNaN(val)) return "0";

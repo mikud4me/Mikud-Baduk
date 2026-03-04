@@ -50,7 +50,10 @@ export const getReverseMortgageMaxLTV = (age) => {
 export const calcTotalIncome = (borrowers) => {
   let total = 0;
   borrowers.forEach((b, idx) => {
-    const factor = (idx > 0 && b.borrowerType === 'additional') ? 0.5 : 1.0;
+    // בן/בת זוג (isSpouse) מוכרים ב-100% כמו הלווה הראשי.
+    // לווה נוסף שאינו בן/בת זוג — 50% בלבד.
+    const isSpouse = b.isSpouse === true;
+    const factor = (idx > 0 && b.borrowerType === 'additional' && !isSpouse) ? 0.5 : 1.0;
     const sources = b.incomeSources || {};
     Object.values(sources).forEach(src => {
       if (src && (src.amount || src.enabled)) {
