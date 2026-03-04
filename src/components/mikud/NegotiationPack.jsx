@@ -43,6 +43,19 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
 };
 
 export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [] }) {
+  const letterRef = useRef(null);
+
+  const downloadLetter = () => {
+    const content = letterRef.current?.innerText || '';
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `מכתב_פנייה_לבנק_${displayName || 'לקוח'}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const powerScore = Math.min(100, Math.max(0,
     (results.dti < 35 ? 40 : results.dti < 40 ? 25 : 10) +
     (formData.creditHistory === 'clean' ? 30 : 10) +
