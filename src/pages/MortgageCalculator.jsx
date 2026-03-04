@@ -826,7 +826,22 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 onClick={() => {
                   if (step === 1 && !otpSent) startVerification();
                   else if (step === 1 && otpSent) verifyOtp();
-                  else if (validateStep(step)) step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
+                  else if (validateStep(step)) {
+                    // אם בשלב 2 ויש לווה ב' (בן/בת זוג) שלא מילא הכנסות - הזכר למלא
+                    if (step === 2 && borrowers.length > 1) {
+                      const spouseBorrower = borrowers[1];
+                      const spouseIncome = Object.values(spouseBorrower.incomeSources || {}).reduce((acc, src) => {
+                        if (src?.amount) return acc + Number(String(src.amount).replace(/,/g,''));
+                        if (src?.enabled && src?.amount) return acc + Number(String(src.amount).replace(/,/g,''));
+                        return acc;
+                      }, 0);
+                      if (spouseIncome === 0 && activeBorrowerTab === 0) {
+                        setShowSpouseReminderModal(true);
+                        return;
+                      }
+                    }
+                    step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
+                  }
                 }} 
                 className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
               >
