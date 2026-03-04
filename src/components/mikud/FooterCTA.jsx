@@ -16,15 +16,24 @@ export default function FooterCTA() {
           <span className="text-[#c9a961] text-xs font-bold tracking-[0.3em] uppercase">מיקוד משכנתאות</span>
         </div>
 
+        {/* לוגו */}
+        <div className="flex justify-center mb-10">
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
+            alt="מיקוד משכנתאות"
+            className="h-36 sm:h-44 w-auto object-contain"
+          />
+        </div>
+
         {/* סלוגן פרימיום */}
-        <div className="flex flex-col items-center gap-0 mb-12">
-          <div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
+        <div className="flex flex-col items-center gap-4 mb-12">
+          <div className="flex items-center justify-center gap-4 sm:gap-8 flex-wrap">
             <h2 className="text-3xl sm:text-5xl font-black text-white leading-none tracking-tight whitespace-nowrap">
               המטרה שלנו
             </h2>
-            <div className="w-px h-10 sm:h-14 bg-[#c9a961]" />
+            <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-[#c9a961] to-transparent" />
             <h2 className="text-3xl sm:text-5xl font-black text-[#c9a961] leading-none tracking-tight whitespace-nowrap">
-              החיסכון שלכם!!!
+              החיסכון שלכם &nbsp;!!!
             </h2>
           </div>
         </div>
