@@ -743,14 +743,18 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     <p className="text-sm font-bold text-[#1e3a5f] mb-3 flex items-center gap-2"><Coins size={16} className="text-[#c9a961]" /> סיכום הכנסות לווים</p>
                     {borrowers.map((b, idx) => {
                       const sources = b.incomeSources || {};
-                      const factor = idx > 0 && b.borrowerType === 'additional' ? 0.5 : 1;
+                      const isSpouse = b.isSpouse === true;
+                      const factor = idx > 0 && b.borrowerType === 'additional' && !isSpouse ? 0.5 : 1;
                       const totalB = Object.values(sources).reduce((acc, src) => {
                         if (!src || (!src.amount && !src.enabled)) return acc;
                         return acc + Number(String(src.amount || '0').replace(/,/g, ''));
                       }, 0);
                       return (
                         <div key={idx} className="flex justify-between items-center py-1.5 border-b border-gray-200 last:border-0 text-sm">
-                          <span className="text-gray-600 font-medium">לווה {['א','ב','ג','ד','ה'][idx] || idx+1} {idx > 0 && b.borrowerType === 'additional' ? <span className="text-amber-600 text-xs">(נוסף - 50%)</span> : ''}</span>
+                          <span className="text-gray-600 font-medium">
+                            לווה {['א','ב','ג','ד','ה'][idx] || idx+1}
+                            {isSpouse ? <span className="text-green-600 text-xs"> (בן/בת זוג - 100%)</span> : idx > 0 && b.borrowerType === 'additional' ? <span className="text-amber-600 text-xs"> (נוסף - 50%)</span> : ''}
+                          </span>
                           <span className="font-bold text-[#1e3a5f]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(totalB * factor))}</span>
                         </div>
                       );
