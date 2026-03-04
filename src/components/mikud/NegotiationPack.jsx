@@ -47,14 +47,143 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
   const letterRef = useRef(null);
 
   const downloadLetter = () => {
-    const content = letterRef.current?.innerText || '';
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `מכתב_פנייה_לבנק_${displayName || 'לקוח'}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const today = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+    const name = displayName || 'לקוח';
+    const loanStr = formatCurrency(results.loanAmount);
+    const propStr = formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')));
+    const ltvStr = results.ltv?.toFixed(1) + '%';
+    const dtiStr = results.dti?.toFixed(1) + '%';
+    const targetRateStr = ((targetRate) * 100).toFixed(2) + '%';
+
+    // Use built-in font - write RTL text mirrored by placing content carefully
+    doc.setFont('helvetica');
+    doc.setR2L(true);
+
+    // Header bar
+    doc.setFillColor(30, 58, 95);
+    doc.rect(0, 0, 210, 22, 'F');
+    doc.setFillColor(201, 169, 97);
+    doc.rect(0, 22, 210, 2, 'F');
+
+    doc.setTextColor(201, 169, 97);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Mikud Mortgages - Bank Application Letter', 105, 13, { align: 'center' });
+
+    // Date
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(today, 20, 32);
+
+    // Recipient
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('To: Mortgage Department Manager', 190, 42, { align: 'right' });
+    doc.text('[Bank Name]', 190, 48, { align: 'right' });
+
+    // Subject
+    doc.setFillColor(248, 245, 240);
+    doc.setDrawColor(201, 169, 97);
+    doc.roundedRect(15, 54, 180, 10, 2, 2, 'FD');
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Re: Mortgage Pre-Approval Request - ${name}`, 105, 61, { align: 'center' });
+
+    // Greeting
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(10);
+    doc.text('Dear Sir/Madam,', 190, 74, { align: 'right' });
+    doc.text(`I hereby request a mortgage pre-approval for ${name}, under the terms detailed below.`, 190, 81, { align: 'right' });
+
+    // Details box
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(15, 88, 180, 52, 3, 3, 'FD');
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('LOAN DETAILS', 105, 95, { align: 'center' });
+
+    const details = [
+      ['Borrower Name:', name],
+      ['Requested Amount:', `NIS ${loanStr}`],
+      ['Property Value:', `NIS ${propStr}`],
+      ['LTV Ratio:', ltvStr],
+      ['DTI Ratio:', dtiStr],
+      ['Loan Period:', `${formData.loanDuration} years`],
+    ];
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60, 60, 60);
+    details.forEach(([label, val], i) => {
+      const y = 102 + i * 6;
+      doc.setFont('helvetica', 'bold');
+      doc.text(label, 190, y, { align: 'right' });
+      doc.setFont('helvetica', 'normal');
+      doc.text(val, 110, y, { align: 'right' });
+    });
+
+    // Target rates box
+    doc.setFillColor(30, 58, 95);
+    doc.roundedRect(15, 144, 180, 14, 3, 3, 'F');
+    doc.setTextColor(201, 169, 97);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Target Interest Rates', 105, 151, { align: 'center' });
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Prime: P-0.5%   |   Fixed Unlinked: ${targetRateStr}`, 105, 156, { align: 'center' });
+
+    // Strengths
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Portfolio Strengths:', 190, 168, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(9);
+    doc.text(`  ✓ DTI of ${dtiStr} — below Bank of Israel cap (40%)`, 190, 175, { align: 'right' });
+    doc.text(`  ✓ LTV of ${ltvStr} — below maximum threshold`, 190, 181, { align: 'right' });
+    doc.text('  ✓ Clean credit history', 190, 187, { align: 'right' });
+
+    // Closing
+    doc.setFontSize(9.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.text('I kindly request a written interest rate offer within 5 business days.', 190, 197, { align: 'right' });
+    doc.text('I will be happy to submit all required documents upon receiving your offer.', 190, 203, { align: 'right' });
+
+    // Signature
+    doc.setDrawColor(200, 200, 200);
+    doc.line(15, 214, 195, 214);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(10);
+    doc.text('Sincerely,', 190, 222, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.text(name, 190, 228, { align: 'right' });
+    if (formData.phone) doc.text(`Tel: ${formData.phone}`, 190, 234, { align: 'right' });
+    if (formData.email) doc.text(`Email: ${formData.email}`, 190, 240, { align: 'right' });
+
+    // Footer
+    doc.setFillColor(30, 58, 95);
+    doc.rect(0, 280, 210, 17, 'F');
+    doc.setTextColor(201, 169, 97);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MIKUD MORTGAGES — Our Goal, Your Savings', 105, 290, { align: 'center' });
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text('*2324', 105, 295, { align: 'center' });
+
+    doc.save(`Bank_Letter_${name}.pdf`);
   };
 
   const powerScore = Math.min(100, Math.max(0,
