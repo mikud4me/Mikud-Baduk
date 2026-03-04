@@ -870,10 +870,10 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 <div className="p-4 sm:p-8 md:p-12">
 
               {/* תעודת כשירות מיקוד */}
-              <div className={`p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border-4 mb-8 sm:mb-12 text-center relative overflow-hidden ${
-                results.status.color === 'green' ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50' : 
-                results.status.color === 'yellow' ? 'border-yellow-500 bg-gradient-to-br from-yellow-50 to-amber-50' : 
-                'border-red-500 bg-gradient-to-br from-red-50 to-rose-50'
+              <div className={`p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border-2 mb-8 sm:mb-12 text-center relative overflow-hidden ${
+                results.status.color === 'green' ? 'border-[#1e3a5f]/30 bg-gradient-to-br from-[#1e3a5f]/5 to-[#1e3a5f]/10' : 
+                results.status.color === 'yellow' ? 'border-amber-400/40 bg-gradient-to-br from-amber-50/60 to-orange-50/60' : 
+                'border-red-400/40 bg-gradient-to-br from-red-50/60 to-rose-50/60'
               }`}>
                 <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
                 
