@@ -402,6 +402,9 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
             <HelpCircle size={18} className="group-hover:rotate-12 transition-transform" />
             <span>שאלות?</span>
           </button>
+          <a href={createPageUrl('AdminDashboard')} className="hidden sm:block text-[#1e3a5f] border-2 border-[#1e3a5f]/30 px-4 py-2 rounded-full font-bold text-xs hover:bg-[#1e3a5f] hover:text-white transition-all">
+            פאנל ניהול
+          </a>
           <a href="tel:2324" className="bg-[#1e3a5f] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#152d47] transition-all shadow-md hover:shadow-lg text-center">
             2324*
           </a>
