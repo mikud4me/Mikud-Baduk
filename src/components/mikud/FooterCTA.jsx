@@ -22,6 +22,7 @@ export default function FooterCTA() {
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
             alt="מיקוד משכנתאות"
             className="h-36 sm:h-44 w-auto object-contain"
+            style={{ mixBlendMode: 'luminosity', filter: 'brightness(1.1) contrast(1.1)' }}
           />
         </div>
 
