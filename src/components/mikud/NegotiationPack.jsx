@@ -404,9 +404,19 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
             <div>
               <p className="font-bold text-[#1e3a5f] mb-2">נקודות חוזק התיק:</p>
               <ul className="space-y-1 list-none">
-                <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> יחס החזר (DTI) של {results.dti?.toFixed(1)}% — מתחת לתקרת בנק ישראל (40%)</li>
-                <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> אחוז מימון של {results.ltv?.toFixed(1)}% — מתחת לתקרת {formData.mortgageType === 'purchase_first' ? '75%' : '70%'}</li>
-                <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> {borrowers.some(b => b.creditHistory === 'clean') ? 'היסטוריית אשראי תקינה' : 'לקוח ותיק עם פירעון עקבי'}</li>
+                {isRefinance ? (
+                  <>
+                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> חיסכון חודשי צפוי של ₪{formatCurrency(results.monthlySaving)} לאורך כל התקופה</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> יתרת משכנתא ₪{formatCurrency(results.balance)} עם {results.remainingYears} שנים שנותרו</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> {borrowers.some(b => b.creditHistory === 'clean') ? 'היסטוריית אשראי תקינה' : 'לקוח ותיק עם פירעון עקבי'}</li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> יחס החזר (DTI) של {results.dti?.toFixed(1)}% — מתחת לתקרת בנק ישראל (40%)</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> אחוז מימון של {results.ltv?.toFixed(1)}% — מתחת לתקרת {formData.mortgageType === 'purchase_first' ? '75%' : '70%'}</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> {borrowers.some(b => b.creditHistory === 'clean') ? 'היסטוריית אשראי תקינה' : 'לקוח ותיק עם פירעון עקבי'}</li>
+                  </>
+                )}
               </ul>
             </div>
 
