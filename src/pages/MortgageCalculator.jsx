@@ -210,7 +210,7 @@ export default function MortgageCalculator() {
     if (currentStep === 3 && isRefinance && !formData.refinanceBalance) errors.refinanceBalance = "חובה להזין יתרת משכנתא";
     if (currentStep === 3 && isRefinance && !formData.currentMonthlyPayment) errors.currentMonthlyPayment = "חובה להזין החזר חודשי נוכחי";
     if (currentStep === 4 && !isReverseMortgage && getTotalIncome() <= 0) errors.netIncome = "חובה להזין הכנסה לפחות ללווה אחד";
-    if (currentStep === 5 && !isReverseMortgage && !formData.equity) errors.equity = "חובה להזין הון עצמי";
+    if (currentStep === 5 && !isReverseMortgage && !isRefinance && !formData.equity) errors.equity = "חובה להזין הון עצמי";
     setFieldErrors(errors);
     return Object.keys(errors).filter(k => errors[k]).length === 0;
   };
