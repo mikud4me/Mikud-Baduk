@@ -1000,7 +1000,50 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
                 <div className="p-4 sm:p-8 md:p-12">
 
-              {/* תעודת כשירות מיקוד */}
+              {/* תעודת כשירות / תוצאת מחזור */}
+              {isRefinance ? (
+                <div className="mb-8 sm:mb-12">
+                  {/* כרטיס חיסכון ראשי */}
+                  <div className={`p-6 sm:p-10 rounded-2xl sm:rounded-3xl border-2 text-center relative overflow-hidden mb-6 ${results.isWorthwhile ? 'border-green-400/40 bg-gradient-to-br from-green-50 to-emerald-50' : 'border-amber-400/40 bg-gradient-to-br from-amber-50 to-orange-50'}`}>
+                    <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
+                    <div className="flex justify-center mb-4">
+                      {results.isWorthwhile ? <BadgeCheck size={56} className="text-green-600" /> : <ShieldAlert size={56} className="text-amber-500" />}
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-[#1e3a5f] mb-2">
+                      {results.isWorthwhile ? 'כדאי למחזר!' : 'כדאיות נמוכה'}
+                    </h2>
+                    <p className="text-gray-600 font-bold text-sm mb-6">
+                      {results.isWorthwhile ? `חיסכון צפוי של ₪${formatCurrency(results.totalSaving)} לאורך כל התקופה` : 'החיסכון הצפוי נמוך יחסית לעלויות המחזור'}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                      <div className="bg-white/70 p-4 rounded-xl border border-gray-200">
+                        <p className="text-xs text-gray-500 font-semibold mb-1">חיסכון חודשי</p>
+                        <p className={`text-2xl font-black ${results.monthlySaving > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {results.monthlySaving > 0 ? '+' : ''}₪{formatCurrency(Math.abs(results.monthlySaving))}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">לחודש</p>
+                      </div>
+                      <div className="bg-white/70 p-4 rounded-xl border border-gray-200">
+                        <p className="text-xs text-gray-500 font-semibold mb-1">חיסכון כולל</p>
+                        <p className={`text-2xl font-black ${results.totalSaving > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          ₪{formatCurrency(Math.abs(results.totalSaving))}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">סה"כ לאורך התקופה</p>
+                      </div>
+                      <div className="bg-white/70 p-4 rounded-xl border border-gray-200">
+                        <p className="text-xs text-gray-500 font-semibold mb-1">break-even</p>
+                        <p className="text-2xl font-black text-[#1e3a5f]">
+                          {results.breakEvenMonths ? `${results.breakEvenMonths} חודש` : '—'}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">עד שהמחזור משתלם</p>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-2 font-bold italic">
+                      * על בסיס יתרה ₪{formatCurrency(results.balance)} | החזר נוכחי ₪{formatCurrency(results.currentMonthly)} | ריבית משוערת {results.impliedRate?.toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+              ) : (
               <div className={`p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border-2 mb-8 sm:mb-12 text-center relative overflow-hidden ${
                 results.status.color === 'green' ? 'border-[#1e3a5f]/30 bg-gradient-to-br from-[#1e3a5f]/5 to-[#1e3a5f]/10' : 
                 results.status.color === 'yellow' ? 'border-amber-400/40 bg-gradient-to-br from-amber-50/60 to-orange-50/60' : 
@@ -1074,6 +1117,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                   <p className="text-[10px] text-gray-400 mt-2">* הדירוג מבוסס על תקני בנק ישראל ונתוני ההצהרה שמילאת</p>
                 </div>
               </div>
+              )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10 text-right">
                 <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-[#1e3a5f] text-white">
