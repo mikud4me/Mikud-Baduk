@@ -245,12 +245,39 @@ export default function MortgageCalculator() {
       const totalB = Object.values(sources).reduce((acc, src) => acc + Number(String(src?.amount || '0').replace(/,/g, '')), 0);
       return `לווה ${i+1}: ${b.borrowerType === 'additional' ? 'נוסף (50%)' : 'עיקרי'}, סוגי הכנסה: ${types}\n${breakdown}\n  סה"כ מוכר לבנק: ₪${Math.floor(totalB * factor)}`;
     }).join('\n');
-    const prompt = `אתה יועץ משכנתאות בכיר בישראל. נתח את תיק המשכנתא הבא באופן מקצועי ומלא:
+    const isRefinanceFlow = isRefinance;
+    const prompt = isRefinanceFlow
+      ? `אתה יועץ משכנתאות בכיר בישראל. נתח בקשת מחזור משכנתא:
 
 לקוח: ${fullName}, גיל ${formData.age}
 ${borrowersSummary}
 הכנסה כוללת מוכרת: ₪${Math.floor(getTotalIncome())}
-מצב משפחתי: ${formData.maritalStatus}, ילדים מתחת ל-18: ${formData.childrenUnder18}
+
+נתוני משכנתא קיימת:
+- יתרת משכנתא: ₪${results.balance}
+- החזר חודשי נוכחי: ₪${results.currentMonthly}
+- ריבית קיימת משוערת: ${results.impliedRate?.toFixed(2)}%
+- שנים שנשארו: ${results.remainingYears}
+
+תוצאות המחזור:
+- חיסכון חודשי בתרחיש המומלץ: ₪${results.monthlySaving}
+- חיסכון כולל: ₪${results.totalSaving}
+- break-even: ${results.breakEvenMonths || 'לא רלוונטי'} חודשים
+- כדאיות מחזור: ${results.isWorthwhile ? 'כן' : 'נמוכה'}
+${results.canIncrease ? `- הלקוח יכול להגדיל החזר ב-₪${results.increaseAmount} לחודש` : ''}
+
+כתוב ניתוח מקצועי הכולל:
+1. האם כדאי למחזר? (פרט מדוע)
+2. השוואת 3 התרחישים: א) קבועה מלאה, ב) תמהיל מאוזן, ג) ${results.canIncrease && results.increaseAmount > 0 ? `הגדלת החזר ב-₪${results.increaseAmount}` : 'פריים+קבועה'}
+3. המלצה מותאמת אישית לפי מצב הלקוח
+4. שלבי הפעולה הבאים
+ענה בעברית בלבד, ברורה ומקצועית, ללא Markdown.`
+      : `אתה יועץ משכנתאות בכיר בישראל. נתח את תיק המשכנתא הבא באופן מקצועי ומלא:
+
+לקוח: ${fullName}, גיל ${formData.age}
+${borrowersSummary}
+הכנסה כוללת מוכרת: ₪${Math.floor(getTotalIncome())}
+מצב משפחתי: ${borrowers[0]?.maritalStatus || ''}, ילדים מתחת ל-18: ${borrowers[0]?.childrenUnder18 || 0}
 חובות חודשיים קיימים: ₪${formData.monthlyDebts || 0}
 שווי נכס: ₪${formData.propertyPrice}
 סכום משכנתא מבוקש: ₪${results.loanAmount}
@@ -258,8 +285,6 @@ ${borrowersSummary}
 ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 תקופת הלוואה: ${formData.loanDuration} שנים
 סוג משכנתא: ${formData.mortgageType}
-ותק בעבודה: ${formData.employmentSeniority || 'לא צוין'} שנים
-היסטוריית אשראי: ${formData.creditHistory === 'clean' ? 'תקינה' : 'עם הערות'}
 
 כתוב ניתוח מקצועי ומפורט הכולל:
 1. סיכום כשירות התיק ורמת הסיכון (פרט מדוע)
