@@ -711,13 +711,31 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     options={[
                       {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75%)'},
                       {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
-                      {val:'refinance', label:'מחזור (שיפור תנאים)'},
+                      {val:'refinance', label:'מחזור משכנתא (שיפור תנאים)'},
                       {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
                       {val:'reverse_mortgage', label:'משכנתא הפוכה (Reverse Mortgage)'},
                       {val:'senior_bank', label:'משכנתא בנקאית לגיל הזהב – כל מטרה (45% LTV | עד 30 שנה)'}
                     ]} 
                     tooltip="מטרת המשכנתא קובעת את אחוז המימון המקסימלי ותנאי ההלוואה" />
                   
+                  {isRefinance && (
+                    <div className="animate-in fade-in duration-300">
+                      <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-400 rounded-2xl">
+                        <p className="text-blue-900 font-black text-sm">מחזור משכנתא — שיפור תנאים</p>
+                        <p className="text-blue-700 text-xs mt-1 leading-relaxed">נחשב כמה תחסכו על המשכנתא הקיימת שלכם ונציג 3 תמהילים חדשים.</p>
+                      </div>
+                      <PremiumInput label="יתרת משכנתא קיימת" name="refinanceBalance" value={formData.refinanceBalance} placeholder="כמה נשאר לשלם?" icon={Coins} onChange={handleInputChange} error={fieldErrors.refinanceBalance} tooltip="הסכום שנשאר לכם לשלם על המשכנתא הנוכחית" />
+                      <PremiumInput label="החזר חודשי נוכחי" name="currentMonthlyPayment" value={formData.currentMonthlyPayment} placeholder="כמה משלמים היום?" icon={TrendingDown} onChange={handleInputChange} error={fieldErrors.currentMonthlyPayment} tooltip="הסכום שאתם משלמים כרגע כל חודש" />
+                      <PremiumInput label="תקופה שנשארה (שנים)" name="refinanceRemainingYears" value={formData.refinanceRemainingYears} type="range" min={1} max={30} icon={Building2} onChange={handleInputChange} tooltip="כמה שנים נשארו במשכנתא הנוכחית" />
+                      <PremiumInput label="מטרת המחזור" name="refinanceGoal" value={formData.refinanceGoal} icon={Target} onChange={handleInputChange}
+                        options={[
+                          {val:'savings', label:'חיסכון בריבית כוללת'},
+                          {val:'lower_monthly', label:'הקטנת החזר חודשי'},
+                          {val:'cash', label:'שחרור כסף מהנכס'},
+                        ]} />
+                    </div>
+                  )}
+
                   {isReverseMortgage && (
                     <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
                       <p className="text-amber-800 font-bold text-sm">משכנתא הפוכה</p>
@@ -738,8 +756,12 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                     </div>
                   )}
 
-                  <PremiumInput label="שווי הנכס המשוער" name="propertyPrice" value={formData.propertyPrice} placeholder="שווי שוק מוערך" icon={Home} onChange={handleInputChange} error={fieldErrors.propertyPrice} tooltip="שווי הנכס על פי הערכה או חוזה רכישה" />
-                  <PremiumInput label="סכום מבוקש" name="loanAmount" value={formData.loanAmount} placeholder="כמה כסף אתם צריכים?" icon={Coins} onChange={handleInputChange} error={fieldErrors.loanAmount} tooltip="הסכום שברצונכם לקבל כמשכנתא" />
+                  {!isRefinance && (
+                    <>
+                      <PremiumInput label="שווי הנכס המשוער" name="propertyPrice" value={formData.propertyPrice} placeholder="שווי שוק מוערך" icon={Home} onChange={handleInputChange} error={fieldErrors.propertyPrice} tooltip="שווי הנכס על פי הערכה או חוזה רכישה" />
+                      <PremiumInput label="סכום מבוקש" name="loanAmount" value={formData.loanAmount} placeholder="כמה כסף אתם צריכים?" icon={Coins} onChange={handleInputChange} error={fieldErrors.loanAmount} tooltip="הסכום שברצונכם לקבל כמשכנתא" />
+                    </>
+                  )}
                 </div>
               )}
 
