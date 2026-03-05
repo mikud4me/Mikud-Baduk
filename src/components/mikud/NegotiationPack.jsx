@@ -190,12 +190,14 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
     doc.save(`Bank_Letter_${name}.pdf`);
   };
 
-  const powerScore = Math.min(100, Math.max(0,
-    (results.dti < 35 ? 40 : results.dti < 40 ? 25 : 10) +
-    (formData.creditHistory === 'clean' ? 30 : 10) +
-    (formData.employmentStatusA === 'employee' ? 20 : 15) +
-    (results.ltv < 70 ? 10 : 5)
-  ));
+  const powerScore = isRefinance
+    ? Math.min(100, Math.max(0, (results.isWorthwhile ? 80 : 50) + (results.monthlySaving > 500 ? 15 : 5) + (results.breakEvenMonths && results.breakEvenMonths < 24 ? 5 : 0)))
+    : Math.min(100, Math.max(0,
+        (results.dti < 35 ? 40 : results.dti < 40 ? 25 : 10) +
+        (formData.creditHistory === 'clean' ? 30 : 10) +
+        (formData.employmentStatusA === 'employee' ? 20 : 15) +
+        (results.ltv < 70 ? 10 : 5)
+      ));
 
   const scoreColor = powerScore >= 80 ? '#22c55e' : powerScore >= 60 ? '#f59e0b' : '#ef4444';
   const scoreLabel = powerScore >= 80 ? 'חזק מאוד' : powerScore >= 60 ? 'בינוני-גבוה' : 'בינוני';
