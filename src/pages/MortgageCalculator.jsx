@@ -1121,14 +1121,14 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10 text-right">
                 <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-[#1e3a5f] text-white">
-                  <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#c9a961]">סכום משכנתא מבוקש</span>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none break-all">₪{formatCurrency(results.loanAmount)}</div>
-                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-300">{results.ltv.toFixed(1)}% מימון מהנכס</div>
+                  <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#c9a961]">{isRefinance ? 'יתרת משכנתא קיימת' : 'סכום משכנתא מבוקש'}</span>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none break-all">₪{formatCurrency(isRefinance ? results.balance : results.loanAmount)}</div>
+                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-300">{isRefinance ? `ריבית קיימת משוערת: ${results.impliedRate?.toFixed(2)}%` : `${results.ltv.toFixed(1)}% מימון מהנכס`}</div>
                 </div>
                 <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
-                  <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">החזר חודשי משוער</span>
+                  <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">{isRefinance ? 'החזר חודשי חדש' : 'החזר חודשי משוער'}</span>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none text-[#1e3a5f]">₪{formatCurrency(Math.floor(results.mixB.total))}</div>
-                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{results.isBalloon ? 'בלון — ריבית בלבד' : 'תמהיל מאוזן מומלץ'}</div>
+                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{isRefinance ? `חיסכון: ₪${formatCurrency(results.monthlySaving)} לחודש` : results.isBalloon ? 'בלון — ריבית בלבד' : 'תמהיל מאוזן מומלץ'}</div>
                 </div>
               </div>
 
