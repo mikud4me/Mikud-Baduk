@@ -515,9 +515,12 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-500 text-center">
         <TrendingUp className="w-10 h-10 text-green-600 mx-auto mb-3" />
         <h3 className="text-xl font-black text-green-800 mb-2">פוטנציאל החיסכון שלך</h3>
-        <p className="text-4xl font-black text-green-600 mb-2">₪{formatCurrency(results.loanAmount * 0.12)}</p>
+        <p className="text-4xl font-black text-green-600 mb-2">₪{isRefinance ? formatCurrency(results.totalSaving) : formatCurrency(displayLoanAmount * 0.12)}</p>
         <p className="text-sm text-green-700 font-medium">
-          הפחתה של 0.5% בריבית על פני {formData.loanDuration} שנים שווה לחיסכון זה. זה מה שמשא ומתן נכון מביא.
+          {isRefinance
+            ? `חיסכון כולל צפוי מהמחזור לאורך כל תקופת ההלוואה הנותרת (${results.remainingYears} שנים).`
+            : `הפחתה של 0.5% בריבית על פני ${formData.loanDuration} שנים שווה לחיסכון זה. זה מה שמשא ומתן נכון מביא.`
+          }
         </p>
       </div>
 
