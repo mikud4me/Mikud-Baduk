@@ -65,6 +65,13 @@ export default function AdminDashboard() {
         loanAmount: lead.loanAmount,
         loanDuration: lead.loanDuration,
         ltv: lead.ltv,
+        // שדות מחזור
+        ...(lead.mortgageType === 'refinance' ? {
+          refinanceBalance: lead.refinanceBalance,
+          currentMonthlyPayment: lead.currentMonthlyPayment,
+          refinanceRemainingYears: lead.refinanceRemainingYears,
+          refinanceGoal: lead.refinanceGoal,
+        } : {}),
       },
       analysis: {
         score: lead.score,
