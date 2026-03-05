@@ -440,9 +440,10 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
           <div className="bg-[#1e3a5f]/5 border-r-4 border-[#1e3a5f] rounded-xl p-4">
             <p className="font-bold text-[#1e3a5f] text-sm mb-2 uppercase tracking-wide">שלב 1 — פתיחה</p>
             <p className="text-gray-800 text-sm leading-relaxed italic">
-              "שלום, קוראים לי {displayName || '[שם]'}. אני מחפש משכנתא של ₪{formatCurrency(results.loanAmount)} על נכס ב-₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}.
-              יחס המימון עומד על {results.ltv?.toFixed(1)}% ויחס ההחזר שלי מתחת ל-{Math.ceil((results.dti || 20) / 5) * 5}%.
-              קיבלתי הצעות ממספר גורמים — אשמח לשמוע מה הבנק שלכם יכול להציע."
+              {isRefinance
+                ? `"שלום, קוראים לי ${displayName || '[שם]'}. יש לי משכנתא קיימת ביתרה של ₪${formatCurrency(results.balance)} עם ${results.remainingYears} שנים שנותרו. הריבית הנוכחית שלי היא ${results.impliedRate?.toFixed(2)}% ואני מחפש למחזר לתנאים טובים יותר. קיבלתי הצעות ממספר גורמים — אשמח לשמוע מה הבנק שלכם יכול להציע."`
+                : `"שלום, קוראים לי ${displayName || '[שם]'}. אני מחפש משכנתא של ₪${formatCurrency(results.loanAmount)} על נכס ב-₪${formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}. יחס המימון עומד על ${results.ltv?.toFixed(1)}% ויחס ההחזר שלי מתחת ל-${Math.ceil((results.dti || 20) / 5) * 5}%. קיבלתי הצעות ממספר גורמים — אשמח לשמוע מה הבנק שלכם יכול להציע."`
+              }
             </p>
           </div>
 
