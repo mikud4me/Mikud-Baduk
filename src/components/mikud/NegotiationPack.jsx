@@ -367,8 +367,8 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
 
             <p>שלום רב,</p>
             <p>{isRefinance
-              ? `הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>${displayName}</strong>, ביתרה של ₪${formatCurrency(results.balance)} בתנאים המפורטים להלן.`
-              : `הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>${displayName}</strong>, בתנאים המפורטים להלן.`
+              ? <>הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>{displayName}</strong>, ביתרה של ₪{formatCurrency(results.balance)} בתנאים המפורטים להלן.</>
+              : <>הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>{displayName}</strong>, בתנאים המפורטים להלן.</>
             }</p>
 
             <div className="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-100">
