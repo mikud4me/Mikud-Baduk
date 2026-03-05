@@ -318,13 +318,28 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
       setBankerEmail(email.replace(/[*#]/g, ''));
       
       const lead = await base44.entities.Lead.create({
-        ...formData,
         fullName,
+        phone: formData.phone,
+        email: formData.email,
+        idNumber: formData.idNumber,
+        birthDate: formData.birthDate,
+        age: formData.age ? Number(formData.age) : undefined,
+        mortgageType: formData.mortgageType,
+        loanDuration: isRefinance ? results.remainingYears : (formData.loanDuration ? Number(formData.loanDuration) : undefined),
         loanAmount: isRefinance ? results.balance : results.loanAmount,
+        propertyPrice: isRefinance ? undefined : (formData.propertyPrice ? Number(String(formData.propertyPrice).replace(/,/g,'')) : undefined),
+        equity: isRefinance ? undefined : (formData.equity ? Number(String(formData.equity).replace(/,/g,'')) : undefined),
+        monthlyDebts: formData.monthlyDebts ? Number(String(formData.monthlyDebts).replace(/,/g,'')) : 0,
         ltv: isRefinance ? 0 : results.ltv,
         score: results.score,
         aiAnalysis: analysis,
         netIncome: getTotalIncome(),
+        // שדות מחזור
+        ...(isRefinance ? {
+          refinanceBalance: results.balance,
+          currentMonthlyPayment: results.currentMonthly,
+          refinanceRemainingYears: results.remainingYears,
+        } : {}),
         isPurchased: false,
         status: 'new'
       });
