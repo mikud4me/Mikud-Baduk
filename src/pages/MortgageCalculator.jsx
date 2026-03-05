@@ -295,7 +295,9 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
 ענה בעברית בלבד, ברורה ומקצועית, ללא Markdown. כל סעיף בשורה נפרדת.`;
     
-    const emailPrompt = `צור טיוטת אימייל קצרה ומקצועית לבנקאי עבור לקוח בשם ${fullName} המבקש משכנתא של ₪${formatCurrency(results.loanAmount)} עם LTV ${results.ltv.toFixed(1)}%. ענה בעברית בלבד.`;
+    const emailPrompt = isRefinanceFlow
+      ? `צור טיוטת אימייל קצרה ומקצועית לבנקאי עבור לקוח בשם ${fullName} המבקש מחזור משכנתא על יתרה של ₪${formatCurrency(results.balance)}. ענה בעברית בלבד.`
+      : `צור טיוטת אימייל קצרה ומקצועית לבנקאי עבור לקוח בשם ${fullName} המבקש משכנתא של ₪${formatCurrency(results.loanAmount)} עם LTV ${(results.ltv || 0).toFixed(1)}%. ענה בעברית בלבד.`;
 
     try {
       const [analysisResponse, emailResponse] = await Promise.all([
