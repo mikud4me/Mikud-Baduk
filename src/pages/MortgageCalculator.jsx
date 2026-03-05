@@ -817,8 +817,22 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
               {step === 5 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                  {!isReverseMortgage && (
+                  {!isReverseMortgage && !isRefinance && (
                     <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} tooltip="הסכום שיש לכם במזומן/חסכונות למטרת רכישת הנכס" />
+                  )}
+                  {isRefinance && (
+                    <div className="p-6 bg-blue-50 border-2 border-blue-400 rounded-2xl text-right">
+                      <p className="text-blue-900 font-black text-base mb-3">📋 מסמכים נדרשים למחזור</p>
+                      <ul className="text-blue-800 text-sm space-y-2">
+                        <li>• תעודת זהות + ספח מעודכן (לכל לווה)</li>
+                        <li>• יתרת סילוק משכנתא מהבנק (מסמך רשמי)</li>
+                        <li>• 3 תלושי שכר אחרונים (לכל לווה שכיר)</li>
+                        <li>• דפי בנק 3 חודשים אחרונים</li>
+                        <li>• נסח טאבו מעודכן</li>
+                        <li>• אישור BDI / דוח נתוני אשראי</li>
+                      </ul>
+                      <p className="text-blue-600 text-xs mt-3 font-bold">* המסמכים יוגשו לאחר הפגישה עם יועץ מיקוד</p>
+                    </div>
                   )}
                   {isReverseMortgage && (
                     <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl">
