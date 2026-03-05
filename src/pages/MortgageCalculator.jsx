@@ -882,7 +882,7 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                 </div>
               )}
 
-              {step === 6 && (
+              {step === 6 && !isRefinance && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500 text-center py-10">
                   <PremiumInput label={isSeniorBankMortgage ? "תקופת הלוואה (עד 30 שנה, ללא הגבלת גיל)" : "תקופת הלוואה רצויה (בשנים)"} name="loanDuration" type="range" value={formData.loanDuration} min={4} max={maxTerm} onChange={handleInputChange} icon={Building2} tooltip="תקופה ארוכה יותר = החזר חודשי נמוך יותר אך ריבית כוללת גבוהה יותר" />
 
