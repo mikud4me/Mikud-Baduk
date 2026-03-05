@@ -1244,9 +1244,9 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
 
               <div className="mb-6 sm:mb-10">
                 <div className={`grid grid-cols-1 lg:grid-cols-3 gap-4 transition-all duration-1000 ${!isPurchased ? 'blur-3xl opacity-20 pointer-events-none' : ''}`}>
-                  <MixTable title='תמהיל אסטרטגי משולב' tracks={results.mixB.tracks} totalPmt={results.mixB.total} isRecommended={true} mixType="recommended" loanAmount={results.loanAmount} durationYears={results.actualDuration} />
-                  <MixTable title='תמהיל שמרני' tracks={results.mixA.tracks} totalPmt={results.mixA.total} mixType="conservative" loanAmount={results.loanAmount} durationYears={results.actualDuration} />
-                  <MixTable title='תמהיל פריים' tracks={results.mixC.tracks} totalPmt={results.mixC.total} mixType="prime" loanAmount={results.loanAmount} durationYears={results.actualDuration} />
+                  <MixTable title={isRefinance ? results.mixB.label : 'תמהיל אסטרטגי משולב'} subtitle={isRefinance ? results.mixB.subtitle : undefined} tracks={results.mixB.tracks} totalPmt={results.mixB.total} isRecommended={true} mixType="recommended" loanAmount={isRefinance ? results.balance : results.loanAmount} durationYears={results.actualDuration} saving={isRefinance ? results.mixB.saving : undefined} />
+                  <MixTable title={isRefinance ? results.mixA.label : 'תמהיל שמרני'} subtitle={isRefinance ? results.mixA.subtitle : undefined} tracks={results.mixA.tracks} totalPmt={results.mixA.total} mixType="conservative" loanAmount={isRefinance ? results.balance : results.loanAmount} durationYears={results.actualDuration} saving={isRefinance ? results.mixA.saving : undefined} />
+                  <MixTable title={isRefinance ? results.mixC.label : 'תמהיל פריים'} subtitle={isRefinance ? results.mixC.subtitle : undefined} tracks={results.mixC.tracks} totalPmt={results.mixC.total} mixType="prime" loanAmount={isRefinance ? results.balance : results.loanAmount} durationYears={isRefinance ? results.mixC_duration : results.actualDuration} saving={isRefinance ? results.mixC.saving : undefined} />
                 </div>
               </div>
 
