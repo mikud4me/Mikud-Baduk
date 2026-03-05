@@ -55,6 +55,7 @@ export default function MortgageCalculator() {
     youngestBorrowerAge: '',
     // שדות מחזור
     refinanceBalance: '', currentMonthlyPayment: '', refinanceRemainingYears: '20', refinanceGoal: 'savings',
+    refinanceCanIncreasePayment: 'no', refinanceIncreaseAmount: '',
   });
 
   const defaultBorrower = () => ({
