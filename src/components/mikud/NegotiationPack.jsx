@@ -362,22 +362,37 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
             </div>
 
             <div className="border-r-4 border-[#c9a961] pr-4 py-1">
-              <p className="font-bold text-[#1e3a5f]">הנדון: בקשה לאישור עקרוני למשכנתא — {displayName}</p>
+              <p className="font-bold text-[#1e3a5f]">הנדון: {isRefinance ? `בקשה למחזור משכנתא — ${displayName}` : `בקשה לאישור עקרוני למשכנתא — ${displayName}`}</p>
             </div>
 
             <p>שלום רב,</p>
-            <p>הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>{displayName}</strong>, בתנאים המפורטים להלן.</p>
+            <p>{isRefinance
+              ? `הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>${displayName}</strong>, ביתרה של ₪${formatCurrency(results.balance)} בתנאים המפורטים להלן.`
+              : `הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>${displayName}</strong>, בתנאים המפורטים להלן.`
+            }</p>
 
             <div className="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-100">
               <p className="font-bold text-[#1e3a5f] mb-3 text-sm uppercase tracking-wide">פרטי התיק</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                 <span className="text-gray-500">שם לווה</span><span className="font-semibold">{displayName}</span>
-                <span className="text-gray-500">סכום מבוקש</span><span className="font-semibold">₪{formatCurrency(results.loanAmount)}</span>
-                <span className="text-gray-500">שווי נכס</span><span className="font-semibold">₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}</span>
-                <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}%</span>
-                <span className="text-gray-500">יחס החזר (DTI)</span><span className="font-semibold">{results.dti?.toFixed(1)}%</span>
-                <span className="text-gray-500">תקופת הלוואה</span><span className="font-semibold">{formData.loanDuration} שנים</span>
-                <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{formData.mortgageType === 'purchase_first' ? 'רכישת דירה ראשונה' : formData.mortgageType === 'purchase_improve' ? 'משפרי דיור' : formData.mortgageType === 'refinance' ? 'מחזור משכנתא' : 'כל מטרה'}</span>
+                {isRefinance ? (
+                  <>
+                    <span className="text-gray-500">יתרת משכנתא קיימת</span><span className="font-semibold">₪{formatCurrency(results.balance)}</span>
+                    <span className="text-gray-500">החזר חודשי נוכחי</span><span className="font-semibold">₪{formatCurrency(results.currentMonthly)}</span>
+                    <span className="text-gray-500">ריבית משוערת קיימת</span><span className="font-semibold">{results.impliedRate?.toFixed(2)}%</span>
+                    <span className="text-gray-500">שנים שנשארו</span><span className="font-semibold">{results.remainingYears} שנים</span>
+                    <span className="text-gray-500">חיסכון חודשי צפוי</span><span className="font-semibold text-green-600">₪{formatCurrency(results.monthlySaving)}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-gray-500">סכום מבוקש</span><span className="font-semibold">₪{formatCurrency(results.loanAmount)}</span>
+                    <span className="text-gray-500">שווי נכס</span><span className="font-semibold">₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}</span>
+                    <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}%</span>
+                    <span className="text-gray-500">יחס החזר (DTI)</span><span className="font-semibold">{results.dti?.toFixed(1)}%</span>
+                    <span className="text-gray-500">תקופת הלוואה</span><span className="font-semibold">{formData.loanDuration} שנים</span>
+                    <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{formData.mortgageType === 'purchase_first' ? 'רכישת דירה ראשונה' : formData.mortgageType === 'purchase_improve' ? 'משפרי דיור' : 'כל מטרה'}</span>
+                  </>
+                )}
               </div>
             </div>
 
