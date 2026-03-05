@@ -16,7 +16,8 @@ export const BALLOON_MAX_TERM     = 15;
 
 export const formatCurrency = (val) => {
   if (!val || isNaN(val)) return "0";
-  return new Intl.NumberFormat('he-IL').format(val);
+  // ללא פסיקים — רק רווח כמפריד אלפים
+  return new Intl.NumberFormat('he-IL', { useGrouping: false }).format(Math.round(val));
 };
 
 export const calculatePayment = (principal, rate, years) => {
