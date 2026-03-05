@@ -72,7 +72,16 @@ export default function MixTable({ title, subtitle, tracks, totalPmt, isRecommen
           <p className="text-[10px] text-white/60 font-semibold mb-0.5">החזר חודשי</p>
           <p className="text-2xl sm:text-3xl font-black text-white">₪{formatCurrency(Math.floor(totalPmt))}</p>
         </div>
-        {totalInterest !== null && (
+        {saving != null ? (
+          <div className="mt-2">
+            <div className={`rounded-lg px-3 py-2 text-center ${isRecommended ? 'bg-green-500/20 border border-green-400' : 'bg-green-50 border border-green-300'}`}>
+              <p className={`text-[9px] font-semibold ${isRecommended ? 'text-green-300' : 'text-green-600'}`}>חיסכון כולל בתקופה</p>
+              <p className={`text-base font-black ${saving > 0 ? (isRecommended ? 'text-green-300' : 'text-green-600') : 'text-red-400'}`}>
+                {saving > 0 ? '+' : ''}₪{formatCurrency(Math.abs(Math.floor(saving)))}
+              </p>
+            </div>
+          </div>
+        ) : totalInterest !== null && (
           <div className="mt-2 grid grid-cols-2 gap-2 text-center">
             <div className={`rounded-lg px-2 py-1.5 ${isRecommended ? 'bg-white/10' : 'bg-white border border-gray-200'}`}>
               <p className={`text-[9px] font-semibold ${isRecommended ? 'text-white/60' : 'text-gray-400'}`}>סה"כ ריבית</p>
