@@ -53,6 +53,8 @@ export default function MortgageCalculator() {
     propertyPrice: '', loanAmount: '',
     monthlyDebts: '0', monthlyOverdraft: '0', equity: '',
     youngestBorrowerAge: '',
+    // שדות מחזור
+    refinanceBalance: '', currentMonthlyPayment: '', refinanceRemainingYears: '20', refinanceGoal: 'savings',
   });
 
   const defaultBorrower = () => ({
