@@ -199,13 +199,23 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3">
                           <p className="font-bold text-[#1e3a5f]">{lead.fullName}</p>
                           <p className="text-gray-400 text-xs">{lead.email}</p>
+                          {lead.mortgageType === 'refinance' && (
+                            <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded">מחזור</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 font-medium" dir="ltr">{lead.phone}</td>
-                        <td className="px-4 py-3 font-bold text-[#1e3a5f]">{formatCurrency(lead.loanAmount)}</td>
+                        <td className="px-4 py-3 font-bold text-[#1e3a5f]">
+                          {formatCurrency(lead.loanAmount)}
+                          {lead.mortgageType === 'refinance' && <p className="text-[10px] text-blue-500 font-medium">יתרה</p>}
+                        </td>
                         <td className="px-4 py-3">
-                          <span className={`font-bold ${lead.ltv > 75 ? 'text-red-600' : lead.ltv > 65 ? 'text-yellow-600' : 'text-green-600'}`}>
-                            {lead.ltv?.toFixed(1)}%
-                          </span>
+                          {lead.mortgageType === 'refinance' ? (
+                            <span className="text-blue-600 font-bold text-xs">מחזור</span>
+                          ) : (
+                            <span className={`font-bold ${lead.ltv > 75 ? 'text-red-600' : lead.ltv > 65 ? 'text-yellow-600' : 'text-green-600'}`}>
+                              {lead.ltv?.toFixed(1)}%
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <span className={`font-black text-lg ${lead.score >= 80 ? 'text-green-600' : lead.score >= 60 ? 'text-yellow-600' : 'text-red-500'}`}>
