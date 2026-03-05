@@ -730,12 +730,14 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                       <PremiumInput label="יתרת משכנתא קיימת" name="refinanceBalance" value={formData.refinanceBalance} placeholder="כמה נשאר לשלם?" icon={Coins} onChange={handleInputChange} error={fieldErrors.refinanceBalance} tooltip="הסכום שנשאר לכם לשלם על המשכנתא הנוכחית" />
                       <PremiumInput label="החזר חודשי נוכחי" name="currentMonthlyPayment" value={formData.currentMonthlyPayment} placeholder="כמה משלמים היום?" icon={TrendingDown} onChange={handleInputChange} error={fieldErrors.currentMonthlyPayment} tooltip="הסכום שאתם משלמים כרגע כל חודש" />
                       <PremiumInput label="תקופה שנשארה (שנים)" name="refinanceRemainingYears" value={formData.refinanceRemainingYears} type="range" min={1} max={30} icon={Building2} onChange={handleInputChange} tooltip="כמה שנים נשארו במשכנתא הנוכחית" />
-                      <PremiumInput label="מטרת המחזור" name="refinanceGoal" value={formData.refinanceGoal} icon={Target} onChange={handleInputChange}
+                      <PremiumInput label="האם תוכלו להגדיל את ההחזר החודשי?" name="refinanceCanIncreasePayment" value={formData.refinanceCanIncreasePayment} icon={Target} onChange={handleInputChange}
                         options={[
-                          {val:'savings', label:'חיסכון בריבית כוללת'},
-                          {val:'lower_monthly', label:'הקטנת החזר חודשי'},
-                          {val:'cash', label:'שחרור כסף מהנכס'},
+                          {val:'no', label:'לא — נשאר על אותו החזר חודשי'},
+                          {val:'yes', label:'כן — אני יכול לשלם יותר בחודש'},
                         ]} />
+                      {formData.refinanceCanIncreasePayment === 'yes' && (
+                        <PremiumInput label="בכמה תוכלו להגדיל? (₪ לחודש)" name="refinanceIncreaseAmount" value={formData.refinanceIncreaseAmount} placeholder="לדוגמה: 500 או 1000" icon={Coins} onChange={handleInputChange} tooltip="הגדלת ההחזר מקצרת את התקופה וחוסכת ריבית רבה" />
+                      )}
                     </div>
                   )}
 
