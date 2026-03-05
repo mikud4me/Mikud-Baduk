@@ -3,7 +3,7 @@ import { Sparkles, ChevronDown, ChevronUp, TrendingDown, ShieldCheck, Zap } from
 
 const formatCurrency = (val) => {
   if (!val || isNaN(val)) return "0";
-  return new Intl.NumberFormat('he-IL').format(val);
+  return new Intl.NumberFormat('he-IL', { useGrouping: false }).format(Math.round(val));
 };
 
 const MIX_META = {
