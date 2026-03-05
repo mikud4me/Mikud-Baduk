@@ -947,7 +947,10 @@ ${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
                         return;
                       }
                     }
-                    step === 6 ? generateFullAnalysis() : setStep(s => s + 1);
+                    // מחזור: דלג על שלב 5 (הון עצמי) ושלב 6 (תקופה) — לא רלוונטיים
+                    if (isRefinance && step === 4) { generateFullAnalysis(); }
+                    else if (step === 6) { generateFullAnalysis(); }
+                    else { setStep(s => s + 1); }
                   }
                 }} 
                 className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
