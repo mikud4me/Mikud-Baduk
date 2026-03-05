@@ -9,7 +9,7 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import {
   DEFAULT_RATES, formatCurrency, calculatePayment, cleanAiText,
-  getReverseMortgageMaxLTV, calcTotalIncome, calculateResults,
+  getReverseMortgageMaxLTV, calcTotalIncome, calculateResults, calculateRefinanceResults,
   SENIOR_BANK_MAX_LTV, SENIOR_BANK_MAX_TERM, BALLOON_MAX_TERM,
 } from '@/components/mortgage/mortgageUtils';
 import PremiumInput from '@/components/mikud/PremiumInput';
