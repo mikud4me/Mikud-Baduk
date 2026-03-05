@@ -225,7 +225,7 @@ export default function MortgageCalculator() {
   }, [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES, isRefinance]);
 
   const generateFullAnalysis = async () => {
-    if (!validateStep(6)) return;
+    if (!isRefinance && !validateStep(6)) return;
     setLoading(true);
     setStep(7);
     

@@ -45,6 +45,10 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
 
 export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [] }) {
   const letterRef = useRef(null);
+  const isRefinance = formData.mortgageType === 'refinance';
+  const displayLoanAmount = isRefinance ? results.balance : results.loanAmount;
+  const displayLTV = isRefinance ? null : results.ltv;
+  const displayDTI = isRefinance ? null : results.dti;
 
   const downloadLetter = () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
