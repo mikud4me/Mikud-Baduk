@@ -64,6 +64,94 @@ export const calcTotalIncome = (borrowers) => {
   return total;
 };
 
+// חישוב כדאיות מחזור משכנתא
+export const calculateRefinanceResults = ({ formData, borrowers, rates }) => {
+  const balance = Number(String(formData.refinanceBalance || '0').replace(/,/g, ''));
+  const currentMonthly = Number(String(formData.currentMonthlyPayment || '0').replace(/,/g, ''));
+  const remainingYears = Number(formData.refinanceRemainingYears || 20);
+  const totalInc = calcTotalIncome(borrowers);
+  const debts = Number(String(formData.monthlyDebts || '0').replace(/,/g, ''));
+
+  // חישוב ריבית ממוצעת קיימת (לפי יתרה, החזר ותקופה)
+  let impliedRate = rates.FIXED_UNLINKED; // ברירת מחדל
+  if (balance > 0 && currentMonthly > 0 && remainingYears > 0) {
+    // נסיון למצוא ריבית שמסבירה את הנתונים
+    const n = remainingYears * 12;
+    const p = balance;
+    const pmt = currentMonthly;
+    // קירוב: r = (pmt/p) * (1 - 1/(1+r)^n) - iterative
+    let r = 0.004;
+    for (let i = 0; i < 50; i++) {
+      const f = p * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1) - pmt;
+      const df = p * (Math.pow(1+r,n) * (1 + r*n) - Math.pow(1+r,n) + 1) / Math.pow(Math.pow(1+r,n)-1, 2);
+      const rNew = r - f/df;
+      if (Math.abs(rNew - r) < 0.0000001) break;
+      r = Math.max(0.0001, rNew);
+    }
+    impliedRate = r * 12;
+  }
+
+  // עלות כוללת נוכחית
+  const totalCurrentCost = currentMonthly * remainingYears * 12;
+
+  // 3 תמהילים חדשים על היתרה הקיימת
+  const newDuration = remainingYears; // אותה תקופה
+
+  const calcPmt = (principal, rate, years) => calculatePayment(principal, rate, years);
+
+  const mixA_pmt = calcPmt(balance, rates.FIXED_UNLINKED, newDuration);
+  const mixB_T1_pmt = calcPmt(balance * 0.33, rates.PRIME_CALC, newDuration);
+  const mixB_T2_pmt = calcPmt(balance * 0.33, rates.FIXED_UNLINKED, newDuration);
+  const mixB_T3_pmt = calcPmt(balance * 0.34, rates.VAR_LINKED, newDuration);
+  const mixB_pmt = mixB_T1_pmt + mixB_T2_pmt + mixB_T3_pmt;
+  const mixC_pmt = calcPmt(balance * 0.5, rates.PRIME_CALC, newDuration) + calcPmt(balance * 0.5, rates.FIXED_UNLINKED, newDuration);
+
+  const totalNewCostB = mixB_pmt * newDuration * 12;
+  const monthlySaving = currentMonthly - mixB_pmt;
+  const totalSaving = totalCurrentCost - totalNewCostB;
+
+  // break-even: עלות פתיחת תיק ~5000 שח
+  const breakEvenMonths = monthlySaving > 0 ? Math.ceil(5000 / monthlySaving) : null;
+
+  const freeIncome = Math.max(1, totalInc - debts);
+  const dti = (mixB_pmt / freeIncome) * 100;
+
+  const isWorthwhile = totalSaving > 5000 && monthlySaving > 0;
+
+  return {
+    balance,
+    currentMonthly,
+    remainingYears,
+    impliedRate: impliedRate * 100,
+    monthlySaving: Math.floor(monthlySaving),
+    totalSaving: Math.floor(totalSaving),
+    breakEvenMonths,
+    isWorthwhile,
+    dti,
+    totalIncome: totalInc,
+    score: Math.min(100, Math.max(0, isWorthwhile ? 80 + Math.min(20, totalSaving / 10000) : 40)),
+    mixA: {
+      tracks: [{ name: "100% קבועה לא צמודה", amount: balance, rate: rates.FIXED_UNLINKED, years: newDuration, pmt: mixA_pmt, desc: "הגנה מלאה" }],
+      total: mixA_pmt,
+    },
+    mixB: {
+      tracks: [
+        { name: "פריים (Prime)", amount: balance * 0.33, rate: rates.PRIME_CALC, years: newDuration, pmt: mixB_T1_pmt, desc: "P-0.5%" },
+        { name: "קבועה לא צמודה", amount: balance * 0.33, rate: rates.FIXED_UNLINKED, years: newDuration, pmt: mixB_T2_pmt, desc: "החזר קבוע" },
+        { name: "משתנה כל 5 שנים צמודה", amount: balance * 0.34, rate: rates.VAR_LINKED, years: newDuration, pmt: mixB_T3_pmt, desc: "משתנה צמודה" },
+      ],
+      total: mixB_pmt,
+    },
+    mixC: {
+      tracks: [
+        { name: "50% פריים", amount: balance * 0.5, rate: rates.PRIME_CALC, years: newDuration, pmt: calcPmt(balance * 0.5, rates.PRIME_CALC, newDuration), desc: "ניצול שוק" },
+        { name: "50% קבועה לא צמודה", amount: balance * 0.5, rate: rates.FIXED_UNLINKED, years: newDuration, pmt: calcPmt(balance * 0.5, rates.FIXED_UNLINKED, newDuration), desc: "עוגן יציבות" },
+      ],
+      total: mixC_pmt,
+    },
+  };
+};
+
 export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES }) => {
   const price         = Number(String(formData.propertyPrice).replace(/,/g, '')) || 0;
   const eq            = Number(String(formData.equity).replace(/,/g, '')) || 0;
