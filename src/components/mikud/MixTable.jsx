@@ -36,7 +36,7 @@ const MIX_META = {
   },
 };
 
-export default function MixTable({ title, tracks, totalPmt, isRecommended, mixType = 'recommended', loanAmount, durationYears }) {
+export default function MixTable({ title, subtitle, tracks, totalPmt, isRecommended, mixType = 'recommended', loanAmount, durationYears, saving }) {
   const [expanded, setExpanded] = useState(isRecommended);
   const meta = MIX_META[mixType] || MIX_META.recommended;
   const Icon = meta.icon;
