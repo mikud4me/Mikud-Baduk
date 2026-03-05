@@ -212,9 +212,14 @@ export default function MortgageCalculator() {
     return Object.keys(errors).filter(k => errors[k]).length === 0;
   };
 
-  const results = useMemo(() =>
-    calculateResults({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES }),
-  [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES]);
+  const isRefinance = formData.mortgageType === 'refinance';
+
+  const results = useMemo(() => {
+    if (isRefinance) {
+      return calculateRefinanceResults({ formData, borrowers, rates });
+    }
+    return calculateResults({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES });
+  }, [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES, isRefinance]);
 
   const generateFullAnalysis = async () => {
     if (!validateStep(6)) return;
