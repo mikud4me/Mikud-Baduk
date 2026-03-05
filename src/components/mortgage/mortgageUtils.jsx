@@ -92,31 +92,54 @@ export const calculateRefinanceResults = ({ formData, borrowers, rates }) => {
     impliedRate = r * 12;
   }
 
-  // עלות כוללת נוכחית
-  const totalCurrentCost = currentMonthly * remainingYears * 12;
-
-  // 3 תמהילים חדשים על היתרה הקיימת
-  const newDuration = remainingYears; // אותה תקופה
+  // האם הלקוח יכול להגדיל החזר
+  const canIncrease = formData.refinanceCanIncreasePayment === 'yes';
+  const increaseAmount = canIncrease ? Number(String(formData.refinanceIncreaseAmount || '0').replace(/,/g, '')) : 0;
 
   const calcPmt = (principal, rate, years) => calculatePayment(principal, rate, years);
 
-  const mixA_pmt = calcPmt(balance, rates.FIXED_UNLINKED, newDuration);
+  // תרחיש א: אותו החזר חודשי — תקופה קצרה יותר
+  // מחשב כמה שנים נחסוך עם תמהיל חדש על אותה תקופה
+  const durationSamePayment = remainingYears;
+  const mixA_pmt = calcPmt(balance, rates.FIXED_UNLINKED, durationSamePayment);
+  const mixA_totalCost = mixA_pmt * durationSamePayment * 12;
+
+  // תרחיש ב (מומלץ): תמהיל מאוזן — אותה תקופה
+  const newDuration = remainingYears;
   const mixB_T1_pmt = calcPmt(balance * 0.33, rates.PRIME_CALC, newDuration);
   const mixB_T2_pmt = calcPmt(balance * 0.33, rates.FIXED_UNLINKED, newDuration);
   const mixB_T3_pmt = calcPmt(balance * 0.34, rates.VAR_LINKED, newDuration);
   const mixB_pmt = mixB_T1_pmt + mixB_T2_pmt + mixB_T3_pmt;
-  const mixC_pmt = calcPmt(balance * 0.5, rates.PRIME_CALC, newDuration) + calcPmt(balance * 0.5, rates.FIXED_UNLINKED, newDuration);
+  const mixB_totalCost = mixB_pmt * newDuration * 12;
 
-  const totalNewCostB = mixB_pmt * newDuration * 12;
+  // תרחיש ג: הגדלת החזר (אם רלוונטי) — מקצר תקופה
+  // מחשב תקופה קצרה יותר עם ההחזר המוגדל
+  let mixC_duration = newDuration;
+  let mixC_pmt_monthly = calcPmt(balance * 0.5, rates.PRIME_CALC, newDuration) + calcPmt(balance * 0.5, rates.FIXED_UNLINKED, newDuration);
+  if (canIncrease && increaseAmount > 0) {
+    const targetPmt = mixB_pmt + increaseAmount;
+    // מחשב תקופה שמתאימה להחזר המוגדל (קירוב)
+    const r = rates.FIXED_UNLINKED / 12;
+    if (r > 0 && targetPmt > balance * r) {
+      mixC_duration = Math.ceil(Math.log(targetPmt / (targetPmt - balance * r)) / Math.log(1 + r) / 12);
+      mixC_duration = Math.max(1, Math.min(mixC_duration, newDuration));
+    }
+    const mixC_T1_pmt = calcPmt(balance * 0.5, rates.PRIME_CALC, mixC_duration);
+    const mixC_T2_pmt = calcPmt(balance * 0.5, rates.FIXED_UNLINKED, mixC_duration);
+    mixC_pmt_monthly = mixC_T1_pmt + mixC_T2_pmt;
+  }
+  const mixC_totalCost = mixC_pmt_monthly * mixC_duration * 12;
+
+  // חיסכון בהשוואה לעלות נוכחית
+  const totalCurrentCost = currentMonthly * remainingYears * 12;
   const monthlySaving = currentMonthly - mixB_pmt;
-  const totalSaving = totalCurrentCost - totalNewCostB;
+  const totalSaving = totalCurrentCost - mixB_totalCost;
 
   // break-even: עלות פתיחת תיק ~5000 שח
   const breakEvenMonths = monthlySaving > 0 ? Math.ceil(5000 / monthlySaving) : null;
 
   const freeIncome = Math.max(1, totalInc - debts);
   const dti = (mixB_pmt / freeIncome) * 100;
-
   const isWorthwhile = totalSaving > 5000 && monthlySaving > 0;
 
   return {
@@ -130,26 +153,54 @@ export const calculateRefinanceResults = ({ formData, borrowers, rates }) => {
     isWorthwhile,
     dti,
     totalIncome: totalInc,
+    canIncrease,
+    increaseAmount,
+    mixC_duration,
     score: Math.min(100, Math.max(0, isWorthwhile ? 80 + Math.min(20, totalSaving / 10000) : 40)),
+    // תרחיש א: קבועה לא צמודה — הגנה מלאה, אותה תקופה
     mixA: {
-      tracks: [{ name: "100% קבועה לא צמודה", amount: balance, rate: rates.FIXED_UNLINKED, years: newDuration, pmt: mixA_pmt, desc: "הגנה מלאה" }],
+      label: 'תרחיש א׳ — הגנה מלאה',
+      subtitle: `אותה תקופה (${remainingYears} שנים) — ריבית קבועה`,
+      tracks: [{ name: "100% קבועה לא צמודה", amount: balance, rate: rates.FIXED_UNLINKED, years: durationSamePayment, pmt: mixA_pmt, desc: "הגנה מלאה" }],
       total: mixA_pmt,
+      totalCost: mixA_totalCost,
+      saving: totalCurrentCost - mixA_totalCost,
     },
+    // תרחיש ב (מומלץ): תמהיל מאוזן
     mixB: {
+      label: 'תרחיש ב׳ — תמהיל מאוזן (מומלץ)',
+      subtitle: `אותה תקופה — חיסכון מקסימלי בריבית`,
       tracks: [
         { name: "פריים (Prime)", amount: balance * 0.33, rate: rates.PRIME_CALC, years: newDuration, pmt: mixB_T1_pmt, desc: "P-0.5%" },
         { name: "קבועה לא צמודה", amount: balance * 0.33, rate: rates.FIXED_UNLINKED, years: newDuration, pmt: mixB_T2_pmt, desc: "החזר קבוע" },
         { name: "משתנה כל 5 שנים צמודה", amount: balance * 0.34, rate: rates.VAR_LINKED, years: newDuration, pmt: mixB_T3_pmt, desc: "משתנה צמודה" },
       ],
       total: mixB_pmt,
+      totalCost: mixB_totalCost,
+      saving: totalCurrentCost - mixB_totalCost,
     },
+    // תרחיש ג: הגדלת החזר / פריים+קבועה
     mixC: {
-      tracks: [
-        { name: "50% פריים", amount: balance * 0.5, rate: rates.PRIME_CALC, years: newDuration, pmt: calcPmt(balance * 0.5, rates.PRIME_CALC, newDuration), desc: "ניצול שוק" },
-        { name: "50% קבועה לא צמודה", amount: balance * 0.5, rate: rates.FIXED_UNLINKED, years: newDuration, pmt: calcPmt(balance * 0.5, rates.FIXED_UNLINKED, newDuration), desc: "עוגן יציבות" },
-      ],
-      total: mixC_pmt,
+      label: canIncrease && increaseAmount > 0
+        ? `תרחיש ג׳ — הגדלת ₪${increaseAmount} לחודש`
+        : `תרחיש ג׳ — פריים + קבועה`,
+      subtitle: canIncrease && increaseAmount > 0
+        ? `קיצור תקופה ל-${mixC_duration} שנים — חיסכון ריבית מקסימלי`
+        : `50% פריים + 50% קבועה — גמישות`,
+      tracks: canIncrease && increaseAmount > 0
+        ? [
+            { name: "50% פריים (תקופה מקוצרת)", amount: balance * 0.5, rate: rates.PRIME_CALC, years: mixC_duration, pmt: calcPmt(balance * 0.5, rates.PRIME_CALC, mixC_duration), desc: `${mixC_duration} שנים` },
+            { name: "50% קבועה לא צמודה", amount: balance * 0.5, rate: rates.FIXED_UNLINKED, years: mixC_duration, pmt: calcPmt(balance * 0.5, rates.FIXED_UNLINKED, mixC_duration), desc: `${mixC_duration} שנים` },
+          ]
+        : [
+            { name: "50% פריים", amount: balance * 0.5, rate: rates.PRIME_CALC, years: newDuration, pmt: calcPmt(balance * 0.5, rates.PRIME_CALC, newDuration), desc: "גמישות" },
+            { name: "50% קבועה לא צמודה", amount: balance * 0.5, rate: rates.FIXED_UNLINKED, years: newDuration, pmt: calcPmt(balance * 0.5, rates.FIXED_UNLINKED, newDuration), desc: "יציבות" },
+          ],
+      total: mixC_pmt_monthly,
+      totalCost: mixC_totalCost,
+      saving: totalCurrentCost - mixC_totalCost,
     },
+    actualDuration: newDuration,
   };
 };
 
