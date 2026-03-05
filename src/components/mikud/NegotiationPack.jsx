@@ -331,10 +331,16 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
           </div>
         </div>
         <div className="bg-blue-50 border-r-4 border-blue-600 p-4 rounded-xl text-sm text-gray-800 leading-relaxed">
-          <strong>פרשנות:</strong> יחס ההחזר שלך עומד על {results.dti?.toFixed(1) || '—'}%
-          {results.dti < 35 ? ' — נמוך מהממוצע, נקודת עוצמה משמעותית.' : results.dti < 40 ? ' — בגבול הסביר.' : ' — גבוה, מומלץ לשפר לפני הגשה.'}
-          {' '}אחוז המימון (LTV) עומד על {results.ltv?.toFixed(1) || '—'}%
-          {results.ltv < 70 ? ', מה שמסמן השקעה עצמית גבוהה — יתרון בעיני הבנק.' : '.'}
+          {isRefinance ? (
+            <><strong>פרשנות:</strong> המחזור צפוי לחסוך ₪{formatCurrency(results.monthlySaving)} לחודש
+            {results.isWorthwhile ? ' — כדאי מאוד למחזר!' : ' — כדאיות מוגבלת, מומלץ להתייעץ.'}{' '}
+            ריבית קיימת משוערת: {results.impliedRate?.toFixed(2)}%.</>
+          ) : (
+            <><strong>פרשנות:</strong> יחס ההחזר שלך עומד על {results.dti?.toFixed(1) || '—'}%
+            {results.dti < 35 ? ' — נמוך מהממוצע, נקודת עוצמה משמעותית.' : results.dti < 40 ? ' — בגבול הסביר.' : ' — גבוה, מומלץ לשפר לפני הגשה.'}
+            {' '}אחוז המימון (LTV) עומד על {results.ltv?.toFixed(1) || '—'}%
+            {results.ltv < 70 ? ', מה שמסמן השקעה עצמית גבוהה — יתרון בעיני הבנק.' : '.'}</>
+          )}
         </div>
       </Section>
 
