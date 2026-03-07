@@ -12,8 +12,10 @@ export default function FooterCTA() {
     <footer className="w-full bg-gradient-to-br from-[#0f1f35] to-[#1e3a5f] py-24 px-4 border-t-4 border-[#c9a961]" dir="rtl">
       <div className="max-w-3xl mx-auto text-center">
 
-        <div className="inline-block mb-8">
-          <span className="text-[#c9a961] text-xs font-bold tracking-[0.3em] uppercase">מיקוד משכנתאות</span>
+        <div className="mb-8">
+          <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+            הגיע הזמן לשלם <span className="text-[#c9a961]">פחות</span> על המשכנתא שלכם
+          </h2>
         </div>
 
         {/* לוגו */}
