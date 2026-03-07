@@ -1178,9 +1178,9 @@ ${results.score}/100
                   </div>
                   
                   <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
-                    <p className="text-xs text-gray-500 font-semibold mb-1">ציון איכות</p>
-                    <p className="text-2xl font-black text-[#1e3a5f]">{results.score}</p>
-                    <p className="text-[10px] text-gray-400 mt-1">מתוך 100</p>
+                    <p className="text-xs text-gray-500 font-semibold mb-1">ציון כשירות</p>
+                    <p className={`text-2xl font-black ${results.score >= 80 ? 'text-green-600' : results.score >= 60 ? 'text-yellow-600' : 'text-red-500'}`}>{results.score}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">{results.score >= 80 ? 'כשיר מצוין' : results.score >= 60 ? 'כשיר טוב' : 'דורש שיפור'}</p>
                   </div>
                 </div>
                 
