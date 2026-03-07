@@ -21,7 +21,7 @@ export default function FooterCTA() {
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/422e07a04_2.png"
             alt="מיקוד משכנתאות"
-            className="h-36 sm:h-44 w-auto object-contain"
+            className="h-52 sm:h-64 w-auto object-contain"
           />
         </div>
 
