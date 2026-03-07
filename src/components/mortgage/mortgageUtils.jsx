@@ -373,24 +373,25 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
     }
   }
 
-  const qualityScore = isReverse
-    ? Math.min(100, Math.max(0, 100 - (ltvPercent > maxReverseLTV ? (ltvPercent - maxReverseLTV) * 3 : 0)))
-    : isSenior
-      ? Math.min(100, Math.max(0, 100 - (ltvPercent > SENIOR_BANK_MAX_LTV ? (ltvPercent - SENIOR_BANK_MAX_LTV) * 3 : 0)))
-      : Math.min(100, Math.max(0, 100 - (dti > 35 ? (dti - 35) * 4 : 0) - (ltvPercent > 70 ? (ltvPercent - 70) * 2 : 0)));
+  const qualityScore = calcAdvancedScore({ dti, ltv: ltvPercent, borrowers, formData, isReverse, isSenior });
 
   const balloonMonthly = isSenior && isBalloon ? loanAmount * activeRates.FIXED_UNLINKED / 12 : null;
   const regularMonthly = isSenior ? calculatePayment(loanAmount, activeRates.FIXED_UNLINKED, duration) : null;
+
+  // תמהיל B: דינמי לפי פרופיל
+  const dynamicMix = calcDynamicMix({ loanAmount, duration, dti, ltv: ltvPercent, borrowers, formData, rates, ALL_PURPOSE_RATES, isSenior, isBalloon });
+  const pmtBdynamic = dynamicMix.total;
 
   return {
     loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration,
     status, score: qualityScore, isReverse, isSenior, isBalloon,
     balloonMonthly, regularMonthly,
+    dynamicMixProfile: { primePct: dynamicMix.primePct, fixedPct: dynamicMix.fixedPct, varPct: dynamicMix.varPct },
     mixA: {
       tracks: [{ name: isSenior ? "100% קבועה לא צמודה (כל מטרה)" : "100% קבועה לא צמודה", amount: loanAmount, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "⚠️ בלון - ריבית בלבד" : "הגנה מלאה" }],
       total: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration),
     },
-    mixB: { tracks: [mixB_T1, mixB_T2, mixB_T3], total: pmtB },
+    mixB: { tracks: dynamicMix.tracks, total: pmtBdynamic },
     mixC: {
       tracks: [
         { name: "50% פריים (Prime)", amount: loanAmount * 0.5, rate: activeRates.PRIME_CALC, years: duration, pmt: calcPmt(loanAmount * 0.5, activeRates.PRIME_CALC, duration), desc: isSenior && isBalloon ? "ריבית בלבד" : "ניצול שוק" },
