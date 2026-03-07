@@ -204,6 +204,89 @@ export const calculateRefinanceResults = ({ formData, borrowers, rates }) => {
   };
 };
 
+// ─── ציון מתקדם (0-100) לפי תקני בנק ישראל האמיתיים ───────────────────────
+export const calcAdvancedScore = ({ dti, ltv, borrowers, formData, isReverse, isSenior }) => {
+  if (isReverse || isSenior) return Math.min(100, Math.max(0, 100 - (ltv > 45 ? (ltv - 45) * 2 : 0)));
+
+  let score = 100;
+
+  // DTI — הגורם הכבד ביותר (40 נקודות)
+  if (dti > 45) score -= 45;
+  else if (dti > 40) score -= 30;
+  else if (dti > 35) score -= 15;
+  else if (dti > 30) score -= 5;
+  // בונוס DTI נמוך
+  if (dti < 25) score += 5;
+
+  // LTV — (25 נקודות)
+  if (ltv > 80) score -= 30;
+  else if (ltv > 75) score -= 20;
+  else if (ltv > 70) score -= 10;
+  else if (ltv > 65) score -= 5;
+  if (ltv < 60) score += 5;
+
+  // היסטוריית אשראי — (20 נקודות)
+  const creditIssues = borrowers.some(b => b.creditHistory === 'issues');
+  const creditWarning = borrowers.some(b => b.creditHistory === 'minor_issues');
+  if (creditIssues) score -= 25;
+  else if (creditWarning) score -= 10;
+  else score += 5; // נקי — בונוס
+
+  // ותק תעסוקה — (10 נקודות)
+  const maxSeniority = Math.max(...borrowers.map(b => {
+    const sources = b.incomeSources || {};
+    const emp = sources.employee || sources.self_employed || {};
+    return Number(emp.seniority || 0);
+  }));
+  if (maxSeniority >= 5) score += 5;
+  else if (maxSeniority >= 2) score += 2;
+  else if (maxSeniority < 1) score -= 10;
+
+  // מספר לווים — מחזק תיק
+  if (borrowers.length > 1) score += 5;
+
+  // עצמאי — סיכון גבוה יותר
+  const hasSelfEmployed = borrowers.some(b => (b.employmentTypes || []).some(t => ['self_employed','controlling_shareholder'].includes(t)));
+  if (hasSelfEmployed) score -= 5;
+
+  return Math.min(100, Math.max(10, Math.round(score)));
+};
+
+// ─── תמהיל דינמי לפי פרופיל הלקוח ─────────────────────────────────────────
+export const calcDynamicMix = ({ loanAmount, duration, dti, ltv, borrowers, formData, rates, ALL_PURPOSE_RATES, isSenior, isBalloon }) => {
+  const activeRates = isSenior ? ALL_PURPOSE_RATES : rates;
+  const calcPmt = (p, r, y) => {
+    if (isSenior && isBalloon) return p * r / 12;
+    return calculatePayment(p, r, y);
+  };
+
+  const age = Number(formData.age) || 40;
+  const isYoung = age < 40;
+  const isOlder = age >= 55;
+  const hasStableIncome = borrowers.some(b => (b.employmentTypes || []).includes('employee'));
+  const isHighDTI = dti > 35;
+  const isLowLTV = ltv < 65;
+
+  // חלוקה דינמית:
+  // צעיר + DTI נמוך → יותר פריים (מנצל ריבית נמוכה, זמן לספוג שינויים)
+  // מבוגר / DTI גבוה → יותר קבועה (יציבות ובטחון)
+  // LTV נמוך → יותר גמישות
+  let primePct, fixedPct, varPct;
+  if (isOlder || isHighDTI) {
+    primePct = 0.20; fixedPct = 0.50; varPct = 0.30;
+  } else if (isYoung && isLowLTV && hasStableIncome) {
+    primePct = 0.45; fixedPct = 0.30; varPct = 0.25;
+  } else {
+    primePct = 0.33; fixedPct = 0.34; varPct = 0.33;
+  }
+
+  const T1 = { name: "פריים (Prime)", amount: loanAmount * primePct, rate: activeRates.PRIME_CALC, years: duration, pmt: calcPmt(loanAmount * primePct, activeRates.PRIME_CALC, duration), desc: isBalloon ? "ריבית בלבד" : "P-0.5%" };
+  const T2 = { name: "קבועה לא צמודה (קל\"צ)", amount: loanAmount * fixedPct, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount * fixedPct, activeRates.FIXED_UNLINKED, duration), desc: isBalloon ? "ריבית בלבד" : "הגנה מלאה" };
+  const T3 = { name: "משתנה כל 5 שנים צמודה", amount: loanAmount * varPct, rate: activeRates.VAR_LINKED, years: duration, pmt: calcPmt(loanAmount * varPct, activeRates.VAR_LINKED, duration), desc: isBalloon ? "ריבית בלבד" : "איזון סיכון" };
+
+  return { tracks: [T1, T2, T3], total: T1.pmt + T2.pmt + T3.pmt, primePct, fixedPct, varPct };
+};
+
 export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES }) => {
   const price         = Number(String(formData.propertyPrice).replace(/,/g, '')) || 0;
   const eq            = Number(String(formData.equity).replace(/,/g, '')) || 0;
