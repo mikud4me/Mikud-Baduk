@@ -314,8 +314,15 @@ ${results.score}/100
 ענה בעברית בלבד, שפה מקצועית אך ברורה ללקוח הממוצע.`;
     
     const emailPrompt = isRefinanceFlow
-      ? `צור טיוטת אימייל קצרה ומקצועית לבנקאי עבור לקוח בשם ${fullName} המבקש מחזור משכנתא על יתרה של ₪${formatCurrency(results.balance)}. ענה בעברית בלבד.`
-      : `צור טיוטת אימייל קצרה ומקצועית לבנקאי עבור לקוח בשם ${fullName} המבקש משכנתא של ₪${formatCurrency(results.loanAmount)} עם LTV ${(results.ltv || 0).toFixed(1)}%. ענה בעברית בלבד.`;
+      ? `כתוב מכתב פנייה מקצועי לבנקאי עבור לקוח בשם ${fullName}, גיל ${formData.age}, המבקש מחזור משכנתא.
+יתרה קיימת: ₪${formatCurrency(results.balance)} | ריבית קיימת: ${results.impliedRate?.toFixed(2)}% | חיסכון צפוי: ₪${formatCurrency(results.monthlySaving)} לחודש.
+המכתב צריך: פנייה רשמית, פרטי התיק בטבלה, נקודות חוזק הלקוח, בקשה להצעת ריבית.
+ענה בעברית בלבד, פורמט מכתב עסקי.`
+      : `כתוב מכתב פנייה מקצועי לבנקאי עבור לקוח בשם ${fullName}, גיל ${formData.age}, ${maritalLabel}.
+סכום: ₪${formatCurrency(results.loanAmount)} | LTV: ${(results.ltv || 0).toFixed(1)}% | DTI: ${(results.dti || 0).toFixed(1)}% | ציון תיק: ${results.score}/100.
+הכנסה: ₪${Math.floor(getTotalIncome()).toLocaleString()} | היסטוריית אשראי: ${creditLabel}.
+המכתב צריך: פנייה רשמית, פרטי התיק בטבלה, 3 נקודות חוזק, בקשה לאישור עקרוני.
+ענה בעברית בלבד, פורמט מכתב עסקי מלא.`;
 
     try {
       const [analysisResponse, emailResponse] = await Promise.all([
