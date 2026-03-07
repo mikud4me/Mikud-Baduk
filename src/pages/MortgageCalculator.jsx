@@ -246,54 +246,72 @@ export default function MortgageCalculator() {
       return `לווה ${i+1}: ${b.borrowerType === 'additional' ? 'נוסף (50%)' : 'עיקרי'}, סוגי הכנסה: ${types}\n${breakdown}\n  סה"כ מוכר לבנק: ₪${Math.floor(totalB * factor)}`;
     }).join('\n');
     const isRefinanceFlow = isRefinance;
+
+    // פרופיל הלווים המפורט
+    const primaryBorrower = borrowers[0] || {};
+    const maritalLabel = { single: 'רווק/ה', married: 'נשוי/אה', divorced: 'גרוש/ה', widowed: 'אלמן/ה' }[primaryBorrower.maritalStatus] || '';
+    const creditLabel = primaryBorrower.creditHistory === 'clean' ? 'תקינה ללא הערות' : primaryBorrower.creditHistory === 'minor_issues' ? 'עם הערות קלות' : 'עם בעיות בעבר';
+    const empTypes = (primaryBorrower.employmentTypes || []).join(', ');
+
     const prompt = isRefinanceFlow
-      ? `אתה יועץ משכנתאות בכיר בישראל. נתח בקשת מחזור משכנתא:
+      ? `אתה יועץ משכנתאות ותיק עם 20 שנות ניסיון בישראל. לפניך בקשת מחזור משכנתא מפורטת. כתוב ניתוח מקצועי שיועיל ללקוח וגם לבנקאי שיקרא אותו.
 
-לקוח: ${fullName}, גיל ${formData.age}
+===פרטי הלקוח===
+שם: ${fullName} | גיל: ${formData.age} | מצב משפחתי: ${maritalLabel}
+היסטוריית אשראי: ${creditLabel}
 ${borrowersSummary}
-הכנסה כוללת מוכרת: ₪${Math.floor(getTotalIncome())}
+הכנסה כוללת מוכרת לבנק: ₪${Math.floor(getTotalIncome()).toLocaleString()}
 
-נתוני משכנתא קיימת:
-- יתרת משכנתא: ₪${results.balance}
-- החזר חודשי נוכחי: ₪${results.currentMonthly}
-- ריבית קיימת משוערת: ${results.impliedRate?.toFixed(2)}%
-- שנים שנשארו: ${results.remainingYears}
+===נתוני משכנתא קיימת===
+יתרת קרן: ₪${results.balance?.toLocaleString()}
+החזר חודשי נוכחי: ₪${results.currentMonthly?.toLocaleString()}
+ריבית ממוצעת קיימת (משוערת): ${results.impliedRate?.toFixed(2)}%
+שנים שנותרו: ${results.remainingYears}
 
-תוצאות המחזור:
-- חיסכון חודשי בתרחיש המומלץ: ₪${results.monthlySaving}
-- חיסכון כולל: ₪${results.totalSaving}
-- break-even: ${results.breakEvenMonths || 'לא רלוונטי'} חודשים
-- כדאיות מחזור: ${results.isWorthwhile ? 'כן' : 'נמוכה'}
-${results.canIncrease ? `- הלקוח יכול להגדיל החזר ב-₪${results.increaseAmount} לחודש` : ''}
+===תוצאות ניתוח המחזור===
+חיסכון חודשי בתמהיל המומלץ: ₪${results.monthlySaving?.toLocaleString()}
+חיסכון כולל לאורך הקופה: ₪${results.totalSaving?.toLocaleString()}
+נקודת האיזון (break-even): ${results.breakEvenMonths ? results.breakEvenMonths + ' חודשים' : 'מיידי'}
+${results.canIncrease && results.increaseAmount > 0 ? `הלקוח מעוניין להגדיל החזר ב-₪${results.increaseAmount} לחודש לקיצור תקופה` : ''}
 
-כתוב ניתוח מקצועי הכולל:
-1. האם כדאי למחזר? (פרט מדוע)
-2. השוואת 3 התרחישים: א) קבועה מלאה, ב) תמהיל מאוזן, ג) ${results.canIncrease && results.increaseAmount > 0 ? `הגדלת החזר ב-₪${results.increaseAmount}` : 'פריים+קבועה'}
-3. המלצה מותאמת אישית לפי מצב הלקוח
-4. שלבי הפעולה הבאים
-ענה בעברית בלבד, ברורה ומקצועית, ללא Markdown.`
-      : `אתה יועץ משכנתאות בכיר בישראל. נתח את תיק המשכנתא הבא באופן מקצועי ומלא:
+כתוב ניתוח בפורמט הבא (ללא כוכביות, ללא Markdown):
+1. המלצת מחזור — כן או לא ומדוע (2-3 משפטים)
+2. ניתוח ריבית קיימת מול שוק — האם הלקוח משלם יותר מהמקובל?
+3. השוואת 3 תמהילים: א) קבועה מלאה ב) מאוזן ג) ${results.canIncrease && results.increaseAmount > 0 ? 'הגדלת החזר לקיצור תקופה' : 'פריים+קבועה'}
+4. פרופיל סיכון הלקוח וההמלצה האסטרטגית
+5. שלבי ביצוע מעשיים (3-4 נקודות)
+ענה בעברית בלבד, שפה מקצועית אך ברורה ללקוח.`
+      : `אתה יועץ משכנתאות ותיק עם 20 שנות ניסיון בישראל. לפניך תיק לקוח מלא לניתוח. הניתוח ישמש גם את הלקוח להבנה וגם את הבנקאי לאישור — כתוב בהתאם.
 
-לקוח: ${fullName}, גיל ${formData.age}
+===פרטי הלקוח===
+שם: ${fullName} | גיל: ${formData.age} | מצב משפחתי: ${maritalLabel}
+ילדים מתחת ל-18: ${primaryBorrower.childrenUnder18 || 0}
+היסטוריית אשראי: ${creditLabel}
+סוג תעסוקה: ${empTypes}
 ${borrowersSummary}
-הכנסה כוללת מוכרת: ₪${Math.floor(getTotalIncome())}
-מצב משפחתי: ${borrowers[0]?.maritalStatus || ''}, ילדים מתחת ל-18: ${borrowers[0]?.childrenUnder18 || 0}
+הכנסה כוללת מוכרת לבנק: ₪${Math.floor(getTotalIncome()).toLocaleString()}
+
+===פרטי הנכס והמשכנתא===
+שווי נכס: ₪${Number(String(formData.propertyPrice||0).replace(/,/g,'')).toLocaleString()}
+סכום מבוקש: ₪${results.loanAmount?.toLocaleString()}
+הון עצמי: ₪${Number(String(formData.equity||0).replace(/,/g,'')).toLocaleString()}
+LTV: ${results.ltv?.toFixed(1)}%
+${!results.isReverse ? `DTI: ${results.dti?.toFixed(1)}% (תקן בנק ישראל: עד 40%)` : 'משכנתא הפוכה — ללא חובת DTI'}
+תקופה: ${formData.loanDuration} שנים
+סוג עסקה: ${formData.mortgageType}
 חובות חודשיים קיימים: ₪${formData.monthlyDebts || 0}
-שווי נכס: ₪${formData.propertyPrice}
-סכום משכנתא מבוקש: ₪${results.loanAmount}
-אחוז מימון (LTV): ${results.ltv.toFixed(1)}%
-${results.isReverse ? '' : `יחס החזר (DTI): ${results.dti.toFixed(1)}%`}
-תקופת הלוואה: ${formData.loanDuration} שנים
-סוג משכנתא: ${formData.mortgageType}
 
-כתוב ניתוח מקצועי ומפורט הכולל:
-1. סיכום כשירות התיק ורמת הסיכון (פרט מדוע)
-2. ניתוח יחס ההחזר והמשמעות המעשית עבור הלקוח
-3. המלצות אסטרטגיות ספציפיות לשיפור התיק
-4. נקודות חוזק של התיק שיש להדגיש מול הבנק
-5. אזהרות וסיכונים שהלקוח צריך לדעת
+===ציון האיכות של התיק===
+${results.score}/100
 
-ענה בעברית בלבד, ברורה ומקצועית, ללא Markdown. כל סעיף בשורה נפרדת.`;
+כתוב ניתוח מקצועי בפורמט הבא (ללא כוכביות, ללא Markdown):
+1. סיכום כשירות — האם התיק עומד בתקני בנק ישראל? מה רמת הסיכון?
+2. ניתוח DTI ו-LTV — פרשנות מקצועית של המספרים ומשמעותם הכלכלית
+3. נקודות חוזק — מה הבנקאי יראה כחיובי בתיק זה? (לפחות 3 נקודות)
+4. נקודות לשיפור — מה יכול להשפיע לרעה? המלצות קונקרטיות לשיפור לפני הגשה
+5. אסטרטגיית הגשה — לאיזה בנק להגיש ראשון? מה להדגיש? מה לא?
+6. תחזית סיכוי אישור — נמוך/בינוני/גבוה ומדוע
+ענה בעברית בלבד, שפה מקצועית אך ברורה ללקוח הממוצע.`;
     
     const emailPrompt = isRefinanceFlow
       ? `צור טיוטת אימייל קצרה ומקצועית לבנקאי עבור לקוח בשם ${fullName} המבקש מחזור משכנתא על יתרה של ₪${formatCurrency(results.balance)}. ענה בעברית בלבד.`
