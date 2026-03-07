@@ -19,10 +19,9 @@ export default function FooterCTA() {
         {/* לוגו */}
         <div className="flex justify-center mb-10">
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/422e07a04_2.png"
             alt="מיקוד משכנתאות"
             className="h-36 sm:h-44 w-auto object-contain"
-            style={{ mixBlendMode: 'screen' }}
           />
         </div>
 
