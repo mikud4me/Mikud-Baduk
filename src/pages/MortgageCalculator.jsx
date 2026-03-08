@@ -779,12 +779,13 @@ ${results.score}/100
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   <PremiumInput label="סוג ומטרת המשכנתא" name="mortgageType" value={formData.mortgageType} icon={Target} onChange={handleInputChange} 
                     options={[
-                      {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75%)'},
-                      {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
-                      {val:'refinance', label:'מחזור משכנתא (שיפור תנאים)'},
-                      {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
-                      {val:'reverse_mortgage', label:'משכנתא הפוכה (Reverse Mortgage)'},
-                      {val:'senior_bank', label:'משכנתא בנקאית לגיל הזהב – כל מטרה (45% LTV | עד 30 שנה)'}
+                    {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75%)'},
+                    {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
+                    {val:'purchase_additional', label:'רכישה - נכס נוסף / דירה להשקעה (עד 50%)'},
+                    {val:'refinance', label:'מחזור משכנתא (שיפור תנאים)'},
+                    {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
+                    {val:'reverse_mortgage', label:'משכנתא הפוכה (Reverse Mortgage)'},
+                    {val:'senior_bank', label:'משכנתא בנקאית לגיל הזהב – כל מטרה (45% LTV | עד 30 שנה)'}
                     ]} 
                     tooltip="מטרת המשכנתא קובעת את אחוז המימון המקסימלי ותנאי ההלוואה" />
                   
