@@ -344,7 +344,7 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   let status = {
     color: 'green',
     text: isReverse ? 'כשיר למשכנתא לגיל הזהב' : isSenior ? 'כשיר - משכנתא בנקאית לגיל הזהב' : 'כשיר להגשה לבנק',
-    subtitle: isReverse ? `אחוז מימון מקסימלי לגילך: ${maxReverseLTV}%` : isSenior ? `מקסימום ${SENIOR_BANK_MAX_LTV}% מימון | עד 30 שנה | ללא ביטוח חיים חובה` : 'התיק עומד בתקני בנק ישראל',
+    subtitle: isReverse ? `אחוז מימון מקסימלי לגילך: ${maxReverseLTV}%` : isSenior ? `מקסימום ${SENIOR_BANK_MAX_LTV}% מימון | עד 30 שנה | ללא ביטוח חיים חובה` : formData.mortgageType === 'purchase_additional' ? 'התיק עומד בתקני בנק ישראל — שים לב: מס רכישה 8% על נכס נוסף' : 'התיק עומד בתקני בנק ישראל',
     action: null,
     icon: 'check',
   };
