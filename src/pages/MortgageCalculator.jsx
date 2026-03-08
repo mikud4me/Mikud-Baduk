@@ -816,6 +816,18 @@ ${results.score}/100
                     </div>
                   )}
 
+                  {formData.mortgageType === 'purchase_additional' && (
+                    <div className="mb-5 p-4 bg-orange-50 border-2 border-orange-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-orange-900 font-black text-sm mb-2">⚠️ נכס נוסף / דירה להשקעה — 50% מימון בלבד</p>
+                      <ul className="text-orange-800 text-xs space-y-1 list-none">
+                        <li>• לפי תקנות בנק ישראל — מקסימום 50% LTV על נכס שאינו יחיד</li>
+                        <li>• <strong>מס רכישה: 8% על הנכס הנוסף</strong> (יש לקחת בחשבון בהון העצמי)</li>
+                        <li>• מס שבח ישולם בעת מכירה עתידית</li>
+                        <li>• מומלץ להתייעץ עם עורך דין נדל"ן לפני הרכישה</li>
+                      </ul>
+                    </div>
+                  )}
+
                   {isSeniorBankMortgage && (
                     <div className="mb-5 p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
                       <p className="text-blue-900 font-black text-sm mb-2">משכנתא בנקאית לגיל הזהב – כל מטרה</p>
