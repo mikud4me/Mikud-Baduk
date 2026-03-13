@@ -186,8 +186,8 @@ export default function MortgageCalculator() {
       setFieldErrors(errors);
       return;
     }
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedOtp(code);
+    // קוד דמו קבוע — יוחלף ב-SMS אמיתי עם העלייה לאוויר
+    setGeneratedOtp("0000");
     setOtpSent(true);
   };
 
