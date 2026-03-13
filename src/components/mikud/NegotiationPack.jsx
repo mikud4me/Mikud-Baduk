@@ -51,6 +51,9 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
   const displayDTI = isRefinance ? null : results.dti;
 
   const downloadLetter = () => {
+    // פונקציה זו הוחלפה ב-downloadFullPack — נשארת לתאימות לאחור
+    downloadFullPack();
+    return;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const today = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
     const name = displayName || 'לקוח';
