@@ -323,9 +323,32 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
 
   const downloadFullPack = () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const name = displayName || 'לקוח';
+
+    // Strip all non-ASCII (Hebrew) characters — jsPDF cannot render Hebrew
+    const ascii = (str) => (str || '').replace(/[^\x00-\x7F]/g, '').trim() || 'Client';
+    const rawName = displayName || formData.fullName || 'Client';
+    // Transliterate common Hebrew letters to Latin equivalent for display
+    const translitMap = {'א':'A','ב':'B','ג':'G','ד':'D','ה':'H','ו':'V','ז':'Z','ח':'H','ט':'T','י':'Y','כ':'K','ך':'K','ל':'L','מ':'M','ם':'M','נ':'N','ן':'N','ס':'S','ע':'A','פ':'P','ף':'P','צ':'TS','ץ':'TS','ק':'K','ר':'R','ש':'SH','ת':'T',' ':' ','\'':''};
+    const translit = (str) => (str||'').split('').map(c => translitMap[c] !== undefined ? translitMap[c] : /[a-zA-Z0-9\s\.,@\-_\/\(\)%:]/.test(c) ? c : '').join('').replace(/\s+/g,' ').trim() || 'Client';
+
+    const name = translit(rawName);
+    const phone = formData.phone || '';
+    const email = formData.email || '';
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
     const loanStr = formatCurrency(isRefinance ? results.balance : results.loanAmount);
     const propStr = formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')));
+
+    const purposeEnMap = {
+      purchase_first: 'First Home Purchase',
+      purchase_improve: 'Home Upgrade / Trade-Up',
+      purchase_additional: 'Additional Property / Investment',
+      any_purpose: 'Any Purpose',
+      reverse_mortgage: 'Reverse Mortgage',
+      senior_bank: 'Senior Bank Mortgage',
+      refinance: 'Refinance',
+    };
+    const purposeEn = purposeEnMap[formData.mortgageType] || formData.mortgageType;
 
     const addHeader = (pageTitle) => {
       doc.setFillColor(30, 58, 95);
