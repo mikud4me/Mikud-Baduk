@@ -45,6 +45,7 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
 
 export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [] }) {
   const letterRef = useRef(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const isRefinance = formData.mortgageType === 'refinance';
   const displayLoanAmount = isRefinance ? results.balance : results.loanAmount;
   const displayLTV = isRefinance ? null : results.ltv;
