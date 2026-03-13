@@ -478,8 +478,8 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(60, 60, 60);
     doc.text(name, 195, closY + 27, { align: 'right' });
-    if (formData.phone) doc.text(`Tel: ${formData.phone}`, 195, closY + 33, { align: 'right' });
-    if (formData.email) doc.text(`Email: ${formData.email}`, 195, closY + 39, { align: 'right' });
+    if (phone) doc.text(`Tel: ${phone}`, 195, closY + 33, { align: 'right' });
+    if (email) doc.text(`Email: ${email}`, 195, closY + 39, { align: 'right' });
 
     addFooter();
 
