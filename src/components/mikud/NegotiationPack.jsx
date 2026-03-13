@@ -410,10 +410,11 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
             <span className="text-[#c9a961] font-bold text-sm">מכתב פנייה למשכנתא</span>
             <button
               onClick={downloadLetter}
-              className="flex items-center gap-2 bg-[#c9a961] text-[#1e3a5f] px-4 py-2 rounded-lg font-bold text-xs hover:bg-[#d4b975] transition-all"
+              disabled={pdfLoading}
+              className="flex items-center gap-2 bg-[#c9a961] text-[#1e3a5f] px-4 py-2 rounded-lg font-bold text-xs hover:bg-[#d4b975] transition-all disabled:opacity-60"
             >
-              <Download size={14} />
-              הורד מכתב
+              {pdfLoading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+              {pdfLoading ? 'מכין דוח...' : 'הורד מכתב'}
             </button>
           </div>
           <div ref={letterRef} className="p-6 sm:p-8 text-sm text-gray-800 leading-8 space-y-4" style={{ fontFamily: 'Assistant, Arial, sans-serif' }}>
