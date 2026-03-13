@@ -379,7 +379,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
     doc.setTextColor(100, 100, 100);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(today, 15, 30);
+    doc.text(todayStr, 15, 30);
 
     doc.setTextColor(30, 58, 95);
     doc.setFontSize(11);
