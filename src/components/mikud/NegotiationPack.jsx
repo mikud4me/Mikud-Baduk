@@ -600,12 +600,13 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
       <div className="text-center">
         <button
           onClick={downloadFullPack}
-          className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-[#1e3a5f] px-8 py-4 rounded-2xl font-black text-base shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto"
+          disabled={pdfLoading}
+          className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-[#1e3a5f] px-8 py-4 rounded-2xl font-black text-base shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto disabled:opacity-60 disabled:scale-100"
         >
-          <Download className="w-5 h-5" />
-          הורד ערכת משא ומתן (PDF)
+          {pdfLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+          {pdfLoading ? 'מכין את הדוח...' : 'הורד ערכת משא ומתן (PDF)'}
         </button>
-        <p className="text-xs text-gray-400 mt-2">מורד קובץ PDF מקצועי הכולל מכתב, תמהילים ורשימת מסמכים</p>
+        <p className="text-xs text-gray-400 mt-2">דוח PDF בעברית — מכתב לבנק, תמהילים ורשימת מסמכים</p>
       </div>
     </div>
   );
