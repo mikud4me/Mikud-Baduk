@@ -712,8 +712,10 @@ ${results.score}/100
                 <div className="animate-in zoom-in-95 duration-500 text-center py-8">
                   <Smartphone size={40} className="text-[#001a33] mx-auto mb-4" />
                   <h4 className="text-lg font-black text-[#001a33] mb-2 text-center">הזן קוד אימות</h4>
+                  <div className="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-800 font-bold text-center">
+                    מצב הדגמה — הקוד הוא <span className="text-[#1e3a5f] text-base">0000</span>
+                  </div>
                   <PremiumInput label="הזן קוד" name="otp" value={userInputOtp} onChange={(n, v) => setUserInputOtp(v)} placeholder="0000" icon={Key} error={fieldErrors.otp} />
-
                 </div>
               )}
 
