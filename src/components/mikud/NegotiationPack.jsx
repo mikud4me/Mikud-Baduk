@@ -426,7 +426,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
       ['LTV Ratio:', `${results.ltv?.toFixed(1)}%`],
       ['DTI Ratio:', `${results.dti?.toFixed(1)}%`],
       ['Loan Period:', `${formData.loanDuration} years`],
-      ['Purpose:', mortgageTypeLabel],
+      ['Purpose:', purposeEn],
     ];
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(60, 60, 60);
