@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, FileCheck, Target, TrendingUp, Download, ChevronDown, ChevronUp, Mail } from 'lucide-react';
-import { jsPDF } from 'jspdf';
+import { MessageSquare, FileCheck, Target, TrendingUp, Download, ChevronDown, ChevronUp, Mail, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 const formatCurrency = (val) => {
   if (!val || isNaN(val)) return "0";
