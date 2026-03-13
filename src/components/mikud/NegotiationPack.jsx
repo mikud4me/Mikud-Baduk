@@ -401,7 +401,14 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
                     <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}%</span>
                     <span className="text-gray-500">יחס החזר (DTI)</span><span className="font-semibold">{results.dti?.toFixed(1)}%</span>
                     <span className="text-gray-500">תקופת הלוואה</span><span className="font-semibold">{formData.loanDuration} שנים</span>
-                    <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{formData.mortgageType === 'purchase_first' ? 'רכישת דירה ראשונה' : formData.mortgageType === 'purchase_improve' ? 'משפרי דיור' : 'כל מטרה'}</span>
+                    <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{{
+                      purchase_first: 'רכישת דירה ראשונה',
+                      purchase_improve: 'משפרי דיור / חליפית',
+                      purchase_additional: 'נכס נוסף / דירה להשקעה',
+                      any_purpose: 'כל מטרה',
+                      reverse_mortgage: 'משכנתא הפוכה',
+                      senior_bank: 'משכנתא לגיל הזהב',
+                    }[formData.mortgageType] || formData.mortgageType}</span>
                   </>
                 )}
               </div>
