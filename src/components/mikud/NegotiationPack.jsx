@@ -308,6 +308,274 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
   const displayName = fullName || formData.fullName || '';
   const today = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
 
+  const mortgageTypeLabel = {
+    purchase_first: 'רכישת דירה ראשונה',
+    purchase_improve: 'משפרי דיור / חליפית',
+    purchase_additional: 'נכס נוסף / דירה להשקעה',
+    any_purpose: 'כל מטרה',
+    reverse_mortgage: 'משכנתא הפוכה',
+    senior_bank: 'משכנתא לגיל הזהב',
+    refinance: 'מחזור משכנתא',
+  }[formData.mortgageType] || formData.mortgageType;
+
+  const downloadFullPack = () => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const name = displayName || 'לקוח';
+    const loanStr = formatCurrency(isRefinance ? results.balance : results.loanAmount);
+    const propStr = formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')));
+
+    const addHeader = (pageTitle) => {
+      doc.setFillColor(30, 58, 95);
+      doc.rect(0, 0, 210, 20, 'F');
+      doc.setFillColor(201, 169, 97);
+      doc.rect(0, 20, 210, 2, 'F');
+      doc.setTextColor(201, 169, 97);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MIKUD MORTGAGES', 15, 13);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(pageTitle, 195, 13, { align: 'right' });
+    };
+
+    const addFooter = () => {
+      doc.setFillColor(30, 58, 95);
+      doc.rect(0, 282, 210, 15, 'F');
+      doc.setTextColor(201, 169, 97);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MIKUD MORTGAGES — Our Goal, Your Savings  |  *2324', 105, 291, { align: 'center' });
+    };
+
+    // ─── עמוד 1: מכתב לבנק ───────────────────────────────────────
+    addHeader('Bank Application Letter');
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(today, 15, 30);
+
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('To: Mortgage Department Manager', 195, 38, { align: 'right' });
+    doc.text('[Bank Name]', 195, 44, { align: 'right' });
+
+    doc.setFillColor(248, 245, 240);
+    doc.setDrawColor(201, 169, 97);
+    doc.roundedRect(15, 50, 180, 10, 2, 2, 'FD');
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(10);
+    doc.text(`Re: ${isRefinance ? 'Mortgage Refinance Request' : 'Mortgage Pre-Approval Request'} — ${name}`, 105, 57, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(9.5);
+    doc.text(`Dear Sir/Madam,`, 195, 68, { align: 'right' });
+    const bodyText = isRefinance
+      ? `I hereby request a mortgage refinance offer for ${name}, with a remaining balance of NIS ${loanStr}.`
+      : `I hereby request a mortgage pre-approval for ${name}, under the conditions detailed below.`;
+    doc.text(bodyText, 195, 75, { align: 'right', maxWidth: 175 });
+
+    // Details table
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(15, 84, 180, isRefinance ? 44 : 50, 3, 3, 'FD');
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('LOAN DETAILS', 105, 91, { align: 'center' });
+
+    const details = isRefinance ? [
+      ['Borrower:', name],
+      ['Current Balance:', `NIS ${loanStr}`],
+      ['Current Monthly Payment:', `NIS ${formatCurrency(results.currentMonthly)}`],
+      ['Estimated Current Rate:', `${results.impliedRate?.toFixed(2)}%`],
+      ['Remaining Years:', `${results.remainingYears} years`],
+      ['Expected Monthly Saving:', `NIS ${formatCurrency(results.monthlySaving)}`],
+    ] : [
+      ['Borrower:', name],
+      ['Requested Amount:', `NIS ${loanStr}`],
+      ['Property Value:', `NIS ${propStr}`],
+      ['LTV Ratio:', `${results.ltv?.toFixed(1)}%`],
+      ['DTI Ratio:', `${results.dti?.toFixed(1)}%`],
+      ['Loan Period:', `${formData.loanDuration} years`],
+      ['Purpose:', mortgageTypeLabel],
+    ];
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60, 60, 60);
+    details.forEach(([label, val], i) => {
+      const y = 98 + i * 6;
+      doc.setFont('helvetica', 'bold');
+      doc.text(label, 195, y, { align: 'right' });
+      doc.setFont('helvetica', 'normal');
+      doc.text(String(val), 115, y, { align: 'right' });
+    });
+
+    const afterTable = 84 + (isRefinance ? 44 : 50) + 6;
+
+    // Target rates
+    doc.setFillColor(30, 58, 95);
+    doc.roundedRect(15, afterTable, 180, 14, 3, 3, 'F');
+    doc.setTextColor(201, 169, 97);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.text('Target Interest Rates', 105, afterTable + 7, { align: 'center' });
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Prime: P-0.5%   |   Fixed Unlinked: ${((targetRate) * 100).toFixed(2)}%`, 105, afterTable + 12, { align: 'center' });
+
+    // Strengths
+    const strY = afterTable + 22;
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(9.5);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Portfolio Strengths:', 195, strY, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(9);
+    doc.text(`  * DTI ${results.dti?.toFixed(1)}% — below Bank of Israel cap (40%)`, 195, strY + 6, { align: 'right' });
+    doc.text(`  * LTV ${results.ltv?.toFixed(1)}% — below maximum threshold`, 195, strY + 12, { align: 'right' });
+    doc.text(`  * Clean credit history`, 195, strY + 18, { align: 'right' });
+
+    const closY = strY + 28;
+    doc.setFontSize(9.5);
+    doc.text('Kindly provide a written rate offer within 5 business days.', 195, closY, { align: 'right' });
+    doc.text('All required documents will be submitted upon receiving your offer.', 195, closY + 6, { align: 'right' });
+
+    doc.setDrawColor(200, 200, 200);
+    doc.line(15, closY + 14, 195, closY + 14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Sincerely,', 195, closY + 21, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60, 60, 60);
+    doc.text(name, 195, closY + 27, { align: 'right' });
+    if (formData.phone) doc.text(`Tel: ${formData.phone}`, 195, closY + 33, { align: 'right' });
+    if (formData.email) doc.text(`Email: ${formData.email}`, 195, closY + 39, { align: 'right' });
+
+    addFooter();
+
+    // ─── עמוד 2: תמהילים ─────────────────────────────────────────
+    doc.addPage();
+    addHeader('Mortgage Mix Comparison');
+
+    doc.setTextColor(30, 58, 95);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Mortgage Mix Recommendations', 105, 32, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text(`${name}  |  Total: NIS ${loanStr}  |  Period: ${formData.loanDuration || results.actualDuration} years`, 105, 39, { align: 'center' });
+
+    const mixes = [
+      { label: isRefinance ? results.mixB?.label : 'Recommended Mix — Balanced', tracks: results.mixB?.tracks || [], total: results.mixB?.total },
+      { label: isRefinance ? results.mixA?.label : 'Conservative Mix — Fixed', tracks: results.mixA?.tracks || [], total: results.mixA?.total },
+      { label: isRefinance ? results.mixC?.label : 'Prime Mix — Flexible', tracks: results.mixC?.tracks || [], total: results.mixC?.total },
+    ];
+
+    let mixY = 48;
+    mixes.forEach((mix, mi) => {
+      if (!mix.tracks.length) return;
+      const boxH = 10 + mix.tracks.length * 7 + 10;
+      doc.setFillColor(mi === 0 ? 30 : 245, mi === 0 ? 58 : 245, mi === 0 ? 95 : 245);
+      doc.setDrawColor(mi === 0 ? 201 : 200, mi === 0 ? 169 : 200, mi === 0 ? 97 : 200);
+      doc.roundedRect(15, mixY, 180, boxH, 3, 3, mi === 0 ? 'F' : 'D');
+
+      doc.setTextColor(mi === 0 ? 201 : 30, mi === 0 ? 169 : 58, mi === 0 ? 97 : 95);
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text(mix.label, 105, mixY + 8, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      mix.tracks.forEach((t, ti) => {
+        const ty = mixY + 15 + ti * 7;
+        doc.setTextColor(mi === 0 ? 255 : 60, mi === 0 ? 255 : 60, mi === 0 ? 255 : 60);
+        doc.text(`${t.name}`, 185, ty, { align: 'right' });
+        doc.text(`NIS ${formatCurrency(t.amount)}  |  ${(t.rate * 100).toFixed(2)}%  |  Monthly: NIS ${formatCurrency(Math.floor(t.pmt))}`, 100, ty, { align: 'right' });
+      });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(mi === 0 ? 201 : 30, mi === 0 ? 169 : 58, mi === 0 ? 97 : 95);
+      doc.text(`Total Monthly Payment: NIS ${formatCurrency(Math.floor(mix.total))}`, 195, mixY + boxH - 4, { align: 'right' });
+
+      mixY += boxH + 5;
+    });
+
+    // Score box
+    mixY += 3;
+    doc.setFillColor(248, 245, 240);
+    doc.setDrawColor(201, 169, 97);
+    doc.roundedRect(15, mixY, 180, 16, 3, 3, 'FD');
+    doc.setTextColor(30, 58, 95);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.text(`File Quality Score: ${results.score}/100  |  DTI: ${results.dti?.toFixed(1)}%  |  LTV: ${results.ltv?.toFixed(1)}%`, 105, mixY + 10, { align: 'center' });
+
+    addFooter();
+
+    // ─── עמוד 3: תודה + מיתוג ────────────────────────────────────
+    doc.addPage();
+    doc.setFillColor(30, 58, 95);
+    doc.rect(0, 0, 210, 297, 'F');
+
+    doc.setFillColor(201, 169, 97);
+    doc.rect(0, 80, 210, 2, 'F');
+    doc.rect(0, 215, 210, 2, 'F');
+
+    doc.setTextColor(201, 169, 97);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MIKUD MORTGAGES', 105, 50, { align: 'center' });
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Our Goal, Your Savings', 105, 60, { align: 'center' });
+    doc.text('mikud4me.co.il', 105, 68, { align: 'center' });
+
+    doc.setTextColor(201, 169, 97);
+    doc.setFontSize(26);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Thank You, ${name}!`, 105, 115, { align: 'center' });
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text('This report was prepared exclusively for you by', 105, 132, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('Mikud Mortgages — professional mortgage consulting.', 105, 141, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(200, 200, 200);
+    const summary = [
+      `Loan Amount: NIS ${loanStr}`,
+      `Purpose: ${mortgageTypeLabel}`,
+      `Period: ${formData.loanDuration || results.actualDuration} years`,
+      `File Score: ${results.score}/100`,
+    ];
+    summary.forEach((line, i) => doc.text(line, 105, 158 + i * 8, { align: 'center' }));
+
+    doc.setTextColor(201, 169, 97);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Ready to move forward? Call us:', 105, 228, { align: 'center' });
+    doc.setFontSize(32);
+    doc.text('*2324', 105, 248, { align: 'center' });
+
+    doc.setTextColor(200, 200, 200);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Free consultation, no commitment. We work for your benefit.', 105, 262, { align: 'center' });
+    doc.text(`Report generated: ${today}  |  Case: ${name}`, 105, 270, { align: 'center' });
+
+    doc.save(`Mikud_Mortgage_Pack_${name.replace(/\s+/g, '_')}.pdf`);
+  };
+
   return (
     <div className="space-y-4">
 
