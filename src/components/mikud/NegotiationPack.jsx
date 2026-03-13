@@ -542,16 +542,16 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
         </p>
       </div>
 
-      {/* כפתור הדפסה */}
+      {/* כפתור הורדת PDF */}
       <div className="text-center">
         <button
-          onClick={() => window.print()}
+          onClick={downloadFullPack}
           className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-[#1e3a5f] px-8 py-4 rounded-2xl font-black text-base shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto"
         >
           <Download className="w-5 h-5" />
-          הורד את ערכת המשא ומתן (PDF)
+          הורד ערכת משא ומתן (PDF)
         </button>
-        <p className="text-xs text-gray-400 mt-2">הדפסת העמוד שומרת את כל המידע בפורמט PDF</p>
+        <p className="text-xs text-gray-400 mt-2">מורד קובץ PDF מקצועי הכולל מכתב, תמהילים ורשימת מסמכים</p>
       </div>
     </div>
   );
