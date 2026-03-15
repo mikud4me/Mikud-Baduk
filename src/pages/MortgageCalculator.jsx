@@ -72,6 +72,8 @@ export default function MortgageCalculator() {
 
   const [borrowers, setBorrowers] = useState([defaultBorrower()]);
   const [activeBorrowerTab, setActiveBorrowerTab] = useState(0);
+  const [existingProperty, setExistingProperty] = useState({});
+  const [equityCompletion, setEquityCompletion] = useState({});
 
   const updateBorrower = (index, data) => {
     setBorrowers(prev => prev.map((b, i) => i === index ? data : b));
