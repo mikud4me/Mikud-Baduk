@@ -867,6 +867,22 @@ ${results.score}/100
                       <PremiumInput label="סכום מבוקש" name="loanAmount" value={formData.loanAmount} placeholder="כמה כסף אתם צריכים?" icon={Coins} onChange={handleInputChange} error={fieldErrors.loanAmount} tooltip="הסכום שברצונכם לקבל כמשכנתא" />
                     </>
                   )}
+
+                  {/* נתוני נכס קיים — רק למשפרי דיור / נכס נוסף / כל מטרה */}
+                  {needsExistingProperty && (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="h-px flex-1 bg-[#1e3a5f]/20" />
+                        <span className="text-xs font-bold text-[#1e3a5f] px-3 py-1 bg-[#1e3a5f]/5 rounded-full">פרטי הנכס הקיים בבעלותך</span>
+                        <div className="h-px flex-1 bg-[#1e3a5f]/20" />
+                      </div>
+                      <ExistingPropertyForm
+                        data={existingProperty}
+                        onChange={setExistingProperty}
+                        errors={fieldErrors}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
