@@ -270,8 +270,6 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
       docs: [
         'שומות מס הכנסה 2 שנים אחרונות + אישור רו"ח',
         'דפי עו"ש עסקי 3 חודשים אחרונים',
-        'אישור ניהול ספרים מרשות המסים',
-        'אישור תשלום מקדמות מס שוטף',
       ],
     }] : []),
     ...(hasPensioner ? [{
