@@ -557,7 +557,7 @@ ${results.score}/100
                     {step === 2 && <Calendar size={18} className="text-white" />}
                     {step === 3 && <Home size={18} className="text-white" />}
                     {step === 4 && <Coins size={18} className="text-white" />}
-                    {step === 5 && <Wallet size={18} className="text-white" />}
+                    {step === 5 && <Coins size={18} className="text-white" />}
                     {step === 6 && <Building2 size={18} className="text-white" />}
                   </div>
                   <div>
