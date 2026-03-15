@@ -492,8 +492,8 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
             <p className="font-bold text-[#1e3a5f] text-sm mb-2 uppercase tracking-wide">שלב 1 — פתיחה</p>
             <p className="text-gray-800 text-sm leading-relaxed italic">
               {isRefinance
-                ? `"שלום, קוראים לי ${displayName || '[שם]'}. יש לי משכנתא קיימת ביתרה של ₪${formatCurrency(results.balance)} עם ${results.remainingYears} שנים שנותרו. הריבית הנוכחית שלי היא ${results.impliedRate?.toFixed(2)}% ואני מחפש למחזר לתנאים טובים יותר. קיבלתי הצעות ממספר גורמים — אשמח לשמוע מה הבנק שלכם יכול להציע."`
-                : `"שלום, קוראים לי ${displayName || '[שם]'}. אני מחפש משכנתא של ₪${formatCurrency(results.loanAmount)} על נכס ב-₪${formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}. יחס המימון עומד על ${results.ltv?.toFixed(1)}% ויחס ההחזר שלי מתחת ל-${Math.ceil((results.dti || 20) / 5) * 5}%. קיבלתי הצעות ממספר גורמים — אשמח לשמוע מה הבנק שלכם יכול להציע."`
+                ? `"שלום, קוראים לי ${displayName || '[שם]'}. יש לי משכנתא קיימת ביתרה של ₪${formatCurrency(results.balance)} עם ${results.remainingYears} שנים שנותרו. הריבית הנוכחית שלי עומדת על ${results.impliedRate?.toFixed(2)}% ואני בוחן אפשרות למחזור לתנאים טובים יותר. אשמח לשמוע מה הבנק שלכם יכול להציע."`
+                : `"שלום, קוראים לי ${displayName || '[שם]'}. אני פונה אליכם בבקשה לאישור עקרוני למשכנתא בסך ₪${formatCurrency(results.loanAmount)} על רכישת נכס בשווי ₪${formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}. יחס המימון עומד על ${results.ltv?.toFixed(1)}% ויחס ההחזר שלי מתחת ל-${Math.ceil((results.dti || 20) / 5) * 5}%. פניתי למספר בנקים — אשמח לשמוע את הצעתכם."`
               }
             </p>
           </div>
@@ -501,16 +501,16 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
           <div className="bg-[#1e3a5f]/5 border-r-4 border-[#1e3a5f] rounded-xl p-4">
             <p className="font-bold text-[#1e3a5f] text-sm mb-2 uppercase tracking-wide">שלב 2 — בניית אמינות</p>
             <p className="text-gray-800 text-sm leading-relaxed italic">
-              "אני עובד עם יועץ משכנתאות, ויש לי את כל המסמכים מוכנים להגשה מיידית.
-              הדגש שחשוב לי: אני לא מחפש את הריבית הנמוכה ביחס כלשהו — אני מחפש שותפות ארוכת טווח עם בנק שיתמוך בי גם בשנים הבאות."
+              "אני פועל בליווי יועץ משכנתאות מקצועי ויש לי את כל המסמכים מוכנים להגשה מיידית.
+              התיק שלי מוכן ומסודר — מה שמקצר משמעותית את זמן האישור."
             </p>
           </div>
 
           <div className="bg-[#1e3a5f]/5 border-r-4 border-[#c9a961] rounded-xl p-4">
-            <p className="font-bold text-[#c9a961] text-sm mb-2 uppercase tracking-wide">שלב 3 — בקשה ספציפית</p>
+            <p className="font-bold text-[#c9a961] text-sm mb-2 uppercase tracking-wide">שלב 3 — בקשת הצעה</p>
             <p className="text-gray-800 text-sm leading-relaxed italic">
-              "על בסיס הנתונים שלי, אני מכוון לריבית פריים של P-0.5% ו-{((targetRate) * 100).toFixed(2)}% בקבועה.
-              האם אתם יכולים לעמוד בזה? אם כן — אני מוכן להתחיל תהליך מחר בבוקר."
+              "על בסיס נתוני התיק שלי ונתוני השוק העדכניים, אבקש לקבל את הצעת הריבית הטובה ביותר שאתם יכולים להציע.
+              אני מקבל מספר הצעות ואבחר את המשתלמת ביותר."
             </p>
           </div>
 
@@ -518,15 +518,15 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
             <p className="font-bold text-red-700 text-sm mb-2 uppercase tracking-wide">שלב 4 — טיפול בהתנגדות</p>
             <p className="text-sm text-gray-600 mb-2">אם הבנקאי אומר <span className="font-bold text-red-600">"הריבית שלנו גבוהה יותר"</span>:</p>
             <p className="text-gray-800 text-sm leading-relaxed italic">
-              "אני מעריך את הכנות. לפי נתוני בנק ישראל, ריביות הפריים הממוצעות ללקוחות בדירוג שלי נמוכות ממה שהצגת.
-              אם הבנק לא יכול להיות גמיש — אין בעיה, אני ממשיך עם הגורם הבא ברשימה שלי."
+              "אני מעריך את הכנות. אני מכיר את נתוני השוק ואת ממוצעי הריבית לתיקים בפרופיל שלי.
+              אשמח אם תבדקו שוב — תיקים עם נתונים כמו שלי מקבלים בדרך כלל תנאים טובים יותר."
             </p>
           </div>
 
           <div className="bg-green-50 border-r-4 border-green-500 rounded-xl p-4">
             <p className="font-bold text-green-700 text-sm mb-2 uppercase tracking-wide">שלב 5 — סגירה</p>
             <p className="text-gray-800 text-sm leading-relaxed italic">
-              "אשמח שתישלח לי הצעה בכתב תוך יומיים. אם היא תואמת את מה שדיברנו — נסגור עוד השבוע."
+              "אשמח לקבל את הצעתכם בכתב תוך יומיים. אני נמצא בתהליך עם מספר בנקים ואקבל החלטה עד סוף השבוע."
             </p>
           </div>
 
