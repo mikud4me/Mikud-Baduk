@@ -236,10 +236,15 @@ export default function MortgageCalculator() {
   }, [formData.propertyPrice, formData.loanAmount, formData.equity, equityCompletion.equity, isRefinance, isReverseMortgage]);
 
   const results = useMemo(() => {
-    if (isRefinance) {
-      return calculateRefinanceResults({ formData, borrowers, rates });
+    try {
+      if (isRefinance) {
+        return calculateRefinanceResults({ formData, borrowers, rates });
+      }
+      return calculateResults({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES });
+    } catch (e) {
+      console.error('results calculation error:', e);
+      return { loanAmount: 0, ltv: 0, dti: 0, score: 0, status: { color: 'green', text: '', subtitle: '', action: null, icon: 'check' }, mixA: { tracks: [], total: 0 }, mixB: { tracks: [], total: 0 }, mixC: { tracks: [], total: 0 }, actualDuration: 25, isReverse: false, isSenior: false, isBalloon: false };
     }
-    return calculateResults({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES });
   }, [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES, isRefinance]);
 
   const generateFullAnalysis = async () => {
