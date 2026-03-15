@@ -18,6 +18,8 @@ import MikoChat from '@/components/mikud/MikoChat';
 import BankLogosCarousel from '@/components/mikud/BankLogosCarousel';
 import NegotiationPack from '@/components/mikud/NegotiationPack.jsx';
 import BorrowerForm from '@/components/mikud/BorrowerForm';
+import ExistingPropertyForm from '@/components/mikud/ExistingPropertyForm';
+import EquityCompletionForm from '@/components/mikud/EquityCompletionForm';
 import HowItWorks from '@/components/mikud/HowItWorks';
 import SocialProof from '@/components/mikud/SocialProof';
 import FooterCTA from '@/components/mikud/FooterCTA';
