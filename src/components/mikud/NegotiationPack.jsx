@@ -467,27 +467,8 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
             </div>
 
             <div className="bg-[#1e3a5f]/5 rounded-xl p-4 border border-[#1e3a5f]/10">
-              <p className="font-bold text-[#1e3a5f] mb-2 text-sm">ריביות יעד מבוקשות</p>
-              <p>פריים: <strong>P{targetRate <= 0.05 ? '-0.5%' : '+0.1%'}</strong> &nbsp;|&nbsp; קבועה לא צמודה: <strong>{((targetRate) * 100).toFixed(2)}%</strong></p>
-            </div>
-
-            <div>
-              <p className="font-bold text-[#1e3a5f] mb-2">נקודות חוזק התיק:</p>
-              <ul className="space-y-1 list-none">
-                {isRefinance ? (
-                  <>
-                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> חיסכון חודשי צפוי של ₪{formatCurrency(results.monthlySaving)} לאורך כל התקופה</li>
-                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> יתרת משכנתא ₪{formatCurrency(results.balance)} עם {results.remainingYears} שנים שנותרו</li>
-                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> {borrowers.some(b => b.creditHistory === 'clean') ? 'היסטוריית אשראי תקינה' : 'לקוח ותיק עם פירעון עקבי'}</li>
-                  </>
-                ) : (
-                  <>
-                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> יחס החזר (DTI) של {results.dti?.toFixed(1)}% — מתחת לתקרת בנק ישראל (40%)</li>
-                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> אחוז מימון של {results.ltv?.toFixed(1)}% — מתחת לתקרת {formData.mortgageType === 'purchase_first' ? '75%' : '70%'}</li>
-                    <li className="flex items-start gap-2"><span className="text-green-500 mt-1">✓</span> {borrowers.some(b => b.creditHistory === 'clean') ? 'היסטוריית אשראי תקינה' : 'לקוח ותיק עם פירעון עקבי'}</li>
-                  </>
-                )}
-              </ul>
+              <p className="font-bold text-[#1e3a5f] mb-2 text-sm">בקשת ריבית תחרותית</p>
+              <p className="text-sm leading-relaxed">אבקש לקבל הצעת ריבית תחרותית בהתאם לפרופיל התיק ולנתוני השוק העדכניים. כל הצעה טובה תיבחן ברצינות.</p>
             </div>
 
             <p>אבקש לקבל הצעת ריבית עקרונית בכתב תוך <strong>5 ימי עסקים</strong>. אשמח לשלוח את מלוא מסמכי ההגשה בעקבות הצעתכם.</p>
