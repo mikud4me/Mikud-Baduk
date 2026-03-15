@@ -934,7 +934,15 @@ ${results.score}/100
               {step === 5 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   {!isReverseMortgage && !isRefinance && (
-                    <PremiumInput label="הון עצמי זמין למשכנתא" name="equity" value={formData.equity} placeholder="סכום הון עצמי" icon={Wallet} onChange={handleInputChange} error={fieldErrors.equity} tooltip="הסכום שיש לכם במזומן/חסכונות למטרת רכישת הנכס" />
+                    <EquityCompletionForm
+                      data={{ ...equityCompletion, equity: equityCompletion.equity || formData.equity }}
+                      onChange={(d) => {
+                        setEquityCompletion(d);
+                        if (d.equity !== undefined) handleInputChange('equity', d.equity);
+                      }}
+                      errors={fieldErrors}
+                      gap={equityGap}
+                    />
                   )}
                   {isRefinance && (
                     <div className="p-6 bg-blue-50 border-2 border-blue-400 rounded-2xl text-right">
