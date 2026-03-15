@@ -221,6 +221,20 @@ export default function MortgageCalculator() {
 
   const isRefinance = formData.mortgageType === 'refinance';
 
+  // האם נדרשים נתוני נכס קיים (כל סוג עסקה חוץ מדירה ראשונה ומחזור)
+  const needsExistingProperty = !isRefinance && !isReverseMortgage && !isSeniorBankMortgage &&
+    ['purchase_improve', 'purchase_additional', 'any_purpose'].includes(formData.mortgageType);
+
+  // חישוב פער השלמת עסקה
+  const equityGap = useMemo(() => {
+    if (isRefinance || isReverseMortgage) return 0;
+    const price = Number(String(formData.propertyPrice || '0').replace(/,/g, ''));
+    const loan = Number(String(formData.loanAmount || '0').replace(/,/g, ''));
+    const equity = Number(String(equityCompletion.equity || formData.equity || '0').replace(/,/g, ''));
+    if (!price || !loan) return 0;
+    return Math.max(0, price - loan - equity);
+  }, [formData.propertyPrice, formData.loanAmount, formData.equity, equityCompletion.equity, isRefinance, isReverseMortgage]);
+
   const results = useMemo(() => {
     if (isRefinance) {
       return calculateRefinanceResults({ formData, borrowers, rates });
