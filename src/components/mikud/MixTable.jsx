@@ -98,21 +98,26 @@ export default function MixTable({ title, subtitle, tracks, totalPmt, isRecommen
       {/* טבלת מסלולים */}
       <div className="flex-1 p-3 sm:p-4 space-y-2">
         {tracks.map((track, idx) => (
-          <div key={idx} className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-gray-50 border border-gray-100 hover:border-[#c9a961]/30 transition-colors">
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-xs text-[#1e3a5f] leading-tight truncate">{track.name}</p>
-              <p className="text-[10px] text-gray-400 leading-tight truncate">{track.desc}</p>
+            <div key={idx} className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-gray-50 border border-gray-100 hover:border-[#c9a961]/30 transition-colors">
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-xs text-[#1e3a5f] leading-tight truncate">{track.name}</p>
+                <p className="text-[10px] text-gray-400 leading-tight truncate">{track.desc}</p>
+              </div>
+              <div className="text-center flex-shrink-0 px-2">
+                <p className="text-[#c9a961] font-black text-xs">{(track.rate * 100).toFixed(2)}%</p>
+                <p className="text-gray-400 text-[9px]">{track.years} שנה</p>
+              </div>
+              <div className="text-left flex-shrink-0">
+                <p className="font-black text-sm text-[#1e3a5f]">₪{formatCurrency(Math.floor(track.pmt))}</p>
+                <p className="text-[9px] text-gray-400 text-center">לחודש</p>
+              </div>
             </div>
-            <div className="text-center flex-shrink-0 px-2">
-              <p className="text-[#c9a961] font-black text-xs">{(track.rate * 100).toFixed(2)}%</p>
-              <p className="text-gray-400 text-[9px]">{track.years} שנה</p>
-            </div>
-            <div className="text-left flex-shrink-0">
-              <p className="font-black text-sm text-[#1e3a5f]">₪{formatCurrency(Math.floor(track.pmt))}</p>
-              <p className="text-[9px] text-gray-400 text-center">לחודש</p>
-            </div>
+          ))}
+          {/* סה"כ חודשי בולט */}
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#1e3a5f]/5 border-2 border-[#1e3a5f]/20 mt-1">
+            <span className="font-black text-xs text-[#1e3a5f]">סה"כ לחודש</span>
+            <span className="font-black text-base text-[#1e3a5f]">₪{formatCurrency(Math.floor(totalPmt))}</span>
           </div>
-        ))}
       </div>
 
       {/* הסבר אסטרטגי — ניתן לפתוח/סגור */}
