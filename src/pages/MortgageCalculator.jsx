@@ -1434,11 +1434,10 @@ ${results.score}/100
                 <div className="mt-8 sm:mt-12">
                   <NegotiationPack 
                     formData={formData} 
-                    results={results} 
+                    results={{ ...results, aiAnalysis }}
                     selectedMix={results.mixB}
                     fullName={fullName}
                     borrowers={borrowers}
-                    aiAnalysis={aiAnalysis}
                   />
                 </div>
               )}
