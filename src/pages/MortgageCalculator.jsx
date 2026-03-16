@@ -225,6 +225,22 @@ export default function MortgageCalculator() {
   const needsExistingProperty = !isRefinance && !isReverseMortgage && !isSeniorBankMortgage &&
     ['purchase_improve', 'purchase_additional', 'any_purpose'].includes(formData.mortgageType);
 
+  // נכס קיים ראשון (backward compat לטפסים שמשתמשים ב-existingProperty יחיד)
+  const existingProperty = existingProperties[0] || {};
+  const setExistingProperty = (val) => setExistingProperties(prev => [val, ...prev.slice(1)]);
+
+  // סה"כ החזרים חודשיים של נכסים קיימים (ללא הסכם מכירה)
+  const totalExistingMortgagePayments = existingProperties.reduce((acc, prop) => {
+    if (prop.hasExistingMortgage === 'yes' && prop.existingMortgagePayment && prop.hasSaleAgreement !== 'yes') {
+      return acc + Number(String(prop.existingMortgagePayment || '0').replace(/,/g, ''));
+    }
+    return acc;
+  }, 0);
+
+  const addExistingProperty = () => setExistingProperties(prev => [...prev, {}]);
+  const removeExistingProperty = (idx) => setExistingProperties(prev => prev.filter((_, i) => i !== idx));
+  const updateExistingProperty = (idx, val) => setExistingProperties(prev => prev.map((p, i) => i === idx ? val : p));
+
   // חישוב פער השלמת עסקה
   const equityGap = useMemo(() => {
     if (isRefinance || isReverseMortgage) return 0;
