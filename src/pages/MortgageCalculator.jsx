@@ -157,6 +157,8 @@ export default function MortgageCalculator() {
     if (fieldErrors[name]) setFieldErrors(prev => ({ ...prev, [name]: null }));
   };
 
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
   const startVerification = () => {
     const errors = {};
     if (!formData.firstName || formData.firstName.trim().length < 2) errors.firstName = "אנא הזן שם פרטי תקין";
