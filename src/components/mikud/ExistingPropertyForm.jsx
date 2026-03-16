@@ -32,14 +32,14 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
 
       {/* פרטי הנכס */}
       <PremiumInput
-        label="שווי שוק משוער של הנכס הקיים"
+        label="שווי / מחיר הנכס הקיים (₪)"
         name="existingPropertyValue"
         value={data.existingPropertyValue || ''}
-        placeholder="הזן שווי שוק נוכחי"
+        placeholder="שווי שוק / מחיר מכירה מוסכם"
         icon={Home}
         onChange={update}
         error={errors.existingPropertyValue}
-        tooltip="שווי הנכס הקיים לפי הערכת שוק עדכנית"
+        tooltip="שווי שוק נוכחי או מחיר מכירה — אותו מספר, אחד מספיק"
       />
 
       <PremiumInput
