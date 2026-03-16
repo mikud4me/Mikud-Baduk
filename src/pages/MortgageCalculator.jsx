@@ -1122,7 +1122,7 @@ ${results.score}/100
             <div className="mt-12 flex gap-4 text-right" dir="rtl">
               {step > 1 && (
                 <button 
-                  onClick={() => {if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1);}} 
+                  onClick={() => { if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1); scrollToTop(); }} 
                   className="flex-1 h-14 rounded-full font-bold text-base text-gray-600 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 text-center group"
                 >
                   <span className="group-hover:-translate-x-1 inline-block transition-transform">← חזור</span>
