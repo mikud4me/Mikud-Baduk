@@ -1,626 +1,574 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const formatCurrency = (val) => {
-  if (!val || isNaN(val)) return "0";
-  return new Intl.NumberFormat('he-IL').format(Math.floor(val));
+const fmt = (val) => {
+  if (!val || isNaN(val)) return '0';
+  return new Intl.NumberFormat('he-IL').format(Math.floor(Number(val)));
 };
 
-const buildDocsList = (borrowers = [], formData = {}) => {
-  const allTypes = borrowers.flatMap(b => b.employmentTypes || []);
-  const hasEmployee = allTypes.includes('employee');
-  const hasSelfEmployed = allTypes.some(t => ['self_employed', 'controlling_shareholder'].includes(t));
-  const hasForeignIncome = allTypes.includes('foreign_income');
-  const hasPensioner = allTypes.includes('pensioner');
-  const isRefinance = formData.mortgageType === 'refinance';
-  const isReverse = formData.mortgageType === 'reverse_mortgage';
-  const isSenior = formData.mortgageType === 'senior_bank';
-
-  const extraIncomeSources = borrowers.flatMap(b => {
-    const sources = b.incomeSources || {};
-    return Object.entries(sources)
-      .filter(([key, src]) => src?.enabled && ['rent','national_insurance','disability','child_allowance'].includes(key))
-      .map(([key]) => key);
-  });
-  const hasRent = extraIncomeSources.includes('rent');
-  const hasDisability = extraIncomeSources.includes('disability');
-  const hasNationalInsurance = extraIncomeSources.includes('national_insurance');
-
-  if (isReverse || isSenior) {
-    return [
-      { title: 'מסמכים בסיסיים — חובה', color: '#1e3a5f', docs: [
-        'תעודת זהות + ספח מעודכן (לכל לווה)',
-        'דפי עו"ש 3 חודשים אחרונים',
-        'נסח טאבו מעודכן',
-        'שמאות נכס (תואם מוסד פיננסי)',
-        'אישור קצבה/פנסיה חודשית',
-        'אישור הסכמת יורשים/ילדים (חתום)',
-        'דוח נתוני אשראי BDI',
-      ]}
-    ];
-  }
-
-  if (isRefinance) {
-    return [
-      { title: 'מסמכים למחזור משכנתא', color: '#1e3a5f', docs: [
-        'תעודת זהות + ספח מעודכן (לכל לווה)',
-        'יתרת סילוק משכנתא מהבנק (מסמך רשמי)',
-        '3 תלושי שכר אחרונים (לכל לווה שכיר)',
-        'דפי בנק 3 חודשים אחרונים',
-        'נסח טאבו מעודכן',
-        'אישור BDI / דוח נתוני אשראי',
-      ]}
-    ];
-  }
-
-  const groups = [
-    { title: 'מסמכי בסיס — חובה לכולם', color: '#1e3a5f', docs: [
-      'תעודת זהות + ספח מעודכן (לכל לווה)',
-      'דפי עו"ש 3 חודשים אחרונים',
-      'דוח נתוני אשראי BDI',
-      'נסח טאבו / נסח בית משותף מעודכן',
-      'חוזה רכישה / הסכם מכר',
-      'שמאות נכס (תואם מוסד פיננסי)',
-    ]},
-  ];
-
-  if (hasEmployee) groups.push({ title: 'שכיר/ה', color: '#1d4ed8', docs: [
-    '3 תלושי שכר אחרונים',
-    'אישור מעסיק על המשך העסקה',
-  ]});
-
-  if (hasSelfEmployed) groups.push({ title: 'עצמאי/ת / בעל שליטה', color: '#7c3aed', docs: [
-    'שומות מס הכנסה 2 שנים אחרונות + אישור רו"ח',
-    'דפי עו"ש עסקי 3 חודשים אחרונים',
-  ]});
-
-  if (hasPensioner) groups.push({ title: 'פנסיונר/ית', color: '#16a34a', docs: [
-    'אישור קצבה/גמלה חודשית מקרן פנסיה / ביטוח לאומי',
-    'אישור יתרת זכויות קרן פנסיה',
-  ]});
-
-  if (hasForeignIncome) groups.push({ title: 'הכנסה מחו"ל', color: '#ea580c', docs: [
-    'Pay Stubs / תלושי שכר + תרגום נוטריוני',
-    'אישור ניכוי מס במקור (אם רלוונטי)',
-  ]});
-
-  const extraDocs = [];
-  if (hasRent) extraDocs.push('חוזה שכירות פעיל + קבלות תשלום', 'אישור תשלום מס על הכנסה מדמי שכירות');
-  if (hasDisability) extraDocs.push('אישור קצבת נכות מביטוח לאומי');
-  if (hasNationalInsurance) extraDocs.push('אישור קצבה מביטוח לאומי');
-  if (extraDocs.length > 0) groups.push({ title: 'הכנסות נוספות', color: '#b45309', docs: extraDocs });
-
-  return groups;
+const TRACK_LABELS = {
+  prime: 'פריים (Prime)',
+  fixed: 'קבועה לא צמודה (קל"צ)',
+  variable_5: 'משתנה כל 5 שנים',
+  variable_every_5: 'משתנה כל 5 שנים צמודה',
+  eligibility: 'זכאות',
+  cpi_fixed: 'קבועה צמודה',
+  cpi_variable: 'משתנה צמודה',
 };
 
 Deno.serve(async (req) => {
   try {
-    const body = await req.json();
-    const { formData, results, fullName, borrowers = [], aiAnalysis } = body;
+    const { formData, results, fullName, borrowers = [] } = await req.json();
 
     const isRefinance = formData?.mortgageType === 'refinance';
     const today = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+    const name = fullName || formData?.fullName || 'לקוח';
 
-    const loanStr = formatCurrency(isRefinance ? results.balance : results.loanAmount);
-    const propStr = formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')));
+    // --- helpers ---
+    const empLabel = (types = []) => types.map(t => ({
+      employee: 'שכיר/ה', self_employed: 'עצמאי/ת',
+      controlling_shareholder: 'בעל שליטה', foreign_income: 'הכנסה מחו"ל', pensioner: 'פנסיונר/ית'
+    }[t] || t)).join(', ');
 
-    const mortgageTypeLabel = {
-      purchase_first: 'רכישת דירה ראשונה',
-      purchase_improve: 'משפרי דיור / חליפית',
-      purchase_additional: 'נכס נוסף / דירה להשקעה',
-      any_purpose: 'כל מטרה',
-      reverse_mortgage: 'משכנתא הפוכה',
-      senior_bank: 'משכנתא לגיל הזהב',
-      refinance: 'מחזור משכנתא',
-    }[formData.mortgageType] || formData.mortgageType;
+    const creditLabel = (c) => c === 'clean' ? 'תקין ✓' : 'דורש בדיקה';
 
-    // ─── תמהילים (ללא ריביות ספציפיות במכתב) ───────────────────
-    const mixes = [
-      { label: isRefinance ? (results.mixB?.label || 'תמהיל מאוזן — מומלץ') : 'תמהיל אסטרטגי — מותאם אישית', tracks: results.mixB?.tracks || [], total: results.mixB?.total, highlight: true, badge: '★ מומלץ' },
-      { label: isRefinance ? (results.mixA?.label || 'תמהיל שמרני') : 'תמהיל שמרני — קבועה', tracks: results.mixA?.tracks || [], total: results.mixA?.total, highlight: false },
-      { label: isRefinance ? (results.mixC?.label || 'תמהיל פריים') : 'תמהיל פריים — גמיש', tracks: results.mixC?.tracks || [], total: results.mixC?.total, highlight: false },
-    ];
+    // --- doc groups by employment ---
+    const allEmpTypes = borrowers.flatMap(b => b.employmentTypes || []);
+    const hasEmployee = allEmpTypes.includes('employee');
+    const hasSelf = allEmpTypes.some(t => ['self_employed','controlling_shareholder'].includes(t));
+    const hasPensioner = allEmpTypes.includes('pensioner');
+    const hasForeign = allEmpTypes.includes('foreign_income');
+    const hasCreditIssues = borrowers.some(b => b.creditHistory === 'issues');
 
-    const mixRows = mixes.filter(m => m.tracks.length > 0).map(mix => `
-      <div class="mix-card ${mix.highlight ? 'mix-recommended' : ''}">
-        <div class="mix-title">
-          ${mix.badge ? `<span class="mix-badge">${mix.badge}</span>` : ''}
-          ${mix.label}
-        </div>
-        <table class="mix-table">
-          <thead>
-            <tr>
-              <th>מסלול</th>
-              <th>סכום</th>
-              <th>ריבית</th>
-              <th>החזר חודשי</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${mix.tracks.map(t => `
-              <tr>
-                <td>${t.name}</td>
-                <td>₪${formatCurrency(t.amount)}</td>
-                <td>${(t.rate * 100).toFixed(2)}%</td>
-                <td>₪${formatCurrency(Math.floor(t.pmt))}</td>
+    // --- Mix table HTML ---
+    const mixTable = (mix, label, isRec) => {
+      const border = isRec ? '#c9a961' : '#d1d5db';
+      const headerBg = isRec ? '#1e3a5f' : '#f3f4f6';
+      const headerColor = isRec ? '#ffffff' : '#1e3a5f';
+      const badge = isRec ? `<span style="background:#c9a961;color:#1e3a5f;font-size:9px;font-weight:900;padding:2px 8px;border-radius:999px;margin-right:8px;">★ מומלץ</span>` : '';
+      const tracks = (mix?.tracks || []);
+      const total = mix?.total || 0;
+      const rows = tracks.map(t => `
+        <tr>
+          <td style="padding:6px 10px;font-size:11px;color:#374151;border-bottom:1px solid #f3f4f6;">${t.name || ''}</td>
+          <td style="padding:6px 10px;font-size:11px;text-align:center;color:#c9a961;font-weight:700;border-bottom:1px solid #f3f4f6;">${t.rate ? (t.rate * 100).toFixed(2) + '%' : '—'}</td>
+          <td style="padding:6px 10px;font-size:11px;text-align:center;border-bottom:1px solid #f3f4f6;">${t.years || '—'} שנה</td>
+          <td style="padding:6px 10px;font-size:12px;font-weight:700;text-align:left;color:#1e3a5f;border-bottom:1px solid #f3f4f6;">₪${fmt(t.pmt)}</td>
+        </tr>
+      `).join('');
+      return `
+        <div style="border:2px solid ${border};border-radius:12px;overflow:hidden;margin-bottom:16px;break-inside:avoid;">
+          <div style="background:${headerBg};padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:13px;font-weight:900;color:${headerColor};">${badge}${label}</span>
+            <span style="font-size:18px;font-weight:900;color:${isRec ? '#c9a961' : '#1e3a5f'};">₪${fmt(total)} / חודש</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse;background:#fff;">
+            <thead>
+              <tr style="background:#f9fafb;">
+                <th style="padding:6px 10px;font-size:10px;color:#6b7280;text-align:right;">מסלול</th>
+                <th style="padding:6px 10px;font-size:10px;color:#6b7280;text-align:center;">ריבית</th>
+                <th style="padding:6px 10px;font-size:10px;color:#6b7280;text-align:center;">תקופה</th>
+                <th style="padding:6px 10px;font-size:10px;color:#6b7280;text-align:left;">החזר</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        <div class="mix-total">סה"כ החזר חודשי: <strong>₪${formatCurrency(Math.floor(mix.total))}</strong></div>
-      </div>
-    `).join('');
-
-    // ─── פרטי תיק ───────────────────────────────────────────────
-    const detailsRows = isRefinance ? `
-      <tr><td class="label">לווה</td><td>${fullName}</td></tr>
-      <tr><td class="label">יתרת משכנתא קיימת</td><td>₪${loanStr}</td></tr>
-      <tr><td class="label">החזר חודשי נוכחי</td><td>₪${formatCurrency(results.currentMonthly)}</td></tr>
-      <tr><td class="label">ריבית משוערת קיימת</td><td>${results.impliedRate?.toFixed(2)}%</td></tr>
-      <tr><td class="label">שנים שנשארו</td><td>${results.remainingYears} שנים</td></tr>
-      <tr><td class="label">חיסכון חודשי צפוי</td><td class="savings">₪${formatCurrency(results.monthlySaving)}</td></tr>
-    ` : `
-      <tr><td class="label">לווה</td><td>${fullName}</td></tr>
-      <tr><td class="label">סכום מבוקש</td><td>₪${loanStr}</td></tr>
-      <tr><td class="label">שווי נכס</td><td>₪${propStr}</td></tr>
-      <tr><td class="label">אחוז מימון (LTV)</td><td>${results.ltv?.toFixed(1)}%</td></tr>
-      <tr><td class="label">יחס החזר (DTI)</td><td>${results.dti?.toFixed(1)}%</td></tr>
-      <tr><td class="label">תקופת הלוואה</td><td>${formData.loanDuration} שנים</td></tr>
-      <tr><td class="label">מטרת ההלוואה</td><td>${mortgageTypeLabel}</td></tr>
-    `;
-
-    // ─── רשימת מסמכים ───────────────────────────────────────────
-    const docGroups = buildDocsList(borrowers, formData);
-    const docsHtml = docGroups.map(group => `
-      <div class="doc-group no-break">
-        <div class="doc-group-title" style="background:${group.color}">${group.title}</div>
-        <ul class="doc-list">
-          ${group.docs.map((d, i) => `<li><span class="doc-num">${i+1}</span>${d}</li>`).join('')}
-        </ul>
-      </div>
-    `).join('');
-
-    // ─── ניתוח מקצועי ───────────────────────────────────────────
-    const analysisHtml = aiAnalysis
-      ? aiAnalysis.split('\n').filter(l => l.trim()).map(line => {
-          // כותרת שורה (מתחילה במספר ונקודה)
-          if (/^\d+\./.test(line.trim())) {
-            return `<p class="analysis-heading">${line.trim()}</p>`;
-          }
-          return `<p class="analysis-line">${line.trim()}</p>`;
-        }).join('')
-      : `<p class="analysis-line">הניתוח המקצועי המלא מוצג בממשק הדיגיטלי. פנה ליועץ מיקוד לקבלת ניתוח מפורט נוסף.</p>`;
+            </thead>
+            <tbody>${rows}</tbody>
+            <tfoot>
+              <tr style="background:#1e3a5f;">
+                <td colspan="3" style="padding:8px 10px;font-size:12px;font-weight:900;color:#ffffff;">סה"כ החזר חודשי</td>
+                <td style="padding:8px 10px;font-size:14px;font-weight:900;color:#c9a961;text-align:left;">₪${fmt(total)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      `;
+    };
 
     const html = `<!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"/>
+<title>דוח משכנתא — ${name}</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&display=swap');
-  
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  body {
-    font-family: 'Heebo', Arial, sans-serif;
-    direction: rtl;
-    color: #1a1a2e;
-    background: #fff;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-
-  .page { page-break-after: always; padding: 0; }
-  .page:last-child { page-break-after: avoid; }
-  .no-break { page-break-inside: avoid; }
-
-  .header {
-    background: #1e3a5f;
-    color: white;
-    padding: 14px 30px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .header-brand { color: #c9a961; font-size: 17px; font-weight: 900; }
-  .header-subtitle { color: rgba(255,255,255,0.65); font-size: 9px; margin-top: 2px; }
-  .header-page-title { color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600; }
-  .gold-bar { height: 3px; background: linear-gradient(to left, #1e3a5f, #c9a961, #1e3a5f); }
-
-  .footer {
-    background: #1e3a5f;
-    color: #c9a961;
-    text-align: center;
-    padding: 8px;
-    font-size: 9px;
-    font-weight: 700;
-    margin-top: 16px;
-  }
-
-  .page-content { padding: 22px 32px; }
-
-  /* ── עמוד 1: מכתב ── */
-  .date-line { color: #888; font-size: 10px; margin-bottom: 14px; }
-  .recipient { margin-bottom: 14px; }
-  .recipient p { font-size: 12px; }
-  .recipient strong { color: #1e3a5f; font-size: 13px; }
-  .subject-box { background: #f8f5f0; border: 1.5px solid #c9a961; border-radius: 6px; padding: 9px 16px; margin-bottom: 16px; text-align: center; }
-  .subject-box strong { color: #1e3a5f; font-size: 13px; }
-  .body-text { margin-bottom: 14px; font-size: 12px; color: #333; line-height: 1.7; }
-  .details-box { background: #f8fafc; border: 1px solid #ddd; border-radius: 6px; padding: 14px 18px; margin-bottom: 14px; }
-  .details-box h4 { color: #1e3a5f; font-size: 10px; font-weight: 700; text-align: center; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #eee; }
-  .details-box table { width: 100%; border-collapse: collapse; }
-  .details-box td { padding: 4px 8px; font-size: 12px; }
-  .details-box td.label { color: #666; font-weight: 600; width: 45%; }
-  .details-box .savings { color: #16a34a; font-weight: 700; }
-
-  /* תיבת בקשה גנרית ללא ריביות */
-  .request-box { background: #1e3a5f; border-radius: 6px; padding: 11px 18px; margin-bottom: 14px; color: white; text-align: center; }
-  .request-box .r-title { color: #c9a961; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
-  .request-box .r-text { font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.6; }
-
-  .strengths { margin-bottom: 14px; }
-  .strengths h4 { color: #1e3a5f; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
-  .strengths ul { list-style: none; padding: 0; }
-  .strengths li { font-size: 11px; color: #333; padding: 2px 0; }
-  .strengths li::before { content: "✓ "; color: #16a34a; font-weight: 700; }
-  .closing { font-size: 11px; color: #333; margin-bottom: 14px; line-height: 1.7; }
-  .divider { border: none; border-top: 1px solid #ddd; margin: 14px 0; }
-  .signature { font-size: 11px; color: #333; }
-  .signature strong { color: #1e3a5f; }
-
-  /* ── עמוד 2: תמהילים ── */
-  .page-title { text-align: center; color: #1e3a5f; font-size: 19px; font-weight: 900; margin-bottom: 4px; }
-  .page-sub { text-align: center; color: #888; font-size: 11px; margin-bottom: 18px; }
-
-  .mix-card { border: 1.5px solid #ddd; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
-  .mix-card.mix-recommended { border-color: #c9a961; box-shadow: 0 2px 10px rgba(201,169,97,0.25); }
-  .mix-title { background: #f0f4f8; color: #1e3a5f; font-weight: 700; font-size: 12px; padding: 8px 14px; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 8px; }
-  .mix-recommended .mix-title { background: #1e3a5f; color: #c9a961; }
-  .mix-badge { background: #c9a961; color: #1e3a5f; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 10px; }
-  .mix-recommended .mix-badge { background: white; }
-  .mix-table { width: 100%; border-collapse: collapse; }
-  .mix-table th { background: #f8fafc; color: #1e3a5f; font-size: 10px; font-weight: 700; padding: 5px 12px; text-align: right; border-bottom: 1px solid #eee; }
-  .mix-recommended .mix-table th { background: #162d4a; color: #c9a961; }
-  .mix-table td { padding: 5px 12px; font-size: 11px; border-bottom: 1px solid #f0f0f0; }
-  .mix-table tr:last-child td { border-bottom: none; }
-  .mix-total { text-align: left; padding: 6px 14px; font-size: 11px; color: #1e3a5f; background: #fafafa; border-top: 1px solid #eee; }
-  .mix-recommended .mix-total { background: #162d4a; color: #c9a961; }
-
-  .score-box { background: #f8f5f0; border: 1.5px solid #c9a961; border-radius: 6px; padding: 10px 18px; text-align: center; font-size: 12px; color: #1e3a5f; font-weight: 700; margin-top: 8px; }
-
-  /* ── עמוד 3: ניתוח מקצועי ── */
-  .analysis-heading { font-size: 12px; font-weight: 900; color: #1e3a5f; margin-top: 12px; margin-bottom: 4px; border-right: 3px solid #c9a961; padding-right: 8px; }
-  .analysis-line { font-size: 11.5px; color: #333; margin-bottom: 4px; line-height: 1.7; }
-
-  /* ── עמוד 4: תסריט שיחה ── */
-  .script-step { border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
-  .script-step-title { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-  .script-step-text { font-size: 11.5px; line-height: 1.7; font-style: italic; color: #333; }
-  .step-open { background: #eff6ff; border-right: 4px solid #1e3a5f; }
-  .step-credibility { background: #f0fdf4; border-right: 4px solid #16a34a; }
-  .step-ask { background: #fefce8; border-right: 4px solid #c9a961; }
-  .step-objection { background: #fef2f2; border-right: 4px solid #dc2626; }
-  .step-close { background: #f0fdf4; border-right: 4px solid #16a34a; }
-
-  /* ── עמוד 5: מסמכים ── */
-  .doc-group { margin-bottom: 14px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; }
-  .doc-group-title { color: white; font-size: 11px; font-weight: 700; padding: 7px 14px; }
-  .doc-list { list-style: none; padding: 10px 14px; background: #fafafa; }
-  .doc-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: #333; padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
-  .doc-list li:last-child { border-bottom: none; }
-  .doc-num { background: #1e3a5f; color: #c9a961; font-size: 9px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-
-  /* ── עמוד 6: תודה ── */
-  .page-last { background: #1e3a5f; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 40px; text-align: center; color: white; }
-  .page-last .brand { color: #c9a961; font-size: 22px; font-weight: 900; margin-bottom: 4px; }
-  .page-last .tagline { color: rgba(255,255,255,0.6); font-size: 11px; margin-bottom: 24px; }
-  .gold-line { width: 80px; height: 2px; background: #c9a961; margin: 16px auto; }
-  .page-last .thank-you { color: #c9a961; font-size: 30px; font-weight: 900; margin-bottom: 12px; }
-  .page-last .desc { font-size: 12.5px; color: rgba(255,255,255,0.85); margin-bottom: 24px; line-height: 1.8; }
-  .summary-grid { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
-  .summary-item { background: rgba(255,255,255,0.08); border: 1px solid rgba(201,169,97,0.3); border-radius: 8px; padding: 12px 20px; min-width: 120px; }
-  .summary-item .s-label { color: rgba(255,255,255,0.55); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-  .summary-item .s-val { color: white; font-size: 14px; font-weight: 700; }
-  .cta-section { margin-top: 8px; }
-  .cta-section p { color: #c9a961; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
-  .phone-big { color: #c9a961; font-size: 48px; font-weight: 900; letter-spacing: 3px; }
-  .small-note { color: rgba(255,255,255,0.4); font-size: 9px; margin-top: 16px; }
-
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, 'Helvetica Neue', sans-serif; font-size: 13px; color: #1a1a1a; background: #fff; direction: rtl; }
+  .page { width: 210mm; min-height: 297mm; padding: 18mm 16mm; page-break-after: always; position: relative; }
+  .page:last-child { page-break-after: auto; }
   @media print {
-    @page { margin: 0; size: A4; }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { page-break-after: always; }
-    .page:last-child { page-break-after: avoid; }
-    .no-break { page-break-inside: avoid; }
+    body { margin: 0; }
+    .page { page-break-after: always; padding: 14mm 14mm; }
   }
+  h1 { font-size: 26px; font-weight: 900; color: #1e3a5f; }
+  h2 { font-size: 18px; font-weight: 900; color: #1e3a5f; margin-bottom: 12px; }
+  h3 { font-size: 14px; font-weight: 700; color: #1e3a5f; margin-bottom: 8px; }
+  .gold { color: #c9a961; }
+  .header-bar { background: linear-gradient(135deg, #1e3a5f, #162e4a); color: #fff; padding: 18px 22px; border-radius: 10px; margin-bottom: 20px; }
+  .header-bar .sub { color: #c9a961; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .section { margin-bottom: 20px; }
+  .label { font-size: 10px; color: #6b7280; font-weight: 600; margin-bottom: 2px; }
+  .value { font-size: 13px; font-weight: 700; color: #1e3a5f; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .card { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; }
+  .card-blue { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 14px; }
+  .card-green { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px 14px; }
+  .card-red { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 14px; }
+  .card-gold { background: #fffbeb; border: 2px solid #c9a961; border-radius: 8px; padding: 12px 14px; }
+  .big-num { font-size: 28px; font-weight: 900; color: #1e3a5f; line-height: 1; }
+  .badge { display: inline-block; background: #1e3a5f; color: #c9a961; font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 999px; margin-bottom: 6px; }
+  .divider { border: none; border-top: 2px solid #e5e7eb; margin: 16px 0; }
+  .step-box { border-right: 4px solid #1e3a5f; padding: 10px 14px; margin-bottom: 12px; background: #f8fafc; border-radius: 0 8px 8px 0; }
+  .step-box.gold-border { border-right-color: #c9a961; }
+  .step-box.red-border { border-right-color: #ef4444; }
+  .step-box.green-border { border-right-color: #22c55e; }
+  .doc-group { margin-bottom: 14px; }
+  .doc-group-header { padding: 6px 12px; border-radius: 6px 6px 0 0; font-size: 11px; font-weight: 900; }
+  .doc-item { padding: 5px 12px; font-size: 11px; border-right: 3px solid #e5e7eb; margin-bottom: 2px; }
+  .footer { position: absolute; bottom: 12mm; left: 16mm; right: 16mm; text-align: center; font-size: 9px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 6px; }
+  .page-num { position: absolute; top: 10mm; left: 16mm; font-size: 9px; color: #9ca3af; }
+  ul { padding-right: 18px; }
+  li { margin-bottom: 4px; font-size: 12px; line-height: 1.5; }
+  .analysis-text { font-size: 12px; line-height: 1.8; color: #374151; white-space: pre-line; }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- עמוד 1 — מכתב לבנק (ללא ריביות ספציפיות) -->
-<!-- ═══════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════
+     עמוד 1 — נתוני לקוח + תוצאת כשירות
+═══════════════════════════════════════════════════ -->
 <div class="page">
-  <div class="header">
-    <div>
-      <div class="header-brand">מיקוד משכנתאות</div>
-      <div class="header-subtitle">המטרה שלנו, החיסכון שלכם</div>
-    </div>
-    <div class="header-page-title">מכתב פנייה לבנק</div>
+  <div class="page-num">1 / 6</div>
+
+  <div class="header-bar">
+    <div class="sub">מיקוד משכנתאות — המטרה שלנו, החיסכון שלכם</div>
+    <h1 style="color:#fff;margin-bottom:4px;">דוח היתכנות משכנתא</h1>
+    <div style="font-size:12px;color:#c9a961;font-weight:700;">${name} &nbsp;|&nbsp; ${today}</div>
   </div>
-  <div class="gold-bar"></div>
 
-  <div class="page-content">
-    <p class="date-line">${today}</p>
-
-    <div class="recipient no-break">
-      <p>לכבוד,</p>
-      <p>מנהל/ת תחום משכנתאות</p>
-      <strong>[שם הבנק]</strong>
-    </div>
-
-    <div class="subject-box no-break">
-      <strong>הנדון: ${isRefinance ? `בקשה למחזור משכנתא — ${fullName}` : `בקשה לאישור עקרוני למשכנתא — ${fullName}`}</strong>
-    </div>
-
-    <p class="body-text">שלום רב,<br>
-    ${isRefinance
-      ? `הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>${fullName}</strong>, ביתרה של ₪${loanStr} בתנאים המפורטים להלן.`
-      : `הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>${fullName}</strong>, בתנאים המפורטים להלן.`
-    }</p>
-
-    <div class="details-box no-break">
-      <h4>פרטי התיק</h4>
-      <table><tbody>${detailsRows}</tbody></table>
-    </div>
-
-    <div class="request-box no-break">
-      <div class="r-title">בקשת הצעת ריבית</div>
-      <div class="r-text">אבקש לקבל את הצעת הריבית התחרותית ביותר שהבנק יכול להציע לתיק זה, בהתאם לנתוני הפרופיל ולמדיניות המוסד הפיננסי.</div>
-    </div>
-
-    <div class="strengths no-break">
-      <h4>נקודות חוזק התיק:</h4>
-      <ul>
-        ${isRefinance ? `
-          <li>חיסכון חודשי צפוי של ₪${formatCurrency(results.monthlySaving)} לאורך כל התקופה</li>
-          <li>יתרת משכנתא ₪${formatCurrency(results.balance)} עם ${results.remainingYears} שנים שנותרו</li>
-          <li>היסטוריית אשראי תקינה</li>
-          <li>לקוח קיים עם מוניטין פירעון תקין</li>
-        ` : `
-          <li>יחס החזר (DTI) של ${results.dti?.toFixed(1)}% — מתחת לתקרת בנק ישראל (40%)</li>
-          <li>אחוז מימון (LTV) של ${results.ltv?.toFixed(1)}% — מתחת לתקרה המקסימלית</li>
-          <li>היסטוריית אשראי תקינה</li>
-          <li>תיק מסודר — כל המסמכים מוכנים להגשה</li>
-        `}
-      </ul>
-    </div>
-
-    <p class="closing">
-      אבקש לקבל הצעת ריבית עקרונית בכתב תוך <strong>5 ימי עסקים</strong>. 
-      ${isRefinance ? 'אני בוחן הצעות ממספר בנקים ואשמח לשמוע את ההצעה הטובה ביותר שלכם.' : 'פניתי למספר בנקים ואבחר את ההצעה המשתלמת ביותר.'}
-      אשמח לשלוח את מלוא מסמכי ההגשה בעקבות הצעתכם.
-    </p>
-
-    <hr class="divider">
-    <div class="signature no-break">
-      <p><strong>בכבוד רב,</strong></p>
-      <p>${fullName}</p>
-      ${formData.phone ? `<p>טל׳: ${formData.phone}</p>` : ''}
-      ${formData.email ? `<p>דוא"ל: ${formData.email}</p>` : ''}
+  <!-- פרטי לקוח -->
+  <div class="section">
+    <h2>פרטי הלקוח</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="label">שם מלא</div>
+        <div class="value">${name}</div>
+      </div>
+      <div class="card">
+        <div class="label">ת.ז.</div>
+        <div class="value">${formData?.idNumber || '—'}</div>
+      </div>
+      <div class="card">
+        <div class="label">טלפון</div>
+        <div class="value" dir="ltr">${formData?.phone || '—'}</div>
+      </div>
+      <div class="card">
+        <div class="label">דוא"ל</div>
+        <div class="value">${formData?.email || '—'}</div>
+      </div>
+      <div class="card">
+        <div class="label">גיל</div>
+        <div class="value">${formData?.age || '—'}</div>
+      </div>
+      <div class="card">
+        <div class="label">מצב משפחתי</div>
+        <div class="value">${{single:'רווק/ה',married:'נשוי/אה',divorced:'גרוש/ה',widowed:'אלמן/ה'}[borrowers[0]?.maritalStatus] || '—'}</div>
+      </div>
     </div>
   </div>
 
-  <div class="footer">מיקוד משכנתאות — המטרה שלנו, החיסכון שלכם &nbsp;|&nbsp; *2324</div>
-</div>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- עמוד 2 — תמהילים + סימון מומלץ -->
-<!-- ═══════════════════════════════════════ -->
-<div class="page">
-  <div class="header">
-    <div>
-      <div class="header-brand">מיקוד משכנתאות</div>
-      <div class="header-subtitle">המטרה שלנו, החיסכון שלכם</div>
-    </div>
-    <div class="header-page-title">השוואת תמהילים</div>
+  <!-- לווים -->
+  ${borrowers.length > 0 ? `
+  <div class="section">
+    <h2>פרופיל לווים</h2>
+    ${borrowers.map((b, i) => {
+      const sources = b.incomeSources || {};
+      const total = Object.values(sources).reduce((acc, s) => acc + Number(String(s?.amount || '0').replace(/,/g,'')), 0);
+      const factor = i > 0 && b.borrowerType === 'additional' ? 0.5 : 1;
+      return `<div class="card" style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;font-weight:900;color:#1e3a5f;">לווה ${['א','ב','ג','ד','ה'][i] || i+1} ${b.isSpouse ? '(בן/בת זוג)' : i > 0 && b.borrowerType === 'additional' ? '(לווה נוסף — 50%)' : ''}</span>
+          <span style="font-size:12px;font-weight:700;color:#c9a961;">₪${fmt(total * factor)} / חודש מוכר</span>
+        </div>
+        <div style="font-size:11px;color:#6b7280;margin-top:4px;">
+          סוג תעסוקה: ${empLabel(b.employmentTypes)} &nbsp;|&nbsp; היסטוריית אשראי: ${creditLabel(b.creditHistory)}
+        </div>
+      </div>`;
+    }).join('')}
   </div>
-  <div class="gold-bar"></div>
+  ` : ''}
 
-  <div class="page-content">
-    <h2 class="page-title">תמהילי המשכנתא המומלצים</h2>
-    <p class="page-sub">${fullName} &nbsp;|&nbsp; סה"כ: ₪${loanStr} &nbsp;|&nbsp; תקופה: ${formData.loanDuration || results.actualDuration} שנים</p>
-
-    ${mixRows}
-
-    <div class="score-box no-break">
-      ציון איכות התיק: <strong>${results.score}/100</strong>
-      ${!isRefinance ? ` &nbsp;|&nbsp; DTI: ${results.dti?.toFixed(1)}% &nbsp;|&nbsp; LTV: ${results.ltv?.toFixed(1)}%` : ` &nbsp;|&nbsp; חיסכון כולל: ₪${formatCurrency(results.totalSaving)}`}
-    </div>
-
-    <p style="font-size:9px;color:#aaa;text-align:center;margin-top:8px;">★ = תמהיל מומלץ על ידי מיקוד משכנתאות לפרופיל הספציפי שלך. החישוב מבוסס על ריביות עדכניות מבנק ישראל — לצורך הערכה בלבד.</p>
-  </div>
-
-  <div class="footer">מיקוד משכנתאות — המטרה שלנו, החיסכון שלכם &nbsp;|&nbsp; *2324</div>
-</div>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- עמוד 3 — ניתוח מקצועי מלא -->
-<!-- ═══════════════════════════════════════ -->
-<div class="page">
-  <div class="header">
-    <div>
-      <div class="header-brand">מיקוד משכנתאות</div>
-      <div class="header-subtitle">המטרה שלנו, החיסכון שלכם</div>
-    </div>
-    <div class="header-page-title">ניתוח מקצועי</div>
-  </div>
-  <div class="gold-bar"></div>
-
-  <div class="page-content">
-    <h2 class="page-title">ניתוח מקצועי מלא</h2>
-    <p class="page-sub">הוכן על ידי מערכת AI של מיקוד משכנתאות</p>
-    ${analysisHtml}
-  </div>
-
-  <div class="footer">מיקוד משכנתאות — המטרה שלנו, החיסכון שלכם &nbsp;|&nbsp; *2324</div>
-</div>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- עמוד 4 — תסריט שיחה מול הבנקאי -->
-<!-- ═══════════════════════════════════════ -->
-<div class="page">
-  <div class="header">
-    <div>
-      <div class="header-brand">מיקוד משכנתאות</div>
-      <div class="header-subtitle">המטרה שלנו, החיסכון שלכם</div>
-    </div>
-    <div class="header-page-title">תסריט שיחה</div>
-  </div>
-  <div class="gold-bar"></div>
-
-  <div class="page-content">
-    <h2 class="page-title">תסריט השיחה מול הבנקאי</h2>
-    <p class="page-sub">5 שלבים להשגת התנאים הטובים ביותר</p>
-
-    <div class="script-step step-open no-break">
-      <div class="script-step-title" style="color:#1e3a5f">שלב 1 — פתיחה</div>
-      <div class="script-step-text">
-        "${isRefinance
-          ? `שלום, קוראים לי ${fullName || '[שם]'}. יש לי משכנתא קיימת ביתרה של ₪${loanStr} עם ${results.remainingYears} שנים שנותרו. אני בוחן אפשרות למחזור לתנאים טובים יותר. אשמח לשמוע מה הבנק שלכם יכול להציע.`
-          : `שלום, קוראים לי ${fullName || '[שם]'}. אני פונה אליכם בבקשה לאישור עקרוני למשכנתא בסך ₪${loanStr}. יחס המימון עומד על ${results.ltv?.toFixed(1)}% ויחס ההחזר שלי מתחת ל-40%. פניתי למספר בנקים — אשמח לשמוע את הצעתכם.`
-        }"
+  <!-- תוצאת כשירות -->
+  <div class="section">
+    <h2>${isRefinance ? 'תוצאת ניתוח מחזור' : 'תוצאת בדיקת כשירות'}</h2>
+    <div class="grid3">
+      ${!isRefinance ? `
+      <div class="card" style="text-align:center;">
+        <div class="label">יחס החזר (DTI)</div>
+        <div class="big-num" style="color:${(results?.dti||0) > 40 ? '#ef4444' : (results?.dti||0) > 35 ? '#f59e0b' : '#22c55e'};">${(results?.dti||0).toFixed(1)}%</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px;">תקן: עד 40%</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="label">אחוז מימון (LTV)</div>
+        <div class="big-num" style="color:${(results?.ltv||0) > 75 ? '#ef4444' : '#22c55e'};">${(results?.ltv||0).toFixed(1)}%</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px;">מקסימום לפי סוג עסקה</div>
+      </div>
+      ` : `
+      <div class="card" style="text-align:center;">
+        <div class="label">חיסכון חודשי</div>
+        <div class="big-num" style="color:#22c55e;">₪${fmt(results?.monthlySaving)}</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="label">חיסכון כולל</div>
+        <div class="big-num" style="color:#22c55e;">₪${fmt(results?.totalSaving)}</div>
+      </div>
+      `}
+      <div class="card" style="text-align:center;">
+        <div class="label">ציון כשירות</div>
+        <div class="big-num" style="color:${(results?.score||0) >= 80 ? '#22c55e' : (results?.score||0) >= 60 ? '#f59e0b' : '#ef4444'};">${results?.score || 0}</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px;">/100</div>
       </div>
     </div>
 
-    <div class="script-step step-credibility no-break">
-      <div class="script-step-title" style="color:#16a34a">שלב 2 — בניית אמינות</div>
-      <div class="script-step-text">"אני פועל בליווי יועץ משכנתאות מקצועי ויש לי את כל המסמכים מוכנים להגשה מיידית. התיק שלי מוכן ומסודר — מה שמקצר משמעותית את זמן האישור."</div>
+    ${results?.status?.action ? `
+    <div class="card-gold" style="margin-top:12px;">
+      <div style="font-size:11px;font-weight:900;color:#92400e;margin-bottom:4px;">המלצת מיקוד:</div>
+      <div style="font-size:12px;color:#92400e;">${results.status.action}</div>
     </div>
+    ` : ''}
+  </div>
 
-    <div class="script-step step-ask no-break">
-      <div class="script-step-title" style="color:#b45309">שלב 3 — בקשת הצעה</div>
-      <div class="script-step-text">"על בסיס נתוני התיק שלי ונתוני השוק העדכניים, אבקש לקבל את הצעת הריבית הטובה ביותר שאתם יכולים להציע. אני מקבל מספר הצעות ואבחר את המשתלמת ביותר."</div>
-    </div>
-
-    <div class="script-step step-objection no-break">
-      <div class="script-step-title" style="color:#dc2626">שלב 4 — טיפול בהתנגדות</div>
-      <div class="script-step-text">אם הבנקאי אומר "הריבית שלנו גבוהה יותר": <br>"אני מעריך את הכנות. אני מכיר את נתוני השוק ואת ממוצעי הריבית לתיקים בפרופיל שלי. אשמח אם תבדקו שנית — תיקים עם נתונים כמו שלי מקבלים בדרך כלל תנאים טובים יותר."</div>
-    </div>
-
-    <div class="script-step step-close no-break">
-      <div class="script-step-title" style="color:#16a34a">שלב 5 — סגירה</div>
-      <div class="script-step-text">"אשמח לקבל את הצעתכם בכתב תוך יומיים. אני נמצא בתהליך עם מספר בנקים ואקבל החלטה עד סוף השבוע."</div>
-    </div>
-
-    <div style="background:#f8f5f0;border:1.5px solid #c9a961;border-radius:6px;padding:10px 14px;margin-top:10px;">
-      <p style="font-size:11px;color:#1e3a5f;font-weight:700;">טיפ מקצועי ממיקוד</p>
-      <p style="font-size:11px;color:#555;margin-top:4px;">פנה לפחות ל-3 בנקים שונים. ההצעה הכי טובה מגיעה לרוב כשהבנק יודע שיש תחרות.</p>
+  <!-- פרטי עסקה -->
+  <div class="section">
+    <h2>${isRefinance ? 'פרטי המשכנתא הקיימת' : 'פרטי הנכס והמשכנתא'}</h2>
+    <div class="grid2">
+      ${isRefinance ? `
+      <div class="card"><div class="label">יתרת משכנתא</div><div class="value">₪${fmt(results?.balance)}</div></div>
+      <div class="card"><div class="label">החזר חודשי נוכחי</div><div class="value">₪${fmt(results?.currentMonthly)}</div></div>
+      <div class="card"><div class="label">ריבית קיימת משוערת</div><div class="value">${results?.impliedRate?.toFixed(2) || '—'}%</div></div>
+      <div class="card"><div class="label">שנים שנותרו</div><div class="value">${results?.remainingYears || '—'} שנים</div></div>
+      ` : `
+      <div class="card"><div class="label">שווי הנכס</div><div class="value">₪${fmt(Number(String(formData?.propertyPrice||0).replace(/,/g,'')))}</div></div>
+      <div class="card"><div class="label">סכום משכנתא מבוקש</div><div class="value">₪${fmt(results?.loanAmount)}</div></div>
+      <div class="card"><div class="label">הון עצמי</div><div class="value">₪${fmt(Number(String(formData?.equity||0).replace(/,/g,'')))}</div></div>
+      <div class="card"><div class="label">תקופת הלוואה</div><div class="value">${formData?.loanDuration || '—'} שנים</div></div>
+      <div class="card"><div class="label">הכנסה מוכרת לבנק</div><div class="value">₪${fmt(results?.totalIncome)}</div></div>
+      <div class="card"><div class="label">חובות חודשיים</div><div class="value">₪${fmt(Number(String(formData?.monthlyDebts||0).replace(/,/g,'')))}</div></div>
+      `}
     </div>
   </div>
 
-  <div class="footer">מיקוד משכנתאות — המטרה שלנו, החיסכון שלכם &nbsp;|&nbsp; *2324</div>
+  <div class="footer">מיקוד משכנתאות | *2324 | mikud4me.co.il | הדוח הופק בתאריך ${today} | מזהה תיק: MC-${Date.now().toString(36).toUpperCase()}</div>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- עמוד 5 — רשימת מסמכים -->
-<!-- ═══════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════════════
+     עמוד 2 — שלושת התמהילים
+═══════════════════════════════════════════════════ -->
 <div class="page">
-  <div class="header">
-    <div>
-      <div class="header-brand">מיקוד משכנתאות</div>
-      <div class="header-subtitle">המטרה שלנו, החיסכון שלכם</div>
-    </div>
-    <div class="header-page-title">מסמכים נדרשים</div>
-  </div>
-  <div class="gold-bar"></div>
-
-  <div class="page-content">
-    <h2 class="page-title">רשימת מסמכים להגשה</h2>
-    <p class="page-sub">מותאמת אישית לפרופיל הלקוח</p>
-
-    ${docsHtml}
-
-    <div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:6px;padding:10px 14px;margin-top:8px;">
-      <p style="font-size:11px;color:#92400e;font-weight:700;">טיפ מקצועי</p>
-      <p style="font-size:11px;color:#78350f;margin-top:4px;">הכן תיק PDF מסודר עם שם קובץ ברור לכל מסמך. תיק מסודר מקצר את זמן האישור ומשדר אמינות לבנקאי.</p>
-    </div>
+  <div class="page-num">2 / 6</div>
+  <div class="header-bar">
+    <div class="sub">מיקוד משכנתאות — ${name}</div>
+    <h1 style="color:#fff;">תמהילי משכנתא מומלצים</h1>
   </div>
 
-  <div class="footer">מיקוד משכנתאות — המטרה שלנו, החיסכון שלכם &nbsp;|&nbsp; *2324</div>
+  <div style="background:#fffbeb;border:2px solid #c9a961;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#92400e;">
+    <strong>הנחיה חשובה לגבי ריביות:</strong> הריביות המוצגות הן הערכות שוק לצורך השוואה בלבד.
+    <strong>אל תציין ריביות ספציפיות מול הבנק</strong> — תן לבנקאי להציע את הצעתו ותקבל את הטובה ביותר.
+    אם תקבע תקרה עליונה מראש, תגביל את עצמך.
+  </div>
+
+  <div class="section">
+    <h2>תמהיל א׳ — מומלץ (מותאם אישית לפרופילך)</h2>
+    ${mixTable(results?.mixB, isRefinance ? (results?.mixB?.label || 'תמהיל מאוזן') : 'תמהיל אסטרטגי — מותאם אישית', true)}
+  </div>
+
+  <div class="section">
+    <h2>תמהיל ב׳ — שמרני</h2>
+    ${mixTable(results?.mixA, isRefinance ? (results?.mixA?.label || 'תמהיל שמרני') : 'קבועה לא צמודה — יציבות מקסימלית', false)}
+  </div>
+
+  <div class="section">
+    <h2>תמהיל ג׳ — ממונף</h2>
+    ${mixTable(results?.mixC, isRefinance ? (results?.mixC?.label || 'תמהיל ממונף') : 'פריים + קבועה — מיקסום חיסכון', false)}
+  </div>
+
+  <div class="card-gold" style="margin-top:12px;">
+    <strong>סיכום השוואתי:</strong><br/>
+    <span style="font-size:11px;">תמהיל א׳ (מומלץ): ₪${fmt(results?.mixB?.total)} / חודש &nbsp;|&nbsp;
+    תמהיל ב׳ (שמרני): ₪${fmt(results?.mixA?.total)} / חודש &nbsp;|&nbsp;
+    תמהיל ג׳ (ממונף): ₪${fmt(results?.mixC?.total)} / חודש</span>
+  </div>
+
+  <div class="footer">מיקוד משכנתאות | *2324 | mikud4me.co.il</div>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- עמוד 6 — תודה ומיתוג -->
-<!-- ═══════════════════════════════════════ -->
-<div class="page-last">
-  <div class="brand">מיקוד משכנתאות</div>
-  <div class="tagline">המטרה שלנו, החיסכון שלכם &nbsp;·&nbsp; mikud4me.co.il</div>
-  <div class="gold-line"></div>
 
-  <div class="thank-you">תודה, ${fullName}!</div>
-  <p class="desc">
-    דוח זה הוכן עבורך על ידי מיקוד משכנתאות.<br>
-    אנחנו כאן כדי להשיג לך את התנאים הטובים ביותר במערכת הבנקאית.
-  </p>
+<!-- ═══════════════════════════════════════════════════
+     עמוד 3 — ניתוח מקצועי מלא
+═══════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-num">3 / 6</div>
+  <div class="header-bar">
+    <div class="sub">מיקוד משכנתאות — ${name}</div>
+    <h1 style="color:#fff;">ניתוח מקצועי מלא</h1>
+  </div>
 
-  <div class="summary-grid">
-    <div class="summary-item">
-      <div class="s-label">סכום המשכנתא</div>
-      <div class="s-val">₪${loanStr}</div>
-    </div>
-    <div class="summary-item">
-      <div class="s-label">מטרת ההלוואה</div>
-      <div class="s-val">${mortgageTypeLabel}</div>
-    </div>
-    <div class="summary-item">
-      <div class="s-label">ציון התיק</div>
-      <div class="s-val">${results.score}/100</div>
-    </div>
-    <div class="summary-item">
-      <div class="s-label">תאריך הפקה</div>
-      <div class="s-val">${today}</div>
+  <div class="section">
+    <div class="analysis-text">${(results?.aiAnalysis || 'הניתוח יופיע כאן לאחר עיבוד הנתונים.').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+  </div>
+
+  <!-- נקודות חוזק -->
+  <div class="section">
+    <h2>נקודות חוזק מרכזיות</h2>
+    <div class="card-green" style="margin-bottom:8px;">
+      <ul>
+        ${(results?.dti||0) < 35 ? '<li>✓ יחס החזר נמוך (' + (results?.dti||0).toFixed(1) + '%) — מתחת לממוצע בשוק, יתרון משמעותי מול הבנק</li>' : ''}
+        ${(results?.ltv||0) < 70 ? '<li>✓ אחוז מימון נמוך (' + (results?.ltv||0).toFixed(1) + '%) — הון עצמי גבוה מחזק את התיק</li>' : ''}
+        ${borrowers.length > 1 ? '<li>✓ מספר לווים — מחזק את כושר ההחזר המוצג לבנק</li>' : ''}
+        ${!hasCreditIssues ? '<li>✓ היסטוריית אשראי תקינה — ציון חיובי בעיני הבנק</li>' : ''}
+        ${hasEmployee ? '<li>✓ הכנסת שכיר יציבה — בנקים מעדיפים שכירים עם ותק</li>' : ''}
+        <li>✓ תיק מסודר ומוכן — מקצר זמן עיבוד ומשדר אמינות</li>
+      </ul>
     </div>
   </div>
 
-  <div class="gold-line"></div>
+  ${hasCreditIssues ? `
+  <div class="section">
+    <h2>נקודות לשיפור</h2>
+    <div class="card-red">
+      <ul>
+        <li>⚠ היסטוריית אשראי לא תקינה — הכן הסבר בכתב + אסמכתאות סגירת חובות</li>
+      </ul>
+    </div>
+  </div>
+  ` : ''}
 
-  <div class="cta-section">
-    <p>מוכן להתקדם? צור קשר עכשיו:</p>
-    <div class="phone-big">*2324</div>
+  <div class="footer">מיקוד משכנתאות | *2324 | mikud4me.co.il</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     עמוד 4 — מכתב פנייה לבנק
+═══════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-num">4 / 6</div>
+  <div class="header-bar">
+    <div class="sub">מיקוד משכנתאות — ${name}</div>
+    <h1 style="color:#fff;">מכתב פנייה לבנק</h1>
   </div>
 
-  <p class="small-note">ייעוץ חינמי, ללא התחייבות. אנחנו עובדים למענך.</p>
+  <div style="border:1px solid #e5e7eb;border-radius:8px;padding:24px 28px;background:#fff;font-size:13px;line-height:2;">
+    <div style="color:#6b7280;font-size:11px;margin-bottom:16px;">${today}</div>
+
+    <div style="margin-bottom:16px;">
+      <strong>לכבוד,</strong><br/>
+      מנהל/ת תחום משכנתאות<br/>
+      <span style="color:#1e3a5f;font-weight:700;">[שם הבנק]</span>
+    </div>
+
+    <div style="border-right:4px solid #c9a961;padding-right:12px;margin-bottom:16px;">
+      <strong>הנדון: ${isRefinance ? `בקשה למחזור משכנתא — ${name}` : `בקשה לאישור עקרוני למשכנתא — ${name}`}</strong>
+    </div>
+
+    <p>שלום רב,</p>
+    <p style="margin-top:8px;">
+      ${isRefinance
+        ? `הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>${name}</strong>,
+           ביתרה של ₪${fmt(results?.balance)} ועם ${results?.remainingYears || '—'} שנים שנותרו לפירעון.`
+        : `הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>${name}</strong>.`
+      }
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:12px;">
+      <tr style="background:#f3f4f6;">
+        <td style="padding:7px 10px;font-weight:700;color:#1e3a5f;width:45%;">שם לווה</td>
+        <td style="padding:7px 10px;">${name}</td>
+      </tr>
+      ${isRefinance ? `
+      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">יתרת משכנתא קיימת</td><td style="padding:7px 10px;">₪${fmt(results?.balance)}</td></tr>
+      <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">החזר חודשי נוכחי</td><td style="padding:7px 10px;">₪${fmt(results?.currentMonthly)}</td></tr>
+      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">שנים שנותרו</td><td style="padding:7px 10px;">${results?.remainingYears || '—'} שנים</td></tr>
+      ` : `
+      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">סכום מבוקש</td><td style="padding:7px 10px;">₪${fmt(results?.loanAmount)}</td></tr>
+      <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">שווי הנכס</td><td style="padding:7px 10px;">₪${fmt(Number(String(formData?.propertyPrice||0).replace(/,/g,'')))}</td></tr>
+      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">אחוז מימון (LTV)</td><td style="padding:7px 10px;">${(results?.ltv||0).toFixed(1)}%</td></tr>
+      <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">יחס החזר (DTI)</td><td style="padding:7px 10px;">${(results?.dti||0).toFixed(1)}% (תקרה: 40%)</td></tr>
+      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">תקופת הלוואה</td><td style="padding:7px 10px;">${formData?.loanDuration || '—'} שנים</td></tr>
+      <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">מטרת ההלוואה</td><td style="padding:7px 10px;">${{purchase_first:'רכישת דירה ראשונה',purchase_improve:'משפרי דיור',purchase_additional:'נכס להשקעה',any_purpose:'כל מטרה',refinance:'מחזור'}[formData?.mortgageType] || formData?.mortgageType}</td></tr>
+      `}
+    </table>
+
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+      <strong style="color:#1e3a5f;">בקשת הצעת ריבית תחרותית:</strong><br/>
+      <span style="font-size:12px;color:#374151;">אבקש לקבל את הצעת הריבית הטובה ביותר שהבנק יכול להציע, בהתאם לנתוני התיק ולשוק הנוכחי. 
+      הנני פונה למספר בנקים בו-זמנית ואבחר את ההצעה המשתלמת ביותר.</span>
+    </div>
+
+    <p style="margin-bottom:8px;">אבקש לקבל הצעת ריבית עקרונית בכתב תוך <strong>5 ימי עסקים</strong>. אשמח לשלוח את מלוא מסמכי ההגשה בעקבות הצעתכם.</p>
+
+    <div style="margin-top:24px;border-top:1px solid #e5e7eb;padding-top:16px;">
+      <p><strong>בכבוד רב,</strong></p>
+      <p style="margin-top:6px;">${name}</p>
+      ${formData?.phone ? `<p dir="ltr">טל׳: ${formData.phone}</p>` : ''}
+      ${formData?.email ? `<p>דוא"ל: ${formData.email}</p>` : ''}
+    </div>
+  </div>
+
+  <p style="font-size:10px;color:#9ca3af;margin-top:8px;">* מלאו את שם הבנק לפני השליחה. ניתן לשלוח לכמה בנקים במקביל.</p>
+
+  <div class="footer">מיקוד משכנתאות | *2324 | mikud4me.co.il</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     עמוד 5 — תסריט השיחה מול הבנקאי
+═══════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-num">5 / 6</div>
+  <div class="header-bar">
+    <div class="sub">מיקוד משכנתאות — ${name}</div>
+    <h1 style="color:#fff;">תסריט השיחה מול הבנקאי</h1>
+  </div>
+
+  <div style="background:#fffbeb;border:2px solid #c9a961;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#92400e;">
+    <strong>טיפ זהב:</strong> לעולם אל תציין ריביות ספציפיות שאתה "מחפש" — תן לבנק להציע ותהנה מהצעות טובות יותר.
+    ציון מספר מראש רק מגביל אותך.
+  </div>
+
+  <div class="step-box">
+    <h3>שלב 1 — פתיחה</h3>
+    <p style="font-size:12px;font-style:italic;color:#374151;">
+      "${isRefinance
+        ? `שלום, קוראים לי ${name}. יש לי משכנתא קיימת ביתרה של ₪${fmt(results?.balance)} עם ${results?.remainingYears || '—'} שנים שנותרו. אני בוחן אפשרות למחזור לתנאים טובים יותר ואשמח לשמוע מה הבנק שלכם יכול להציע.`
+        : `שלום, קוראים לי ${name}. אני מחפש משכנתא בסך ₪${fmt(results?.loanAmount)} על נכס בשווי ₪${fmt(Number(String(formData?.propertyPrice||0).replace(/,/g,'')))}. יחס ההחזר שלי עומד על ${(results?.dti||0).toFixed(1)}% ופניתי למספר בנקים — אשמח לשמוע את הצעתכם.`
+      }"
+    </p>
+  </div>
+
+  <div class="step-box">
+    <h3>שלב 2 — בניית אמינות</h3>
+    <p style="font-size:12px;font-style:italic;color:#374151;">
+      "אני פועל בליווי יועץ משכנתאות מקצועי ויש לי את כל המסמכים מוכנים להגשה מיידית.
+      התיק שלי מסודר ומלא — מה שמקצר משמעותית את זמן האישור."
+    </p>
+  </div>
+
+  <div class="step-box gold-border">
+    <h3>שלב 3 — בקשת הצעה (חשוב!)</h3>
+    <p style="font-size:12px;font-style:italic;color:#374151;">
+      "על בסיס נתוני התיק שלי ונתוני השוק העדכניים, אבקש לקבל את הצעת הריבית הטובה ביותר שאתם יכולים להציע.
+      <strong>אני לא נועל עצמי לריביות ספציפיות</strong> — אני מחפש את ההצעה המשתלמת ביותר."
+    </p>
+  </div>
+
+  <div class="step-box red-border">
+    <h3>שלב 4 — טיפול בהתנגדות</h3>
+    <p style="font-size:11px;color:#6b7280;margin-bottom:6px;">אם הבנקאי אומר "הריבית שלנו גבוהה":</p>
+    <p style="font-size:12px;font-style:italic;color:#374151;">
+      "אני מעריך את הכנות. קיבלתי הצעות מספר בנקים — אם תוכלו לשפר את ההצעה, אשמח להישאר אצלכם.
+      אבקש שתבדקו שנית עם הדרג הבכיר."
+    </p>
+  </div>
+
+  <div class="step-box green-border">
+    <h3>שלב 5 — סגירה</h3>
+    <p style="font-size:12px;font-style:italic;color:#374151;">
+      "אשמח לקבל את הצעתכם בכתב תוך יומיים. אני נמצא בתהליך עם מספר בנקים ואקבל החלטה עד סוף השבוע."
+    </p>
+  </div>
+
+  <div class="card-gold" style="margin-top:16px;">
+    <h3>3 שאלות שחובה לשאול את הבנקאי</h3>
+    <ul style="margin-top:8px;">
+      <li>1. "מה ריבית הפריים הטובה ביותר שאתם יכולים להציע לתיק כמו שלי?"</li>
+      <li>2. "האם יש עמלות פירעון מוקדם? ומה התנאים להקטנת הריבית בעתיד?"</li>
+      <li>3. "כמה זמן לוקח לקבל אישור עקרוני אם אגיש את כל המסמכים היום?"</li>
+    </ul>
+  </div>
+
+  <div class="footer">מיקוד משכנתאות | *2324 | mikud4me.co.il</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     עמוד 6 — רשימת מסמכים להגשה
+═══════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-num">6 / 6</div>
+  <div class="header-bar">
+    <div class="sub">מיקוד משכנתאות — ${name}</div>
+    <h1 style="color:#fff;">רשימת מסמכים להגשה</h1>
+  </div>
+
+  <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#166534;">
+    <strong>טיפ מקצועי:</strong> הכן תיק PDF מסודר עם שם קובץ ברור לכל מסמך (למשל: "תלושים_ינואר2026.pdf").
+    תיק מסודר מקצר את זמן האישור ומשדר אמינות.
+  </div>
+
+  <!-- מסמכי בסיס -->
+  <div class="doc-group">
+    <div class="doc-group-header" style="background:#1e3a5f;color:#c9a961;">📋 מסמכי בסיס — חובה לכולם</div>
+    ${['תעודת זהות + ספח מעודכן (לכל לווה)',
+       'דפי עו"ש 3 חודשים אחרונים',
+       'דוח נתוני אשראי BDI',
+       isRefinance ? 'יתרת סילוק משכנתא מהבנק (מסמך רשמי)' : 'חוזה רכישה / הסכם מכר',
+       'נסח טאבו מעודכן',
+       'שמאות נכס (תואם מוסד פיננסי)',
+       ...(hasCreditIssues ? ['הסבר בכתב על עיכובי תשלום עבר + אסמכתאות סגירה'] : [])
+    ].map((d,i) => `<div class="doc-item">☐ ${i+1}. ${d}</div>`).join('')}
+  </div>
+
+  ${hasEmployee ? `
+  <div class="doc-group">
+    <div class="doc-group-header" style="background:#1d4ed8;color:#fff;">👔 שכיר/ה</div>
+    ${['3 תלושי שכר אחרונים',
+       'אישור מעסיק על המשך העסקה'
+    ].map((d,i) => `<div class="doc-item" style="border-right-color:#1d4ed8;">☐ ${i+1}. ${d}</div>`).join('')}
+  </div>
+  ` : ''}
+
+  ${hasSelf ? `
+  <div class="doc-group">
+    <div class="doc-group-header" style="background:#7c3aed;color:#fff;">💼 עצמאי/ת / בעל שליטה</div>
+    ${['שומות מס הכנסה 2 שנים אחרונות + אישור רו"ח',
+       'דפי עו"ש עסקי 3 חודשים אחרונים',
+       'אישור ניהול ספרים מרשות המסים'
+    ].map((d,i) => `<div class="doc-item" style="border-right-color:#7c3aed;">☐ ${i+1}. ${d}</div>`).join('')}
+  </div>
+  ` : ''}
+
+  ${hasPensioner ? `
+  <div class="doc-group">
+    <div class="doc-group-header" style="background:#059669;color:#fff;">🏦 פנסיונר/ית</div>
+    ${['אישור קצבה/גמלה חודשית מקרן פנסיה / ביטוח לאומי',
+       'אישור יתרת זכויות קרן פנסיה'
+    ].map((d,i) => `<div class="doc-item" style="border-right-color:#059669;">☐ ${i+1}. ${d}</div>`).join('')}
+  </div>
+  ` : ''}
+
+  ${hasForeign ? `
+  <div class="doc-group">
+    <div class="doc-group-header" style="background:#d97706;color:#fff;">🌍 הכנסה מחו"ל</div>
+    ${['Pay Stubs / תלושי שכר + תרגום נוטריוני',
+       'אישור ניכוי מס במקור (אם רלוונטי)'
+    ].map((d,i) => `<div class="doc-item" style="border-right-color:#d97706;">☐ ${i+1}. ${d}</div>`).join('')}
+  </div>
+  ` : ''}
+
+  <div style="margin-top:20px;border:2px solid #1e3a5f;border-radius:8px;padding:14px 18px;background:#1e3a5f;color:#fff;text-align:center;">
+    <div style="font-size:22px;font-weight:900;color:#c9a961;margin-bottom:4px;">מיקוד משכנתאות</div>
+    <div style="font-size:13px;font-weight:700;">המטרה שלנו — החיסכון שלכם</div>
+    <div style="font-size:18px;font-weight:900;color:#c9a961;margin-top:8px;">2324*</div>
+    <div style="font-size:11px;color:#cbd5e1;margin-top:4px;">פגישת ייעוץ אישית ללא התחייבות</div>
+  </div>
+
+  <div class="footer">מיקוד משכנתאות | *2324 | mikud4me.co.il | ${today}</div>
 </div>
 
 </body>
 </html>`;
 
-    const apiUrl = 'https://api.html2pdf.app/v1/generate';
-    const pdfResponse = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        html,
-        apiKey: 'demo',
-        marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0,
-        landscape: false,
-        printBackground: true,
-        format: 'A4',
-      }),
-    });
-
-    if (!pdfResponse.ok) {
-      console.log('PDF API failed, returning HTML fallback');
-      return new Response(JSON.stringify({ html, fallback: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    }
-
-    const pdfBuffer = await pdfResponse.arrayBuffer();
-    return new Response(pdfBuffer, {
+    return new Response(JSON.stringify({ fallback: true, html }), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="Mikud_Report_${(fullName || 'client').replace(/\s+/g, '_')}.pdf"`,
-      },
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
