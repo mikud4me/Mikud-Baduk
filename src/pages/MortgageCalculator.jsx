@@ -1438,6 +1438,7 @@ ${results.score}/100
                     selectedMix={results.mixB}
                     fullName={fullName}
                     borrowers={borrowers}
+                    aiAnalysis={aiAnalysis}
                   />
                 </div>
               )}
