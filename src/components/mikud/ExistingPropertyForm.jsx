@@ -185,15 +185,12 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
             </div>
           )}
 
-          <PremiumInput
-            label="מחיר מכירה מוסכם / מחיר שיווק (₪)"
-            name="salePrice"
-            value={data.salePrice || ''}
-            placeholder="מחיר הנכס במכירה"
-            icon={Coins}
-            onChange={update}
-            tooltip="יתרת הנטו לאחר כיסוי המשכנתא הקיימת תיחשב כהון עצמי זמין"
-          />
+          {/* אין צורך בשאלת מחיר מכירה נפרדת — השווי שהוזן בתחילה משמש גם כמחיר מכירה */}
+          <div className="p-3 bg-blue-50 border-2 border-blue-300 rounded-xl animate-in fade-in duration-200">
+            <p className="text-xs text-blue-700 font-bold leading-relaxed">
+              💡 מחיר הנכס שהוזן למעלה (₪{data.existingPropertyValue ? new Intl.NumberFormat('he-IL').format(Number(String(data.existingPropertyValue).replace(/,/g,''))) : '—'}) ישמש גם כמחיר המכירה לחישוב ההון הפנוי.
+            </p>
+          </div>
         </div>
       )}
 
