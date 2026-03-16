@@ -327,6 +327,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
         results,
         fullName: displayName,
         borrowers,
+        aiAnalysis,
       });
 
       if (response.data?.fallback && response.data?.html) {
