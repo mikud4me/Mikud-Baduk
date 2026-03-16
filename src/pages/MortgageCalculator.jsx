@@ -980,16 +980,16 @@ ${results.score}/100
                     </>
                   )}
 
-                  {/* אזהרה כשיש משכנתא קיימת בלי הסכם מכירה */}
-                  {needsExistingProperty && existingProperty.hasExistingMortgage === 'yes' && existingProperty.existingMortgagePayment && existingProperty.hasSaleAgreement !== 'yes' && existingProperty.forSale !== 'yes' && (
+                  {/* אזהרה כשיש משכנתאות קיימות בלי הסכם מכירה */}
+                  {needsExistingProperty && totalExistingMortgagePayments > 0 && (
                     <div className="mt-3 p-4 bg-red-50 border-2 border-red-400 rounded-2xl animate-in fade-in duration-300">
                       <div className="flex items-start gap-3">
                         <AlertCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="font-black text-red-700 text-sm">⚠️ משכנתא קיימת תחושב ב-DTI שלך!</p>
+                          <p className="font-black text-red-700 text-sm">⚠️ משכנתאות קיימות יחושבו ב-DTI שלך!</p>
                           <p className="text-xs text-red-600 mt-1 leading-relaxed">
-                            הבנק יוסיף את ₪{Number(String(existingProperty.existingMortgagePayment||0).replace(/,/g,'')).toLocaleString()} לחודש לחישוב יחס ההחזר שלך.
-                            כדי לנטרל זאת — יש להציג <strong>הסכם מכירה חתום</strong> על הנכס הקיים.
+                            הבנק יוסיף סה"כ ₪{totalExistingMortgagePayments.toLocaleString()} לחודש לחישוב יחס ההחזר שלך.
+                            כדי לנטרל זאת — יש להציג <strong>הסכם מכירה חתום</strong> על הנכסים הרלוונטיים.
                           </p>
                         </div>
                       </div>
