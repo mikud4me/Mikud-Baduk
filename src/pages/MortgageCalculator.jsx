@@ -889,19 +889,49 @@ ${results.score}/100
                     </>
                   )}
 
-                  {/* נתוני נכס קיים — רק למשפרי דיור / נכס נוסף / כל מטרה */}
+                  {/* נתוני נכסים קיימים — רק למשפרי דיור / נכס נוסף / כל מטרה */}
                   {needsExistingProperty && (
                     <div className="mt-2">
                       <div className="flex items-center gap-2 mb-4">
                         <div className="h-px flex-1 bg-[#1e3a5f]/20" />
-                        <span className="text-xs font-bold text-[#1e3a5f] px-3 py-1 bg-[#1e3a5f]/5 rounded-full">פרטי הנכס הקיים בבעלותך</span>
+                        <span className="text-xs font-bold text-[#1e3a5f] px-3 py-1 bg-[#1e3a5f]/5 rounded-full">
+                          נכסים קיימים בבעלותך ({existingProperties.length})
+                        </span>
                         <div className="h-px flex-1 bg-[#1e3a5f]/20" />
                       </div>
-                      <ExistingPropertyForm
-                        data={existingProperty}
-                        onChange={setExistingProperty}
-                        errors={fieldErrors}
-                      />
+
+                      {existingProperties.map((prop, idx) => (
+                        <div key={idx} className="mb-6">
+                          {existingProperties.length > 1 && (
+                            <div className="flex items-center justify-between mb-3">
+                              <button
+                                onClick={() => removeExistingProperty(idx)}
+                                className="flex items-center gap-1 text-red-500 hover:text-red-700 text-xs font-bold"
+                              >
+                                <Trash2 size={13} /> הסר נכס
+                              </button>
+                              <span className="text-sm font-black text-[#1e3a5f]">נכס קיים #{idx + 1}</span>
+                            </div>
+                          )}
+                          <ExistingPropertyForm
+                            data={prop}
+                            onChange={(val) => updateExistingProperty(idx, val)}
+                            errors={fieldErrors}
+                          />
+                          {idx < existingProperties.length - 1 && (
+                            <div className="mt-4 border-t-2 border-dashed border-[#1e3a5f]/20" />
+                          )}
+                        </div>
+                      ))}
+
+                      {existingProperties.length < 5 && (
+                        <button
+                          onClick={addExistingProperty}
+                          className="w-full mt-2 py-3 rounded-2xl border-2 border-dashed border-[#c9a961] text-[#c9a961] font-bold text-sm hover:bg-[#c9a961]/10 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Building2 size={15} /> + הוסף נכס קיים נוסף
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
