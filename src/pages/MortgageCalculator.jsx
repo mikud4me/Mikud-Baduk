@@ -253,10 +253,15 @@ export default function MortgageCalculator() {
 
   const results = useMemo(() => {
     try {
+      // צרף את ההחזרים על נכסים קיימים (ללא הסכם מכירה) לחובות החודשיים
+      const adjustedDebts = Number(String(formData.monthlyDebts || '0').replace(/,/g, '')) + totalExistingMortgagePayments;
+      const adjustedFormData = needsExistingProperty && totalExistingMortgagePayments > 0
+        ? { ...formData, monthlyDebts: String(adjustedDebts) }
+        : formData;
       if (isRefinance) {
-        return calculateRefinanceResults({ formData, borrowers, rates });
+        return calculateRefinanceResults({ formData: adjustedFormData, borrowers, rates });
       }
-      return calculateResults({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES });
+      return calculateResults({ formData: adjustedFormData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES });
     } catch (e) {
       console.error('results calculation error:', e);
       return { loanAmount: 0, ltv: 0, dti: 0, score: 0, status: { color: 'green', text: '', subtitle: '', action: null, icon: 'check' }, mixA: { tracks: [], total: 0 }, mixB: { tracks: [], total: 0 }, mixC: { tracks: [], total: 0 }, actualDuration: 25, isReverse: false, isSenior: false, isBalloon: false };
