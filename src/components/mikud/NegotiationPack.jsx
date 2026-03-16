@@ -43,7 +43,7 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
   );
 };
 
-export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [], aiAnalysis }) {
+export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [] }) {
   const letterRef = useRef(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const isRefinance = formData.mortgageType === 'refinance';
@@ -324,10 +324,9 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
     try {
       const response = await base44.functions.invoke('generatePdfReport', {
         formData,
-        results,
+        results: { ...results, aiAnalysis: results.aiAnalysis },
         fullName: displayName,
         borrowers,
-        aiAnalysis,
       });
 
       if (response.data?.fallback && response.data?.html) {
