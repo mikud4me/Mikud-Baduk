@@ -200,7 +200,8 @@ export default function MortgageCalculator() {
   const verifyOtp = () => {
     if (userInputOtp === generatedOtp) { 
       setOtpVerified(true); 
-      setStep(2); 
+      setStep(2);
+      scrollToTop();
     } else { 
       setFieldErrors({ otp: "קוד שגוי" }); 
     }
