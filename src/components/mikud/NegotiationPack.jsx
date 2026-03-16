@@ -43,7 +43,7 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
   );
 };
 
-export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [] }) {
+export default function NegotiationPack({ formData, results, selectedMix, fullName, borrowers = [], aiAnalysis }) {
   const letterRef = useRef(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const isRefinance = formData.mortgageType === 'refinance';
