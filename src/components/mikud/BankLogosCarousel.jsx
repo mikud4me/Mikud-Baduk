@@ -37,7 +37,7 @@ export default function BankLogosCarousel() {
             <img
               src={bank.img}
               alt={`בנק ${bank.name}`}
-              style={{ width: '130px', height: '60px' }}
+              style={{ width: '130px', height: '60px', transform: `scale(${bank.scale || 1})` }}
               className="object-contain opacity-75 group-hover:opacity-100 transition-opacity duration-300"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
