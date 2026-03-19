@@ -8,7 +8,7 @@ let cache = {
   expiresAt: 0,
 };
 
-async function fetchBoiInterest({ timeoutMs = 8000 } = {}) {
+async function fetchBoiInterest({ timeoutMs = 3000 } = {}) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
 
