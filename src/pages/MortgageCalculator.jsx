@@ -123,17 +123,20 @@ export default function MortgageCalculator() {
   useEffect(() => {
     const loadRates = async () => {
       try {
-        const response = await base44.functions.invoke('getBankOfIsraelRates');
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+        const response = await Promise.race([
+          base44.functions.invoke('getBankOfIsraelRates'),
+          timeoutPromise
+        ]);
         if (response.data?.success && response.data?.rates) {
           setRates(response.data.rates);
           setRatesLastUpdated(response.data.last_updated);
         }
       } catch (error) {
-        console.error('Failed to load rates:', error);
+        console.error('Failed to load rates, using defaults:', error);
       }
     };
     loadRates();
-
   }, []);
 
   const isReverseMortgage = formData.mortgageType === 'reverse_mortgage';
