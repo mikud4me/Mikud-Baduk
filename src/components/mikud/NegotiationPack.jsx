@@ -329,27 +329,14 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
         borrowers,
       });
 
-      if (response.data?.fallback && response.data?.html) {
-        // פתח HTML בחלון חדש לצורך הדפסה כ-PDF
+      // response.data היא HTML string
+      if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE')) {
         const win = window.open('', '_blank');
-        win.document.write(response.data.html);
+        win.document.write(response.data);
         win.document.close();
-        setTimeout(() => win.print(), 800);
-      } else if (response.data instanceof ArrayBuffer || response.request?.responseType === 'arraybuffer') {
-        // PDF binary
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Mikud_Report_${(displayName || 'client').replace(/\s+/g, '_')}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
+        setTimeout(() => win.print(), 500);
       } else {
-        // fallback — open HTML
-        const win = window.open('', '_blank');
-        win.document.write(response.data?.html || '<p>שגיאה בהכנת הדוח</p>');
-        win.document.close();
-        setTimeout(() => win.print(), 800);
+        alert('שגיאה בהכנת הדוח. אנא נסה שנית.');
       }
     } catch (err) {
       console.error('PDF generation error:', err);
