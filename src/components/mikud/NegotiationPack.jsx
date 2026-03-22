@@ -448,19 +448,52 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
                   </>
                 ) : (
                   <>
-                    <span className="text-gray-500">סכום מבוקש</span><span className="font-semibold">₪{formatCurrency(results.loanAmount)}</span>
-                    <span className="text-gray-500">שווי נכס</span><span className="font-semibold">₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}</span>
-                    <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}% (תקרה: {formData.mortgageType === 'purchase_first' ? '75%' : ['purchase_improve','purchase_additional','any_purpose'].includes(formData.mortgageType) ? '70%' : '50%'})</span>
-                    <span className="text-gray-500">יחס החזר (DTI)</span><span className="font-semibold">{results.dti?.toFixed(1)}%</span>
-                    <span className="text-gray-500">תקופת הלוואה</span><span className="font-semibold">{formData.loanDuration} שנים</span>
-                    <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{{
-                      purchase_first: 'רכישת דירה ראשונה',
-                      purchase_improve: 'משפרי דיור / חליפית',
-                      purchase_additional: 'נכס נוסף / דירה להשקעה',
-                      any_purpose: 'כל מטרה',
-                      reverse_mortgage: 'משכנתא הפוכה',
-                      senior_bank: 'משכנתא לגיל הזהב',
-                    }[formData.mortgageType] || formData.mortgageType}</span>
+                   {(() => {
+                     const baseEquity = Number(String(formData.equity || 0).replace(/,/g, ''));
+                     const completionAmount = Number(String(formData.completionAmount || 0).replace(/,/g, ''));
+                     const totalEquity = baseEquity + completionAmount;
+                     const completionSources = formData.completionSources || [];
+                     const sourceLabels = {
+                       balloon_existing: 'שעבוד נכס קיים',
+                       sale_proceeds: 'תמורת מכירת נכס',
+                       family_help: 'עזרה ממשפחה מדרגה ראשונה',
+                       savings: 'פירוק חסכונות / קרן השתלמות',
+                       securities: 'מימוש ניירות ערך',
+                       provident: 'משיכת קופת גמל',
+                       other: 'מקור אחר',
+                     };
+                     return (
+                       <>
+                         <span className="text-gray-500">סכום מבוקש</span><span className="font-semibold">₪{formatCurrency(results.loanAmount)}</span>
+                         <span className="text-gray-500">שווי נכס</span><span className="font-semibold">₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}</span>
+                         <span className="text-gray-500">הון עצמי נזיל</span><span className="font-semibold">₪{formatCurrency(baseEquity)}</span>
+                         {completionAmount > 0 && (
+                           <>
+                             <span className="text-gray-500">השלמת הון עצמי</span>
+                             <span className="font-semibold text-blue-700">
+                               ₪{formatCurrency(completionAmount)}
+                               {completionSources.length > 0 && (
+                                 <span className="text-gray-500 text-xs font-normal"> ({completionSources.map(s => sourceLabels[s] || s).join(', ')})</span>
+                               )}
+                             </span>
+                             <span className="text-gray-500 font-bold">סה"כ הון עצמי</span>
+                             <span className="font-black text-green-700">₪{formatCurrency(totalEquity)}</span>
+                           </>
+                         )}
+                         <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}% (תקרה: {formData.mortgageType === 'purchase_first' ? '75%' : ['purchase_improve','purchase_additional','any_purpose'].includes(formData.mortgageType) ? '70%' : '50%'})</span>
+                         <span className="text-gray-500">יחס החזר (DTI)</span><span className="font-semibold">{results.dti?.toFixed(1)}%</span>
+                         <span className="text-gray-500">תקופת הלוואה</span><span className="font-semibold">{formData.loanDuration} שנים</span>
+                         <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{{
+                           purchase_first: 'רכישת דירה ראשונה',
+                           purchase_improve: 'משפרי דיור / חליפית',
+                           purchase_additional: 'נכס נוסף / דירה להשקעה',
+                           any_purpose: 'כל מטרה',
+                           reverse_mortgage: 'משכנתא הפוכה',
+                           senior_bank: 'משכנתא לגיל הזהב',
+                         }[formData.mortgageType] || formData.mortgageType}</span>
+                       </>
+                     );
+                   })()}
                   </>
                 )}
               </div>
