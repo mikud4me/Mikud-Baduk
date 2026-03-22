@@ -24,6 +24,7 @@ import HowItWorks from '@/components/mikud/HowItWorks';
 import SocialProof from '@/components/mikud/SocialProof';
 import FooterCTA from '@/components/mikud/FooterCTA';
 import BirthDateInput from '@/components/mikud/BirthDateInput';
+import FormattedAnalysis from '@/components/mikud/FormattedAnalysis';
 
 
 // v2.2
