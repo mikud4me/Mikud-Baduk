@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { User, Briefcase, Calendar, ShieldCheck, Coins, AlertTriangle, Phone, BadgeCheck } from 'lucide-react';
+import { User, Briefcase, ShieldCheck, Coins, AlertTriangle, Phone, BadgeCheck } from 'lucide-react';
 import PremiumInput from './PremiumInput';
+import StartDateInput from './StartDateInput';
 
 // אלגוריתם לוהן לבדיקת תקינות ת.ז ישראלית
 function validateIsraeliId(id) {
@@ -93,7 +94,6 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
 
   const toggleEmploymentType = (val) => {
     const cur = borrower.employmentTypes || [];
-    // If adding pensioner and borrower age <= 40, show warning first
     if (val === 'pensioner' && !cur.includes(val) && borrowerAge && Number(borrowerAge) <= 40) {
       setPendingPensioner(true);
       setShowPensionerWarning(true);
@@ -198,7 +198,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
         </div>
       )}
 
-      {/* שם, ת.ז וטלפון — ללווים נוספים בלבד (הלווה הראשי ממלא בשלב 1) */}
+      {/* שם, ת.ז וטלפון — ללווים נוספים בלבד */}
       {!isFirst && (
         <div className="space-y-1">
           <div className="grid grid-cols-2 gap-3">
@@ -336,20 +336,14 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
               </div>
             </div>
             {type !== 'pensioner' && (
-              <div>
-                <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
-                  <Calendar size={13} /> תאריך התחלת עבודה
-                </label>
-                <input type="date" min="1960-01-01" max="2026-12-31"
-                  className="w-full bg-white h-12 px-4 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold"
-                  value={src.startDate || ''}
-                  onChange={e => updateIncomeSource(type, 'startDate', e.target.value)}
-                />
-                {src.seniority && (
-                  <div className="mt-2 p-2 bg-green-50 border-2 border-green-300 rounded-xl text-center">
-                    <p className="text-green-800 font-bold text-xs">ותק: {src.seniority} שנים</p>
-                  </div>
-                )}
+              <StartDateInput
+                value={src.startDate || ''}
+                onChange={(val) => updateIncomeSource(type, 'startDate', val)}
+              />
+            )}
+            {src.seniority && type !== 'pensioner' && (
+              <div className="p-2 bg-green-50 border-2 border-green-300 rounded-xl text-center">
+                <p className="text-green-800 font-bold text-xs">ותק: {src.seniority} שנים</p>
               </div>
             )}
           </div>
