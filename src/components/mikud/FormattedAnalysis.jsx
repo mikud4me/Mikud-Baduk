@@ -1,18 +1,27 @@
 import React from 'react';
 
-// צבעים לכותרות לפי מספר סעיף
-const SECTION_STYLES = [
-  { bg: 'bg-[#1e3a5f]', text: 'text-white', dot: 'bg-[#c9a961]' },
-  { bg: 'bg-blue-700', text: 'text-white', dot: 'bg-blue-300' },
-  { bg: 'bg-green-700', text: 'text-white', dot: 'bg-green-300' },
-  { bg: 'bg-amber-600', text: 'text-white', dot: 'bg-amber-200' },
-  { bg: 'bg-purple-700', text: 'text-white', dot: 'bg-purple-300' },
-  { bg: 'bg-rose-700', text: 'text-white', dot: 'bg-rose-300' },
-];
+// כותרות צבעוניות לפי סוג סעיף
+const SECTION_COLORS = {
+  default: { border: 'border-[#1e3a5f]', title: 'text-[#1e3a5f]', bg: 'bg-[#1e3a5f]/5' },
+  strength: { border: 'border-green-600', title: 'text-green-700', bg: 'bg-green-50' },
+  improve: { border: 'border-amber-600', title: 'text-amber-700', bg: 'bg-amber-50' },
+  risk: { border: 'border-red-600', title: 'text-red-700', bg: 'bg-red-50' },
+  strategy: { border: 'border-blue-600', title: 'text-blue-700', bg: 'bg-blue-50' },
+};
+
+function getSectionColor(title) {
+  if (!title) return SECTION_COLORS.default;
+  if (/חוזק|יתרון/i.test(title)) return SECTION_COLORS.strength;
+  if (/שיפור|חיסרון|בעי/i.test(title)) return SECTION_COLORS.improve;
+  if (/סיכון|אזהרה|סיכוי/i.test(title)) return SECTION_COLORS.risk;
+  if (/אסטרטגי|הגשה|המלצ/i.test(title)) return SECTION_COLORS.strategy;
+  return SECTION_COLORS.default;
+}
 
 /**
- * ממיר טקסט ניתוח בפורמט "1. כותרת\nתוכן..." לכרטיסים מודגשים וצבעוניים.
- * שורות שמתחילות ב-"X." (ספרה + נקודה) הופכות לכותרת.
+ * ממיר טקסט ניתוח לסעיפים מעוצבים.
+ * שורות "X. כותרת —" מהוות כותרת סעיף.
+ * כל שאר הטקסט (כולל ממוספר) נכנס לגוף הסעיף הפתוח.
  */
 export default function FormattedAnalysis({ text }) {
   if (!text) return null;
@@ -22,45 +31,58 @@ export default function FormattedAnalysis({ text }) {
   let current = null;
 
   lines.forEach(line => {
-    const match = line.match(/^(\d+)\.\s+(.+)/);
-    if (match) {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    // זיהוי שורת כותרת: מספר + נקודה + מלל שמסתיים ב— או מכיל —
+    const headerMatch = trimmed.match(/^(\d+)\.\s+(.+)/);
+    const isHeader = headerMatch && (
+      /—|:$/.test(headerMatch[2]) ||        // מסתיים ב— או :
+      /^(סיכום|ניתוח|נקודות|אסטרטגי|תחזית)/i.test(headerMatch[2]) // מילות מפתח
+    );
+
+    if (isHeader) {
       if (current) sections.push(current);
-      current = { title: match[2], body: [] };
-    } else if (current) {
-      current.body.push(line);
+      current = { num: headerMatch[1], title: headerMatch[2].replace(/\s*—\s*$/, '').trim(), body: [] };
     } else {
-      // שורות לפני הסעיף הראשון
-      sections.push({ title: null, body: [line] });
+      // כל שאר הטקסט — כולל "4. - נקודה" — הולך לגוף הסעיף הנוכחי
+      if (current) {
+        // נקה ממספור מיותר בתחילת שורה (למשל "4. - " → "- ")
+        const cleaned = trimmed.replace(/^\d+\.\s+/, '');
+        current.body.push(cleaned);
+      } else {
+        // טקסט לפני הסעיף הראשון
+        sections.push({ num: null, title: null, body: [trimmed] });
+      }
     }
   });
   if (current) sections.push(current);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {sections.map((sec, i) => {
-        const style = SECTION_STYLES[i % SECTION_STYLES.length];
-        const bodyText = sec.body.join('\n').trim();
-
         if (!sec.title) {
-          // שורות מבוא ללא כותרת
-          return bodyText ? (
-            <p key={i} className="text-gray-600 text-sm leading-relaxed">{bodyText}</p>
-          ) : null;
+          return (
+            <p key={i} className="text-gray-700 text-sm leading-relaxed">
+              {sec.body.join(' ')}
+            </p>
+          );
         }
 
+        const color = getSectionColor(sec.title);
+        const bodyText = sec.body.join('\n').trim();
+
         return (
-          <div key={i} className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+          <div key={i} className={`rounded-xl border-r-4 ${color.border} ${color.bg} overflow-hidden`}>
             {/* כותרת */}
-            <div className={`${style.bg} px-5 py-3 flex items-center gap-3`}>
-              <span className={`w-6 h-6 rounded-full ${style.dot} flex items-center justify-center text-xs font-black text-gray-800 flex-shrink-0`}>
-                {i + 1}
-              </span>
-              <h4 className={`font-black text-base leading-tight ${style.text}`}>{sec.title}</h4>
+            <div className="px-5 pt-4 pb-2 flex items-start gap-2">
+              <span className={`font-black text-base ${color.title}`}>{sec.num}.</span>
+              <h4 className={`font-black text-base leading-tight ${color.title}`}>{sec.title}</h4>
             </div>
-            {/* תוכן */}
+            {/* גוף */}
             {bodyText && (
-              <div className="px-5 py-4 bg-white">
-                <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">{bodyText}</p>
+              <div className="px-5 pb-4">
+                <p className="text-gray-800 text-sm leading-relaxed font-medium whitespace-pre-line">{bodyText}</p>
               </div>
             )}
           </div>
