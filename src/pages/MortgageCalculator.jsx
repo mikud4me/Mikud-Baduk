@@ -273,9 +273,20 @@ export default function MortgageCalculator() {
     try {
       // צרף את ההחזרים על נכסים קיימים (ללא הסכם מכירה) לחובות החודשיים
       const adjustedDebts = Number(String(formData.monthlyDebts || '0').replace(/,/g, '')) + totalExistingMortgagePayments;
-      const adjustedFormData = needsExistingProperty && totalExistingMortgagePayments > 0
-        ? { ...formData, monthlyDebts: String(adjustedDebts) }
-        : formData;
+      
+      // הפחת את סכום ההשלמה מסכום המשכנתא המבוקש
+      const completionAmount = Number(String(equityCompletion.completionAmount || '0').replace(/,/g, ''));
+      const requestedLoan = Number(String(formData.loanAmount || '0').replace(/,/g, ''));
+      const effectiveLoanAmount = completionAmount > 0 && requestedLoan > 0
+        ? Math.max(0, requestedLoan - completionAmount)
+        : requestedLoan;
+
+      const adjustedFormData = {
+        ...formData,
+        ...(needsExistingProperty && totalExistingMortgagePayments > 0 ? { monthlyDebts: String(adjustedDebts) } : {}),
+        ...(effectiveLoanAmount !== requestedLoan ? { loanAmount: String(effectiveLoanAmount) } : {}),
+      };
+
       if (isRefinance) {
         return calculateRefinanceResults({ formData: adjustedFormData, borrowers, rates });
       }
