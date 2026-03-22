@@ -480,7 +480,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
                              <span className="font-black text-green-700">₪{formatCurrency(totalEquity)}</span>
                            </>
                          )}
-                         <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}% (תקרה: {formData.mortgageType === 'purchase_first' ? '75%' : ['purchase_improve','purchase_additional','any_purpose'].includes(formData.mortgageType) ? '70%' : '50%'})</span>
+                         <span className="text-gray-500">אחוז מימון (LTV)</span><span className="font-semibold">{results.ltv?.toFixed(1)}% (תקרה: {formData.mortgageType === 'purchase_first' ? '75%' : formData.mortgageType === 'purchase_improve' ? '70%' : formData.mortgageType === 'purchase_additional' ? '50%' : formData.mortgageType === 'any_purpose' ? '50%' : '50%'})</span>
                          <span className="text-gray-500">יחס החזר (DTI)</span><span className="font-semibold">{results.dti?.toFixed(1)}%</span>
                          <span className="text-gray-500">תקופת הלוואה</span><span className="font-semibold">{formData.loanDuration} שנים</span>
                          <span className="text-gray-500">מטרת ההלוואה</span><span className="font-semibold">{{
