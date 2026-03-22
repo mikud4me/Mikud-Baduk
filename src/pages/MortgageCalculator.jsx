@@ -1457,7 +1457,7 @@ ${results.score}/100
               {isPurchased && (
                 <div className="mt-8 sm:mt-12">
                   <NegotiationPack 
-                    formData={formData} 
+                    formData={{ ...formData, completionAmount: equityCompletion.completionAmount, completionSources: equityCompletion.completionSources }} 
                     results={{ ...results, aiAnalysis }}
                     selectedMix={results.mixB}
                     fullName={fullName}
