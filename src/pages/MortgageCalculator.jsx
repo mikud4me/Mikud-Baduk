@@ -648,29 +648,12 @@ ${results.score}/100
                   </div>
                   <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} tooltip="9 ספרות של תעודת הזהות שלך לאימות זהות" />
                   
-                  {/* תאריך לידה - שדה אחד */}
-                  <div className="mb-5 text-right w-full">
-                    <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
-                      <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
-                        <Calendar size={16} className="text-gray-500" />
-                      </div>
-                      <span>תאריך לידה</span>
-                    </label>
-                    <input
-                      type="date"
-                      min="1924-01-01"
-                      max="2007-12-31"
-                      className="w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-3 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 focus:shadow-xl transition-all text-gray-900 font-semibold text-base text-right shadow-lg"
-                      value={formData.birthDate || ''}
-                      onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                    />
-                    {fieldErrors.birthDate && (
-                      <div className="mt-3 flex items-center gap-3 bg-red-50 border-3 border-red-500 px-5 py-3 rounded-2xl">
-                        <AlertCircle size={20} className="text-red-600" />
-                        <p className="text-red-700 text-sm font-bold">{fieldErrors.birthDate}</p>
-                      </div>
-                    )}
-                  </div>
+                  {/* תאריך לידה - 3 שדות נפרדים */}
+                  <BirthDateInput
+                    value={formData.birthDate || ''}
+                    onChange={(val) => handleInputChange('birthDate', val)}
+                    error={fieldErrors.birthDate}
+                  />
 
                   <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} tooltip="מספר נייד לקבלת קוד אימות ויצירת קשר מהיועץ" />
                   <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} tooltip="דוא״ל לקבלת הדוח המפורט והתכתבות עם היועץ" />
