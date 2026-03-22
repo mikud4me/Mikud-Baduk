@@ -23,6 +23,7 @@ import EquityCompletionForm from '@/components/mikud/EquityCompletionForm';
 import HowItWorks from '@/components/mikud/HowItWorks';
 import SocialProof from '@/components/mikud/SocialProof';
 import FooterCTA from '@/components/mikud/FooterCTA';
+import BirthDateInput from '@/components/mikud/BirthDateInput';
 
 
 // v2.2
