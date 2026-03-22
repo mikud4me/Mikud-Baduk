@@ -259,15 +259,21 @@ export default function MortgageCalculator() {
   const removeExistingProperty = (idx) => setExistingProperties(prev => prev.filter((_, i) => i !== idx));
   const updateExistingProperty = (idx, val) => setExistingProperties(prev => prev.map((p, i) => i === idx ? val : p));
 
+  // סך הון עצמי = הון עצמי בסיסי + סכום השלמה ממקורות נוספים
+  const totalEquity = useMemo(() => {
+    const base = Number(String(equityCompletion.equity || formData.equity || '0').replace(/,/g, ''));
+    const completion = Number(String(equityCompletion.completionAmount || '0').replace(/,/g, ''));
+    return base + completion;
+  }, [equityCompletion.equity, equityCompletion.completionAmount, formData.equity]);
+
   // חישוב פער השלמת עסקה
   const equityGap = useMemo(() => {
     if (isRefinance || isReverseMortgage) return 0;
     const price = Number(String(formData.propertyPrice || '0').replace(/,/g, ''));
     const loan = Number(String(formData.loanAmount || '0').replace(/,/g, ''));
-    const equity = Number(String(equityCompletion.equity || formData.equity || '0').replace(/,/g, ''));
     if (!price || !loan) return 0;
-    return Math.max(0, price - loan - equity);
-  }, [formData.propertyPrice, formData.loanAmount, formData.equity, equityCompletion.equity, isRefinance, isReverseMortgage]);
+    return Math.max(0, price - loan - totalEquity);
+  }, [formData.propertyPrice, formData.loanAmount, totalEquity, isRefinance, isReverseMortgage]);
 
   const results = useMemo(() => {
     try {
