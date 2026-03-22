@@ -566,13 +566,16 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
-    return new Response(JSON.stringify({ fallback: true, html }), {
+    return new Response(html, {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
 
   } catch (error) {
     console.error('generatePdfReport error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 });
