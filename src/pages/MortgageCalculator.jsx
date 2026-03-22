@@ -285,7 +285,11 @@ export default function MortgageCalculator() {
       if (isRefinance) {
         return calculateRefinanceResults({ formData: adjustedFormData, borrowers, rates });
       }
-      return calculateResults({ formData: adjustedFormData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES });
+      // שלב את סך ההון העצמי (כולל השלמות) לחישוב
+      const formDataWithTotalEquity = totalEquity > 0
+        ? { ...adjustedFormData, equity: String(totalEquity) }
+        : adjustedFormData;
+      return calculateResults({ formData: formDataWithTotalEquity, borrowers, maxTerm, rates, ALL_PURPOSE_RATES });
     } catch (e) {
       console.error('results calculation error:', e);
       return { loanAmount: 0, ltv: 0, dti: 0, score: 0, status: { color: 'green', text: '', subtitle: '', action: null, icon: 'check' }, mixA: { tracks: [], total: 0 }, mixB: { tracks: [], total: 0 }, mixC: { tracks: [], total: 0 }, actualDuration: 25, isReverse: false, isSenior: false, isBalloon: false };
