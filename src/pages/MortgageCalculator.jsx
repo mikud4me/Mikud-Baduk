@@ -294,7 +294,7 @@ export default function MortgageCalculator() {
       console.error('results calculation error:', e);
       return { loanAmount: 0, ltv: 0, dti: 0, score: 0, status: { color: 'green', text: '', subtitle: '', action: null, icon: 'check' }, mixA: { tracks: [], total: 0 }, mixB: { tracks: [], total: 0 }, mixC: { tracks: [], total: 0 }, actualDuration: 25, isReverse: false, isSenior: false, isBalloon: false };
     }
-  }, [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES, isRefinance, totalExistingMortgagePayments, needsExistingProperty]);
+  }, [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES, isRefinance, totalExistingMortgagePayments, needsExistingProperty, totalEquity]);
 
   const generateFullAnalysis = async () => {
     if (!isRefinance && !validateStep(6)) return;
