@@ -1,20 +1,15 @@
 import React from 'react';
 
-// כותרות צבעוניות לפי סוג סעיף
+// צבעוניות אחידה שחורה
 const SECTION_COLORS = {
-  default: { border: 'border-[#1e3a5f]', title: 'text-[#1e3a5f]', bg: 'bg-[#1e3a5f]/5' },
-  strength: { border: 'border-green-600', title: 'text-green-700', bg: 'bg-green-50' },
-  improve: { border: 'border-amber-600', title: 'text-amber-700', bg: 'bg-amber-50' },
-  risk: { border: 'border-red-600', title: 'text-red-700', bg: 'bg-red-50' },
-  strategy: { border: 'border-blue-600', title: 'text-blue-700', bg: 'bg-blue-50' },
+  default: { border: 'border-gray-300', title: 'text-black', bg: 'bg-white' },
+  strength: { border: 'border-gray-300', title: 'text-black', bg: 'bg-white' },
+  improve: { border: 'border-gray-300', title: 'text-black', bg: 'bg-white' },
+  risk: { border: 'border-gray-300', title: 'text-black', bg: 'bg-white' },
+  strategy: { border: 'border-gray-300', title: 'text-black', bg: 'bg-white' },
 };
 
 function getSectionColor(title) {
-  if (!title) return SECTION_COLORS.default;
-  if (/חוזק|יתרון/i.test(title)) return SECTION_COLORS.strength;
-  if (/שיפור|חיסרון|בעי/i.test(title)) return SECTION_COLORS.improve;
-  if (/סיכון|אזהרה|סיכוי/i.test(title)) return SECTION_COLORS.risk;
-  if (/אסטרטגי|הגשה|המלצ/i.test(title)) return SECTION_COLORS.strategy;
   return SECTION_COLORS.default;
 }
 
