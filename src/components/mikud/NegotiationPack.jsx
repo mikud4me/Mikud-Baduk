@@ -415,27 +415,27 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
               {pdfLoading ? 'מכין דוח...' : 'הורד מכתב'}
             </button>
           </div>
-          <div ref={letterRef} className="p-6 sm:p-8 text-sm text-gray-800 leading-8 space-y-4" style={{ fontFamily: 'Assistant, Arial, sans-serif' }}>
-            <div className="text-left text-gray-500 text-xs">{today}</div>
+          <div ref={letterRef} className="p-6 sm:p-8 text-sm text-black leading-8 space-y-4" style={{ fontFamily: 'Assistant, Arial, sans-serif' }}>
+           <div className="text-left text-gray-600 text-xs font-semibold">{today}</div>
 
-            <div className="space-y-0.5">
-              <p className="font-bold">לכבוד,</p>
-              <p>מנהל/ת תחום משכנתאות</p>
-              <p className="text-[#1e3a5f] font-semibold">[שם הבנק]</p>
-            </div>
+           <div className="space-y-1">
+             <p className="font-bold text-black">לכבוד,</p>
+             <p className="text-black">מנהל/ת תחום משכנתאות</p>
+             <p className="text-black font-bold">[שם הבנק]</p>
+           </div>
 
-            <div className="border-r-4 border-[#c9a961] pr-4 py-1">
-              <p className="font-bold text-[#1e3a5f]">הנדון: {isRefinance ? `בקשה למחזור משכנתא — ${displayName}` : `בקשה לאישור עקרוני למשכנתא — ${displayName}`}</p>
-            </div>
+           <div className="py-2">
+             <p className="font-bold text-black">הנדון: {isRefinance ? `בקשה למחזור משכנתא — ${displayName}` : `בקשה לאישור עקרוני למשכנתא — ${displayName}`}</p>
+           </div>
 
-            <p>שלום רב,</p>
-            <p>{isRefinance
-              ? <>הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>{displayName}</strong>, ביתרה של ₪{formatCurrency(results.balance)} בתנאים המפורטים להלן.</>
-              : <>הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>{displayName}</strong>, בתנאים המפורטים להלן.</>
-            }</p>
+           <p className="text-black font-semibold">שלום רב,</p>
+           <p className="text-black">{isRefinance
+             ? <>הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>{displayName}</strong>, ביתרה של ₪{formatCurrency(results.balance)} בתנאים המפורטים להלן.</>
+             : <>הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>{displayName}</strong>, בתנאים המפורטים להלן.</>
+           }</p>
 
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-100">
-              <p className="font-bold text-[#1e3a5f] mb-3 text-sm uppercase tracking-wide">פרטי התיק</p>
+           <div className="rounded-xl p-4 space-y-2 border border-gray-300">
+             <p className="font-bold text-black mb-3 text-sm">פרטי התיק</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                 <span className="text-gray-500">שם לווה</span><span className="font-semibold">{displayName}</span>
                 {isRefinance ? (
