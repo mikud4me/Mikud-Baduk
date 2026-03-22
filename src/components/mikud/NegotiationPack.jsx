@@ -493,18 +493,16 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
               </div>
             </div>
 
-            <div className="bg-[#1e3a5f]/5 rounded-xl p-4 border border-[#1e3a5f]/10">
-              <p className="font-bold text-[#1e3a5f] mb-2 text-sm">בקשת ריבית תחרותית</p>
-              <p className="text-sm leading-relaxed">אבקש לקבל הצעת ריבית תחרותית בהתאם לפרופיל התיק ולנתוני השוק העדכניים. כל הצעה טובה תיבחן ברצינות.</p>
-            </div>
+            <p className="text-black font-semibold mt-6">בקשת ריבית תחרותית</p>
+            <p className="text-black">אבקש לקבל הצעת ריבית תחרותית בהתאם לפרופיל התיק ולנתוני השוק העדכניים. כל הצעה טובה תיבחן ברצינות.</p>
 
-            <p>אבקש לקבל הצעת ריבית עקרונית בכתב תוך <strong>5 ימי עסקים</strong>. אשמח לשלוח את מלוא מסמכי ההגשה בעקבות הצעתכם.</p>
+            <p className="text-black">אבקש לקבל הצעת ריבית עקרונית בכתב תוך <strong>5 ימי עסקים</strong>. אשמח לשלוח את מלוא מסמכי ההגשה בעקבות הצעתכם.</p>
 
-            <div className="pt-4 border-t border-gray-200 space-y-0.5">
-              <p className="font-bold">בכבוד רב,</p>
-              <p>{displayName}</p>
-              {formData.phone && <p>טל׳: {formData.phone}</p>}
-              {formData.email && <p>דוא״ל: {formData.email}</p>}
+            <div className="pt-6 border-t-2 border-gray-400 space-y-1">
+              <p className="font-bold text-black">בכבוד רב,</p>
+              <p className="text-black font-semibold mt-3">{displayName}</p>
+              {formData.phone && <p className="text-black">טל׳: {formData.phone}</p>}
+              {formData.email && <p className="text-black">דוא״ל: {formData.email}</p>}
             </div>
           </div>
         </div>
