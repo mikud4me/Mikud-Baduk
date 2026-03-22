@@ -57,8 +57,8 @@ export default function FormattedAnalysis({ text }) {
     <div className="space-y-5">
       {sections.map((sec, i) => {
         if (!sec.title) {
-          return (
-            <p key={i} className="text-gray-700 text-sm leading-relaxed">
+           return (
+            <p key={i} className="text-black text-sm leading-relaxed font-normal">
               {sec.body.join(' ')}
             </p>
           );
