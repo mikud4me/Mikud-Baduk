@@ -53,8 +53,32 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
   const isFirst = index === 0;
   const [showPensionerWarning, setShowPensionerWarning] = useState(false);
   const [pendingPensioner, setPendingPensioner] = useState(false);
+  const [idError, setIdError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   const update = (field, value) => onChange({ ...borrower, [field]: value });
+
+  const handleIdChange = (_, value) => {
+    const clean = value.replace(/\D/g, '').slice(0, 9);
+    update('idNumber', clean);
+    if (clean.length === 9) {
+      setIdError(validateIsraeliId(clean) ? '' : 'מספר ת.ז לא תקין');
+    } else {
+      setIdError('');
+    }
+  };
+
+  const handlePhoneChange = (_, value) => {
+    const clean = value.replace(/\D/g, '').slice(0, 10);
+    update('phone', clean);
+    if (clean.length > 0 && clean.length < 10) {
+      setPhoneError('מספר טלפון חייב להכיל 10 ספרות');
+    } else if (clean.length === 10 && !/^05\d{8}$/.test(clean)) {
+      setPhoneError('מספר נייד לא תקין (חייב להתחיל ב-05)');
+    } else {
+      setPhoneError('');
+    }
+  };
 
   const updateIncomeSource = (type, field, value) => {
     const sources = { ...(borrower.incomeSources || {}) };
