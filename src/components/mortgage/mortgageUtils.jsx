@@ -360,9 +360,11 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
       status = { color: 'red', text: 'דורש התאמה', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר (מקסימום ${SENIOR_BANK_MAX_LTV}%)`, action: `יש להקטין את הסכום המבוקש ב-₪${formatCurrency(Math.floor(excessLoan))} להורדת המימון ל-${SENIOR_BANK_MAX_LTV}%.`, icon: 'alert' };
     }
   } else {
+    const isFirst = formData.mortgageType === 'purchase_first';
+    const isImprove = formData.mortgageType === 'purchase_improve';
     const isAdditional = formData.mortgageType === 'purchase_additional';
     const isAnyPurpose = formData.mortgageType === 'any_purpose';
-    const maxLTV = isAdditional || isAnyPurpose ? 50 : formData.mortgageType === 'purchase_improve' ? 70 : 75;
+    const maxLTV = isFirst ? 75 : isImprove ? 70 : isAdditional || isAnyPurpose ? 50 : 75;
 
     if (dti > 45) {
       const excessPayment = pmtB - (freeIncome * 0.40);
