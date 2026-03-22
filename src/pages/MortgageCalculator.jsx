@@ -1466,6 +1466,17 @@ ${results.score}/100
                 </div>
               )}
 
+              {/* כפתור התחלה מחדש */}
+              <div className="px-4 sm:px-8 md:px-12 pb-6 flex justify-center">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="flex items-center gap-2 px-8 py-3 rounded-full border-2 border-[#1e3a5f] text-[#1e3a5f] font-bold text-sm hover:bg-[#1e3a5f] hover:text-white transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  בדיקה נוספת / לקוח חדש
+                </button>
+              </div>
+
               </div>{/* סגירת p-4 */}
               </div>{/* סגירת bg-white */}
 
