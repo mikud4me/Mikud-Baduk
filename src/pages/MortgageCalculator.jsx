@@ -1412,12 +1412,14 @@ ${results.score}/100
                 <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
                   <Sparkles size={18} className="sm:w-6 sm:h-6 text-[#c9a961]" /> ניתוח מקצועי מלא
                 </h3>
-                <div className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed font-normal whitespace-pre-line">
+                <div className="text-gray-700 text-sm sm:text-base leading-relaxed font-normal">
                   {loading ? (
                     <div className="flex items-center gap-3 italic text-base sm:text-lg text-right">
                       <Loader2 size={18} className="sm:w-5 sm:h-5 animate-spin text-blue-600" /> המערכת מנתחת את התיק שלכם...
                     </div>
-                  ) : aiAnalysis}
+                  ) : aiAnalysis ? (
+                    <FormattedAnalysis text={aiAnalysis} />
+                  ) : null}
                 </div>
                 <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 text-[10px] sm:text-xs text-slate-400 font-bold italic">
                   * החישוב מבוסס על ריביות עדכניות מבנק ישראל{ratesLastUpdated && ` (עודכן: ${new Date(ratesLastUpdated).toLocaleDateString('he-IL')})`}.
