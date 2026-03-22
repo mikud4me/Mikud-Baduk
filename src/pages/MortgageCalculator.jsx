@@ -171,7 +171,18 @@ export default function MortgageCalculator() {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(formData.email)) errors.email = "נא להזין כתובת אימייל אמיתית ותקינה";
     
-    if (!/^\d{9}$/.test(formData.idNumber)) errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
+    if (!/^\d{9}$/.test(formData.idNumber)) {
+      errors.idNumber = "ת.ז לא תקינה (9 ספרות)";
+    } else {
+      // אלגוריתם לוהן לבדיקת תקינות ת.ז ישראלית
+      let idSum = 0;
+      for (let i = 0; i < 9; i++) {
+        let d = Number(formData.idNumber[i]) * ((i % 2) + 1);
+        if (d > 9) d -= 9;
+        idSum += d;
+      }
+      if (idSum % 10 !== 0) errors.idNumber = "מספר ת.ז לא תקין — אנא הזן ת.ז אמיתית";
+    }
     
     // חישוב גיל מ-input type=date
     if (!formData.birthDate) {
