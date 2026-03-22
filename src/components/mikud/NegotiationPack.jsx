@@ -436,8 +436,8 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
 
            <div className="rounded-xl p-4 space-y-2 border border-gray-300">
              <p className="font-bold text-black mb-3 text-sm">פרטי התיק</p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
-                <span className="text-gray-500">שם לווה</span><span className="font-semibold">{displayName}</span>
+              <div className="space-y-2 text-sm">
+                <div className="flex gap-4"><span className="font-bold w-40">1. שם לווה</span><span className="text-black">{displayName}</span></div>
                 {isRefinance ? (
                   <>
                     <span className="text-gray-500">יתרת משכנתא קיימת</span><span className="font-semibold">₪{formatCurrency(results.balance)}</span>
