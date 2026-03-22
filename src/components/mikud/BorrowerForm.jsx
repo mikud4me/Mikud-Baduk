@@ -198,6 +198,85 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
         </div>
       )}
 
+      {/* שם, ת.ז וטלפון — ללווים נוספים בלבד (הלווה הראשי ממלא בשלב 1) */}
+      {!isFirst && (
+        <div className="space-y-1">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="mb-4 text-right">
+              <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+                <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                  <User size={16} className="text-gray-500" />
+                </div>
+                שם פרטי
+              </label>
+              <input
+                type="text"
+                placeholder="שם פרטי"
+                className="w-full bg-white h-12 px-4 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold text-right"
+                value={borrower.firstName || ''}
+                onChange={e => update('firstName', e.target.value)}
+              />
+            </div>
+            <div className="mb-4 text-right">
+              <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+                <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                  <User size={16} className="text-gray-500" />
+                </div>
+                שם משפחה
+              </label>
+              <input
+                type="text"
+                placeholder="שם משפחה"
+                className="w-full bg-white h-12 px-4 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold text-right"
+                value={borrower.lastName || ''}
+                onChange={e => update('lastName', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="mb-4 text-right">
+            <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+              <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                <BadgeCheck size={16} className="text-gray-500" />
+              </div>
+              מספר תעודת זהות
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="9 ספרות"
+              maxLength={9}
+              className={`w-full bg-white h-12 px-4 border-2 rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold text-right ${idError ? 'border-red-500' : 'border-[#1e3a5f]'}`}
+              value={borrower.idNumber || ''}
+              onChange={e => handleIdChange('idNumber', e.target.value)}
+            />
+            {idError && <p className="text-red-600 text-xs font-bold mt-1">{idError}</p>}
+            {!idError && borrower.idNumber?.length === 9 && (
+              <p className="text-green-600 text-xs font-bold mt-1">✓ ת.ז תקינה</p>
+            )}
+          </div>
+
+          <div className="mb-4 text-right">
+            <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
+              <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
+                <Phone size={16} className="text-gray-500" />
+              </div>
+              טלפון נייד
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="05XXXXXXXX"
+              maxLength={10}
+              className={`w-full bg-white h-12 px-4 border-2 rounded-xl outline-none focus:border-[#c9a961] transition-all text-gray-900 font-semibold text-right ${phoneError ? 'border-red-500' : 'border-[#1e3a5f]'}`}
+              value={borrower.phone || ''}
+              onChange={e => handlePhoneChange('phone', e.target.value)}
+            />
+            {phoneError && <p className="text-red-600 text-xs font-bold mt-1">{phoneError}</p>}
+          </div>
+        </div>
+      )}
+
       {/* מצב משפחתי + ילדים - ללווה ראשי בלבד */}
       {isFirst && (
         <>
