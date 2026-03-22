@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
-import { User, Briefcase, Calendar, ShieldCheck, Coins, AlertTriangle } from 'lucide-react';
+import { User, Briefcase, Calendar, ShieldCheck, Coins, AlertTriangle, Phone, BadgeCheck } from 'lucide-react';
 import PremiumInput from './PremiumInput';
+
+// אלגוריתם לוהן לבדיקת תקינות ת.ז ישראלית
+function validateIsraeliId(id) {
+  const str = String(id).trim();
+  if (!/^\d{9}$/.test(str)) return false;
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    let digit = Number(str[i]) * ((i % 2) + 1);
+    if (digit > 9) digit -= 9;
+    sum += digit;
+  }
+  return sum % 10 === 0;
+}
 
 const EMPLOYMENT_OPTIONS = [
   { val: 'employee', label: 'שכיר/ה' },
