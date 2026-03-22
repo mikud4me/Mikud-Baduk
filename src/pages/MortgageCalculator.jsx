@@ -403,6 +403,14 @@ ${results.score}/100
       setAiAnalysis(cleanAiText(analysis));
       setBankerEmail(email.replace(/[*#]/g, ''));
       
+      // בניית פרטי לווים נוספים לשמירה
+      const additionalBorrowersData = borrowers.slice(1).map(b => ({
+        fullName: `${b.firstName || ''} ${b.lastName || ''}`.trim(),
+        idNumber: b.idNumber || '',
+        phone: b.phone || '',
+        isSpouse: b.isSpouse || false,
+      })).filter(b => b.fullName || b.idNumber);
+
       const lead = await base44.entities.Lead.create({
         fullName,
         phone: formData.phone,
