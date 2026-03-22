@@ -1321,9 +1321,11 @@ ${results.score}/100
                   <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200">
                     <p className="text-xs text-gray-500 font-semibold mb-1">אחוז מימון (LTV)</p>
                     {(() => {
-                      const isAdditional = formData.mortgageType === 'purchase_additional';
-                      const isAnyPurpose = formData.mortgageType === 'any_purpose';
-                      const maxLTV = results.isReverse ? getReverseMortgageMaxLTV(formData.youngestBorrowerAge || formData.age) : results.isSenior ? SENIOR_BANK_MAX_LTV : isAdditional || isAnyPurpose ? 50 : formData.mortgageType === 'purchase_improve' ? 70 : 75;
+                       const isFirst = formData.mortgageType === 'purchase_first';
+                       const isImprove = formData.mortgageType === 'purchase_improve';
+                       const isAdditional = formData.mortgageType === 'purchase_additional';
+                       const isAnyPurpose = formData.mortgageType === 'any_purpose';
+                       const maxLTV = results.isReverse ? getReverseMortgageMaxLTV(formData.youngestBorrowerAge || formData.age) : results.isSenior ? SENIOR_BANK_MAX_LTV : isFirst ? 75 : isImprove ? 70 : isAdditional || isAnyPurpose ? 50 : 75;
                       return (
                         <>
                           <p className={`text-2xl font-black ${results.ltv > maxLTV ? 'text-red-600' : results.ltv > maxLTV * 0.93 ? 'text-yellow-600' : 'text-green-600'}`}>
