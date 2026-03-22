@@ -68,16 +68,16 @@ export default function FormattedAnalysis({ text }) {
         const bodyText = sec.body.join('\n').trim();
 
         return (
-          <div key={i} className={`rounded-xl border-r-4 ${color.border} ${color.bg} overflow-hidden`}>
+           <div key={i} className={`rounded-lg border-l-4 ${color.border} ${color.bg} overflow-hidden`}>
             {/* כותרת */}
             <div className="px-5 pt-4 pb-2 flex items-start gap-2">
-              <span className={`font-black text-base ${color.title}`}>{sec.num}.</span>
-              <h4 className={`font-black text-base leading-tight ${color.title}`}>{sec.title}</h4>
+              <span className={`font-bold text-base ${color.title}`}>{sec.num}.</span>
+              <h4 className={`font-bold text-base leading-tight ${color.title}`}>{sec.title}</h4>
             </div>
             {/* גוף */}
             {bodyText && (
               <div className="px-5 pb-4">
-                <p className="text-gray-800 text-sm leading-relaxed font-medium whitespace-pre-line">{bodyText}</p>
+                <p className="text-black text-sm leading-relaxed font-normal whitespace-pre-line">{bodyText}</p>
               </div>
             )}
           </div>
