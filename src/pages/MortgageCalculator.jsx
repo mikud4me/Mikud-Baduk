@@ -145,9 +145,9 @@ export default function MortgageCalculator() {
   const isSeniorBankMortgage = formData.mortgageType === 'senior_bank';
 
   const ALL_PURPOSE_RATES = useMemo(() => ({
-    FIXED_UNLINKED: (rates.FIXED_UNLINKED || 0.0505) + 0.004,
-    VAR_LINKED: (rates.VAR_LINKED || 0.0361) + 0.003,
-    PRIME_CALC: rates.PRIME_CALC || 0.0500,
+    FIXED_UNLINKED: (rates.FIXED_UNLINKED || 0.0470) + 0.004,
+    VAR_LINKED: (rates.VAR_LINKED || 0.0315) + 0.003,
+    PRIME_CALC: rates.PRIME_CALC || 0.0490,
   }), [rates]);
 
   const maxTerm = useMemo(() => {
