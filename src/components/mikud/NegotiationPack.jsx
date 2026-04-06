@@ -259,7 +259,6 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
       icon: '👔',
       docs: [
         '3 תלושי שכר אחרונים',
-        'אישור מעסיק על המשך העסקה',
       ],
     }] : []),
     ...(hasSelfEmployed ? [{
@@ -462,7 +461,6 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
                             </>
                           )}
                           <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. אחוז מימון (LTV)</span><span className="text-black">{results.ltv?.toFixed(1)}% (תקרה: {formData.mortgageType === 'purchase_first' ? '75%' : formData.mortgageType === 'purchase_improve' ? '70%' : formData.mortgageType === 'purchase_additional' ? '50%' : formData.mortgageType === 'any_purpose' ? '50%' : '50%'})</span></div>
-                          <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. יחס החזר (DTI)</span><span className="text-black">{results.dti?.toFixed(1)}%</span></div>
                           <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. תקופת הלוואה</span><span className="text-black">{formData.loanDuration} שנים</span></div>
                           <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. מטרת ההלוואה</span><span className="text-black">{{
                             purchase_first: 'רכישת דירה ראשונה',

@@ -9,7 +9,7 @@ const fmt = (val) => {
 const MIX_META = {
   recommended: {
     icon: Sparkles,
-    label: 'מומלץ',
+    label: 'מאוזן',
     labelColor: 'from-[#c9a961] to-[#d4b975]',
     borderColor: 'border-[#c9a961]/60',
     glowColor: 'shadow-[0_0_40px_rgba(201,169,97,0.25)]',
@@ -20,7 +20,7 @@ const MIX_META = {
     cons: ['החזר עשוי להשתנות עם שינויי ריבית'],
     riskLabel: 'סיכון מאוזן',
     riskColor: 'text-blue-400',
-    badge: '⭐ מומלץ',
+    badge: '✦ אסטרטגי',
   },
   conservative: {
     icon: ShieldCheck,
@@ -70,7 +70,6 @@ function MixCard({ title, subtitle, tracks, totalPmt, isRecommended, mixType = '
         bg-gradient-to-b from-[#0f1e35] to-[#0a1628]
         ${meta.borderColor} ${meta.glowColor}
         transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1
-        ${isRecommended ? 'ring-2 ring-[#c9a961]/40' : ''}
       `}
       style={{
         boxShadow: isRecommended
@@ -323,7 +322,7 @@ export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYe
           subtitle={isRefinance ? mixB.subtitle : undefined}
           tracks={mixB.tracks}
           totalPmt={mixB.total}
-          isRecommended={true}
+          isRecommended={false}
           mixType="recommended"
           loanAmount={loanAmount}
           durationYears={durationYears}

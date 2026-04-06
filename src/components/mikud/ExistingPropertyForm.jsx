@@ -18,6 +18,20 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
 
+      {/* מקור הנכס — קבלן או יד שנייה */}
+      <PremiumInput
+        label="מקור הנכס הקיים"
+        name="propertySource"
+        value={data.propertySource || 'second_hand'}
+        icon={Building2}
+        onChange={update}
+        options={[
+          { val: 'second_hand', label: 'יד שנייה' },
+          { val: 'contractor', label: 'מקבלן' },
+        ]}
+        tooltip="בנכס מקבלן — יש בנק מלווה ספציפי שחייבים לעבוד מולו"
+      />
+
       <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl">
         <div className="flex items-start gap-3">
           <AlertTriangle size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
@@ -85,14 +99,17 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
             onChange={update}
             tooltip="ההחזר החודשי ייכלל בחישוב יחס ההחזר (DTI) שלך"
           />
-          <PremiumInput
-            label="שם הבנק המלווה"
-            name="existingMortgageBank"
-            value={data.existingMortgageBank || ''}
-            placeholder="לדוגמה: לאומי, הפועלים..."
-            icon={Building2}
-            onChange={update}
-          />
+          {data.propertySource === 'contractor' && (
+            <PremiumInput
+              label="שם הבנק המלווה (קבלן)"
+              name="existingMortgageBank"
+              value={data.existingMortgageBank || ''}
+              placeholder="לדוגמה: לאומי, הפועלים..."
+              icon={Building2}
+              onChange={update}
+              tooltip="בנכס מקבלן — הבנק המלווה של הקבלן רלוונטי לתהליך"
+            />
+          )}
 
           {/* אזהרת DTI */}
           <div className="p-3 bg-red-50 border-2 border-red-400 rounded-xl">
