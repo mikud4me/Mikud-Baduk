@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 const QUICK_QUESTIONS = [
   "מה התמהיל המומלץ?",
   "איך להוריד DTI?",
-  "מה הפריים היום?",
+  "מה הריביות היום?",
   "אילו מסמכים צריך?",
   "כמה אפשר לחסוך?",
   "קל\"צ מול פריים?",
@@ -21,7 +21,7 @@ const WELCOME_MSG = {
 שאל אותי כל דבר 😊`,
 };
 
-const buildSystemPrompt = (formData, results, isPurchased) => {
+const buildSystemPrompt = (formData, results, isPurchased, rates) => {
   const fmt = (n) => n ? Number(n).toLocaleString('he-IL') : 'לא צוין';
 
   // נתוני נכס ומשכנתא
@@ -59,7 +59,7 @@ const buildSystemPrompt = (formData, results, isPurchased) => {
   let mixInfo = '';
   if (results?.mixA && results?.mixB && results?.mixC) {
     const descMix = (m, name) => {
-      const tracks = (m.tracks || []).map(t => `${t.name || t.type}: ${t.rate ? (t.rate * 100).toFixed(2) + '%' : ''} / ${t.years || t.period_years}שנ / ₪${fmt(Math.floor(t.monthly || 0))}/חודש`).join(' | ');
+      const tracks = (m.tracks || []).map(t => `${t.name || t.type}: ${t.rate ? (t.rate * 100).toFixed(2) + '%' : ''} / ${t.years || t.period_years}שנ / ₪${fmt(Math.floor(t.pmt || t.monthly || 0))}/חודש`).join(' | ');
       return `${name}: סה"כ ₪${fmt(Math.floor(m.total || 0))}/חודש — ${tracks}`;
     };
     mixInfo = `
@@ -69,19 +69,24 @@ const buildSystemPrompt = (formData, results, isPurchased) => {
 • ${descMix(results.mixC, 'תמהיל פריים')}`;
   }
 
+  const excessAmount = results?.excessAmount || 0;
+  const excessNote = excessAmount > 0
+    ? `\n⚠️ פער מימון: הלקוח ביקש ₪${fmt(results.requestedLoanAmount)} אך הבנק יאשר עד ₪${fmt(results.loanAmount)} בלבד. פער של ₪${fmt(excessAmount)} לא מכוסה בנקאית.`
+    : '';
+
   const baseData = `
 ===== נתוני תיק הלקוח =====
 מטרת משכנתא: ${mortgageTypeMap[formData.mortgageType] || 'לא צוין'}
 שווי נכס: ₪${fmt(propertyPrice)}
 הון עצמי: ₪${fmt(equity)}
-סכום משכנתא: ₪${fmt(results?.loanAmount || 0)}
+סכום משכנתא מאושר: ₪${fmt(results?.loanAmount || 0)}${results?.requestedLoanAmount > results?.loanAmount ? ` (מבוקש: ₪${fmt(results.requestedLoanAmount)})` : ''}
 אחוז מימון (LTV): ${results?.ltv?.toFixed(1) || '?'}%
 יחס החזר (DTI): ${results?.isReverse ? 'לא רלוונטי (משכנתא הפוכה)' : (results?.dti?.toFixed(1) + '%' || '?')}
 תקופה: ${formData.loanDuration} שנים
 החזר חודשי מומלץ: ₪${fmt(Math.floor(results?.mixB?.total || 0))}
 ציון איכות: ${results?.score || '?'}/100
 מצב משפחתי: ${maritalMap[formData.maritalStatus] || 'לא צוין'}
-ילדים מתחת לגיל 18: ${formData.childrenUnder18 || 0}
+ילדים מתחת לגיל 18: ${formData.childrenUnder18 || 0}${excessNote}
 
 ===== לווים =====
 ${borrowerInfo}
@@ -97,12 +102,12 @@ ${isPurchased ? baseData : `הלקוח טרם רכש דוח מלא. נתונים
 - ענה בעברית נקייה, ברורה ומקצועית
 - היה ספציפי ומעשי — אל תהיה גנרי
 - ${isPurchased ? 'התייחס לנתוני התיק הספציפיים של הלקוח בתשובותיך' : 'ענה תשובות כלליות מועילות. בסוף הזכר שלניתוח מדויק כדאי לרכוש דוח מלא או לפנות ל-2324*'}
-- אם שואלים על ריביות עדכניות — ציין שהריבית הבסיסית (פריים) עומדת כיום על 5.75% (פריים = בנק ישראל + 1.5%)
+- ריביות עדכניות שמשמשות את המערכת כעת: פריים=${rates?.PRIME ? (rates.PRIME * 100).toFixed(2) : '5.50'}%, פריים ללקוח (P-0.6%)=${rates?.PRIME_CALC ? (rates.PRIME_CALC * 100).toFixed(2) : '4.90'}%, קל"צ=${rates?.FIXED_UNLINKED ? (rates.FIXED_UNLINKED * 100).toFixed(2) : '4.70'}%, קצ"מ=${rates?.VAR_LINKED ? (rates.VAR_LINKED * 100).toFixed(2) : '3.15'}%, משתנה לא צמודה=${rates?.VAR_UNLINKED ? (rates.VAR_UNLINKED * 100).toFixed(2) : '4.58'}%, קבועה צמודה=${rates?.FIXED_LINKED ? (rates.FIXED_LINKED * 100).toFixed(2) : '3.20'}%
 - אם רלוונטי — המלץ לפנות ליועץ אנושי ב-2324*
 - תשובה מפורטת ככל שנדרש, אל תקצר אם השאלה מורכבת`;
 };
 
-export default function MikoChat({ formData, results, isPurchased, isOpen, setIsOpen }) {
+export default function MikoChat({ formData, results, isPurchased, isOpen, setIsOpen, rates }) {
   const [messages, setMessages] = useState([WELCOME_MSG]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -132,7 +137,7 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
       .map(m => `${m.role === 'user' ? 'לקוח' : 'מיקו'}: ${m.text}`)
       .join('\n\n');
 
-    const systemPrompt = buildSystemPrompt(formData, results, isPurchased);
+    const systemPrompt = buildSystemPrompt(formData, results, isPurchased, rates);
 
     try {
       const response = await base44.integrations.Core.InvokeLLM({

@@ -1528,7 +1528,7 @@ ${results.score}/100
         )}
       </main>
 
-      <MikoChat formData={formData} results={results} isPurchased={isPurchased} isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
+      <MikoChat formData={formData} results={results} isPurchased={isPurchased} isOpen={isChatOpen} setIsOpen={setIsChatOpen} rates={rates} />
 
       {/* סקשנים תחתונים — מוצגים רק בשלב 1 לפני מילוי */}
       {step === 1 && !otpSent && (
