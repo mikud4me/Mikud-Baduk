@@ -295,7 +295,20 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   const eq            = Number(String(formData.equity).replace(/,/g, '')) || 0;
   const duration      = Math.min(maxTerm, Number(formData.loanDuration) || maxTerm);
   const requestedLoan = Number(String(formData.loanAmount || '').replace(/,/g, '')) || 0;
-  const loanAmount    = requestedLoan > 0 ? requestedLoan : Math.max(0, price - eq);
+  const rawLoanAmount = requestedLoan > 0 ? requestedLoan : Math.max(0, price - eq);
+
+  // חישוב LTV מקסימלי לפי סוג עסקה
+  const isFirst      = formData.mortgageType === 'purchase_first';
+  const isImproveT   = formData.mortgageType === 'purchase_improve';
+  const isAdditionalT = formData.mortgageType === 'purchase_additional';
+  const isAnyPurposeT = formData.mortgageType === 'any_purpose';
+  const maxLTVPct    = isFirst ? 0.75 : isImproveT ? 0.70 : (isAdditionalT || isAnyPurposeT) ? 0.50 : 0.75;
+  const maxAllowedLoan = price > 0 ? price * maxLTVPct : rawLoanAmount;
+
+  // סכום אמיתי לניתוח = לא יותר מהמותר
+  const loanAmount    = Math.min(rawLoanAmount, maxAllowedLoan);
+  const excessAmount  = Math.max(0, rawLoanAmount - maxAllowedLoan);
+
   const ltv           = price > 0 ? (loanAmount / price) : 0;
   const totalInc      = calcTotalIncome(borrowers);
   const debts         = Number(String(formData.monthlyDebts).replace(/,/g, '')) || 0;
@@ -344,41 +357,45 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   const youngestAge = Number(formData.youngestBorrowerAge) || Number(formData.age) || 60;
   const maxReverseLTV = isReverse ? getReverseMortgageMaxLTV(youngestAge) : 75;
 
+  // אזהרת פער מימון — כשהסכום המבוקש עולה על המותר
+  const excessWarning = excessAmount > 0
+    ? `⚠️ הסכום המבוקש (₪${formatCurrency(rawLoanAmount)}) עולה על המקסימום הבנקאי (₪${formatCurrency(Math.floor(maxAllowedLoan))} — ${Math.round(maxLTVPct * 100)}% LTV). הניתוח מבוצע על ₪${formatCurrency(loanAmount)}. הפרש של ₪${formatCurrency(excessAmount)} ניתן לגייס דרך מימון חוץ-בנקאי (ריביות 8%-18%) או עד 85% מימון בתנאים מיוחדים — מומלץ להתייעץ עם יועץ לפני התחייבות.`
+    : null;
+
   let status = {
     color: 'green',
     text: isReverse ? 'כשיר למשכנתא לגיל הזהב' : isSenior ? 'כשיר - משכנתא בנקאית לגיל הזהב' : 'כשיר להגשה לבנק',
     subtitle: isReverse ? `אחוז מימון מקסימלי לגילך: ${maxReverseLTV}%` : isSenior ? `מקסימום ${SENIOR_BANK_MAX_LTV}% מימון | עד 30 שנה | ללא ביטוח חיים חובה` : formData.mortgageType === 'purchase_additional' ? 'התיק עומד בתקני בנק ישראל — שים לב: מס רכישה 8% על נכס נוסף' : 'התיק עומד בתקני בנק ישראל',
-    action: null,
-    icon: 'check',
+    action: excessWarning,
+    icon: excessAmount > 0 ? 'warning' : 'check',
+    excessAmount,
+    excessWarning,
   };
 
   if (isReverse) {
     if (ltvPercent > maxReverseLTV) {
       const excessLoan = loanAmount - (price * maxReverseLTV / 100);
-      status = { color: 'red', text: 'דורש התאמה', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר לגילך`, action: `יש להקטין את הסכום המבוקש ב-₪${formatCurrency(Math.floor(excessLoan))} (מקסימום ${maxReverseLTV}% מימון בגיל ${youngestAge}).`, icon: 'alert' };
+      status = { ...status, color: 'red', text: 'דורש התאמה', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר לגילך`, action: `יש להקטין את הסכום המבוקש ב-₪${formatCurrency(Math.floor(excessLoan))} (מקסימום ${maxReverseLTV}% מימון בגיל ${youngestAge}).`, icon: 'alert' };
     }
   } else if (isSenior) {
     if (ltvPercent > SENIOR_BANK_MAX_LTV) {
       const excessLoan = loanAmount - (price * SENIOR_BANK_MAX_LTV / 100);
-      status = { color: 'red', text: 'דורש התאמה', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר (מקסימום ${SENIOR_BANK_MAX_LTV}%)`, action: `יש להקטין את הסכום המבוקש ב-₪${formatCurrency(Math.floor(excessLoan))} להורדת המימון ל-${SENIOR_BANK_MAX_LTV}%.`, icon: 'alert' };
+      status = { ...status, color: 'red', text: 'דורש התאמה', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר (מקסימום ${SENIOR_BANK_MAX_LTV}%)`, action: `יש להקטין את הסכום המבוקש ב-₪${formatCurrency(Math.floor(excessLoan))} להורדת המימון ל-${SENIOR_BANK_MAX_LTV}%.`, icon: 'alert' };
     }
   } else {
-    const isFirst = formData.mortgageType === 'purchase_first';
-    const isImprove = formData.mortgageType === 'purchase_improve';
-    const isAdditional = formData.mortgageType === 'purchase_additional';
-    const isAnyPurpose = formData.mortgageType === 'any_purpose';
-    const maxLTV = isFirst ? 75 : isImprove ? 70 : isAdditional || isAnyPurpose ? 50 : 75;
-
     if (dti > 45) {
       const excessPayment = pmtB - (freeIncome * 0.40);
-      status = { color: 'red', text: 'דורש התאמת נתונים', subtitle: `יחס החזר ${dti.toFixed(1)}% חורג מהמותר`, action: `יש להקטין את ההחזר החודשי ב-₪${formatCurrency(Math.floor(excessPayment))} או להגדיל הכנסות.`, icon: 'alert' };
-    } else if (ltvPercent > maxLTV) {
-      const excessLoan = loanAmount - (price * maxLTV / 100);
-      status = { color: 'red', text: 'דורש התאמת נתונים', subtitle: `אחוז מימון ${ltvPercent.toFixed(1)}% חורג מהמותר`, action: `נדרש הון עצמי נוסף של ₪${formatCurrency(Math.floor(excessLoan))} להורדת אחוז המימון ל-${maxLTV}%.`, icon: 'alert' };
+      const baseAction = `יש להקטין את ההחזר החודשי ב-₪${formatCurrency(Math.floor(excessPayment))} או להגדיל הכנסות.`;
+      status = { ...status, color: 'red', text: 'דורש התאמת נתונים', subtitle: `יחס החזר ${dti.toFixed(1)}% חורג מהמותר`, action: excessWarning ? `${baseAction}\n${excessWarning}` : baseAction, icon: 'alert' };
     } else if (dti > 40) {
-      status = { color: 'yellow', text: 'דורש אישור מיוחד', subtitle: `יחס החזר ${dti.toFixed(1)}% גבולי`, action: 'מומלץ להאריך תקופת הלוואה, לצמצם הלוואות קיימות, או להגדיל הכנסות.', icon: 'warning' };
+      const baseAction = 'מומלץ להאריך תקופת הלוואה, לצמצם הלוואות קיימות, או להגדיל הכנסות.';
+      status = { ...status, color: 'yellow', text: 'דורש אישור מיוחד', subtitle: `יחס החזר ${dti.toFixed(1)}% גבולי`, action: excessWarning ? `${baseAction}\n${excessWarning}` : baseAction, icon: 'warning' };
     } else if (dti > 35) {
-      status = { color: 'yellow', text: 'כשיר עם המלצה לשיפור', subtitle: `יחס החזר ${dti.toFixed(1)}% טוב`, action: 'תיק תקין. ניתן לשפר ע"י הארכת תקופה או תמהיל אסטרטגי לחיסכון בריבית.', icon: 'info' };
+      const baseAction = 'תיק תקין. ניתן לשפר ע"י הארכת תקופה או תמהיל אסטרטגי לחיסכון בריבית.';
+      status = { ...status, color: 'yellow', text: 'כשיר עם המלצה לשיפור', subtitle: `יחס החזר ${dti.toFixed(1)}% טוב`, action: excessWarning ? `${baseAction}\n${excessWarning}` : baseAction, icon: 'info' };
+    } else if (excessWarning) {
+      // כשיר אבל יש פער מימון
+      status = { ...status, color: 'yellow', text: 'כשיר — אך שים לב לפער המימון', subtitle: `הבנק יאשר ₪${formatCurrency(loanAmount)} (${Math.round(maxLTVPct * 100)}% מימון מקסימלי)`, action: excessWarning, icon: 'warning' };
     }
   }
 
@@ -395,6 +412,8 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
     loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration,
     status, score: qualityScore, isReverse, isSenior, isBalloon,
     balloonMonthly, regularMonthly,
+    requestedLoanAmount: rawLoanAmount,
+    excessAmount,
     dynamicMixProfile: { primePct: dynamicMix.primePct, fixedPct: dynamicMix.fixedPct, varPct: dynamicMix.varPct },
     mixA: {
       tracks: [{ name: isSenior ? "100% קבועה לא צמודה (כל מטרה)" : "100% קבועה לא צמודה", amount: loanAmount, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "⚠️ בלון - ריבית בלבד" : "הגנה מלאה" }],

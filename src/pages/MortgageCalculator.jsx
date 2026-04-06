@@ -1238,6 +1238,33 @@ ${results.score}/100
 
                 <div className="p-4 sm:p-8 md:p-12">
 
+              {/* באנר פער מימון — מוצג כשהסכום המבוקש עולה על המקסימום */}
+              {!isRefinance && results.excessAmount > 0 && (
+                <div className="mb-6 p-5 rounded-2xl border-2 border-amber-400 bg-amber-50 text-right animate-in slide-in-from-top-4 duration-500">
+                  <div className="flex items-start gap-3">
+                    <div className="text-3xl flex-shrink-0">⚠️</div>
+                    <div>
+                      <p className="font-black text-amber-900 text-base mb-1">
+                        הבנק יאשר עד ₪{formatCurrency(results.loanAmount)} — לא את הסכום המבוקש
+                      </p>
+                      <p className="text-amber-800 text-sm font-bold leading-relaxed mb-3">
+                        ביקשת ₪{formatCurrency(results.requestedLoanAmount)}, אך לפי תקנות בנק ישראל ניתן לקבל עד{" "}
+                        ₪{formatCurrency(results.loanAmount)}.<br/>
+                        <span className="text-amber-900">פער של ₪{formatCurrency(results.excessAmount)} לא מכוסה על ידי הבנק.</span>
+                      </p>
+                      <div className="bg-amber-100 border border-amber-300 rounded-xl p-4 space-y-1">
+                        <p className="font-black text-amber-900 text-sm mb-2">אפשרויות לכיסוי הפער:</p>
+                        <p className="text-amber-800 text-xs">🏦 מימון חוץ-בנקאי — ריביות 8%–18%, ללא הגבלת LTV</p>
+                        <p className="text-amber-800 text-xs">📈 מימון עד 85% — בתנאים מיוחדים, ריביות גבוהות יותר</p>
+                        <p className="text-amber-800 text-xs">💰 הגדלת הון עצמי — מחסכונות, קרן השתלמות או עזרת משפחה</p>
+                        <p className="text-red-700 text-xs font-bold mt-2">⚡ מומלץ להתייעץ עם יועץ לפני התחייבות לכל מסלול חוץ-בנקאי.</p>
+                      </div>
+                      <p className="text-amber-700 text-xs mt-3 italic">* הניתוח הבא מתבצע על הסכום הבנקאי המאושר: ₪{formatCurrency(results.loanAmount)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* תעודת כשירות / תוצאת מחזור */}
               {isRefinance ? (
                 <div className="mb-8 sm:mb-12">
