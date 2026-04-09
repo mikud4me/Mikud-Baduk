@@ -54,7 +54,7 @@ const MIX_META = {
   },
 };
 
-function MixCard({ title, subtitle, tracks, totalPmt, isRecommended, mixType = 'recommended', loanAmount, durationYears, saving }) {
+function MixCard({ title, subtitle, tracks, totalPmt, isRecommended, mixType = 'recommended', loanAmount, durationYears, saving, isValid = true }) {
   const [expanded, setExpanded] = useState(false);
   const meta = MIX_META[mixType] || MIX_META.recommended;
   const Icon = meta.icon;
@@ -68,20 +68,36 @@ function MixCard({ title, subtitle, tracks, totalPmt, isRecommended, mixType = '
       className={`
         relative flex flex-col rounded-3xl border overflow-hidden text-right
         bg-gradient-to-b from-[#0f1e35] to-[#0a1628]
-        ${meta.borderColor} ${meta.glowColor}
+        ${isValid ? meta.borderColor : 'border-red-500/60'} ${isValid ? meta.glowColor : 'shadow-[0_0_30px_rgba(239,68,68,0.2)]'}
         transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1
       `}
       style={{
-        boxShadow: isRecommended
+        boxShadow: !isValid
+          ? '0 8px 32px rgba(239,68,68,0.2), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
+          : isRecommended
           ? '0 8px 32px rgba(201,169,97,0.2), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
           : '0 8px 24px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03)',
       }}
     >
       {/* פס עליון מואר */}
       <div
-        className={`h-0.5 w-full bg-gradient-to-r ${meta.labelColor}`}
-        style={{ boxShadow: `0 0 12px ${meta.accentColor}80` }}
+        className={`h-0.5 w-full bg-gradient-to-r ${isValid ? meta.labelColor : 'from-red-500 to-red-600'}`}
+        style={{ boxShadow: isValid ? `0 0 12px ${meta.accentColor}80` : '0 0 12px rgba(239,68,68,0.8)' }}
       />
+
+      {/* שכבת אזהרה אם תמהיל לא תקין */}
+      {!isValid && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-red-950/80 backdrop-blur-sm rounded-3xl p-6 text-center">
+          <div className="text-4xl mb-3">⛔</div>
+          <p className="text-red-300 font-black text-base mb-2">תמהיל זה חורג מכושר ההחזר שלך</p>
+          <p className="text-red-400/80 text-xs leading-relaxed">
+            ההחזר החודשי של תמהיל זה עולה על 40% מהכנסתך הפנויה — הבנק לא יאשר אותו בסטנדרט רגיל.
+          </p>
+          <div className="mt-4 px-4 py-2.5 rounded-xl bg-amber-500/20 border border-amber-400/40">
+            <p className="text-amber-300 text-[11px] font-bold">💡 ניתן לשקול מסלולים צמודי מדד בלבד, הגדלת הכנסות, או הקטנת סכום ההלוואה</p>
+          </div>
+        </div>
+      )}
 
       {/* תג */}
       <div className="absolute top-4 left-4 z-10">
@@ -286,7 +302,7 @@ function AiTip({ text }) {
   );
 }
 
-export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYears, isRefinance, aiTip, isPurchased }) {
+export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYears, isRefinance, aiTip, isPurchased, isDeclarationApprovalPossible }) {
   const aiText = aiTip || (isPurchased
     ? `על בסיס הפרופיל שלך, התמהיל המאוזן מציע את האיזון הטוב ביותר בין יציבות לחיסכון בריבית.`
     : null);
@@ -327,6 +343,7 @@ export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYe
           loanAmount={loanAmount}
           durationYears={durationYears}
           saving={isRefinance ? mixB.saving : undefined}
+          isValid={mixB.isValid !== false}
         />
         <MixCard
           title={isRefinance ? mixA.label : 'תמהיל שמרני'}
@@ -337,6 +354,7 @@ export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYe
           loanAmount={loanAmount}
           durationYears={durationYears}
           saving={isRefinance ? mixA.saving : undefined}
+          isValid={mixA.isValid !== false}
         />
         <MixCard
           title={isRefinance ? mixC.label : 'תמהיל פריים'}
@@ -347,8 +365,31 @@ export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYe
           loanAmount={loanAmount}
           durationYears={durationYears}
           saving={isRefinance ? mixC.saving : undefined}
+          isValid={mixC.isValid !== false}
         />
       </div>
+
+      {/* הודעת אישור על בסיס תצהיר — כשהתשלום המינימלי עובר את הבדיקה */}
+      {!isRefinance && isDeclarationApprovalPossible && (
+        <div
+          dir="rtl"
+          className="rounded-2xl p-5 border-2 border-amber-400/50"
+          style={{ background: 'linear-gradient(135deg, rgba(180,130,0,0.12), rgba(180,130,0,0.05))' }}
+        >
+          <div className="flex items-start gap-3">
+            <span className="text-2xl flex-shrink-0">📋</span>
+            <div>
+              <p className="text-amber-300 font-black text-sm mb-1">אפשרות: אישור על בסיס תצהיר</p>
+              <p className="text-amber-200/70 text-xs leading-relaxed">
+                על בסיס התשלום המינימלי המחושב (⅓ קבועה צמודה + ⅔ משתנה צמודה לתקופה מלאה), ניתן לקבל אישור עקרוני על פי <strong className="text-amber-300">הצהרה עצמית של הלווה</strong> בפני הבנק.
+              </p>
+              <div className="mt-2 px-3 py-2 rounded-xl bg-red-500/15 border border-red-400/30">
+                <p className="text-red-300 text-[11px] font-bold">⚠️ חשוב: מסלול זה אינו מומלץ — הוא מוגביל, עלול לדרוש ערבים נוספים, ומסייג את כושר המשכון העתידי. מומלץ מאוד להתייעץ עם יועץ לפני בחירה במסלול זה.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* טיפ AI */}
       {aiText && <AiTip text={aiText} />}

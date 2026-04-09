@@ -430,6 +430,14 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   const dynamicMix = calcDynamicMix({ loanAmount, duration, dti, ltv: ltvPercent, borrowers, formData, rates, ALL_PURPOSE_RATES, isSenior, isBalloon });
   const pmtBdynamic = dynamicMix.total;
 
+  // בדיקת תקינות פרטנית לכל תמהיל — האם ההחזר עומד בתקרת 40% DTI
+  const maxAllowedPayment = freeIncome * 0.40;
+  const mixATotal = calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration);
+  const mixCTotal = calcPmt(loanAmount * 0.5, activeRates.PRIME_CALC, duration) + calcPmt(loanAmount * 0.5, activeRates.FIXED_UNLINKED, duration);
+
+  // האם ניתן לקבל אישור על בסיס תצהיר (התשלום המינימלי עובר את הבדיקה)
+  const isDeclarationApprovalPossible = !isReverse && !isSenior && totalInc > 0 && totalInc >= minMixData.requiredIncome;
+
   return {
     loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration,
     status, score: qualityScore, isReverse, isSenior, isBalloon,
@@ -437,19 +445,25 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
     requestedLoanAmount: rawLoanAmount,
     excessAmount,
     minMix: minMixData,
-    totalIncome: totalInc,
+    isDeclarationApprovalPossible,
     dynamicMixProfile: { primePct: dynamicMix.primePct, fixedPct: dynamicMix.fixedPct, varPct: dynamicMix.varPct },
     mixA: {
-      tracks: [{ name: isSenior ? "100% קבועה לא צמודה (כל מטרה)" : "100% קבועה לא צמודה", amount: loanAmount, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "⚠️ בלון - ריבית בלבד" : "הגנה מלאה" }],
-      total: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration),
+      tracks: [{ name: isSenior ? "100% קבועה לא צמודה (כל מטרה)" : "100% קבועה לא צמודה", amount: loanAmount, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: mixATotal, desc: isSenior && isBalloon ? "⚠️ בלון - ריבית בלבד" : "הגנה מלאה" }],
+      total: mixATotal,
+      isValid: isReverse || isSenior || mixATotal <= maxAllowedPayment,
     },
-    mixB: { tracks: dynamicMix.tracks, total: pmtBdynamic },
+    mixB: {
+      tracks: dynamicMix.tracks,
+      total: pmtBdynamic,
+      isValid: isReverse || isSenior || pmtBdynamic <= maxAllowedPayment,
+    },
     mixC: {
       tracks: [
         { name: "50% פריים (Prime)", amount: loanAmount * 0.5, rate: activeRates.PRIME_CALC, years: duration, pmt: calcPmt(loanAmount * 0.5, activeRates.PRIME_CALC, duration), desc: isSenior && isBalloon ? "ריבית בלבד" : "ניצול שוק" },
         { name: isSenior ? "50% קבועה (כל מטרה)" : "50% קבועה (קל\"צ)", amount: loanAmount * 0.5, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount * 0.5, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "ריבית בלבד" : "עוגן יציבות" },
       ],
-      total: calcPmt(loanAmount * 0.5, activeRates.PRIME_CALC, duration) + calcPmt(loanAmount * 0.5, activeRates.FIXED_UNLINKED, duration),
+      total: mixCTotal,
+      isValid: isReverse || isSenior || mixCTotal <= maxAllowedPayment,
     },
   };
 };
