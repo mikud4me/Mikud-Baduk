@@ -373,17 +373,16 @@ export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYe
       {!isRefinance && isDeclarationApprovalPossible && (
         <div
           dir="rtl"
-          className="rounded-2xl p-5 border-2 border-amber-400/50"
-          style={{ background: 'linear-gradient(135deg, rgba(180,130,0,0.12), rgba(180,130,0,0.05))' }}
+          className="rounded-2xl p-5 border-2 border-amber-500 bg-amber-950"
         >
           <div className="flex items-start gap-3">
             <span className="text-2xl flex-shrink-0">📋</span>
             <div>
               <p className="text-amber-300 font-black text-sm mb-1">אפשרות: אישור על בסיס תצהיר</p>
-              <p className="text-amber-200/70 text-xs leading-relaxed">
-                על בסיס התשלום המינימלי המחושב (⅓ קבועה צמודה + ⅔ משתנה צמודה לתקופה מלאה), ניתן לקבל אישור עקרוני על פי <strong className="text-amber-300">הצהרה עצמית של הלווה</strong> בפני הבנק.
+              <p className="text-amber-100 text-xs leading-relaxed">
+                על בסיס התשלום המינימלי המחושב (⅓ קבועה צמודה + ⅔ משתנה צמודה לתקופה מלאה), ניתן לקבל אישור עקרוני על פי <strong className="text-white">הצהרה עצמית של הלווה</strong> בפני הבנק.
               </p>
-              <div className="mt-2 px-3 py-2 rounded-xl bg-red-500/15 border border-red-400/30">
+              <div className="mt-2 px-3 py-2 rounded-xl bg-red-900/60 border border-red-400/50">
                 <p className="text-red-300 text-[11px] font-bold">⚠️ חשוב: מסלול זה אינו מומלץ — הוא מוגביל, עלול לדרוש ערבים נוספים, ומסייג את כושר המשכון העתידי. מומלץ מאוד להתייעץ עם יועץ לפני בחירה במסלול זה.</p>
               </div>
             </div>

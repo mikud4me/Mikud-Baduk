@@ -1141,7 +1141,7 @@ ${results.score}/100
             <div className="mt-12 flex gap-4 text-right" dir="rtl">
               {step > 1 && (
                 <button 
-                  onClick={() => { if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1); scrollToTop(); }} 
+                  onClick={() => { if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1); }} 
                   className="flex-1 h-14 rounded-full font-bold text-base text-gray-600 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 text-center group"
                 >
                   <span className="group-hover:-translate-x-1 inline-block transition-transform">← חזור</span>
@@ -1168,7 +1168,7 @@ ${results.score}/100
                     // מחזור: דלג על שלב 5 (הון עצמי) ושלב 6 (תקופה) — לא רלוונטיים
                     if (isRefinance && step === 4) { generateFullAnalysis(); scrollToTop(); }
                     else if (step === 6) { generateFullAnalysis(); scrollToTop(); }
-                    else { setStep(s => s + 1); scrollToTop(); }
+                    else { setStep(s => s + 1); }
                   }
                 }} 
                 className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
@@ -1395,48 +1395,46 @@ ${results.score}/100
               
               {/* כרטיס תשלום מינימלי + הכנסה נדרשת */}
               {!isRefinance && results.minMix && (
-                <div className="mb-6 sm:mb-8 p-5 sm:p-7 rounded-2xl border-2 border-emerald-400/50 bg-gradient-to-br from-emerald-950/60 to-teal-950/60 text-right animate-in slide-in-from-bottom-4 duration-500">
+                <div className="mb-6 sm:mb-8 p-5 sm:p-7 rounded-2xl border-2 border-emerald-500 bg-white text-right animate-in slide-in-from-bottom-4 duration-500" style={{boxShadow: '0 4px 20px rgba(16,185,129,0.15)'}}>
                   <div className="flex items-center gap-2 mb-4">
-                    <TrendingDown size={18} className="text-emerald-400" />
-                    <h3 className="text-base font-black text-emerald-300">תשלום מינימלי אפשרי + הכנסה נדרשת</h3>
+                    <TrendingDown size={18} className="text-emerald-600" />
+                    <h3 className="text-base font-black text-emerald-800">תשלום מינימלי אפשרי + הכנסה נדרשת</h3>
                   </div>
-                  <p className="text-emerald-200/60 text-xs mb-4 leading-relaxed">
+                  <p className="text-emerald-700 text-xs mb-4 leading-relaxed font-medium">
                     תמהיל: ⅓ קבועה צמודה + ⅔ משתנה צמודה | תקופה מקסימלית: {results.minMix.term} שנים
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white/5 rounded-xl p-4 text-center border border-emerald-400/20">
-                      <p className="text-emerald-300/70 text-xs font-semibold mb-1">תשלום חודשי מינימלי</p>
-                      <p className="text-3xl font-black text-emerald-300">₪{formatCurrency(Math.floor(results.minMix.minMonthlyPayment))}</p>
-                      <p className="text-emerald-400/50 text-[10px] mt-1">לחודש (DTI 40%)</p>
+                    <div className="bg-emerald-50 rounded-xl p-4 text-center border-2 border-emerald-200">
+                      <p className="text-emerald-700 text-xs font-semibold mb-1">תשלום חודשי מינימלי</p>
+                      <p className="text-3xl font-black text-emerald-700">₪{formatCurrency(Math.floor(results.minMix.minMonthlyPayment))}</p>
+                      <p className="text-emerald-500 text-[10px] mt-1">לחודש (DTI 40%)</p>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-4 text-center border border-emerald-400/20">
-                      <p className="text-emerald-300/70 text-xs font-semibold mb-1">הכנסה נדרשת לאישור</p>
-                      <p className="text-3xl font-black text-emerald-200">₪{formatCurrency(Math.floor(results.minMix.requiredIncome))}</p>
-                      <p className="text-emerald-400/50 text-[10px] mt-1">נטו לחודש (100% = תשלום / 40%)</p>
+                    <div className="bg-blue-50 rounded-xl p-4 text-center border-2 border-blue-200">
+                      <p className="text-blue-700 text-xs font-semibold mb-1">הכנסה נדרשת לאישור</p>
+                      <p className="text-3xl font-black text-blue-700">₪{formatCurrency(Math.floor(results.minMix.requiredIncome))}</p>
+                      <p className="text-blue-500 text-[10px] mt-1">נטו לחודש (תשלום / 40%)</p>
                     </div>
                   </div>
-                  {/* פירוט המסלולים */}
                   <div className="space-y-2 mb-4">
                     {results.minMix.tracks.map((t, i) => (
-                      <div key={i} className="flex items-center justify-between bg-white/5 rounded-xl px-4 py-2.5 border border-white/5">
-                        <span className="text-emerald-200/80 text-xs font-bold">{t.name}</span>
+                      <div key={i} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-200">
+                        <span className="text-gray-700 text-xs font-bold">{t.name}</span>
                         <div className="flex items-center gap-4">
-                          <span className="text-emerald-400/70 text-[10px]">{(t.rate * 100).toFixed(2)}% | {t.years} שנ'</span>
-                          <span className="text-emerald-300 font-black text-sm">₪{formatCurrency(Math.floor(t.pmt))}</span>
+                          <span className="text-gray-500 text-[10px]">{(t.rate * 100).toFixed(2)}% | {t.years} שנ'</span>
+                          <span className="text-emerald-700 font-black text-sm">₪{formatCurrency(Math.floor(t.pmt))}</span>
                         </div>
                       </div>
                     ))}
                   </div>
-                  {/* השוואה להכנסה בפועל */}
                   {results.totalIncome > 0 && (
                     <div className={`rounded-xl p-3 border-2 text-center ${
                       results.totalIncome >= results.minMix.requiredIncome
-                        ? 'border-emerald-400/50 bg-emerald-500/10'
-                        : 'border-red-400/50 bg-red-500/10'
+                        ? 'border-emerald-400 bg-emerald-50'
+                        : 'border-red-400 bg-red-50'
                     }`}>
-                      <p className="text-xs font-bold text-white/60 mb-1">הכנסה נוכחית מול נדרשת</p>
+                      <p className="text-xs font-bold text-gray-600 mb-1">הכנסה נוכחית מול נדרשת</p>
                       <p className={`text-base font-black ${
-                        results.totalIncome >= results.minMix.requiredIncome ? 'text-emerald-300' : 'text-red-300'
+                        results.totalIncome >= results.minMix.requiredIncome ? 'text-emerald-700' : 'text-red-600'
                       }`}>
                         ₪{formatCurrency(Math.floor(results.totalIncome))} {results.totalIncome >= results.minMix.requiredIncome ? '✓ עומד בדרישה' : '✗ לא עומד — חסר ₪' + formatCurrency(Math.floor(results.minMix.requiredIncome - results.totalIncome))}
                       </p>
@@ -1451,10 +1449,16 @@ ${results.score}/100
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none break-all">₪{formatCurrency(isRefinance ? results.balance : results.loanAmount)}</div>
                   <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-300">{isRefinance ? `ריבית קיימת משוערת: ${results.impliedRate?.toFixed(2)}%` : `${results.ltv.toFixed(1)}% מימון מהנכס`}</div>
                 </div>
-                <div className="p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border border-[#c9a961]/20">
+                <div className={`p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border-2 ${!isRefinance && results.dti > 40 ? 'bg-red-50 border-red-400' : 'bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border-[#c9a961]/20'}`}>
                   <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">{isRefinance ? 'החזר חודשי חדש' : 'החזר חודשי משוער'}</span>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none text-[#1e3a5f]">₪{formatCurrency(Math.floor(results.mixB.total))}</div>
+                  <div className={`text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none ${!isRefinance && results.dti > 40 ? 'text-red-600' : 'text-[#1e3a5f]'}`}>₪{formatCurrency(Math.floor(results.mixB.total))}</div>
                   <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{isRefinance ? `חיסכון: ₪${formatCurrency(results.monthlySaving)} לחודש` : results.isBalloon ? 'בלון — ריבית בלבד' : 'תמהיל מאוזן מומלץ'}</div>
+                  {!isRefinance && results.dti > 40 && (
+                    <div className="mt-2 flex items-center gap-1.5 text-red-600 text-xs font-bold">
+                      <AlertCircle size={14} />
+                      <span>יחס החזר {results.dti.toFixed(1)}% — חורג מ-40%</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1525,7 +1529,7 @@ ${results.score}/100
                 </div>
               )}
 
-              <div className={`mb-6 sm:mb-10 transition-all duration-1000 ${!isPurchased ? 'blur-3xl opacity-20 pointer-events-none' : ''}`}>
+              <div className={`mb-6 sm:mb-10 transition-all duration-1000 ${!isPurchased ? 'blur-md opacity-30 pointer-events-none select-none' : ''}`}>
                 <MixComparison
                   mixA={results.mixA}
                   mixB={results.mixB}
