@@ -68,6 +68,26 @@ export const calcTotalIncome = (borrowers) => {
   return total;
 };
 
+// ─── תמהיל מינימלי: ⅓ קבועה צמודה + ⅔ משתנה צמודה לתקופה מקסימלית ──────────
+export const calcMinMix = (loanAmount, maxTerm, rates) => {
+  const term = Math.min(30, maxTerm || 30);
+  const fixedRate = rates.FIXED_LINKED || 0.0320;
+  const varRate   = rates.VAR_LINKED   || 0.0315;
+  const pmtFixed  = calculatePayment(loanAmount * (1 / 3), fixedRate, term);
+  const pmtVar    = calculatePayment(loanAmount * (2 / 3), varRate,   term);
+  const minMonthlyPayment = pmtFixed + pmtVar;
+  const requiredIncome    = minMonthlyPayment / 0.40; // DTI 40% → הכנסה נדרשת
+  return {
+    minMonthlyPayment,
+    requiredIncome,
+    term,
+    tracks: [
+      { name: 'קבועה צמודה (⅓)', amount: loanAmount * (1 / 3), rate: fixedRate, years: term, pmt: pmtFixed },
+      { name: 'משתנה צמודה (⅔)', amount: loanAmount * (2 / 3), rate: varRate,   years: term, pmt: pmtVar  },
+    ],
+  };
+};
+
 // חישוב כדאיות מחזור משכנתא
 export const calculateRefinanceResults = ({ formData, borrowers, rates }) => {
   const balance = Number(String(formData.refinanceBalance || '0').replace(/,/g, ''));
@@ -351,7 +371,9 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   const pmtB = mixB_T1.pmt + mixB_T2.pmt + mixB_T3.pmt;
 
   const balloonInterestOnly = isSenior && isBalloon ? loanAmount * activeRates.FIXED_UNLINKED / 12 : null;
-  const dtiBase  = isSenior && isBalloon ? balloonInterestOnly : pmtB;
+  // חישוב DTI על בסיס תמהיל מינימלי (⅓ קבועה צמודה + ⅔ משתנה צמודה, תקופה מקס)
+  const minMixData = calcMinMix(loanAmount, duration, activeRates);
+  const dtiBase  = isSenior && isBalloon ? balloonInterestOnly : minMixData.minMonthlyPayment;
   const dti      = (isReverse || isSenior) ? 0 : (dtiBase / freeIncome) * 100;
   const ltvPercent  = ltv * 100;
   const youngestAge = Number(formData.youngestBorrowerAge) || Number(formData.age) || 60;
@@ -414,6 +436,8 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
     balloonMonthly, regularMonthly,
     requestedLoanAmount: rawLoanAmount,
     excessAmount,
+    minMix: minMixData,
+    totalIncome: totalInc,
     dynamicMixProfile: { primePct: dynamicMix.primePct, fixedPct: dynamicMix.fixedPct, varPct: dynamicMix.varPct },
     mixA: {
       tracks: [{ name: isSenior ? "100% קבועה לא צמודה (כל מטרה)" : "100% קבועה לא צמודה", amount: loanAmount, rate: activeRates.FIXED_UNLINKED, years: duration, pmt: calcPmt(loanAmount, activeRates.FIXED_UNLINKED, duration), desc: isSenior && isBalloon ? "⚠️ בלון - ריבית בלבד" : "הגנה מלאה" }],
