@@ -302,7 +302,7 @@ function AiTip({ text }) {
   );
 }
 
-export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYears, isRefinance, aiTip, isPurchased, isDeclarationApprovalPossible }) {
+export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYears, isRefinance, aiTip, isPurchased, isDeclarationApprovalPossible, minMix, totalIncome }) {
   const aiText = aiTip || (isPurchased
     ? `על בסיס הפרופיל שלך, התמהיל המאוזן מציע את האיזון הטוב ביותר בין יציבות לחיסכון בריבית.`
     : null);
@@ -385,6 +385,47 @@ export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYe
               </p>
               <div className="mt-2 px-3 py-2 rounded-xl bg-red-500/15 border border-red-400/30">
                 <p className="text-red-300 text-[11px] font-bold">⚠️ חשוב: מסלול זה אינו מומלץ — הוא מוגביל, עלול לדרוש ערבים נוספים, ומסייג את כושר המשכון העתידי. מומלץ מאוד להתייעץ עם יועץ לפני בחירה במסלול זה.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* אזהרה: לא ניתן לאשר בכלל — גם לא על בסיס תצהיר */}
+      {!isRefinance && !isDeclarationApprovalPossible && totalIncome > 0 && minMix && (
+        <div
+          dir="rtl"
+          className="rounded-2xl p-5 border-2 border-red-500/60"
+          style={{ background: 'linear-gradient(135deg, rgba(220,38,38,0.12), rgba(220,38,38,0.05))' }}
+        >
+          <div className="flex items-start gap-3">
+            <span className="text-3xl flex-shrink-0">🚫</span>
+            <div className="w-full">
+              <p className="text-red-300 font-black text-sm mb-1">לא ניתן לאשר אישור עקרוני — גם לא על בסיס תצהיר</p>
+              <p className="text-red-200/70 text-xs leading-relaxed mb-3">
+                ההכנסה הנוכחית (<strong className="text-white">₪{fmt(Math.floor(totalIncome))}</strong>) אינה עומדת בדרישת ההכנסה המינימלית לתשלום הבסיסי ביותר (<strong className="text-white">₪{fmt(Math.floor(minMix.requiredIncome))}</strong>).
+                חסר <strong className="text-red-300">₪{fmt(Math.floor(minMix.requiredIncome - totalIncome))}</strong> נטו לחודש.
+              </p>
+              <div className="space-y-2">
+                <p className="text-white/60 text-[11px] font-black uppercase tracking-wide mb-1">אפשרויות לפתרון:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-amber-300 text-xs font-black mb-0.5">💰 הגדלת הכנסות</p>
+                    <p className="text-white/60 text-[11px]">נדרשת הכנסה נוספת של לפחות ₪{fmt(Math.floor(minMix.requiredIncome - totalIncome))} נטו/חודש</p>
+                  </div>
+                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-blue-300 text-xs font-black mb-0.5">👤 הוספת לווה נוסף</p>
+                    <p className="text-white/60 text-[11px]">לווה עם הכנסה חודשית של ₪{fmt(Math.floor((minMix.requiredIncome - totalIncome) * 2))}+ (מוכר ב-50%)</p>
+                  </div>
+                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-green-300 text-xs font-black mb-0.5">🏦 מימון חוץ-בנקאי</p>
+                    <p className="text-white/60 text-[11px]">חברות חוץ-בנקאיות פועלות בקריטריונים גמישים יותר — ריביות 8%–18%</p>
+                  </div>
+                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-purple-300 text-xs font-black mb-0.5">📞 ייעוץ מקצועי</p>
+                    <p className="text-white/60 text-[11px]">פנה ליועץ משכנתאות ב-<strong className="text-white">2324*</strong> לתכנון אסטרטגי מותאם</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -1535,6 +1535,8 @@ ${results.score}/100
                   isRefinance={isRefinance}
                   isPurchased={isPurchased}
                   isDeclarationApprovalPossible={results.isDeclarationApprovalPossible}
+                  minMix={results.minMix}
+                  totalIncome={results.totalIncome}
                   aiTip={aiAnalysis ? `על בסיס הניתוח המלא — ${isRefinance ? `חיסכון צפוי של ₪${new Intl.NumberFormat('he-IL').format(results.monthlySaving || 0)} לחודש` : `ציון התיק שלך: ${results.score}/100. התמהיל האסטרטגי מחושב לפי פרופיל הגיל, ה-DTI וה-LTV שלך.`}` : null}
                 />
               </div>
