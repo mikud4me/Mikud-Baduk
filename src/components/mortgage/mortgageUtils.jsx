@@ -275,6 +275,29 @@ export const calcAdvancedScore = ({ dti, ltv, borrowers, formData, isReverse, is
   return Math.min(100, Math.max(10, Math.round(score)));
 };
 
+// ─── תמהיל חירום: צמוד מדד בלבד — להחזר מינימלי כשDTI>40 ──────────────────
+export const calcCpiMix = (loanAmount, duration, rates, freeIncome) => {
+  const term = Math.min(30, duration || 30);
+  // ⅓ קבועה צמודה + ⅔ משתנה צמודה — הריביות הנמוכות ביותר
+  const fixedLinkedRate = rates.FIXED_LINKED || 0.0320;
+  const varLinkedRate   = rates.VAR_LINKED   || 0.0315;
+  const pmt1 = calculatePayment(loanAmount * (1/3), fixedLinkedRate, term);
+  const pmt2 = calculatePayment(loanAmount * (2/3), varLinkedRate,   term);
+  const total = pmt1 + pmt2;
+  const dtiWithMix = freeIncome > 0 ? (total / freeIncome) * 100 : 999;
+  const isValid = dtiWithMix <= 40;
+  return {
+    tracks: [
+      { name: 'קבועה צמודה מדד (⅓)', amount: loanAmount*(1/3), rate: fixedLinkedRate, years: term, pmt: pmt1, desc: 'הגנה מלאה' },
+      { name: 'משתנה צמודה מדד (⅔)', amount: loanAmount*(2/3), rate: varLinkedRate,   years: term, pmt: pmt2, desc: 'ריבית נמוכה' },
+    ],
+    total,
+    isValid,
+    dti: dtiWithMix,
+    term,
+  };
+};
+
 // ─── תמהיל דינמי לפי פרופיל הלקוח ─────────────────────────────────────────
 export const calcDynamicMix = ({ loanAmount, duration, dti, ltv, borrowers, formData, rates, ALL_PURPOSE_RATES, isSenior, isBalloon }) => {
   const activeRates = isSenior ? ALL_PURPOSE_RATES : rates;
@@ -438,9 +461,15 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   // האם ניתן לקבל אישור על בסיס תצהיר (התשלום המינימלי עובר את הבדיקה)
   const isDeclarationApprovalPossible = !isReverse && !isSenior && totalInc > 0 && totalInc >= minMixData.requiredIncome;
 
+  // תמהיל CPI — מוצג רק כשDTI > 40 ולא reverse/senior
+  const cpiMixData = (!isReverse && !isSenior && dti > 40)
+    ? calcCpiMix(loanAmount, duration, activeRates, freeIncome)
+    : null;
+
   return {
     loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration,
     status, score: qualityScore, isReverse, isSenior, isBalloon,
+    cpiMix: cpiMixData,
     balloonMonthly, regularMonthly,
     requestedLoanAmount: rawLoanAmount,
     excessAmount,

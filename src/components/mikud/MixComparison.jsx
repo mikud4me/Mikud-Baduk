@@ -302,7 +302,7 @@ function AiTip({ text }) {
   );
 }
 
-export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYears, isRefinance, aiTip, isPurchased, isDeclarationApprovalPossible, minMix, totalIncome }) {
+export default function MixComparison({ mixA, mixB, mixC, cpiMix, loanAmount, durationYears, isRefinance, aiTip, isPurchased, isDeclarationApprovalPossible, minMix, totalIncome }) {
   const aiText = aiTip || (isPurchased
     ? `על בסיס הפרופיל שלך, התמהיל המאוזן מציע את האיזון הטוב ביותר בין יציבות לחיסכון בריבית.`
     : null);
@@ -369,27 +369,48 @@ export default function MixComparison({ mixA, mixB, mixC, loanAmount, durationYe
         />
       </div>
 
-      {/* הודעת אישור על בסיס תצהיר — כשהתשלום המינימלי עובר את הבדיקה */}
-      {!isRefinance && isDeclarationApprovalPossible && (
+      {/* תמהיל חירום צמוד מדד — מוצג כש-DTI חורג מ-40% */}
+      {!isRefinance && cpiMix && (
         <div
           dir="rtl"
-          className="rounded-2xl p-5 border-2 border-amber-500 bg-amber-950"
+          className="rounded-2xl p-5 border-2"
+          style={{ background: 'linear-gradient(135deg, #0f1e35, #0a1628)', border: '2px solid rgba(251,191,36,0.5)', boxShadow: '0 8px 32px rgba(251,191,36,0.15)' }}
         >
-          <div className="flex items-start gap-3">
-            <span className="text-2xl flex-shrink-0">📋</span>
+          <div className="flex items-start gap-3 mb-4">
+            <span className="text-2xl flex-shrink-0">💰</span>
             <div>
-              <p className="text-amber-300 font-black text-sm mb-1">אפשרות: אישור על בסיס תצהיר</p>
-              <p className="text-amber-100 text-xs leading-relaxed">
-                על בסיס התשלום המינימלי המחושב (⅓ קבועה צמודה + ⅔ משתנה צמודה לתקופה מלאה), ניתן לקבל אישור עקרוני על פי <strong className="text-white">הצהרה עצמית של הלווה</strong> בפני הבנק.
+              <p className="text-amber-300 font-black text-sm mb-1">תמהיל חירום: צמוד מדד — החזר מינימלי אפשרי</p>
+              <p className="text-white/60 text-xs leading-relaxed">
+                סינון 100% צמוד מדד (קבועה + משתנה) מקטין את ההחזר החודשי למקסימום אפשרי.
+                {cpiMix.isValid
+                  ? <span className="text-green-400 font-bold"> ✔ תמהיל זה עומד בדרישת DTI!</span>
+                  : <span className="text-red-400 font-bold"> ⚠️ גם תמהיל זה חורג מ-40% DTI — נדרשת הכנסה נוספת או הקטנת סכום</span>
+                }
               </p>
-              <div className="mt-2 px-3 py-2 rounded-xl bg-red-900/60 border border-red-400/50">
-                <p className="text-red-300 text-[11px] font-bold">⚠️ חשוב: מסלול זה אינו מומלץ — הוא מוגביל, עלול לדרוש ערבים נוספים, ומסייג את כושר המשכון העתידי. מומלץ מאוד להתייעץ עם יועץ לפני בחירה במסלול זה.</p>
-              </div>
             </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            {cpiMix.tracks.map((t, i) => (
+              <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}>
+                <p className="text-amber-300/70 text-[10px] font-semibold">{t.name}</p>
+                <p className="text-white font-black text-sm mt-1">₪{fmt(Math.floor(t.pmt))}/חודש</p>
+                <p className="text-amber-400/60 text-[9px]">{(t.rate * 100).toFixed(2)}% על {t.years} שנה</p>
+              </div>
+            ))}
+            <div className="rounded-xl p-3 text-center" style={{ background: cpiMix.isValid ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${cpiMix.isValid ? 'rgba(34,197,94,0.4)' : 'rgba(239,68,68,0.4)'}` }}>
+              <p className="text-white/50 text-[10px] font-semibold">סה"כ לחודש</p>
+              <p className={`font-black text-xl mt-1 ${cpiMix.isValid ? 'text-green-400' : 'text-red-400'}`}>₪{fmt(Math.floor(cpiMix.total))}</p>
+              <p className="text-white/30 text-[9px] mt-1">DTI: {cpiMix.dti.toFixed(1)}%</p>
+            </div>
+          </div>
+          <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <p className="text-amber-300/80 text-[11px] font-bold mb-1">⚠️ סיכוני צמד מדד:</p>
+            <p className="text-white/50 text-[10px] leading-relaxed">החזר חודשי נדד עם המדד ועלול לעלות. בתרחיש אינפלציה גבוהה התשלום הכולל עלול לגדול משמעותית. <strong className="text-amber-300">מומלץ מאוד להתייעץ עם יועץ לפני בחירת מסלול זה.</strong></p>
           </div>
         </div>
       )}
 
+      {/* הודעת אישור על בסיס תצהיר — כשהתשלום המינימלי עובר את הבדיקה */}
       {/* אזהרה: לא ניתן לאשר בכלל — גם לא על בסיס תצהיר */}
       {!isRefinance && !isDeclarationApprovalPossible && totalIncome > 0 && minMix && (
         <div

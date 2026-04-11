@@ -1525,18 +1525,19 @@ ${results.score}/100
 
               <div className={`mb-6 sm:mb-10 transition-all duration-1000 ${!isPurchased ? 'opacity-60 pointer-events-none select-none' : ''}`} style={!isPurchased ? {filter: 'blur(1.5px)'} : {}}>
                 <MixComparison
-                  mixA={results.mixA}
-                  mixB={results.mixB}
-                  mixC={results.mixC}
-                  loanAmount={isRefinance ? results.balance : results.loanAmount}
-                  durationYears={isRefinance ? results.mixC_duration : results.actualDuration}
-                  isRefinance={isRefinance}
-                  isPurchased={isPurchased}
-                  isDeclarationApprovalPossible={results.isDeclarationApprovalPossible}
-                  minMix={results.minMix}
-                  totalIncome={results.totalIncome}
-                  aiTip={aiAnalysis ? `על בסיס הניתוח המלא — ${isRefinance ? `חיסכון צפוי של ₪${new Intl.NumberFormat('he-IL').format(results.monthlySaving || 0)} לחודש` : `ציון התיק שלך: ${results.score}/100. התמהיל האסטרטגי מחושב לפי פרופיל הגיל, ה-DTI וה-LTV שלך.`}` : null}
-                />
+                   mixA={results.mixA}
+                   mixB={results.mixB}
+                   mixC={results.mixC}
+                   cpiMix={results.cpiMix}
+                   loanAmount={isRefinance ? results.balance : results.loanAmount}
+                   durationYears={isRefinance ? results.mixC_duration : results.actualDuration}
+                   isRefinance={isRefinance}
+                   isPurchased={isPurchased}
+                   isDeclarationApprovalPossible={results.isDeclarationApprovalPossible}
+                   minMix={results.minMix}
+                   totalIncome={results.totalIncome}
+                   aiTip={aiAnalysis ? `על בסיס הניתוח המלא — ${isRefinance ? `חיסכון צפוי של ₪${new Intl.NumberFormat('he-IL').format(results.monthlySaving || 0)} לחודש` : `ציון התיק שלך: ${results.score}/100. התמהיל האסטרטגי מחושב לפי פרופיל הגיל, ה-DTI וה-LTV שלך.`}` : null}
+                 />
               </div>
 
 
