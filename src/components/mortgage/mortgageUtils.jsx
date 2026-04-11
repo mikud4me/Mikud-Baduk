@@ -461,8 +461,9 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   // האם ניתן לקבל אישור על בסיס תצהיר (התשלום המינימלי עובר את הבדיקה)
   const isDeclarationApprovalPossible = !isReverse && !isSenior && totalInc > 0 && totalInc >= minMixData.requiredIncome;
 
-  // תמהיל CPI — מוצג רק כשDTI > 40 ולא reverse/senior
-  const cpiMixData = (!isReverse && !isSenior && dti > 40)
+  // תמהיל CPI — מוצג כשהתמהיל הדינמי (mixB) חורג מ-40% DTI
+  // (DTI העיקרי מבוסס על minMix, לכן בודקים כאן את pmtBdynamic יחסית)
+  const cpiMixData = (!isReverse && !isSenior && pmtBdynamic > maxAllowedPayment)
     ? calcCpiMix(loanAmount, duration, activeRates, freeIncome)
     : null;
 
