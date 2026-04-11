@@ -1449,10 +1449,10 @@ ${results.score}/100
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none break-all">₪{formatCurrency(isRefinance ? results.balance : results.loanAmount)}</div>
                   <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-300">{isRefinance ? `ריבית קיימת משוערת: ${results.impliedRate?.toFixed(2)}%` : `${results.ltv.toFixed(1)}% מימון מהנכס`}</div>
                 </div>
-                <div className={`p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border-2 ${!isRefinance && results.dti > 40 ? 'bg-red-50 border-red-500' : 'bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border-[#c9a961]/20'}`}>
+                <div className={`p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border-2 ${!isRefinance && results.mixB?.isValid === false ? 'bg-red-50 border-red-500' : 'bg-gradient-to-br from-[#f8f6f0] to-[#f0ede4] border-[#c9a961]/20'}`}>
                   <span className="font-semibold text-[10px] sm:text-xs uppercase tracking-wide text-[#8b7e5c]">{isRefinance ? 'החזר חודשי חדש' : 'החזר חודשי משוער'}</span>
-                  <div className={`text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none ${!isRefinance && results.dti > 40 ? 'text-red-600' : 'text-[#1e3a5f]'}`}>₪{formatCurrency(Math.floor(results.mixB.total))}</div>
-                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{isRefinance ? `חיסכון: ₪${formatCurrency(results.monthlySaving)} לחודש` : results.isBalloon ? 'בלון — ריבית בלבד' : !isRefinance && results.dti > 40 ? <span className="text-red-600 font-bold">⚠️ חורג מכושר ההחזר ({results.dti.toFixed(1)}%)</span> : 'תמהיל מאוזן מומלץ'}</div>
+                  <div className={`text-2xl sm:text-3xl md:text-4xl font-bold mt-2 sm:mt-3 leading-none ${!isRefinance && results.mixB?.isValid === false ? 'text-red-600' : 'text-[#1e3a5f]'}`}>₪{formatCurrency(Math.floor(results.mixB.total))}</div>
+                  <div className="mt-2 sm:mt-3 font-medium text-xs sm:text-sm text-gray-600">{isRefinance ? `חיסכון: ₪${formatCurrency(results.monthlySaving)} לחודש` : results.isBalloon ? 'בלון — ריבית בלבד' : results.mixB?.isValid === false ? <span className="text-red-600 font-bold">⚠️ חורג מכושר ההחזר — DTI {results.dti.toFixed(1)}%</span> : 'תמהיל מאוזן מומלץ'}</div>
                 </div>
               </div>
 
@@ -1523,7 +1523,7 @@ ${results.score}/100
                 </div>
               )}
 
-              <div className={`mb-6 sm:mb-10 transition-all duration-1000 ${!isPurchased ? 'blur-sm opacity-50 pointer-events-none select-none' : ''}`}>
+              <div className={`mb-6 sm:mb-10 transition-all duration-1000 ${!isPurchased ? 'opacity-60 pointer-events-none select-none' : ''}`} style={!isPurchased ? {filter: 'blur(1.5px)'} : {}}>
                 <MixComparison
                   mixA={results.mixA}
                   mixB={results.mixB}
