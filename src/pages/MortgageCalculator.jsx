@@ -1404,16 +1404,26 @@ ${results.score}/100
                     תמהיל: ⅓ קבועה צמודה + ⅔ משתנה צמודה | תקופה מקסימלית: {results.minMix.term} שנים
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-emerald-50 rounded-xl p-4 text-center border-2 border-emerald-200">
-                      <p className="text-emerald-700 text-xs font-semibold mb-1">תשלום חודשי מינימלי</p>
-                      <p className="text-3xl font-black text-emerald-700">₪{formatCurrency(Math.floor(results.minMix.minMonthlyPayment))}</p>
-                      <p className="text-emerald-500 text-[10px] mt-1">לחודש (DTI 40%)</p>
-                    </div>
-                    <div className="bg-blue-50 rounded-xl p-4 text-center border-2 border-blue-200">
-                      <p className="text-blue-700 text-xs font-semibold mb-1">הכנסה נדרשת לאישור</p>
-                      <p className="text-3xl font-black text-blue-700">₪{formatCurrency(Math.floor(results.minMix.requiredIncome))}</p>
-                      <p className="text-blue-500 text-[10px] mt-1">נטו לחודש (תשלום / 40%)</p>
-                    </div>
+                    {(() => {
+                      const canAfford = !results.totalIncome || results.totalIncome >= results.minMix.requiredIncome;
+                      return (
+                        <div className={`rounded-xl p-4 text-center border-2 ${canAfford ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-400'}`}>
+                          <p className={`text-xs font-semibold mb-1 ${canAfford ? 'text-emerald-700' : 'text-red-700'}`}>תשלום חודשי מינימלי</p>
+                          <p className={`text-3xl font-black ${canAfford ? 'text-emerald-700' : 'text-red-600'}`}>₪{formatCurrency(Math.floor(results.minMix.minMonthlyPayment))}</p>
+                          <p className={`text-[10px] mt-1 ${canAfford ? 'text-emerald-500' : 'text-red-400'}`}>{canAfford ? 'לחודש (DTI 40%)' : '⚠️ חורג מכושר ההחזר'}</p>
+                        </div>
+                      );
+                    })()}
+                    {(() => {
+                      const canAfford = !results.totalIncome || results.totalIncome >= results.minMix.requiredIncome;
+                      return (
+                        <div className={`rounded-xl p-4 text-center border-2 ${canAfford ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-300'}`}>
+                          <p className={`text-xs font-semibold mb-1 ${canAfford ? 'text-blue-700' : 'text-red-700'}`}>הכנסה נדרשת לאישור</p>
+                          <p className={`text-3xl font-black ${canAfford ? 'text-blue-700' : 'text-red-600'}`}>₪{formatCurrency(Math.floor(results.minMix.requiredIncome))}</p>
+                          <p className={`text-[10px] mt-1 ${canAfford ? 'text-blue-500' : 'text-red-400'}`}>נטו לחודש (תשלום / 40%)</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div className="space-y-2 mb-4">
                     {results.minMix.tracks.map((t, i) => (
