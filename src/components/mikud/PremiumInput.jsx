@@ -16,7 +16,7 @@ const NON_FORMAT_FIELDS = ['age', 'loanDuration', 'idNumber', 'childrenUnder18',
 
 export default function PremiumInput({ label, icon: IconComponent, name, value, placeholder, options, onChange, error, min, max, type = "text", tooltip }) {
   const [isFocused, setIsFocused] = useState(false);
-  const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'existingPropertyValue', 'existingMortgageBalance', 'existingMortgagePayment', 'rentalIncome', 'salePrice', 'completionAmount', 'refinanceBalance', 'currentMonthlyPayment', 'refinanceIncreaseAmount'].includes(name);
+  const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'existingPropertyValue', 'existingMortgageBalance', 'existingMortgagePayment', 'rentalIncome', 'salePrice', 'completionAmount', 'refinanceBalance', 'currentMonthlyPayment', 'refinanceIncreaseAmount', 'appraisalValue', 'rentIncomeFromPurchased'].includes(name);
   const displayValue = isNumeric && value !== "" && !NON_FORMAT_FIELDS.includes(name) ? formatCurrency(value) : value;
 
   return (

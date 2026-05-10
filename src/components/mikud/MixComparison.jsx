@@ -410,43 +410,115 @@ export default function MixComparison({ mixA, mixB, mixC, cpiMix, loanAmount, du
         </div>
       )}
 
-      {/* הודעת אישור על בסיס תצהיר — כשהתשלום המינימלי עובר את הבדיקה */}
       {/* אזהרה: לא ניתן לאשר בכלל — גם לא על בסיס תצהיר */}
       {!isRefinance && !isDeclarationApprovalPossible && totalIncome > 0 && minMix && (
         <div
           dir="rtl"
-          className="rounded-2xl p-5 border-2 border-red-500/60"
-          style={{ background: 'linear-gradient(135deg, rgba(220,38,38,0.12), rgba(220,38,38,0.05))' }}
+          className="rounded-3xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #1a0a0a, #2d0f0f)',
+            border: '2px solid rgba(239,68,68,0.6)',
+            boxShadow: '0 8px 40px rgba(239,68,68,0.25), 0 2px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)',
+          }}
         >
-          <div className="flex items-start gap-3">
-            <span className="text-3xl flex-shrink-0">🚫</span>
-            <div className="w-full">
-              <p className="text-red-300 font-black text-sm mb-1">לא ניתן לאשר אישור עקרוני — גם לא על בסיס תצהיר</p>
-              <p className="text-red-200/70 text-xs leading-relaxed mb-3">
-                ההכנסה הנוכחית (<strong className="text-white">₪{fmt(Math.floor(totalIncome))}</strong>) אינה עומדת בדרישת ההכנסה המינימלית לתשלום הבסיסי ביותר (<strong className="text-white">₪{fmt(Math.floor(minMix.requiredIncome))}</strong>).
-                חסר <strong className="text-red-300">₪{fmt(Math.floor(minMix.requiredIncome - totalIncome))}</strong> נטו לחודש.
-              </p>
-              <div className="space-y-2">
-                <p className="text-white/60 text-[11px] font-black uppercase tracking-wide mb-1">אפשרויות לפתרון:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
-                  <p className="text-amber-300 text-xs font-black mb-0.5">💰 הגדלת הכנסות</p>
-                  <p className="text-white text-[11px]">נדרשת הכנסה נוספת של לפחות ₪{fmt(Math.floor(minMix.requiredIncome - totalIncome))} נטו/חודש</p>
-                </div>
-                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
-                  <p className="text-blue-300 text-xs font-black mb-0.5">👤 הוספת לווה נוסף</p>
-                  <p className="text-white text-[11px]">לווה עם הכנסה חודשית של ₪{fmt(Math.floor((minMix.requiredIncome - totalIncome) * 2))}+ (מוכר ב-50%)</p>
-                </div>
-                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
-                  <p className="text-green-300 text-xs font-black mb-0.5">🏦 מימון חוץ-בנקאי</p>
-                  <p className="text-white text-[11px]">חברות חוץ-בנקאיות פועלות בקריטריונים גמישים יותר — ריביות 8%–18%</p>
-                </div>
-                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
-                  <p className="text-purple-300 text-xs font-black mb-0.5">📞 ייעוץ מקצועי</p>
-                  <p className="text-white text-[11px]">פנה ליועץ משכנתאות ב-<strong className="text-yellow-300">2324*</strong> לתכנון אסטרטגי מותאם</p>
-                </div>
-                </div>
+          {/* פס עליון */}
+          <div className="h-1 w-full" style={{ background: 'linear-gradient(to right, #dc2626, #ef4444, #dc2626)' }} />
+
+          <div className="p-6">
+            {/* כותרת */}
+            <div className="flex items-center gap-3 mb-5">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{
+                  background: 'radial-gradient(circle at 30% 30%, rgba(239,68,68,0.5), rgba(239,68,68,0.15))',
+                  border: '1px solid rgba(239,68,68,0.5)',
+                  boxShadow: '0 4px 16px rgba(239,68,68,0.3)',
+                }}
+              >
+                <span className="text-2xl">🚫</span>
               </div>
+              <div>
+                <p className="text-red-400 font-black text-base leading-tight">לא ניתן לאשר אישור עקרוני</p>
+                <p className="text-red-500/70 text-xs mt-0.5">גם לא על בסיס תצהיר הכנסה</p>
+              </div>
+            </div>
+
+            {/* כרטיס פער */}
+            <div
+              className="rounded-2xl p-4 mb-5 text-center"
+              style={{
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.35)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+              }}
+            >
+              <p className="text-red-300/70 text-xs font-semibold mb-1">הכנסה נוכחית</p>
+              <p className="text-white font-black text-2xl">₪{fmt(Math.floor(totalIncome))}</p>
+              <div className="flex items-center justify-center gap-2 my-2">
+                <div className="h-px flex-1" style={{ background: 'rgba(239,68,68,0.4)' }} />
+                <span className="text-red-400 text-xs font-bold">חסר</span>
+                <div className="h-px flex-1" style={{ background: 'rgba(239,68,68,0.4)' }} />
+              </div>
+              <p className="text-red-400 font-black text-3xl" style={{ textShadow: '0 0 20px rgba(239,68,68,0.5)' }}>
+                ₪{fmt(Math.floor(minMix.requiredIncome - totalIncome))}
+              </p>
+              <p className="text-red-300/60 text-[10px] mt-1">
+                נדרש ₪{fmt(Math.floor(minMix.requiredIncome))} נטו לחודש (DTI 40%)
+              </p>
+            </div>
+
+            {/* אפשרויות פתרון */}
+            <p className="text-white/50 text-[11px] font-black uppercase tracking-widest mb-3">אפשרויות לפתרון</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                {
+                  emoji: '💰',
+                  title: 'הגדלת הכנסות',
+                  desc: `נדרשת הכנסה נוספת של ₪${fmt(Math.floor(minMix.requiredIncome - totalIncome))} נטו/חודש`,
+                  color: '#f59e0b',
+                  bg: 'rgba(245,158,11,0.1)',
+                  border: 'rgba(245,158,11,0.3)',
+                },
+                {
+                  emoji: '👤',
+                  title: 'הוספת לווה נוסף',
+                  desc: `לווה עם הכנסה ₪${fmt(Math.floor((minMix.requiredIncome - totalIncome) * 2))}+ (מוכר ב-50%)`,
+                  color: '#60a5fa',
+                  bg: 'rgba(96,165,250,0.1)',
+                  border: 'rgba(96,165,250,0.3)',
+                },
+                {
+                  emoji: '🏦',
+                  title: 'מימון חוץ-בנקאי',
+                  desc: 'קריטריונים גמישים יותר — ריביות 8%–18%',
+                  color: '#34d399',
+                  bg: 'rgba(52,211,153,0.1)',
+                  border: 'rgba(52,211,153,0.3)',
+                },
+                {
+                  emoji: '📞',
+                  title: 'ייעוץ מקצועי',
+                  desc: 'פנה ליועץ ב-2324* לתכנון אסטרטגי מותאם',
+                  color: '#c084fc',
+                  bg: 'rgba(192,132,252,0.1)',
+                  border: 'rgba(192,132,252,0.3)',
+                },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl p-3.5"
+                  style={{
+                    background: item.bg,
+                    border: `1px solid ${item.border}`,
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                  }}
+                >
+                  <p className="font-black text-xs mb-1 flex items-center gap-1.5" style={{ color: item.color }}>
+                    <span>{item.emoji}</span> {item.title}
+                  </p>
+                  <p className="text-white/70 text-[11px] leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

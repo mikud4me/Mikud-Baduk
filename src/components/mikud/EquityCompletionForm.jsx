@@ -14,7 +14,7 @@ export default function EquityCompletionForm({ data, onChange, errors = {}, gap 
   const COMPLETION_OPTIONS = [
     { val: 'balloon_existing', label: 'שעבוד / בלון על נכס קיים', icon: Building2, desc: 'לקיחת הלוואה בגיבוי הנכס הקיים — כפוף לאישור' },
     { val: 'sale_proceeds', label: 'תמורת מכירת נכס קיים', icon: Building2, desc: 'יתרת נטו לאחר כיסוי המשכנתא הקיימת' },
-    { val: 'family_help', label: 'עזרה ממשפחה מדרגה ראשונה', icon: Users, desc: 'הורים / ילדים — ייתכן שידרש תצהיר מתנה' },
+    { val: 'family_help', label: 'עזרה ממשפחה מדרגה ראשונה', icon: Users, desc: 'הורים / ילדים — ייתכן שידרש תצהיר מתנה (לא נוטריוני)' },
     { val: 'savings', label: 'פירוק חסכונות / קרן השתלמות', icon: Wallet, desc: 'חסכונות נזילים, קרן השתלמות לאחר 6 שנים' },
     { val: 'securities', label: 'מימוש ניירות ערך / תיק השקעות', icon: TrendingUp, desc: 'מניות, קרנות נאמנות, תיק השקעות' },
     { val: 'provident', label: 'משיכת קופת גמל / פנסיה (חלקית)', icon: Coins, desc: 'בכפוף לתנאי הקופה ולגיל — ייתכנו קנסות' },
@@ -108,8 +108,8 @@ export default function EquityCompletionForm({ data, onChange, errors = {}, gap 
                 <div>
                   <p className="font-black text-amber-700 text-sm">עזרת משפחה — מה הבנק ידרוש?</p>
                   <p className="text-xs text-amber-600 mt-1 leading-relaxed">
-                    הבנק ידרוש <strong>תצהיר מתנה נוטריוני</strong> המאשר שהסכום הוא מתנה ולא הלוואה.
-                    אם מדובר בהלוואה ממשפחה — יחושב כהתחייבות ב-DTI.
+                   הבנק ידרוש <strong>תצהיר מתנה</strong> (לא נוטריוני) המאשר שהסכום הוא מתנה ולא הלוואה.
+                   אם מדובר בהלוואה ממשפחה — יחושב כהתחייבות ב-DTI.
                   </p>
                 </div>
               </div>
