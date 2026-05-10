@@ -429,22 +429,22 @@ export default function MixComparison({ mixA, mixB, mixC, cpiMix, loanAmount, du
               <div className="space-y-2">
                 <p className="text-white/60 text-[11px] font-black uppercase tracking-wide mb-1">אפשרויות לפתרון:</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
-                    <p className="text-amber-300 text-xs font-black mb-0.5">💰 הגדלת הכנסות</p>
-                    <p className="text-white/60 text-[11px]">נדרשת הכנסה נוספת של לפחות ₪{fmt(Math.floor(minMix.requiredIncome - totalIncome))} נטו/חודש</p>
-                  </div>
-                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
-                    <p className="text-blue-300 text-xs font-black mb-0.5">👤 הוספת לווה נוסף</p>
-                    <p className="text-white/60 text-[11px]">לווה עם הכנסה חודשית של ₪{fmt(Math.floor((minMix.requiredIncome - totalIncome) * 2))}+ (מוכר ב-50%)</p>
-                  </div>
-                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
-                    <p className="text-green-300 text-xs font-black mb-0.5">🏦 מימון חוץ-בנקאי</p>
-                    <p className="text-white/60 text-[11px]">חברות חוץ-בנקאיות פועלות בקריטריונים גמישים יותר — ריביות 8%–18%</p>
-                  </div>
-                  <div className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
-                    <p className="text-purple-300 text-xs font-black mb-0.5">📞 ייעוץ מקצועי</p>
-                    <p className="text-white/60 text-[11px]">פנה ליועץ משכנתאות ב-<strong className="text-white">2324*</strong> לתכנון אסטרטגי מותאם</p>
-                  </div>
+                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
+                  <p className="text-amber-300 text-xs font-black mb-0.5">💰 הגדלת הכנסות</p>
+                  <p className="text-white text-[11px]">נדרשת הכנסה נוספת של לפחות ₪{fmt(Math.floor(minMix.requiredIncome - totalIncome))} נטו/חודש</p>
+                </div>
+                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
+                  <p className="text-blue-300 text-xs font-black mb-0.5">👤 הוספת לווה נוסף</p>
+                  <p className="text-white text-[11px]">לווה עם הכנסה חודשית של ₪{fmt(Math.floor((minMix.requiredIncome - totalIncome) * 2))}+ (מוכר ב-50%)</p>
+                </div>
+                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
+                  <p className="text-green-300 text-xs font-black mb-0.5">🏦 מימון חוץ-בנקאי</p>
+                  <p className="text-white text-[11px]">חברות חוץ-בנקאיות פועלות בקריטריונים גמישים יותר — ריביות 8%–18%</p>
+                </div>
+                <div className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20">
+                  <p className="text-purple-300 text-xs font-black mb-0.5">📞 ייעוץ מקצועי</p>
+                  <p className="text-white text-[11px]">פנה ליועץ משכנתאות ב-<strong className="text-yellow-300">2324*</strong> לתכנון אסטרטגי מותאם</p>
+                </div>
                 </div>
               </div>
             </div>
