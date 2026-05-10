@@ -51,7 +51,7 @@ export const getReverseMortgageMaxLTV = (age) => {
   return 20;
 };
 
-export const calcTotalIncome = (borrowers) => {
+export const calcTotalIncome = (borrowers, formData = {}) => {
   let total = 0;
   borrowers.forEach((b, idx) => {
     // בן/בת זוג (isSpouse) מוכרים ב-100% כמו הלווה הראשי.
@@ -65,6 +65,18 @@ export const calcTotalIncome = (borrowers) => {
       }
     });
   });
+
+  // טיפול בהפרש שכירות: רכישה ראשונה / משפרי דיור שמשכירים נכס נרכש וגרים בשכירות
+  const mortgageType = formData.mortgageType;
+  if (['purchase_first', 'purchase_improve'].includes(mortgageType) && formData.rentIncomeFromPurchased) {
+    const rentIn  = Number(String(formData.rentIncomeFromPurchased || '0').replace(/,/g, ''));
+    const rentOut = Number(String(formData.monthlyOverdraft || '0').replace(/,/g, ''));
+    const diff = rentIn - rentOut;
+    if (!formData.ignoreRentDiff) {
+      total += diff; // חיובי = מוסיף להכנסה | שלילי = מוריד מהכנסה
+    }
+  }
+
   return total;
 };
 
@@ -93,7 +105,7 @@ export const calculateRefinanceResults = ({ formData, borrowers, rates }) => {
   const balance = Number(String(formData.refinanceBalance || '0').replace(/,/g, ''));
   const currentMonthly = Number(String(formData.currentMonthlyPayment || '0').replace(/,/g, ''));
   const remainingYears = Number(formData.refinanceRemainingYears || 20);
-  const totalInc = calcTotalIncome(borrowers);
+  const totalInc = calcTotalIncome(borrowers, formData);
   const debts = Number(String(formData.monthlyDebts || '0').replace(/,/g, ''));
 
   // חישוב ריבית ממוצעת קיימת (לפי יתרה, החזר ותקופה)
@@ -333,7 +345,7 @@ export const calcDynamicMix = ({ loanAmount, duration, dti, ltv, borrowers, form
   return { tracks: [T1, T2, T3], total: T1.pmt + T2.pmt + T3.pmt, primePct, fixedPct, varPct };
 };
 
-export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES }) => {
+export const calculateResults = ({ formData, borrowers, maxTerm = 30, rates, ALL_PURPOSE_RATES }) => {
   const price         = Number(String(formData.propertyPrice).replace(/,/g, '')) || 0;
   const eq            = Number(String(formData.equity).replace(/,/g, '')) || 0;
   const duration      = Math.min(maxTerm, Number(formData.loanDuration) || maxTerm);
@@ -345,15 +357,23 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
   const isImproveT   = formData.mortgageType === 'purchase_improve';
   const isAdditionalT = formData.mortgageType === 'purchase_additional';
   const isAnyPurposeT = formData.mortgageType === 'any_purpose';
-  const maxLTVPct    = isFirst ? 0.75 : isImproveT ? 0.70 : (isAdditionalT || isAnyPurposeT) ? 0.50 : 0.75;
-  const maxAllowedLoan = price > 0 ? price * maxLTVPct : rawLoanAmount;
+  const isMachirMataraT = formData.mortgageType === 'purchase_machir_matarah';
+  // מחיר מטרה: עד 90% ממחיר הרכישה, אך לא יותר מ-75% משווי הנכס לפי שמאות
+  const machirMataraPrice = Number(String(formData.propertyPrice || '0').replace(/,/g, ''));
+  const machirMataraAppraisalValue = Number(String(formData.appraisalValue || formData.propertyPrice || '0').replace(/,/g, ''));
+  const maxLTVPct    = isFirst ? 0.75 : isImproveT ? 0.70 : (isAdditionalT || isAnyPurposeT) ? 0.50 : isMachirMataraT ? 0.75 : 0.75;
+  // עבור מחיר מטרה: המקסימום הוא המינימום בין 90% ממחיר הרכישה ל-75% מהשמאות
+  const maxAllowedLoanRaw = price > 0 ? price * maxLTVPct : rawLoanAmount;
+  const maxAllowedLoan = isMachirMataraT && machirMataraPrice > 0
+    ? Math.min(machirMataraPrice * 0.90, machirMataraAppraisalValue * 0.75)
+    : maxAllowedLoanRaw;
 
   // סכום אמיתי לניתוח = לא יותר מהמותר
   const loanAmount    = Math.min(rawLoanAmount, maxAllowedLoan);
   const excessAmount  = Math.max(0, rawLoanAmount - maxAllowedLoan);
 
   const ltv           = price > 0 ? (loanAmount / price) : 0;
-  const totalInc      = calcTotalIncome(borrowers);
+  const totalInc      = calcTotalIncome(borrowers, formData);
   const debts         = Number(String(formData.monthlyDebts).replace(/,/g, '')) || 0;
   const freeIncome    = Math.max(1, totalInc - debts);
   const isReverse     = formData.mortgageType === 'reverse_mortgage';
@@ -467,8 +487,20 @@ export const calculateResults = ({ formData, borrowers, maxTerm, rates, ALL_PURP
     ? calcCpiMix(loanAmount, duration, activeRates, freeIncome)
     : null;
 
+  // סכום משכנתא מקסימלי שניתן לקבל לפי הכנסה ותקופה (DTI 40%)
+  const maxMonthlyByDTI = freeIncome * 0.40;
+  // מחשבים: maxLoanByIncome = PMT^-1(maxMonthlyByDTI, minRate, maxTerm)
+  // נשתמש בריבית הנמוכה ביותר (משתנה צמודה) ותקופה מקסימלית
+  const minRateForMaxLoan = (activeRates.VAR_LINKED || 0.0315);
+  const maxTermMonths = (maxTerm || 30) * 12;
+  const rMonthly = minRateForMaxLoan / 12;
+  const maxLoanByIncome = rMonthly > 0
+    ? maxMonthlyByDTI * (Math.pow(1 + rMonthly, maxTermMonths) - 1) / (rMonthly * Math.pow(1 + rMonthly, maxTermMonths))
+    : maxMonthlyByDTI * maxTermMonths;
+
   return {
     loanAmount, ltv: ltvPercent, totalIncome: totalInc, dti, actualDuration: duration,
+    maxLoanByIncome: Math.floor(maxLoanByIncome),
     status, score: qualityScore, isReverse, isSenior, isBalloon,
     cpiMix: cpiMixData,
     balloonMonthly, regularMonthly,

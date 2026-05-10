@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Briefcase, ShieldCheck, Coins, AlertTriangle, Phone, BadgeCheck } from 'lucide-react';
 import PremiumInput from './PremiumInput';
 import StartDateInput from './StartDateInput';
+import BirthDateInput from './BirthDateInput';
 
 // אלגוריתם לוהן לבדיקת תקינות ת.ז ישראלית
 function validateIsraeliId(id) {
@@ -274,6 +275,31 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
             />
             {phoneError && <p className="text-red-600 text-xs font-bold mt-1">{phoneError}</p>}
           </div>
+
+          {/* תאריך לידה ללווה נוסף */}
+          <BirthDateInput
+            value={borrower.birthDate || ''}
+            onChange={(val) => {
+              // חשב גיל ושמור
+              let age = '';
+              if (val) {
+                const bd = new Date(val);
+                const today = new Date();
+                let a = today.getFullYear() - bd.getFullYear();
+                const m = today.getMonth() - bd.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) a--;
+                if (a >= 18 && a <= 100) age = a.toString();
+              }
+              update('birthDate', val);
+              if (age) update('age', age);
+            }}
+          />
+          {borrower.age && (
+            <div className="mb-3 p-2 bg-[#1e3a5f]/5 rounded-xl border border-[#1e3a5f]/15 flex items-center gap-2">
+              <User size={14} className="text-[#c9a961]" />
+              <p className="text-xs font-bold text-[#1e3a5f]">גיל מחושב: <span className="text-[#c9a961]">{borrower.age}</span></p>
+            </div>
+          )}
         </div>
       )}
 

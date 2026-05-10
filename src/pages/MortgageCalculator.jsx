@@ -849,6 +849,7 @@ ${results.score}/100
                     options={[
                     {val:'purchase_first', label:'רכישה - דירה ראשונה (עד 75%)'},
                     {val:'purchase_improve', label:'רכישה - משפרי דיור / חליפית (עד 70%)'},
+                    {val:'purchase_machir_matarah', label:'רכישה - מחיר מטרה (עד 90% ממחיר הרכישה, לא יותר מ-75% משמאות)'},
                     {val:'purchase_additional', label:'רכישה - נכס נוסף / דירה להשקעה (עד 50%)'},
                     {val:'refinance', label:'מחזור משכנתא (שיפור תנאים)'},
                     {val:'any_purpose', label:'כל מטרה - סגירת חובות/שיפוץ (עד 50%)'},
@@ -882,6 +883,21 @@ ${results.score}/100
                       <p className="text-amber-800 font-bold text-sm">משכנתא הפוכה</p>
                       <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
                     </div>
+                  )}
+
+                  {formData.mortgageType === 'purchase_machir_matarah' && (
+                    <div className="mb-5 p-4 bg-green-50 border-2 border-green-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-green-900 font-black text-sm mb-2">✅ מחיר מטרה — תנאי מימון מועדפים</p>
+                      <ul className="text-green-800 text-xs space-y-1 list-none">
+                        <li>• ניתן לממן עד <strong>90% ממחיר הרכישה</strong></li>
+                        <li>• אך <strong>לא יותר מ-75% מערך הנכס לפי שמאות</strong></li>
+                        <li>• נדרש: הזן את <strong>מחיר הרכישה</strong> ואת <strong>שווי שמאות</strong> בנפרד</li>
+                        <li>• הטבה זו שמורה לזכאים לדיור בר-השגה ע"פ קריטריוני משרד הבינוי</li>
+                      </ul>
+                    </div>
+                  )}
+                  {formData.mortgageType === 'purchase_machir_matarah' && !isRefinance && (
+                    <PremiumInput label="שווי נכס לפי שמאות (₪)" name="appraisalValue" value={formData.appraisalValue || ''} placeholder="שווי שמאות — לא מחיר הרכישה" icon={Home} onChange={handleInputChange} tooltip="חובה: הבנק מחשב LTV לפי ערך השמאות, לא לפי מחיר הרכישה בפועל" />
                   )}
 
                   {formData.mortgageType === 'purchase_additional' && (
@@ -1003,8 +1019,43 @@ ${results.score}/100
                   {!isReverseMortgage && (
                     <>
                       <PremiumInput label="החזרי הלוואות חודשיים" name="monthlyDebts" value={formData.monthlyDebts} placeholder="סכום חודשי" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום ההחזרים החודשיים הקיימים (הלוואות, אשראי, ליסינג)" />
-                      <PremiumInput label="שכירות חודשית (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית" />
+                      <PremiumInput label="שכירות חודשית שאתם משלמים כיום (אם יש)" name="monthlyOverdraft" value={formData.monthlyOverdraft} placeholder="0" icon={TrendingDown} onChange={handleInputChange} tooltip="סכום השכירות החודשית שאתם משלמים" />
                     </>
+                  )}
+
+                  {/* שכירות — דירה ראשונה / חליפית שמשכירים ומשלמים שכירות בנפרד */}
+                  {!isReverseMortgage && !isRefinance && ['purchase_first', 'purchase_improve'].includes(formData.mortgageType) && (
+                    <div className="mt-3 p-4 bg-blue-50 border-2 border-blue-400 rounded-2xl animate-in fade-in duration-300">
+                      <p className="font-black text-blue-800 text-sm mb-3">🏠 האם תשכירו את הדירה הנרכשת וגרים בשכירות בנפרד?</p>
+                      <PremiumInput label="הכנסת שכירות מהדירה הנרכשת (₪/חודש)" name="rentIncomeFromPurchased" value={formData.rentIncomeFromPurchased || ''} placeholder="0 — אם לא רלוונטי" icon={Coins} onChange={handleInputChange} tooltip="אם תשכירו את הנכס הנרכש, ההכנסה משמשת לחיזוק כושר ההחזר" />
+                      {formData.rentIncomeFromPurchased && Number(String(formData.rentIncomeFromPurchased).replace(/,/g,'')) > 0 && (() => {
+                        const rentIn  = Number(String(formData.rentIncomeFromPurchased || '0').replace(/,/g, ''));
+                        const rentOut = Number(String(formData.monthlyOverdraft || '0').replace(/,/g, ''));
+                        const diff = rentIn - rentOut;
+                        return (
+                          <div className={`mt-3 p-3 rounded-xl border-2 ${diff >= 0 ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
+                            <p className={`text-sm font-black ${diff >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                              {diff >= 0
+                                ? `✅ הפרש חיובי: +₪${new Intl.NumberFormat('he-IL').format(Math.abs(diff))} — יתווסף להכנסה המוכרת`
+                                : `⚠️ הפרש שלילי: -₪${new Intl.NumberFormat('he-IL').format(Math.abs(diff))} — יופחת מההכנסה המוכרת`
+                              }
+                            </p>
+                            {diff < 0 && (
+                              <div className="mt-2">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input type="checkbox" className="w-4 h-4 rounded accent-[#1e3a5f]"
+                                    checked={!!formData.ignoreRentDiff}
+                                    onChange={e => handleInputChange('ignoreRentDiff', e.target.checked)}
+                                  />
+                                  <span className="text-xs font-bold text-red-700">לא לדווח לבנק על השכרויות (לא להשפיע על ההכנסה)</span>
+                                </label>
+                                <p className="text-[10px] text-red-500 mt-1 mr-6">* שקול את ההשלכות עם יועץ לפני שמחליטים</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
                   )}
 
                   {/* אזהרה כשיש משכנתאות קיימות בלי הסכם מכירה */}
@@ -1448,6 +1499,13 @@ ${results.score}/100
                       }`}>
                         ₪{formatCurrency(Math.floor(results.totalIncome))} {results.totalIncome >= results.minMix.requiredIncome ? '✓ עומד בדרישה' : '✗ לא עומד — חסר ₪' + formatCurrency(Math.floor(results.minMix.requiredIncome - results.totalIncome))}
                       </p>
+                    </div>
+                  )}
+                  {results.maxLoanByIncome > 0 && results.totalIncome > 0 && (
+                    <div className="rounded-xl p-3 border-2 border-blue-300 bg-blue-50 text-center">
+                      <p className="text-xs font-bold text-blue-700 mb-1">סכום משכנתא מקסימלי לפי הכנסתך ותקופה מקסימלית</p>
+                      <p className="text-xl font-black text-blue-800">₪{formatCurrency(results.maxLoanByIncome)}</p>
+                      <p className="text-[10px] text-blue-500 mt-1">מחושב לפי DTI 40% בריבית הנמוכה ביותר ותקופה מקסימלית</p>
                     </div>
                   )}
                 </div>
