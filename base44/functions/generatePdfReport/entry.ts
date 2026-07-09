@@ -5,6 +5,20 @@ const fmt = (val) => {
   return new Intl.NumberFormat('he-IL').format(Math.floor(Number(val)));
 };
 
+// formData/results/borrowers all arrive from the client (this function trusts
+// whatever calls it) and get interpolated into an HTML document that's later
+// written straight into a browser tab — anything that isn't already numeric
+// (and therefore self-sanitizing via fmt() above) must be escaped before use.
+const esc = (val) => {
+  if (val === null || val === undefined) return '';
+  return String(val)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
 const TRACK_LABELS = {
   prime: 'פריים (Prime)',
   fixed: 'קבועה לא צמודה (קל"צ)',
@@ -21,13 +35,25 @@ Deno.serve(async (req) => {
 
     const isRefinance = formData?.mortgageType === 'refinance';
     const today = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
-    const name = fullName || formData?.fullName || 'לקוח';
+
+    // All of these are free text or attacker-influenceable numbers coming
+    // straight from the request body — escape once here so every place
+    // below that renders them is safe by construction.
+    const name = esc(fullName || formData?.fullName || 'לקוח');
+    const idNumber = esc(formData?.idNumber);
+    const phone = esc(formData?.phone);
+    const email = esc(formData?.email);
+    const age = esc(formData?.age);
+    const loanDuration = esc(formData?.loanDuration);
+    const remainingYears = esc(results?.remainingYears);
+    const score = esc(results?.score);
+    const statusAction = esc(results?.status?.action);
 
     // --- helpers ---
     const empLabel = (types = []) => types.map(t => ({
       employee: 'שכיר/ה', self_employed: 'עצמאי/ת',
       controlling_shareholder: 'בעל שליטה', foreign_income: 'הכנסה מחו"ל', pensioner: 'פנסיונר/ית'
-    }[t] || t)).join(', ');
+    }[t] || esc(t))).join(', ');
 
     const creditLabel = (c) => c === 'clean' ? 'תקין ✓' : 'דורש בדיקה';
 
@@ -49,16 +75,16 @@ Deno.serve(async (req) => {
       const total = mix?.total || 0;
       const rows = tracks.map(t => `
         <tr>
-          <td style="padding:6px 10px;font-size:11px;color:#374151;border-bottom:1px solid #f3f4f6;">${t.name || ''}</td>
+          <td style="padding:6px 10px;font-size:11px;color:#374151;border-bottom:1px solid #f3f4f6;">${esc(t.name || '')}</td>
           <td style="padding:6px 10px;font-size:11px;text-align:center;color:#c9a961;font-weight:700;border-bottom:1px solid #f3f4f6;">${t.rate ? (t.rate * 100).toFixed(2) + '%' : '—'}</td>
-          <td style="padding:6px 10px;font-size:11px;text-align:center;border-bottom:1px solid #f3f4f6;">${t.years || '—'} שנה</td>
+          <td style="padding:6px 10px;font-size:11px;text-align:center;border-bottom:1px solid #f3f4f6;">${esc(t.years || '—')} שנה</td>
           <td style="padding:6px 10px;font-size:12px;font-weight:700;text-align:left;color:#1e3a5f;border-bottom:1px solid #f3f4f6;">₪${fmt(t.pmt)}</td>
         </tr>
       `).join('');
       return `
         <div style="border:2px solid ${border};border-radius:12px;overflow:hidden;margin-bottom:16px;break-inside:avoid;">
           <div style="background:${headerBg};padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-size:13px;font-weight:900;color:${headerColor};">${badge}${label}</span>
+            <span style="font-size:13px;font-weight:900;color:${headerColor};">${badge}${esc(label)}</span>
             <span style="font-size:18px;font-weight:900;color:${isRec ? '#c9a961' : '#1e3a5f'};">₪${fmt(total)} / חודש</span>
           </div>
           <table style="width:100%;border-collapse:collapse;background:#fff;">
@@ -153,19 +179,19 @@ Deno.serve(async (req) => {
       </div>
       <div class="card">
         <div class="label">ת.ז.</div>
-        <div class="value">${formData?.idNumber || '—'}</div>
+        <div class="value">${idNumber || '—'}</div>
       </div>
       <div class="card">
         <div class="label">טלפון</div>
-        <div class="value" dir="ltr">${formData?.phone || '—'}</div>
+        <div class="value" dir="ltr">${phone || '—'}</div>
       </div>
       <div class="card">
         <div class="label">דוא"ל</div>
-        <div class="value">${formData?.email || '—'}</div>
+        <div class="value">${email || '—'}</div>
       </div>
       <div class="card">
         <div class="label">גיל</div>
-        <div class="value">${formData?.age || '—'}</div>
+        <div class="value">${age || '—'}</div>
       </div>
       <div class="card">
         <div class="label">מצב משפחתי</div>
@@ -222,7 +248,7 @@ Deno.serve(async (req) => {
       `}
       <div class="card" style="text-align:center;">
         <div class="label">ציון כשירות</div>
-        <div class="big-num" style="color:${(results?.score||0) >= 80 ? '#22c55e' : (results?.score||0) >= 60 ? '#f59e0b' : '#ef4444'};">${results?.score || 0}</div>
+        <div class="big-num" style="color:${(results?.score||0) >= 80 ? '#22c55e' : (results?.score||0) >= 60 ? '#f59e0b' : '#ef4444'};">${score || 0}</div>
         <div style="font-size:10px;color:#6b7280;margin-top:4px;">/100</div>
       </div>
     </div>
@@ -230,7 +256,7 @@ Deno.serve(async (req) => {
     ${results?.status?.action ? `
     <div class="card-gold" style="margin-top:12px;">
       <div style="font-size:11px;font-weight:900;color:#92400e;margin-bottom:4px;">המלצת מיקוד:</div>
-      <div style="font-size:12px;color:#92400e;">${results.status.action}</div>
+      <div style="font-size:12px;color:#92400e;">${statusAction}</div>
     </div>
     ` : ''}
   </div>
@@ -243,12 +269,12 @@ Deno.serve(async (req) => {
       <div class="card"><div class="label">יתרת משכנתא</div><div class="value">₪${fmt(results?.balance)}</div></div>
       <div class="card"><div class="label">החזר חודשי נוכחי</div><div class="value">₪${fmt(results?.currentMonthly)}</div></div>
       <div class="card"><div class="label">ריבית קיימת משוערת</div><div class="value">${results?.impliedRate?.toFixed(2) || '—'}%</div></div>
-      <div class="card"><div class="label">שנים שנותרו</div><div class="value">${results?.remainingYears || '—'} שנים</div></div>
+      <div class="card"><div class="label">שנים שנותרו</div><div class="value">${remainingYears || '—'} שנים</div></div>
       ` : `
       <div class="card"><div class="label">שווי הנכס</div><div class="value">₪${fmt(Number(String(formData?.propertyPrice||0).replace(/,/g,'')))}</div></div>
       <div class="card"><div class="label">סכום משכנתא מבוקש</div><div class="value">₪${fmt(results?.loanAmount)}</div></div>
       <div class="card"><div class="label">הון עצמי</div><div class="value">₪${fmt(Number(String(formData?.equity||0).replace(/,/g,'')))}</div></div>
-      <div class="card"><div class="label">תקופת הלוואה</div><div class="value">${formData?.loanDuration || '—'} שנים</div></div>
+      <div class="card"><div class="label">תקופת הלוואה</div><div class="value">${loanDuration || '—'} שנים</div></div>
       <div class="card"><div class="label">הכנסה מוכרת לבנק</div><div class="value">₪${fmt(results?.totalIncome)}</div></div>
       <div class="card"><div class="label">חובות חודשיים</div><div class="value">₪${fmt(Number(String(formData?.monthlyDebts||0).replace(/,/g,'')))}</div></div>
       `}
@@ -312,7 +338,7 @@ Deno.serve(async (req) => {
   </div>
 
   <div class="section">
-    <div class="analysis-text">${(results?.aiAnalysis || 'הניתוח יופיע כאן לאחר עיבוד הנתונים.').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+    <div class="analysis-text">${esc(results?.aiAnalysis || 'הניתוח יופיע כאן לאחר עיבוד הנתונים.')}</div>
   </div>
 
   <!-- נקודות חוזק -->
@@ -372,7 +398,7 @@ Deno.serve(async (req) => {
     <p style="margin-top:8px;">
       ${isRefinance
         ? `הריני לפנות אליכם בבקשה לקבל הצעה למחזור משכנתא עבור <strong>${name}</strong>,
-           ביתרה של ₪${fmt(results?.balance)} ועם ${results?.remainingYears || '—'} שנים שנותרו לפירעון.`
+           ביתרה של ₪${fmt(results?.balance)} ועם ${remainingYears || '—'} שנים שנותרו לפירעון.`
         : `הריני לפנות אליכם בבקשה לקבל אישור עקרוני למשכנתא עבור <strong>${name}</strong>.`
       }
     </p>
@@ -385,14 +411,14 @@ Deno.serve(async (req) => {
       ${isRefinance ? `
       <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">יתרת משכנתא קיימת</td><td style="padding:7px 10px;">₪${fmt(results?.balance)}</td></tr>
       <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">החזר חודשי נוכחי</td><td style="padding:7px 10px;">₪${fmt(results?.currentMonthly)}</td></tr>
-      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">שנים שנותרו</td><td style="padding:7px 10px;">${results?.remainingYears || '—'} שנים</td></tr>
+      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">שנים שנותרו</td><td style="padding:7px 10px;">${remainingYears || '—'} שנים</td></tr>
       ` : `
       <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">סכום מבוקש</td><td style="padding:7px 10px;">₪${fmt(results?.loanAmount)}</td></tr>
       <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">שווי הנכס</td><td style="padding:7px 10px;">₪${fmt(Number(String(formData?.propertyPrice||0).replace(/,/g,'')))}</td></tr>
       <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">אחוז מימון (LTV)</td><td style="padding:7px 10px;">${(results?.ltv||0).toFixed(1)}%</td></tr>
       <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">יחס החזר (DTI)</td><td style="padding:7px 10px;">${(results?.dti||0).toFixed(1)}% (תקרה: 40%)</td></tr>
-      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">תקופת הלוואה</td><td style="padding:7px 10px;">${formData?.loanDuration || '—'} שנים</td></tr>
-      <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">מטרת ההלוואה</td><td style="padding:7px 10px;">${{purchase_first:'רכישת דירה ראשונה',purchase_improve:'משפרי דיור',purchase_additional:'נכס להשקעה',any_purpose:'כל מטרה',refinance:'מחזור'}[formData?.mortgageType] || formData?.mortgageType}</td></tr>
+      <tr><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;background:#f9fafb;">תקופת הלוואה</td><td style="padding:7px 10px;">${loanDuration || '—'} שנים</td></tr>
+      <tr style="background:#f3f4f6;"><td style="padding:7px 10px;font-weight:700;color:#1e3a5f;">מטרת ההלוואה</td><td style="padding:7px 10px;">${{purchase_first:'רכישת דירה ראשונה',purchase_improve:'משפרי דיור',purchase_additional:'נכס להשקעה',any_purpose:'כל מטרה',refinance:'מחזור'}[formData?.mortgageType] || esc(formData?.mortgageType)}</td></tr>
       `}
     </table>
 
@@ -407,8 +433,8 @@ Deno.serve(async (req) => {
     <div style="margin-top:24px;border-top:1px solid #e5e7eb;padding-top:16px;">
       <p><strong>בכבוד רב,</strong></p>
       <p style="margin-top:6px;">${name}</p>
-      ${formData?.phone ? `<p dir="ltr">טל׳: ${formData.phone}</p>` : ''}
-      ${formData?.email ? `<p>דוא"ל: ${formData.email}</p>` : ''}
+      ${phone ? `<p dir="ltr">טל׳: ${phone}</p>` : ''}
+      ${email ? `<p>דוא"ל: ${email}</p>` : ''}
     </div>
   </div>
 
@@ -437,7 +463,7 @@ Deno.serve(async (req) => {
     <h3>שלב 1 — פתיחה</h3>
     <p style="font-size:12px;font-style:italic;color:#374151;">
       "${isRefinance
-        ? `שלום, קוראים לי ${name}. יש לי משכנתא קיימת ביתרה של ₪${fmt(results?.balance)} עם ${results?.remainingYears || '—'} שנים שנותרו. אני בוחן אפשרות למחזור לתנאים טובים יותר ואשמח לשמוע מה הבנק שלכם יכול להציע.`
+        ? `שלום, קוראים לי ${name}. יש לי משכנתא קיימת ביתרה של ₪${fmt(results?.balance)} עם ${remainingYears || '—'} שנים שנותרו. אני בוחן אפשרות למחזור לתנאים טובים יותר ואשמח לשמוע מה הבנק שלכם יכול להציע.`
         : `שלום, קוראים לי ${name}. אני מחפש משכנתא בסך ₪${fmt(results?.loanAmount)} על נכס בשווי ₪${fmt(Number(String(formData?.propertyPrice||0).replace(/,/g,'')))}. יחס ההחזר שלי עומד על ${(results?.dti||0).toFixed(1)}% ופניתי למספר בנקים — אשמח לשמוע את הצעתכם.`
       }"
     </p>

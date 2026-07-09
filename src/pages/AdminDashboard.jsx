@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
+import AdminOnly from '@/components/AdminOnly';
 import {
   Users, TrendingUp, CheckCircle, Clock, Search, Filter,
   ChevronLeft, Download, Phone, Mail, BadgeCheck, AlertCircle,
@@ -19,6 +20,14 @@ const formatCurrency = (n) =>
   n ? '₪' + new Intl.NumberFormat('he-IL').format(Math.floor(n)) : '—';
 
 export default function AdminDashboard() {
+  return (
+    <AdminOnly>
+      <AdminDashboardContent />
+    </AdminOnly>
+  );
+}
+
+function AdminDashboardContent() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

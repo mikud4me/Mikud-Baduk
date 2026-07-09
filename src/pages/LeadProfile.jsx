@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
+import AdminOnly from '@/components/AdminOnly';
 import {
   User, Phone, Mail, Home, Coins, TrendingDown, Wallet,
   BadgeCheck, ShieldCheck, Download, ChevronRight, Sparkles,
@@ -41,6 +42,14 @@ function Section({ title, icon: SectionIcon, children }) {
 }
 
 export default function LeadProfile() {
+  return (
+    <AdminOnly>
+      <LeadProfileContent />
+    </AdminOnly>
+  );
+}
+
+function LeadProfileContent() {
   const [lead, setLead] = useState(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('new');
