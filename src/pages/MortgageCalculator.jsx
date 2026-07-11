@@ -550,9 +550,9 @@ ${results.score}/100
             <span className="text-[#c9a961] text-lg">✦</span>
           </div>
           <div className="flex items-baseline gap-3 mt-0.5">
-            <span className="text-2xl font-black text-[#1e3a5f]" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.02em' }}>המטרה שלנו</span>
+            <span className="text-2xl font-black text-[#1e3a5f]" style={{ letterSpacing: '-0.02em' }}>המטרה שלנו</span>
             <span className="w-8 h-px bg-gradient-to-r from-[#1e3a5f] to-[#c9a961] self-center"></span>
-            <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#c9a961] to-[#d4b975]" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.02em' }}>החיסכון שלכם</span>
+            <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#c9a961] to-[#d4b975]" style={{ letterSpacing: '-0.02em' }}>החיסכון שלכם</span>
           </div>
         </div>
         <div className="flex items-center gap-4">

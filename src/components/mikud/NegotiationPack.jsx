@@ -263,7 +263,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
               {pdfLoading ? 'מכין דוח...' : 'הורד מכתב'}
             </button>
           </div>
-          <div ref={letterRef} className="p-6 sm:p-8 text-sm text-black leading-8 space-y-4" style={{ fontFamily: 'Assistant, Arial, sans-serif' }}>
+          <div ref={letterRef} className="p-6 sm:p-8 text-sm text-black leading-8 space-y-4">
            <div className="text-left text-gray-600 text-xs font-semibold">{today}</div>
 
            <div className="space-y-1">

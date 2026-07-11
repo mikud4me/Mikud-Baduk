@@ -13,7 +13,7 @@ export default function FooterCTA() {
       <div className="max-w-3xl mx-auto text-center">
 
         <div className="mb-8">
-          <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+          <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tight">
             הגיע הזמן לשלם <span className="text-[#c9a961]">פחות</span> על המשכנתא שלכם
           </h2>
         </div>

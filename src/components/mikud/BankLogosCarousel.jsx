@@ -15,7 +15,7 @@ export default function BankLogosCarousel() {
       {/* Styled Title */}
       <div className="max-w-7xl mx-auto px-4 mb-10 text-center">
         <div className="inline-flex flex-col items-center gap-2">
-          <h2 className="text-2xl sm:text-3xl font-black text-[#1e3a5f]" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.01em' }}>
+          <h2 className="text-2xl sm:text-3xl font-black text-[#1e3a5f]" style={{ letterSpacing: '-0.01em' }}>
             בשיתוף פעולה עם כל הבנקים המובילים במשק
           </h2>
           <div className="h-1 w-24 rounded-full bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f] mt-1" />
