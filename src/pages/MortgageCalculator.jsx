@@ -54,6 +54,7 @@ export default function MortgageCalculator() {
     mortgageType: 'purchase_first', loanDuration: '25', seniorBalloon: false, balloonExitStrategy: '',
     propertyPrice: '', loanAmount: '',
     monthlyDebts: '0', monthlyOverdraft: '0', equity: '',
+    willRentPurchased: 'no', rentIncomeFromPurchased: '',
     youngestBorrowerAge: '',
     // שדות מחזור
     refinanceBalance: '', currentMonthlyPayment: '', refinanceRemainingYears: '20', refinanceGoal: 'savings',
@@ -1019,9 +1020,20 @@ ${results.score}/100
                   {/* שכירות — דירה ראשונה / חליפית שמשכירים ומשלמים שכירות בנפרד */}
                   {!isReverseMortgage && !isRefinance && ['purchase_first', 'purchase_improve'].includes(formData.mortgageType) && (
                     <div className="mt-3 p-4 bg-blue-50 border-2 border-blue-400 rounded-2xl animate-in fade-in duration-300">
-                      <p className="font-black text-blue-800 text-sm mb-3">🏠 האם תשכירו את הדירה הנרכשת וגרים בשכירות בנפרד?</p>
-                      <PremiumInput label="הכנסת שכירות מהדירה הנרכשת (₪/חודש)" name="rentIncomeFromPurchased" value={formData.rentIncomeFromPurchased || ''} placeholder="0 — אם לא רלוונטי" icon={Coins} onChange={handleInputChange} tooltip="אם תשכירו את הנכס הנרכש, ההכנסה משמשת לחיזוק כושר ההחזר" />
-                      {formData.rentIncomeFromPurchased && Number(String(formData.rentIncomeFromPurchased).replace(/,/g,'')) > 0 && (() => {
+                      <p className="font-black text-blue-800 text-sm mb-3">🏠 שכירות מהדירה הנרכשת</p>
+                      <PremiumInput label="האם תשכירו את הדירה הנרכשת ותגורו בשכירות בנפרד?" name="willRentPurchased" value={formData.willRentPurchased} icon={Home}
+                        onChange={(name, value) => {
+                          handleInputChange(name, value);
+                          if (value !== 'yes') handleInputChange('rentIncomeFromPurchased', '');
+                        }}
+                        options={[
+                          {val:'no', label:'לא — לא אשכיר את הדירה הנרכשת'},
+                          {val:'yes', label:'כן — אשכיר את הדירה הנרכשת'},
+                        ]} />
+                      {formData.willRentPurchased === 'yes' && (
+                        <PremiumInput label="הכנסת שכירות מהדירה הנרכשת (₪/חודש)" name="rentIncomeFromPurchased" value={formData.rentIncomeFromPurchased || ''} placeholder="סכום השכירות החודשי" icon={Coins} onChange={handleInputChange} tooltip="אם תשכירו את הנכס הנרכש, ההכנסה משמשת לחיזוק כושר ההחזר" />
+                      )}
+                      {formData.willRentPurchased === 'yes' && formData.rentIncomeFromPurchased && Number(String(formData.rentIncomeFromPurchased).replace(/,/g,'')) > 0 && (() => {
                         const rentIn  = Number(String(formData.rentIncomeFromPurchased || '0').replace(/,/g, ''));
                         const rentOut = Number(String(formData.monthlyOverdraft || '0').replace(/,/g, ''));
                         const diff = rentIn - rentOut;
