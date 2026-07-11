@@ -665,7 +665,7 @@ ${results.score}/100
                   />
 
                   <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} tooltip="מספר נייד לקבלת קוד אימות ויצירת קשר מהיועץ" />
-                  <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="Office@mikud4me.co.il" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} tooltip="דוא״ל לקבלת הדוח המפורט והתכתבות עם היועץ" />
+                  <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="example@email.com" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} tooltip="דוא״ל לקבלת הדוח המפורט והתכתבות עם היועץ" />
                   
                   {/* אישור יצירת קשר */}
                   <div className="mt-4 flex items-start gap-3 p-4 rounded-xl border-2 bg-slate-50 shadow-inner">
