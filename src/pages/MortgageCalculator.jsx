@@ -232,6 +232,7 @@ export default function MortgageCalculator() {
     if (currentStep === 3 && isRefinance && !formData.refinanceBalance) errors.refinanceBalance = "חובה להזין יתרת משכנתא";
     if (currentStep === 3 && isRefinance && !formData.currentMonthlyPayment) errors.currentMonthlyPayment = "חובה להזין החזר חודשי נוכחי";
     if (currentStep === 4 && !isReverseMortgage && getTotalIncome() <= 0) errors.netIncome = "חובה להזין הכנסה לפחות ללווה אחד";
+    if (currentStep === 4 && formData.willRentPurchased === 'yes' && Number(String(formData.rentIncomeFromPurchased || '0').replace(/,/g, '')) <= 0) errors.rentIncomeFromPurchased = "חובה להזין את הכנסת השכירות הצפויה";
     if (currentStep === 5 && !isReverseMortgage && !isRefinance && !formData.equity) errors.equity = "חובה להזין הון עצמי";
     setFieldErrors(errors);
     return Object.keys(errors).filter(k => errors[k]).length === 0;
@@ -1031,7 +1032,7 @@ ${results.score}/100
                           {val:'yes', label:'כן — אשכיר את הדירה הנרכשת'},
                         ]} />
                       {formData.willRentPurchased === 'yes' && (
-                        <PremiumInput label="הכנסת שכירות מהדירה הנרכשת (₪/חודש)" name="rentIncomeFromPurchased" value={formData.rentIncomeFromPurchased || ''} placeholder="סכום השכירות החודשי" icon={Coins} onChange={handleInputChange} tooltip="אם תשכירו את הנכס הנרכש, ההכנסה משמשת לחיזוק כושר ההחזר" />
+                        <PremiumInput label="הכנסת שכירות מהדירה הנרכשת (₪/חודש)" name="rentIncomeFromPurchased" value={formData.rentIncomeFromPurchased || ''} placeholder="סכום השכירות החודשי" icon={Coins} onChange={handleInputChange} error={fieldErrors.rentIncomeFromPurchased} tooltip="אם תשכירו את הנכס הנרכש, ההכנסה משמשת לחיזוק כושר ההחזר" />
                       )}
                       {formData.willRentPurchased === 'yes' && formData.rentIncomeFromPurchased && Number(String(formData.rentIncomeFromPurchased).replace(/,/g,'')) > 0 && (() => {
                         const rentIn  = Number(String(formData.rentIncomeFromPurchased || '0').replace(/,/g, ''));
