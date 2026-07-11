@@ -675,17 +675,17 @@ ${results.score}/100
                   {fieldErrors.consent && <p className="text-red-600 text-xs font-bold mt-1 text-right">{fieldErrors.consent}</p>}
 
                   {/* אישור בדיקת חווי אשראי */}
-                  <div className="mt-3 flex items-start gap-3 p-4 rounded-xl border-2 bg-amber-50 border-amber-200">
+                  <div className="mt-3 flex items-start gap-3 p-4 rounded-xl border-2 bg-slate-50 shadow-inner">
                     <input
                       type="checkbox"
-                      className="w-5 h-5 mt-0.5 rounded border-amber-300 text-[#001a33] focus:ring-[#001a33] flex-shrink-0"
+                      className="w-5 h-5 mt-0.5 rounded border-slate-300 text-[#001a33] focus:ring-[#001a33] flex-shrink-0"
                       checked={formData.creditConsent}
                       onChange={(e) => {
                         handleInputChange('creditConsent', e.target.checked);
                         if (e.target.checked) setShowCreditModal(true);
                       }}
                     />
-                    <p className="text-[11px] text-amber-800 font-bold leading-relaxed text-right">
+                    <p className="text-[11px] text-slate-500 font-bold leading-relaxed text-right">
                       אני מאשר לבנק לבצע בדיקת חווי אשראי (BDI) במסגרת בחינת הבקשה.{' '}
                       <button type="button" onClick={() => setShowCreditModal(true)} className="underline text-[#1e3a5f] hover:text-[#c9a961]">מה זה אומר?</button>
                     </p>
