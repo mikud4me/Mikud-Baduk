@@ -580,11 +580,6 @@ ${results.score}/100
             {/* Hero Section Above Form */}
             {step === 1 && !otpSent && (
               <div className="text-center mb-16 animate-in fade-in slide-in-from-top-8 duration-1000">
-                <div className="inline-block mb-4">
-                  <div className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-white px-6 py-2 rounded-full font-semibold text-xs tracking-wide shadow-sm">
-                    מערכת AI לבניית תמהילי משכנתא
-                  </div>
-                </div>
                 <h1 className="text-5xl sm:text-7xl font-bold text-[#1e3a5f] mb-6 leading-tight">
                   המשכנתא הנכונה<br/>
                   <span className="text-[#c9a961]">
