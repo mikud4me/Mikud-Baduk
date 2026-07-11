@@ -1,9 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  User, Home, Briefcase, AlertCircle, ChevronLeft, Loader2, Phone, 
-  Wallet, Building2, ShieldCheck, Sparkles, Mail, BadgeCheck, 
-  Calendar, Coins, TrendingDown, Rocket, MessageSquareQuote, 
-  ClipboardList, Lock, HelpCircle, Smartphone, Key, Target, HeartHandshake, ShieldAlert, X, UserPlus, Trash2
+  User, Home, AlertCircle, ChevronLeft, Loader2, Phone, Building2, Sparkles, Mail, BadgeCheck, 
+  Calendar, Coins, TrendingDown, Lock, HelpCircle, Smartphone, Key, Target, ShieldAlert, X, UserPlus, Trash2
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
