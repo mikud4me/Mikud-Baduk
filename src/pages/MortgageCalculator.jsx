@@ -313,10 +313,10 @@ export default function MortgageCalculator() {
           const amt = Number(String(src.amount || '0').replace(/,/g, ''));
           const sen = src.seniority ? `, ותק: ${src.seniority} שנים` : '';
           const typeLabel = { employee: 'שכיר', self_employed: 'עצמאי', pensioner: 'פנסיה', controlling_shareholder: 'בעל שליטה', foreign_income: 'הכנסה מחו"ל' }[type] || type;
-          return `  - ${typeLabel}: ₪${Math.floor(amt)}${sen}`;
+          return `  - ${typeLabel}: ₪${formatCurrency(amt)}${sen}`;
         }).join('\n');
       const totalB = Object.values(sources).reduce((acc, src) => acc + Number(String(src?.amount || '0').replace(/,/g, '')), 0);
-      return `לווה ${i+1}: ${b.borrowerType === 'additional' ? 'נוסף (50%)' : 'עיקרי'}, סוגי הכנסה: ${types}\n${breakdown}\n  סה"כ מוכר לבנק: ₪${Math.floor(totalB * factor)}`;
+      return `לווה ${i+1}: ${b.borrowerType === 'additional' ? 'נוסף (50%)' : 'עיקרי'}, סוגי הכנסה: ${types}\n${breakdown}\n  סה"כ מוכר לבנק: ₪${formatCurrency(totalB * factor)}`;
     }).join('\n');
     const isRefinanceFlow = isRefinance;
 
@@ -345,7 +345,7 @@ ${borrowersSummary}
 חיסכון חודשי בתמהיל המומלץ: ₪${results.monthlySaving?.toLocaleString()}
 חיסכון כולל לאורך הקופה: ₪${results.totalSaving?.toLocaleString()}
 נקודת האיזון (break-even): ${results.breakEvenMonths ? results.breakEvenMonths + ' חודשים' : 'מיידי'}
-${results.canIncrease && results.increaseAmount > 0 ? `הלקוח מעוניין להגדיל החזר ב-₪${results.increaseAmount} לחודש לקיצור תקופה` : ''}
+${results.canIncrease && results.increaseAmount > 0 ? `הלקוח מעוניין להגדיל החזר ב-₪${formatCurrency(results.increaseAmount)} לחודש לקיצור תקופה` : ''}
 
 כתוב ניתוח בפורמט הבא (ללא כוכביות, ללא Markdown):
 1. המלצת מחזור — כן או לא ומדוע (2-3 משפטים)
@@ -372,7 +372,7 @@ LTV: ${results.ltv?.toFixed(1)}%
 ${!results.isReverse ? `DTI: ${results.dti?.toFixed(1)}% (תקן בנק ישראל: עד 40%)` : 'משכנתא הפוכה — ללא חובת DTI'}
 תקופה: ${formData.loanDuration} שנים
 סוג עסקה: ${formData.mortgageType}
-חובות חודשיים קיימים: ₪${formData.monthlyDebts || 0}
+חובות חודשיים קיימים: ₪${formatCurrency(Number(String(formData.monthlyDebts || 0).replace(/,/g, '')))}
 
 ===ציון האיכות של התיק===
 ${results.score}/100
