@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   User, Home, AlertCircle, ChevronLeft, Loader2, Phone, Building2, Sparkles, Mail, BadgeCheck, 
   Calendar, Coins, TrendingDown, Lock, HelpCircle, Smartphone, Key, Target, ShieldAlert, X, UserPlus, Trash2
@@ -30,6 +30,8 @@ const TODAY_DATE = new Date().toLocaleDateString('he-IL', { day: 'numeric', mont
 
 export default function MortgageCalculator() {
   const [step, setStep] = useState(1);
+  const mainRef = useRef(null);
+  const didMountRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [aiInsights, setAiInsights] = useState(null);
@@ -163,6 +165,17 @@ export default function MortgageCalculator() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  // Whenever the user moves forward/back between form steps, bring the top of
+  // the <main> content area into view. Skip the initial mount so the hero above
+  // the form stays visible on first load.
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [step]);
+
   const startVerification = () => {
     const errors = {};
     if (!formData.firstName || formData.firstName.trim().length < 2) errors.firstName = "אנא הזן שם פרטי תקין";
@@ -214,10 +227,9 @@ export default function MortgageCalculator() {
 
   const verifyOtp = () => {
     if (userInputOtp === generatedOtp) { 
-      setOtpVerified(true); 
+      setOtpVerified(true);
       setStep(2);
-      scrollToTop();
-    } else { 
+    } else {
       setFieldErrors({ otp: "קוד שגוי" }); 
     }
   };
@@ -574,7 +586,7 @@ ${results.score}/100
 
       <BankLogosCarousel />
 
-      <main className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
+      <main ref={mainRef} className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
         {step <= 6 ? (
           <div className="w-full max-w-4xl">
             {/* Hero Section Above Form */}
@@ -1597,7 +1609,7 @@ ${results.score}/100
                 </div>
               )}
 
-              <div className={`mb-6 sm:mb-10 transition-all duration-1000 ${!isPurchased ? 'opacity-60 pointer-events-none select-none' : ''}`} style={!isPurchased ? {filter: 'blur(1.5px)'} : {}}>
+              <div className={`mb-6 sm:mb-10 transition-all duration-1000 ${!isPurchased ? 'opacity-40 pointer-events-none select-none' : ''}`} style={!isPurchased ? {filter: 'blur(8px)'} : {}}>
                 <MixComparison
                    mixA={results.mixA}
                    mixB={results.mixB}
