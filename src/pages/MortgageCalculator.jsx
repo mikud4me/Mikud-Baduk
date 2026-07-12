@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   User, Home, AlertCircle, ChevronLeft, Loader2, Phone, Building2, Mail, BadgeCheck, 
-  Calendar, Coins, TrendingDown, Lock, HelpCircle, Smartphone, Key, Target, ShieldAlert, X, UserPlus, Trash2
+  Calendar, Coins, TrendingDown, Lock, HelpCircle, Key, Target, ShieldAlert, X, UserPlus, Trash2
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
@@ -40,10 +40,11 @@ export default function MortgageCalculator() {
   const [isPurchased, setIsPurchased] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [generatedOtp, setGeneratedOtp] = useState("");
-  const [userInputOtp, setUserInputOtp] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [userInputCode, setUserInputCode] = useState("");
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [currentLeadId, setCurrentLeadId] = useState(null);
   const [caseId] = useState(() => 'MK-' + Math.random().toString(36).substr(2, 5).toUpperCase());
   const [rates, setRates] = useState(DEFAULT_RATES);
@@ -183,7 +184,7 @@ export default function MortgageCalculator() {
     mainRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [step]);
 
-  const startVerification = () => {
+  const startVerification = async () => {
     const errors = {};
     if (!formData.firstName || formData.firstName.trim().length < 2) errors.firstName = "אנא הזן שם פרטי תקין";
     if (!formData.lastName || formData.lastName.trim().length < 2) errors.lastName = "אנא הזן שם משפחה תקין";
@@ -227,17 +228,46 @@ export default function MortgageCalculator() {
       setFieldErrors(errors);
       return;
     }
-    // קוד דמו קבוע — יוחלף ב-SMS אמיתי עם העלייה לאוויר
-    setGeneratedOtp("0000");
-    setOtpSent(true);
+    // שליחת קוד אימות אמיתי לכתובת הדוא״ל — הקוד נוצר ונבדק בצד השרת בלבד
+    setIsSendingCode(true);
+    try {
+      await base44.functions.invoke('sendEmailVerification', { email: formData.email });
+      setUserInputCode("");
+      setCodeSent(true);
+    } catch (err) {
+      const cooldown = err?.response?.status === 429;
+      setFieldErrors({
+        email: cooldown
+          ? "נשלח קוד לאחרונה — המתן מספר שניות ונסה שוב"
+          : "שליחת קוד האימות נכשלה, נסה שוב",
+      });
+    } finally {
+      setIsSendingCode(false);
+    }
   };
 
-  const verifyOtp = () => {
-    if (userInputOtp === generatedOtp) { 
-      setOtpVerified(true);
-      setStep(2);
-    } else {
-      setFieldErrors({ otp: "קוד שגוי" }); 
+  const verifyEmailCode = async () => {
+    setIsVerifyingCode(true);
+    try {
+      const res = await base44.functions.invoke('verifyEmailCode', {
+        email: formData.email,
+        code: userInputCode,
+      });
+      if (res?.data?.verified || res?.verified) {
+        setEmailVerified(true);
+        setStep(2);
+        return;
+      }
+      const reason = res?.data?.reason || res?.reason;
+      const messages = {
+        expired: "הקוד פג תוקף, שלח קוד חדש",
+        too_many_attempts: "יותר מדי ניסיונות, שלח קוד חדש",
+      };
+      setFieldErrors({ otp: messages[reason] || "קוד שגוי" });
+    } catch {
+      setFieldErrors({ otp: "אירעה שגיאה באימות, נסה שוב" });
+    } finally {
+      setIsVerifyingCode(false);
     }
   };
 
@@ -448,6 +478,7 @@ ${results.score}/100
         fullName,
         phone: formData.phone,
         email: formData.email,
+        emailVerified,
         idNumber: formData.idNumber,
         birthDate: formData.birthDate,
         age: formData.age ? Number(formData.age) : undefined,
@@ -597,7 +628,7 @@ ${results.score}/100
         {step <= 6 ? (
           <div className="w-full max-w-4xl">
             {/* Hero Section Above Form */}
-            {step === 1 && !otpSent && (
+            {step === 1 && !codeSent && (
               <div className="text-center mb-8 sm:mb-12 animate-in fade-in slide-in-from-top-8 duration-1000">
                 <h1 className="text-4xl sm:text-6xl font-bold text-[#1e3a5f] mb-6 leading-tight">
                   המשכנתא הנכונה<br/>
@@ -641,8 +672,8 @@ ${results.score}/100
                   </div>
                   <div>
                     <h2 className="text-base sm:text-xl font-bold text-white leading-none">
-                      {step === 1 && !otpSent && "בואו נכיר"}
-                      {step === 1 && otpSent && "אימות זהות"}
+                      {step === 1 && !codeSent && "בואו נכיר"}
+                      {step === 1 && codeSent && "אימות זהות"}
                       {step === 2 && "פרופיל אישי"}
                       {step === 3 && "הנכס שלכם"}
                       {step === 4 && "מצב כלכלי"}
@@ -667,7 +698,7 @@ ${results.score}/100
               </div>
 
               <div className="min-h-[220px] relative z-10">
-              {step === 1 && !otpSent && (
+              {step === 1 && !codeSent && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   {/* שם פרטי + שם משפחה */}
                   <div className="grid grid-cols-2 gap-3 mb-1">
@@ -788,14 +819,22 @@ ${results.score}/100
                 </div>
               )}
 
-              {step === 1 && otpSent && !otpVerified && (
+              {step === 1 && codeSent && !emailVerified && (
                 <div className="animate-in zoom-in-95 duration-500 text-center py-8">
-                  <Smartphone size={40} className="text-[#001a33] mx-auto mb-4" />
+                  <Mail size={40} className="text-[#001a33] mx-auto mb-4" />
                   <h4 className="text-lg font-black text-[#001a33] mb-2 text-center">הזן קוד אימות</h4>
-                  <div className="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-800 font-bold text-center">
-                    מצב הדגמה — הקוד הוא <span className="text-[#1e3a5f] text-base">0000</span>
-                  </div>
-                  <PremiumInput label="הזן קוד" name="otp" value={userInputOtp} onChange={(n, v) => setUserInputOtp(v)} placeholder="0000" icon={Key} error={fieldErrors.otp} />
+                  <p className="mb-4 text-sm text-gray-600 text-center">
+                    שלחנו קוד אימות בן 6 ספרות לכתובת <span className="font-bold text-[#1e3a5f]" dir="ltr">{formData.email}</span>
+                  </p>
+                  <PremiumInput label="הזן קוד" name="otp" value={userInputCode} onChange={(n, v) => setUserInputCode(v)} placeholder="______" icon={Key} error={fieldErrors.otp} />
+                  <button
+                    type="button"
+                    onClick={startVerification}
+                    disabled={isSendingCode}
+                    className="mt-4 text-sm font-bold text-[#1e3a5f] hover:underline disabled:opacity-50 disabled:no-underline"
+                  >
+                    {isSendingCode ? "שולח..." : "שלח קוד מחדש"}
+                  </button>
                 </div>
               )}
 
@@ -1217,7 +1256,7 @@ ${results.score}/100
             <div className="mt-8 flex gap-4 text-right" dir="rtl">
               {step > 1 && (
                 <button 
-                  onClick={() => { if(step === 1 && otpSent) setOtpSent(false); else if(step > 1) setStep(s => s - 1); }} 
+                  onClick={() => { if(step === 1 && codeSent) setCodeSent(false); else if(step > 1) setStep(s => s - 1); }}
                   className="flex-1 h-14 rounded-full font-bold text-base text-gray-600 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 text-center group"
                 >
                   <span className="group-hover:-translate-x-1 inline-block transition-transform">← חזור</span>
@@ -1225,8 +1264,8 @@ ${results.score}/100
               )}
               <button 
                 onClick={() => {
-                  if (step === 1 && !otpSent) startVerification();
-                  else if (step === 1 && otpSent) verifyOtp();
+                  if (step === 1 && !codeSent) startVerification();
+                  else if (step === 1 && codeSent) verifyEmailCode();
                   else if (validateStep(step)) {
                     // אם בשלב 2 ויש לווה ב' (בן/בת זוג) שלא מילא הכנסות - הזכר למלא
                     if (step === 2 && borrowers.length > 1) {
@@ -1246,15 +1285,21 @@ ${results.score}/100
                     else if (step === 6) { generateFullAnalysis(); scrollToTop(); }
                     else { setStep(s => s + 1); }
                   }
-                }} 
-                className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
+                }}
+                disabled={isSendingCode || isVerifyingCode}
+                className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 text-center group disabled:opacity-60 disabled:cursor-not-allowed ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
               >
                 <span className="flex items-center justify-center gap-2">
-                  {step === 6 ? (
+                  {isSendingCode || isVerifyingCode ? (
+                    <>
+                      <Loader2 size={24} className="animate-spin" />
+                      {isVerifyingCode ? "מאמת..." : "שולח קוד..."}
+                    </>
+                  ) : step === 6 ? (
                     <>
                       הפקת דוח מסכם
                     </>
-                  ) : step === 1 && !otpSent ? (
+                  ) : step === 1 && !codeSent ? (
                     <>
                       שלח קוד אימות
                       <ChevronLeft size={24} className="group-hover:translate-x-1 transition-transform" />
@@ -1676,7 +1721,7 @@ ${results.score}/100
       <MikoChat formData={formData} results={results} isPurchased={isPurchased} isOpen={isChatOpen} setIsOpen={setIsChatOpen} rates={rates} />
 
       {/* סקשנים תחתונים — מוצגים רק בשלב 1 לפני מילוי */}
-      {step === 1 && !otpSent && (
+      {step === 1 && !codeSent && (
         <>
           <HowItWorks />
           <SocialProof />
