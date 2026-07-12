@@ -24,11 +24,11 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="w-full py-24 px-4 bg-white" dir="rtl">
+    <section className="w-full py-12 sm:py-16 px-4 bg-white" dir="rtl">
       <div className="max-w-5xl mx-auto">
 
         {/* כותרת */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 sm:mb-10">
           <p className="text-xs font-bold tracking-[0.3em] uppercase text-[#c9a961] mb-3">התהליך שלנו</p>
           <h2 className="text-3xl sm:text-4xl font-black text-[#1e3a5f] leading-tight">
             שלושה שלבים.

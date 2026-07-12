@@ -14,7 +14,7 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
     <div className="border-2 border-gray-200 rounded-2xl overflow-hidden">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-6 py-5 bg-white hover:bg-gray-50 transition-colors text-right"
+        className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-gray-50 transition-colors text-right"
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-[#1e3a5f] flex items-center justify-center flex-shrink-0">
@@ -33,7 +33,7 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }) => {
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="px-6 pb-6 pt-2 bg-white border-t border-gray-100">
+            <div className="px-5 pb-5 pt-2 bg-white border-t border-gray-100">
               {children}
             </div>
           </motion.div>
@@ -182,6 +182,16 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
 
   const downloadFullPack = async () => {
     setPdfLoading(true);
+
+    // Open the tab synchronously, inside the click gesture — if we open it only
+    // after the awaited request below, the browser treats it as an unsolicited
+    // popup and blocks it (win === null). Write a placeholder so it isn't blank
+    // while the report is being generated.
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write('<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8"/><title>מכין דוח…</title></head><body style="font-family:Arial,sans-serif;text-align:center;padding-top:40vh;color:#1e3a5f;font-size:18px;">מכין את הדוח…</body></html>');
+    }
+
     try {
       const response = await base44.functions.invoke('generatePdfReport', {
         formData,
@@ -191,15 +201,37 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
       });
 
       // response.data היא HTML string
-      if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE')) {
-        const win = window.open('', '_blank');
-        win.document.write(response.data);
-        win.document.close();
-        setTimeout(() => win.print(), 500);
+      const html = response?.data;
+      if (typeof html === 'string' && html.includes('<!DOCTYPE')) {
+        if (win) {
+          win.document.open();
+          win.document.write(html);
+          win.document.close();
+          win.focus();
+          // document.write doesn't reliably fire onload, so guard with a timeout.
+          let printed = false;
+          const doPrint = () => { if (!printed) { printed = true; win.print(); } };
+          win.onload = doPrint;
+          setTimeout(doPrint, 700);
+        } else {
+          // Popup blocked despite opening in-gesture — fall back to a file download
+          // so the user still gets the kit instead of a silent failure.
+          const blob = new Blob([html], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'מיקוד-ערכת-משא-ומתן.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
       } else {
+        win?.close();
         alert('שגיאה בהכנת הדוח. אנא נסה שנית.');
       }
     } catch (err) {
+      win?.close();
       console.error('PDF generation error:', err);
       alert('אירעה שגיאה בהכנת הדוח. אנא נסה שנית.');
     } finally {
@@ -211,7 +243,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
     <div className="space-y-4">
 
       {/* כותרת */}
-      <div className="text-center py-6 sm:py-8 bg-gradient-to-r from-[#1e3a5f] via-[#2a4a75] to-[#1e3a5f] rounded-2xl border-4 border-[#c9a961]">
+      <div className="text-center py-4 sm:py-6 bg-gradient-to-r from-[#1e3a5f] via-[#2a4a75] to-[#1e3a5f] rounded-2xl border-4 border-[#c9a961]">
         <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">ערכת המשא ומתן המקצועית</h2>
         {displayName && (
           <p className="text-[#c9a961] font-bold text-sm sm:text-base">
@@ -263,7 +295,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
               {pdfLoading ? 'מכין דוח...' : 'הורד מכתב'}
             </button>
           </div>
-          <div ref={letterRef} className="p-6 sm:p-8 text-sm text-black leading-8 space-y-4">
+          <div ref={letterRef} className="p-5 sm:p-6 text-sm text-black leading-7 space-y-4">
            <div className="text-left text-gray-600 text-xs font-semibold">{today}</div>
 
            <div className="space-y-1">
@@ -285,14 +317,14 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
            <div className="rounded-xl p-4 space-y-2 border border-gray-300">
              <p className="font-bold text-black mb-3 text-sm">פרטי התיק</p>
               <div className="space-y-2 text-sm">
-                <div className="flex gap-4"><span className="font-bold w-40">1. שם לווה</span><span className="text-black">{displayName}</span></div>
+                <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">1. שם לווה</span><span className="text-black">{displayName}</span></div>
                 {isRefinance ? (
                   <>
-                    <div className="flex gap-4"><span className="font-bold w-40">2. יתרת משכנתא קיימת</span><span className="text-black">₪{formatCurrency(results.balance)}</span></div>
-                    <div className="flex gap-4"><span className="font-bold w-40">3. החזר חודשי נוכחי</span><span className="text-black">₪{formatCurrency(results.currentMonthly)}</span></div>
-                    <div className="flex gap-4"><span className="font-bold w-40">4. ריבית משוערת קיימת</span><span className="text-black">{results.impliedRate?.toFixed(2)}%</span></div>
-                    <div className="flex gap-4"><span className="font-bold w-40">5. שנים שנשארו</span><span className="text-black">{results.remainingYears} שנים</span></div>
-                    <div className="flex gap-4"><span className="font-bold w-40">6. חיסכון חודשי צפוי</span><span className="text-black font-semibold">₪{formatCurrency(results.monthlySaving)}</span></div>
+                    <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">2. יתרת משכנתא קיימת</span><span className="text-black">₪{formatCurrency(results.balance)}</span></div>
+                    <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">3. החזר חודשי נוכחי</span><span className="text-black">₪{formatCurrency(results.currentMonthly)}</span></div>
+                    <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">4. ריבית משוערת קיימת</span><span className="text-black">{results.impliedRate?.toFixed(2)}%</span></div>
+                    <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">5. שנים שנשארו</span><span className="text-black">{results.remainingYears} שנים</span></div>
+                    <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">6. חיסכון חודשי צפוי</span><span className="text-black font-semibold">₪{formatCurrency(results.monthlySaving)}</span></div>
                   </>
                 ) : (
                    <>
@@ -313,18 +345,18 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
                       let itemNum = 2;
                       return (
                         <>
-                          <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. סכום מבוקש</span><span className="text-black">₪{formatCurrency(results.loanAmount)}</span></div>
-                          <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. שווי נכס</span><span className="text-black">₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}</span></div>
-                          <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. הון עצמי נזיל</span><span className="text-black">₪{formatCurrency(baseEquity)}</span></div>
+                          <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. סכום מבוקש</span><span className="text-black">₪{formatCurrency(results.loanAmount)}</span></div>
+                          <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. שווי נכס</span><span className="text-black">₪{formatCurrency(Number(String(formData.propertyPrice || 0).replace(/,/g, '')))}</span></div>
+                          <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. הון עצמי נזיל</span><span className="text-black">₪{formatCurrency(baseEquity)}</span></div>
                           {completionAmount > 0 && (
                             <>
-                              <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. השלמת הון עצמי</span><span className="text-black">₪{formatCurrency(completionAmount)} ({completionSources.map(s => sourceLabels[s] || s).join(', ')})</span></div>
-                              <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. סה"כ הון עצמי</span><span className="text-black font-semibold">₪{formatCurrency(totalEquity)}</span></div>
+                              <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. השלמת הון עצמי</span><span className="text-black">₪{formatCurrency(completionAmount)} ({completionSources.map(s => sourceLabels[s] || s).join(', ')})</span></div>
+                              <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. סה"כ הון עצמי</span><span className="text-black font-semibold">₪{formatCurrency(totalEquity)}</span></div>
                             </>
                           )}
-                          <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. אחוז מימון (LTV)</span><span className="text-black">{results.ltv?.toFixed(1)}% (תקרה: {formData.mortgageType === 'purchase_first' ? '75%' : formData.mortgageType === 'purchase_improve' ? '70%' : formData.mortgageType === 'purchase_additional' ? '50%' : formData.mortgageType === 'any_purpose' ? '50%' : '50%'})</span></div>
-                          <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. תקופת הלוואה</span><span className="text-black">{formData.loanDuration} שנים</span></div>
-                          <div className="flex gap-4"><span className="font-bold w-40">{itemNum++}. מטרת ההלוואה</span><span className="text-black">{{
+                          <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. אחוז מימון (LTV)</span><span className="text-black">{results.ltv?.toFixed(1)}% (תקרה: {formData.mortgageType === 'purchase_first' ? '75%' : formData.mortgageType === 'purchase_improve' ? '70%' : formData.mortgageType === 'purchase_additional' ? '50%' : formData.mortgageType === 'any_purpose' ? '50%' : '50%'})</span></div>
+                          <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. תקופת הלוואה</span><span className="text-black">{formData.loanDuration} שנים</span></div>
+                          <div className="flex gap-4"><span className="font-bold w-28 sm:w-40 shrink-0">{itemNum++}. מטרת ההלוואה</span><span className="text-black">{{
                             purchase_first: 'רכישת דירה ראשונה',
                             purchase_improve: 'משפרי דיור / חליפית',
                             purchase_additional: 'נכס נוסף / דירה להשקעה',

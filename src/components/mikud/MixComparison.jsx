@@ -110,7 +110,7 @@ function MixCard({ title, subtitle, tracks, totalPmt, isRecommended, mixType = '
       </div>
 
       {/* ראש הכרטיס */}
-      <div className="px-6 pt-10 pb-6">
+      <div className="px-5 pt-6 pb-4">
         {/* אייקון */}
         <div
           className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 relative"
@@ -146,7 +146,7 @@ function MixCard({ title, subtitle, tracks, totalPmt, isRecommended, mixType = '
           />
           <p className="text-white/50 text-[11px] font-semibold mb-1 relative z-10">החזר חודשי</p>
           <p
-            className="text-4xl font-black relative z-10"
+            className="text-3xl font-black relative z-10"
             style={{ color: meta.accentColor, textShadow: `0 0 20px ${meta.accentColor}60` }}
           >
             ₪{fmt(Math.floor(totalPmt))}
@@ -332,7 +332,7 @@ export default function MixComparison({ mixA, mixB, mixC, cpiMix, loanAmount, du
       </div>
 
       {/* גריד הכרטיסים */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <MixCard
           title={isRefinance ? mixB.label : 'תמהיל אסטרטגי'}
           subtitle={isRefinance ? mixB.subtitle : undefined}

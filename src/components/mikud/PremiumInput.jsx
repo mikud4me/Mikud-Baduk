@@ -20,7 +20,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
   const displayValue = isNumeric && value !== "" && !NON_FORMAT_FIELDS.includes(name) ? formatCurrency(value) : value;
 
   return (
-    <div className="mb-5 text-right w-full group">
+    <div className="mb-4 text-right w-full group">
       <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2 group-focus-within:text-[#c9a961] transition-colors">
         {IconComponent && (
           <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2 group-focus-within:bg-[#c9a961]/10 transition-all">
@@ -46,7 +46,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
 
       {options ? (
         <select
-          className="w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-2 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base appearance-none text-right cursor-pointer shadow-md"
+          className="w-full bg-gradient-to-br from-white to-gray-50 h-12 px-5 border-2 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base appearance-none text-right cursor-pointer shadow-md"
           dir="rtl"
           value={value}
           onChange={(e) => onChange(name, e.target.value)}
@@ -71,7 +71,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
             <span className="text-[#1e3a5f] text-base">{max} שנים</span>
             <span>{min} שנים</span>
           </div>
-          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4a6f] text-white self-center px-8 py-2.5 rounded-full text-lg font-bold shadow-lg">
+          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4a6f] text-white self-center px-6 py-2 rounded-full text-base font-bold shadow-lg">
             {value} שנים
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
           <input
             type={type}
             placeholder={placeholder}
-            className={`w-full bg-gradient-to-br from-white to-gray-50 h-14 px-5 border-2 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base text-right shadow-md ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-[#1e3a5f]'}`}
+            className={`w-full bg-gradient-to-br from-white to-gray-50 h-12 px-5 border-2 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base text-right shadow-md ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-[#1e3a5f]'}`}
             value={displayValue}
             onChange={NON_FORMAT_FIELDS.includes(name)
               ? (e) => onChange(name, e.target.value)
@@ -91,7 +91,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
           />
           {isNumeric && !NON_FORMAT_FIELDS.includes(name) && (
             <div className="absolute left-5 top-1/2 -translate-y-1/2">
-              <span className="text-[#c9a961] font-bold text-2xl">₪</span>
+              <span className="text-[#c9a961] font-bold text-xl">₪</span>
             </div>
           )}
         </div>

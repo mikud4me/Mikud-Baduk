@@ -31,15 +31,15 @@ const testimonials = [
 
 export default function SocialProof() {
   return (
-    <section className="w-full bg-[#0d1b2e] py-24 px-4" dir="rtl">
+    <section className="w-full bg-[#0d1b2e] py-12 sm:py-16 px-4" dir="rtl">
       <div className="max-w-5xl mx-auto">
 
         {/* סטטיסטיקות */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 rounded-2xl overflow-hidden mb-20">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 rounded-2xl overflow-hidden mb-10 sm:mb-12">
           {stats.map((s, i) => (
             <div
               key={i}
-              className="flex flex-col items-center justify-center text-center py-10 px-4 bg-[#0d1b2e] hover:bg-[#1e3a5f]/60 transition-colors duration-300"
+              className="flex flex-col items-center justify-center text-center py-6 sm:py-8 px-4 bg-[#0d1b2e] hover:bg-[#1e3a5f]/60 transition-colors duration-300"
             >
               <div className="text-3xl sm:text-4xl font-black text-white mb-1 tracking-tight">{s.value}</div>
               <div className="text-xs text-gray-500 font-semibold uppercase tracking-widest">{s.label}</div>
@@ -48,7 +48,7 @@ export default function SocialProof() {
         </div>
 
         {/* כותרת המלצות */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <p className="text-xs font-bold tracking-[0.3em] uppercase text-[#c9a961] mb-3">לקוחות מרוצים</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
             הם כבר חסכו.
@@ -62,7 +62,7 @@ export default function SocialProof() {
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-[#c9a961]/40 transition-all duration-300 bg-white/5 hover:bg-white/8 p-7 flex flex-col justify-between"
+              className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-[#c9a961]/40 transition-all duration-300 bg-white/5 hover:bg-white/8 p-5 sm:p-6 flex flex-col justify-between"
             >
               {/* פס עליון */}
               <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#c9a961]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

@@ -11,9 +11,9 @@ const banks = [
 
 export default function BankLogosCarousel() {
   return (
-    <div className="bg-white border-y border-gray-100 py-10">
+    <div className="bg-white border-y border-gray-100 py-6 sm:py-8">
       {/* Styled Title */}
-      <div className="max-w-7xl mx-auto px-4 mb-10 text-center">
+      <div className="max-w-7xl mx-auto px-4 mb-6 sm:mb-8 text-center">
         <div className="inline-flex flex-col items-center gap-2">
           <h2 className="text-2xl sm:text-3xl font-black text-[#1e3a5f]" style={{ letterSpacing: '-0.01em' }}>
             בשיתוף פעולה עם כל הבנקים המובילים במשק
@@ -23,16 +23,16 @@ export default function BankLogosCarousel() {
       </div>
 
       {/* Logos */}
-      <div className="flex flex-wrap items-center justify-center gap-16 px-12">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-10 px-4 sm:px-8">
         {banks.map((bank) => (
           <div
             key={bank.name}
-            className="flex items-center justify-center p-3 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
+            className="flex items-center justify-center p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
           >
             <img
               src={bank.img}
               alt={`בנק ${bank.name}`}
-              style={{ width: '130px', height: '60px', transform: `scale(${bank.scale || 1})` }}
+              style={{ width: 'clamp(65px, 20vw, 100px)', height: '48px', transform: `scale(${bank.scale || 1})` }}
               className="object-contain opacity-75 group-hover:opacity-100 transition-opacity duration-300"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
