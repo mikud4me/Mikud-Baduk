@@ -3,9 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import AdminOnly from '@/components/AdminOnly';
 import {
-  User, Phone, Mail, Home, Coins, TrendingDown, Wallet,
-  BadgeCheck, ShieldCheck, Download, ChevronRight,
-  Clock, CheckCircle, ArrowLeft, Building2, FileJson, Send
+  User, Coins,
+  BadgeCheck, Download,
+  Clock, CheckCircle, ArrowLeft, FileJson, Send
 } from 'lucide-react';
 
 const formatCurrency = (n) =>

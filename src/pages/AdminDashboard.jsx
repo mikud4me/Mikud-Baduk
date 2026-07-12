@@ -3,9 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import AdminOnly from '@/components/AdminOnly';
 import {
-  Users, TrendingUp, CheckCircle, Clock, Search, Filter,
-  ChevronLeft, Download, Phone, Mail, BadgeCheck, AlertCircle,
-  ShieldAlert, Eye, FileText, RefreshCw
+  Users, CheckCircle, Clock, Search, Filter, Download, BadgeCheck, Eye, RefreshCw
 } from 'lucide-react';
 
 const STATUS_LABELS = {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, TrendingUp, Shield, AlertTriangle, Percent } from "lucide-react";
+import { BookOpen, Shield, AlertTriangle, Percent } from "lucide-react";
 import { motion } from "framer-motion";
 
 const tracks = [

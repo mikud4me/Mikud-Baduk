@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  User, Home, Briefcase, ChevronLeft, Phone, Wallet, Building2,
+  User, Home, ChevronLeft, Phone, Wallet, Building2,
   Mail, BadgeCheck, Calendar, Coins, TrendingDown,
   Key, Target, X, UserPlus, AlertCircle, Smartphone
 } from 'lucide-react';
