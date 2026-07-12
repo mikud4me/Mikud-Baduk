@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ShieldCheck, Zap, TrendingDown, ChevronDown, ChevronUp, Brain, Star } from 'lucide-react';
+import { ShieldCheck, Zap, TrendingDown, ChevronDown, ChevronUp, Brain, Star } from 'lucide-react';
 
 const fmt = (val) => {
   if (!val || isNaN(val)) return "0";
@@ -8,7 +8,7 @@ const fmt = (val) => {
 
 const MIX_META = {
   recommended: {
-    icon: Sparkles,
+    icon: Star,
     label: 'מאוזן',
     labelColor: 'from-[#c9a961] to-[#d4b975]',
     borderColor: 'border-[#c9a961]/60',
@@ -319,7 +319,7 @@ export default function MixComparison({ mixA, mixB, mixC, cpiMix, loanAmount, du
             boxShadow: '0 0 20px rgba(201,169,97,0.1)',
           }}
         >
-          <Sparkles size={14} className="text-[#c9a961]" />
+          <Star size={14} className="text-[#c9a961]" />
           <span className="text-[#c9a961] font-bold text-xs tracking-wider">3 תמהילים מומלצים</span>
         </div>
         <h3

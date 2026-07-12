@@ -175,7 +175,7 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
               <MikoAvatar className="w-9 h-9 ring-2 ring-[#d4af37] rounded-full" />
               <div>
                 <span className="text-sm font-bold block">מיקו AI</span>
-                <span className="text-[10px] text-[#d4af37] block">יועץ משכנתאות חכם ✨</span>
+                <span className="text-[10px] text-[#d4af37] block">יועץ משכנתאות חכם</span>
               </div>
             </div>
             <div className="flex items-center gap-1">

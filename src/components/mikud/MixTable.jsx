@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ChevronDown, ChevronUp, TrendingDown, ShieldCheck, Zap } from 'lucide-react';
+import { Star, ChevronDown, ChevronUp, TrendingDown, ShieldCheck, Zap } from 'lucide-react';
 
 const formatCurrency = (val) => {
   if (!val || isNaN(val)) return "0";
@@ -8,7 +8,7 @@ const formatCurrency = (val) => {
 
 const MIX_META = {
   recommended: {
-    icon: Sparkles,
+    icon: Star,
     strategy: 'תמהיל מותאם אישית לפרופיל הלקוח',
     rationale: 'התמהיל חושב דינמית לפי גיל, יחס ההחזר, ה-LTV ויציבות ההכנסה. חלוקת הפריים/קבועה/משתנה מותאמת אישית — לא חלוקה גנרית. מטרה: מיקסום חיסכון תוך שמירה על רמת סיכון המתאימה לפרופיל.',
     pros: ['חלוקה מחושבת לפי פרופיל ספציפי', 'איזון בין חיסכון ליציבות', 'מותאם לתקני בנק ישראל'],
@@ -55,7 +55,7 @@ export default function MixTable({ title, subtitle, tracks, totalPmt, isRecommen
       {isRecommended && (
         <div className="absolute top-3 left-3 z-10">
           <div className="bg-gradient-to-r from-[#c9a961] to-[#d4b975] text-white px-3 py-1 rounded-full font-bold text-[10px] shadow flex items-center gap-1">
-            <Sparkles size={10} />
+            <Star size={10} />
             מומלץ
           </div>
         </div>

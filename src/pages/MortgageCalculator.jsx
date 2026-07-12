@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
-  User, Home, AlertCircle, ChevronLeft, Loader2, Phone, Building2, Sparkles, Mail, BadgeCheck, 
+  User, Home, AlertCircle, ChevronLeft, Loader2, Phone, Building2, Mail, BadgeCheck, 
   Calendar, Coins, TrendingDown, Lock, HelpCircle, Smartphone, Key, Target, ShieldAlert, X, UserPlus, Trash2
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -1252,7 +1252,6 @@ ${results.score}/100
                 <span className="flex items-center justify-center gap-2">
                   {step === 6 ? (
                     <>
-                      <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
                       הפקת דוח מסכם
                     </>
                   ) : step === 1 && !otpSent ? (
@@ -1461,7 +1460,6 @@ ${results.score}/100
                 
                 <div className="mt-6 pt-6 border-t-2 border-gray-200">
                   <p className="text-xs sm:text-sm text-gray-500 font-bold italic flex items-center justify-center gap-2">
-                    <Sparkles size={14} className="text-[#c9a961]" />
                     מיקוד משכנתאות - המטרה שלנו, החיסכון שלכם
                   </p>
                   <p className="text-[10px] text-gray-400 mt-2">* הדירוג מבוסס על תקני בנק ישראל ונתוני ההצהרה שמילאת</p>
@@ -1585,7 +1583,7 @@ ${results.score}/100
 
               <div className="bg-gray-50 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border border-gray-200 mb-6 sm:mb-10 text-right">
                 <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-                  <Sparkles size={18} className="sm:w-6 sm:h-6 text-[#c9a961]" /> ניתוח מקצועי מלא
+                  ניתוח מקצועי מלא
                 </h3>
                 <div className="text-gray-700 text-sm sm:text-base leading-relaxed font-normal">
                   {loading ? (

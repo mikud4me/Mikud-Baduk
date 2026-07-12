@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
-import { Calculator, Sparkles } from "lucide-react";
+import { Calculator } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function MortgageCalculator({ onCalculate }) {
@@ -135,7 +135,6 @@ export default function MortgageCalculator({ onCalculate }) {
                             type="submit" 
                             className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-xl shadow-blue-200 transition-all duration-300"
                         >
-                            <Sparkles className="w-5 h-5 ml-2" />
                             בנה לי 3 תמהילים
                         </Button>
                     </form>

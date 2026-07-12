@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   User, Home, Briefcase, ChevronLeft, Phone, Wallet, Building2,
-  Sparkles, Mail, BadgeCheck, Calendar, Coins, TrendingDown,
+  Mail, BadgeCheck, Calendar, Coins, TrendingDown,
   Key, Target, X, UserPlus, AlertCircle, Smartphone
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -434,9 +434,7 @@ export default function ClientQuestionnaire() {
               disabled={submitting}
               className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
             >
-              {submitting ? 'שולח...' : step === 5 ? (
-                <span className="flex items-center justify-center gap-2"><Sparkles size={20} /> שלח טופס</span>
-              ) : step === 1 && !otpSent ? 'שלח קוד אימות' : (
+              {submitting ? 'שולח...' : step === 5 ? 'שלח טופס' : step === 1 && !otpSent ? 'שלח קוד אימות' : (
                 <span className="flex items-center justify-center gap-2">המשך <ChevronLeft size={20} /></span>
               )}
             </button>

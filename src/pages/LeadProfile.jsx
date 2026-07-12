@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import AdminOnly from '@/components/AdminOnly';
 import {
   User, Phone, Mail, Home, Coins, TrendingDown, Wallet,
-  BadgeCheck, ShieldCheck, Download, ChevronRight, Sparkles,
+  BadgeCheck, ShieldCheck, Download, ChevronRight,
   Clock, CheckCircle, ArrowLeft, Building2, FileJson, Send
 } from 'lucide-react';
 
@@ -238,7 +238,7 @@ function LeadProfileContent() {
 
         {/* AI Analysis */}
         {lead.aiAnalysis && (
-          <Section title="ניתוח AI מלא" icon={Sparkles}>
+          <Section title="ניתוח AI מלא">
             <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">{lead.aiAnalysis}</p>
           </Section>
         )}
