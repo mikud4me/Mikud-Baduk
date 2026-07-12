@@ -32,7 +32,7 @@ export default function PremiumInput({ label, icon: IconComponent, name, value, 
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button type="button" className="mr-1 hover:scale-110 transition-transform">
+                <button type="button" tabIndex={-1} aria-hidden="true" className="mr-1 hover:scale-110 transition-transform">
                   <HelpCircle size={16} className="text-gray-400 hover:text-[#c9a961]" />
                 </button>
               </TooltipTrigger>
