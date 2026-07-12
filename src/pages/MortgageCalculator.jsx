@@ -1525,7 +1525,7 @@ ${results.score}/100
                     </div>
                   )}
                   {results.maxLoanByIncome > 0 && results.totalIncome > 0 && (
-                    <div className="rounded-xl p-3 border-2 border-blue-300 bg-blue-50 text-center">
+                    <div className="mt-3 rounded-xl p-3 border-2 border-blue-300 bg-blue-50 text-center">
                       <p className="text-xs font-bold text-blue-700 mb-1">סכום משכנתא מקסימלי לפי הכנסתך ותקופה מקסימלית</p>
                       <p className="text-xl font-black text-blue-800">₪{formatCurrency(results.maxLoanByIncome)}</p>
                       <p className="text-[10px] text-blue-500 mt-1">מחושב לפי DTI 40% בריבית הנמוכה ביותר ותקופה מקסימלית</p>
