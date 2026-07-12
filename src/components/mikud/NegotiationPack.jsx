@@ -457,7 +457,6 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
           {pdfLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
           {pdfLoading ? 'מכין את הדוח...' : 'הורד ערכת משא ומתן (PDF)'}
         </button>
-        <p className="text-xs text-gray-400 mt-2">דוח PDF בעברית — מכתב לבנק, תמהילים ורשימת מסמכים</p>
       </div>
     </div>
   );
