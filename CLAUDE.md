@@ -58,7 +58,8 @@ All backend calls go through the singleton `base44` client
 - `base44.functions.invoke('<name>', payload)` — calls serverless functions in
   `base44/functions/*/entry.ts` (Deno, run on Base44). Present functions:
   `getBankOfIsraelRates`, `calculateMortgageMixes`, `generatePdfReport`,
-  `createCheckoutSession`, `createPaymentIntent`, `stripeWebhook`.
+  `createCheckoutSession`, `createPaymentIntent`, `stripeWebhook`,
+  `sendEmailVerification`, `verifyEmailCode` (server-side email OTP).
 - `base44.integrations.Core.InvokeLLM(...)` — LLM calls for the AI analysis /
   Miko chat.
 - `base44.auth.*` — `me()`, `logout()`, `redirectToLogin()`.
@@ -82,7 +83,9 @@ are validated against an allowlist, and HTML built from client data is escaped
 ### Pages (`src/pages/`)
 - `MortgageCalculator.jsx` — the **main page** (`mainPage` in `pages.config.js`)
   and the heart of the app: a large multi-step form + AI analysis + mix
-  comparison + lead creation + OTP verification. This is the biggest file.
+  comparison + lead creation + server-side email verification (OTP sent and
+  checked via the `sendEmailVerification` / `verifyEmailCode` functions). This
+  is the biggest file.
 - `ClientQuestionnaire.jsx` — client-facing questionnaire flow.
 - `LeadProfile.jsx` / `AdminDashboard.jsx` — admin: view a lead / dashboard and
   lead purchasing.
