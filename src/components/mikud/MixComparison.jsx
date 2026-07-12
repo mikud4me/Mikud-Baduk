@@ -293,7 +293,7 @@ function AiTip({ text }) {
         </div>
         <div>
           <p className="text-[#c9a961] font-black text-sm mb-1 flex items-center gap-1">
-            <Star size={12} fill="currentColor" /> המלצת AI
+            <Star size={12} fill="currentColor" /> ההמלצה שלנו
           </p>
           <p className="text-white/70 text-xs leading-relaxed">{text}</p>
         </div>
