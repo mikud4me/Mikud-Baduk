@@ -62,11 +62,11 @@ export default function EquityCompletionForm({ data, onChange, errors = {}, gap 
                 return (
                   <label
                     key={opt.val}
-                    className={`flex items-start gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${checked ? 'border-[#c9a961] bg-[#c9a961]/10' : 'border-gray-200 bg-white hover:border-[#1e3a5f]/40'}`}
+                    className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${checked ? 'border-[#c9a961] bg-[#c9a961]/10' : 'border-gray-200 bg-white hover:border-[#1e3a5f]/40'}`}
                   >
                     <input
                       type="checkbox"
-                      className="w-5 h-5 mt-0.5 rounded accent-[#1e3a5f] flex-shrink-0"
+                      className="w-5 h-5 rounded accent-[#1e3a5f] flex-shrink-0"
                       checked={checked}
                       onChange={() => toggleSource(opt.val)}
                     />

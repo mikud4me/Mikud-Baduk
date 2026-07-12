@@ -680,17 +680,17 @@ ${results.score}/100
                   <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="example@email.com" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} tooltip="דוא״ל לקבלת הדוח המפורט והתכתבות עם היועץ" />
                   
                   {/* אישור יצירת קשר */}
-                  <div className="mt-4 flex items-start gap-3 p-4 rounded-xl border-2 bg-slate-50 shadow-inner">
-                    <input type="checkbox" className="w-5 h-5 mt-0.5 rounded border-slate-300 text-[#001a33] focus:ring-[#001a33] flex-shrink-0" checked={formData.consent} onChange={(e) => handleInputChange('consent', e.target.checked)} />
+                   <div className="mt-4 flex items-center gap-3 p-4 rounded-xl border-2 bg-slate-50 shadow-inner">
+                    <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-[#001a33] focus:ring-[#001a33] flex-shrink-0" checked={formData.consent} onChange={(e) => handleInputChange('consent', e.target.checked)} />
                     <p className="text-[11px] text-slate-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
                   </div>
                   {fieldErrors.consent && <p className="text-red-600 text-xs font-bold mt-1 text-right">{fieldErrors.consent}</p>}
 
                   {/* אישור בדיקת חווי אשראי */}
-                  <div className="mt-3 flex items-start gap-3 p-4 rounded-xl border-2 bg-slate-50 shadow-inner">
+                   <div className="mt-3 flex items-center gap-3 p-4 rounded-xl border-2 bg-slate-50 shadow-inner">
                     <input
                       type="checkbox"
-                      className="w-5 h-5 mt-0.5 rounded border-slate-300 text-[#001a33] focus:ring-[#001a33] flex-shrink-0"
+                      className="w-5 h-5 rounded border-slate-300 text-[#001a33] focus:ring-[#001a33] flex-shrink-0"
                       checked={formData.creditConsent}
                       onChange={(e) => {
                         handleInputChange('creditConsent', e.target.checked);

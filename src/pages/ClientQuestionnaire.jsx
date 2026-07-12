@@ -264,14 +264,14 @@ export default function ClientQuestionnaire() {
               <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} />
               <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="example@email.com" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} />
 
-              <div className="mt-4 flex items-start gap-3 p-4 rounded-xl border-2 bg-slate-50">
-                <input type="checkbox" className="w-5 h-5 mt-0.5 rounded flex-shrink-0 accent-[#1e3a5f]" checked={formData.consent} onChange={(e) => handleInputChange('consent', e.target.checked)} />
+              <div className="mt-4 flex items-center gap-3 p-4 rounded-xl border-2 bg-slate-50">
+                <input type="checkbox" className="w-5 h-5 rounded flex-shrink-0 accent-[#1e3a5f]" checked={formData.consent} onChange={(e) => handleInputChange('consent', e.target.checked)} />
                 <p className="text-xs text-slate-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
               </div>
               {fieldErrors.consent && <p className="text-red-600 text-xs font-bold mt-1">{fieldErrors.consent}</p>}
 
-              <div className="mt-3 flex items-start gap-3 p-4 rounded-xl border-2 bg-amber-50 border-amber-200">
-                <input type="checkbox" className="w-5 h-5 mt-0.5 rounded flex-shrink-0 accent-[#1e3a5f]"
+              <div className="mt-3 flex items-center gap-3 p-4 rounded-xl border-2 bg-amber-50 border-amber-200">
+                <input type="checkbox" className="w-5 h-5 rounded flex-shrink-0 accent-[#1e3a5f]"
                   checked={formData.creditConsent}
                   onChange={(e) => { handleInputChange('creditConsent', e.target.checked); if (e.target.checked) setShowCreditModal(true); }}
                 />
