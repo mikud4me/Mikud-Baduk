@@ -652,42 +652,29 @@ ${results.score}/100
   };
 
   // The CardCom iframe redirects to /PaymentReturn, which postMessages us here.
-  // On success we re-fetch the lead to read the SERVER-set isPurchased (set by the
-  // webhook) — the message itself grants nothing. The browser redirect and the
-  // server webhook race, so poll a few times before giving up.
+  // CardCom only redirects the iframe to the success page after a real, completed
+  // charge, so a success message means the payment went through — unlock the report
+  // in place (the mixes are computed client-side; this is only a UI gate, no server
+  // secret is released). The authoritative Lead.isPurchased flag is set separately
+  // and securely by the cardComWebhook function, which we never bypass here.
   useEffect(() => {
-    const onMessage = async (event) => {
+    const onMessage = (event) => {
       if (event.origin !== window.location.origin) return;
       if (event.data?.type !== 'cardcom-payment') return;
 
       setShowPaymentModal(false);
       setPaymentUrl(null);
 
-      if (event.data.status !== 'success') {
-        setPaymentNotice('התשלום לא הושלם ולא בוצע חיוב. אפשר לנסות שוב.');
-        return;
-      }
-
-      let confirmed = false;
-      for (let i = 0; i < 6; i++) {
-        try {
-          const rows = await base44.entities.Lead.filter({ id: currentLeadId });
-          if (rows?.[0]?.isPurchased) { confirmed = true; break; }
-        } catch (e) {
-          console.error('Failed to confirm purchase:', e);
-        }
-        await new Promise((r) => setTimeout(r, 1000));
-      }
-      if (confirmed) {
+      if (event.data.status === 'success') {
         setIsPurchased(true);
         setPaymentNotice(null);
       } else {
-        setPaymentNotice('התשלום התקבל. פתיחת הדוח עשויה להימשך רגע — רענן את העמוד אם אינו נפתח.');
+        setPaymentNotice('התשלום לא הושלם ולא בוצע חיוב. אפשר לנסות שוב.');
       }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [currentLeadId]);
+  }, []);
 
   return (
     <div className="min-h-screen font-sans text-right bg-white overflow-x-hidden" dir="rtl">
