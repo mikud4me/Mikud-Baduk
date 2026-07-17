@@ -188,6 +188,7 @@
       "type": "string",
       "enum": [
         "new",
+        "partial",
         "contacted",
         "in_process",
         "approved",
