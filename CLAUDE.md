@@ -58,7 +58,9 @@ All backend calls go through the singleton `base44` client
 - `base44.functions.invoke('<name>', payload)` — calls serverless functions in
   `base44/functions/*/entry.ts` (Deno, run on Base44). Present functions:
   `getBankOfIsraelRates`, `calculateMortgageMixes`, `generatePdfReport`,
-  `createCardComPayment`, `cardComWebhook` (active CardCom payment),
+  `createCardComPayment`, `verifyCardComPayment`, `cardComWebhook`
+  (active CardCom payment — `verifyCardComPayment` is the primary client-called
+  confirmation via CardCom `GetLpResult`; the webhook is a backup),
   `createCheckoutSession`, `createPaymentIntent`, `stripeWebhook` (legacy Stripe,
   **currently unused** — nothing in the frontend invokes them),
   `sendEmailVerification`, `verifyEmailCode` (server-side email OTP).

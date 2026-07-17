@@ -36,6 +36,7 @@ export default function MortgageCalculator() {
   const [step, setStep] = useState(1);
   const mainRef = useRef(null);
   const didMountRef = useRef(false);
+  const lowProfileIdRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [aiInsights, setAiInsights] = useState(null);
@@ -641,6 +642,7 @@ ${results.score}/100
       });
       const url = response?.data?.url;
       if (!url) throw new Error('missing payment url');
+      lowProfileIdRef.current = response?.data?.lowProfileId || null;
       setPaymentUrl(url);
       setShowPaymentModal(true);
     } catch (e) {
@@ -651,30 +653,60 @@ ${results.score}/100
     }
   };
 
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+    setPaymentUrl(null);
+  };
+
+  // Confirm the payment server-side: verifyCardComPayment queries CardCom's
+  // GetLpResult and, if genuinely paid, marks the lead. Unlocking the report is
+  // gated on this verified result — so the mixes open AND the lead is recorded as
+  // paid without depending on CardCom's server-to-server webhook being enabled.
+  const verifyAndUnlock = async () => {
+    const lowProfileId = lowProfileIdRef.current;
+    if (!currentLeadId || !lowProfileId) return false;
+    setPaymentNotice('מאמת את התשלום…');
+    for (let i = 0; i < 3; i++) {
+      try {
+        const res = await base44.functions.invoke('verifyCardComPayment', {
+          leadId: currentLeadId,
+          lowProfileId,
+        });
+        if (res?.data?.paid) {
+          setIsPurchased(true);
+          setPaymentNotice(null);
+          lowProfileIdRef.current = null;
+          return true;
+        }
+      } catch (e) {
+        console.error('verifyCardComPayment failed:', e);
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    setPaymentNotice(null);
+    return false;
+  };
+
   // The CardCom iframe redirects to /PaymentReturn, which postMessages us here.
-  // CardCom only redirects the iframe to the success page after a real, completed
-  // charge, so a success message means the payment went through — unlock the report
-  // in place (the mixes are computed client-side; this is only a UI gate, no server
-  // secret is released). The authoritative Lead.isPurchased flag is set separately
-  // and securely by the cardComWebhook function, which we never bypass here.
   useEffect(() => {
-    const onMessage = (event) => {
+    const onMessage = async (event) => {
       if (event.origin !== window.location.origin) return;
       if (event.data?.type !== 'cardcom-payment') return;
 
-      setShowPaymentModal(false);
-      setPaymentUrl(null);
-
+      closePaymentModal();
       if (event.data.status === 'success') {
-        setIsPurchased(true);
-        setPaymentNotice(null);
+        const ok = await verifyAndUnlock();
+        if (!ok) {
+          setPaymentNotice('התשלום התקבל אך האימות נכשל. פנה אלינו ונפתח את הדוח מיד.');
+        }
       } else {
         setPaymentNotice('התשלום לא הושלם ולא בוצע חיוב. אפשר לנסות שוב.');
       }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLeadId]);
 
   return (
     <div className="min-h-screen font-sans text-right bg-white overflow-x-hidden" dir="rtl">
@@ -685,7 +717,7 @@ ${results.score}/100
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
               <h3 className="font-black text-[#001a33] text-sm">תשלום מאובטח — מיקוד משכנתאות</h3>
               <button
-                onClick={() => { setShowPaymentModal(false); setPaymentUrl(null); }}
+                onClick={() => { closePaymentModal(); verifyAndUnlock(); }}
                 className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="סגור"
               >
