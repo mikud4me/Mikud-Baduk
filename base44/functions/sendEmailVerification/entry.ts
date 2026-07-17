@@ -8,6 +8,11 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const CODE_TTL_MS = 10 * 60 * 1000; // הקוד תקף ל-10 דקות
+
+// שליחת מייל דרך Resend. הכתובת ב-RESEND_FROM חייבת להיות מדומיין מאומת ב-Resend
+// (onboarding@resend.dev מתאים רק לבדיקות — Resend שולח ממנו רק למייל של בעל החשבון).
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+const RESEND_FROM = Deno.env.get('RESEND_FROM') ?? 'מיקוד משכנתאות <onboarding@resend.dev>';
 const RESEND_COOLDOWN_MS = 30 * 1000; // מרווח מינימלי בין שליחות
 
 // SHA-256 של הקוד, "מומלח" עם כתובת האימייל כדי שקודים זהים לא ייצרו hash זהה.
@@ -46,6 +51,31 @@ Deno.serve(async (req) => {
     const codeHash = await hashCode(code, normalizedEmail);
     const nowIso = new Date(now).toISOString();
 
+    // שליחת המייל דרך Resend — Core.SendEmail של Base44 שולח רק למשתמשים רשומים
+    // באפליקציה, ולידים הם משתמשים לא-רשומים. שולחים קודם, ורק אם השליחה הצליחה
+    // כותבים את הרשומה (כדי שכשל שליחה לא ישאיר cooldown "תקוע").
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: RESEND_FROM,
+        to: [normalizedEmail],
+        subject: 'קוד האימות שלך — מיקוד משכנתאות',
+        text:
+          `שלום,\n\n` +
+          `קוד האימות שלך למיקוד משכנתאות הוא: ${code}\n\n` +
+          `הקוד תקף ל-10 דקות. אם לא ביקשת קוד זה, ניתן להתעלם מהודעה זו.\n\n` +
+          `בהצלחה,\nצוות מיקוד משכנתאות`,
+      }),
+    });
+    if (!emailRes.ok) {
+      console.error('Resend send failed:', emailRes.status, await emailRes.text());
+      throw new Error('email_send_failed');
+    }
+
     await svc.entities.EmailVerification.create({
       email: normalizedEmail,
       codeHash,
@@ -53,17 +83,6 @@ Deno.serve(async (req) => {
       attempts: 0,
       verified: false,
       lastSentAt: nowIso,
-    });
-
-    await svc.integrations.Core.SendEmail({
-      to: normalizedEmail,
-      subject: 'קוד האימות שלך — מיקוד משכנתאות',
-      from_name: 'מיקוד משכנתאות',
-      body:
-        `שלום,\n\n` +
-        `קוד האימות שלך למיקוד משכנתאות הוא: ${code}\n\n` +
-        `הקוד תקף ל-10 דקות. אם לא ביקשת קוד זה, ניתן להתעלם מהודעה זו.\n\n` +
-        `בהצלחה,\nצוות מיקוד משכנתאות`,
     });
 
     return Response.json({ ok: true });
