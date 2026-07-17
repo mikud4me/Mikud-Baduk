@@ -58,17 +58,24 @@ All backend calls go through the singleton `base44` client
 - `base44.functions.invoke('<name>', payload)` — calls serverless functions in
   `base44/functions/*/entry.ts` (Deno, run on Base44). Present functions:
   `getBankOfIsraelRates`, `calculateMortgageMixes`, `generatePdfReport`,
-  `createCheckoutSession`, `createPaymentIntent`, `stripeWebhook`,
+  `createCardComPayment`, `cardComWebhook` (active CardCom payment),
+  `createCheckoutSession`, `createPaymentIntent`, `stripeWebhook` (legacy Stripe,
+  **currently unused** — nothing in the frontend invokes them),
   `sendEmailVerification`, `verifyEmailCode` (server-side email OTP).
 - `base44.integrations.Core.InvokeLLM(...)` — LLM calls for the AI analysis /
   Miko chat.
 - `base44.auth.*` — `me()`, `logout()`, `redirectToLogin()`.
 
 Backend functions **must not trust client-supplied values** for anything
-sensitive: prices come from a fixed Stripe `price_id` server-side, redirect URLs
-are validated against an allowlist, and HTML built from client data is escaped
-(see the comments in `createCheckoutSession/entry.ts`, `createPaymentIntent/entry.ts`,
-`generatePdfReport/entry.ts`). Preserve these invariants when editing.
+sensitive: the report price is a fixed server-side constant (`AMOUNT = 589` in
+`createCardComPayment/entry.ts`, the Stripe `price_id` in the legacy functions),
+redirect/origin URLs are validated against an allowlist, and HTML built from
+client data is escaped (see the comments in `createCardComPayment/entry.ts`,
+`createCheckoutSession/entry.ts`, `createPaymentIntent/entry.ts`,
+`generatePdfReport/entry.ts`). Payment purchase status (`Lead.isPurchased`) is
+granted **only** by the server-to-server webhook (`cardComWebhook/entry.ts`),
+which re-verifies the transaction against CardCom before writing — never by the
+client. Preserve these invariants when editing.
 
 ## Architecture
 
@@ -117,5 +124,12 @@ mortgage math, change it here, not inline in components.
 - **Lint**: unused imports are an **error** (`unused-imports/no-unused-imports`);
   unused vars are warnings unless prefixed `_`. Run `npm run lint` before
   finishing. `checkJs` is on, so JSDoc type errors surface via `npm run typecheck`.
-- Payments use Stripe (`@stripe/react-stripe-js`); the fixed lead price lives in
-  the backend functions, not the client.
+- Payments use **CardCom** (אישורית זהב) v11 LowProfile. The borrower unlocks the
+  full report (₪589, VAT-incl.) via an **iframe** payment modal in
+  `MortgageCalculator.jsx`: `handlePurchaseClick` invokes `createCardComPayment`,
+  the returned `Url` loads in an iframe, CardCom redirects to the `PaymentReturn`
+  page which `postMessage`s the parent, and `cardComWebhook` (re-verifying via
+  CardCom `GetLpResult`) sets `Lead.isPurchased`. CardCom secrets
+  (`CARDCOM_TERMINAL_NUMBER`, `CARDCOM_API_NAME`, `CARDCOM_API_PASSWORD`,
+  `CARDCOM_WEBHOOK_URL`) live in Base44 function env, not the repo. The old Stripe
+  path (`@stripe/react-stripe-js` + the three Stripe functions) is unused.

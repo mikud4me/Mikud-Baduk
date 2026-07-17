@@ -51,6 +51,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ClientQuestionnaire from './pages/ClientQuestionnaire';
 import LeadProfile from './pages/LeadProfile';
 import MortgageCalculator from './pages/MortgageCalculator';
+import PaymentReturn from './pages/PaymentReturn';
 
 
 export const PAGES = {
@@ -58,6 +59,7 @@ export const PAGES = {
     "ClientQuestionnaire": ClientQuestionnaire,
     "LeadProfile": LeadProfile,
     "MortgageCalculator": MortgageCalculator,
+    "PaymentReturn": PaymentReturn,
 }
 
 export const pagesConfig = {

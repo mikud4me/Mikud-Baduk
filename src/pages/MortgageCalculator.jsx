@@ -56,6 +56,10 @@ export default function MortgageCalculator() {
 
   const [showCreditModal, setShowCreditModal] = useState(false);
   const [showSpouseReminderModal, setShowSpouseReminderModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentNotice, setPaymentNotice] = useState(null);
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', phone: '', email: '', idNumber: '', birthDate: '', consent: false, creditConsent: false,
     mortgageType: 'purchase_first', loanDuration: '25', seniorBalloon: false, balloonExitStrategy: '',
@@ -620,15 +624,96 @@ ${results.score}/100
     }
   };
 
+  // Opens the CardCom payment page inside an iframe modal. Purchase status is
+  // granted only by the server-side webhook (cardComWebhook), never here — this
+  // just kicks off the flow and shows the payment UI.
   const handlePurchaseClick = async () => {
-    setIsPurchased(true);
-    if (currentLeadId) {
-      await base44.entities.Lead.update(currentLeadId, { isPurchased: true });
+    if (!currentLeadId) {
+      setPaymentNotice('אירעה שגיאה בזיהוי הבקשה. נסה לרענן את העמוד.');
+      return;
+    }
+    setPaymentNotice(null);
+    setPaymentLoading(true);
+    try {
+      const response = await base44.functions.invoke('createCardComPayment', {
+        leadId: currentLeadId,
+        origin: window.location.origin,
+      });
+      const url = response?.data?.url;
+      if (!url) throw new Error('missing payment url');
+      setPaymentUrl(url);
+      setShowPaymentModal(true);
+    } catch (e) {
+      console.error('Failed to start payment:', e);
+      setPaymentNotice('פתיחת דף התשלום נכשלה. נסה שוב מאוחר יותר.');
+    } finally {
+      setPaymentLoading(false);
     }
   };
 
+  // The CardCom iframe redirects to /PaymentReturn, which postMessages us here.
+  // On success we re-fetch the lead to read the SERVER-set isPurchased (set by the
+  // webhook) — the message itself grants nothing. The browser redirect and the
+  // server webhook race, so poll a few times before giving up.
+  useEffect(() => {
+    const onMessage = async (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type !== 'cardcom-payment') return;
+
+      setShowPaymentModal(false);
+      setPaymentUrl(null);
+
+      if (event.data.status !== 'success') {
+        setPaymentNotice('התשלום לא הושלם ולא בוצע חיוב. אפשר לנסות שוב.');
+        return;
+      }
+
+      let confirmed = false;
+      for (let i = 0; i < 6; i++) {
+        try {
+          const rows = await base44.entities.Lead.filter({ id: currentLeadId });
+          if (rows?.[0]?.isPurchased) { confirmed = true; break; }
+        } catch (e) {
+          console.error('Failed to confirm purchase:', e);
+        }
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+      if (confirmed) {
+        setIsPurchased(true);
+        setPaymentNotice(null);
+      } else {
+        setPaymentNotice('התשלום התקבל. פתיחת הדוח עשויה להימשך רגע — רענן את העמוד אם אינו נפתח.');
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [currentLeadId]);
+
   return (
     <div className="min-h-screen font-sans text-right bg-white overflow-x-hidden" dir="rtl">
+
+      {showPaymentModal && paymentUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md h-[640px] max-h-[92vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
+              <h3 className="font-black text-[#001a33] text-sm">תשלום מאובטח — מיקוד משכנתאות</h3>
+              <button
+                onClick={() => { setShowPaymentModal(false); setPaymentUrl(null); }}
+                className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="סגור"
+              >
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+            <iframe
+              src={paymentUrl}
+              title="CardCom תשלום"
+              className="w-full flex-1 border-0"
+              allow="payment"
+            />
+          </div>
+        </div>
+      )}
 
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm backdrop-blur-xl h-20 sm:h-20 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
@@ -1705,8 +1790,12 @@ ${results.score}/100
                   <div className="flex-1">
                     <h4 className="font-black text-[#001a33] text-base mb-1">התמהילים המלאים נעולים</h4>
                     <p className="text-slate-600 font-medium text-xs leading-relaxed">הפקת פירוט הריביות והחזרים מדויקים דורשת פתיחת תיק במיקוד משכנתאות.</p>
+                    {paymentNotice && (
+                      <p className="mt-2 text-[#1e3a5f] font-bold text-xs leading-relaxed">{paymentNotice}</p>
+                    )}
                   </div>
-                  <button onClick={handlePurchaseClick} className="bg-[#1e3a5f] text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg hover:bg-[#d4af37] hover:text-[#001a33] transition-all flex-shrink-0 whitespace-nowrap">
+                  <button onClick={handlePurchaseClick} disabled={paymentLoading} className="bg-[#1e3a5f] text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg hover:bg-[#d4af37] hover:text-[#001a33] transition-all flex-shrink-0 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                    {paymentLoading && <Loader2 size={16} className="animate-spin" />}
                     רכוש דוח ₪499 + מע"מ
                   </button>
                 </div>
