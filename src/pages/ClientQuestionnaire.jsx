@@ -26,6 +26,7 @@ export default function ClientQuestionnaire() {
   const [userInputOtp, setUserInputOtp] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [currentLeadId, setCurrentLeadId] = useState(null);
   const [showCreditModal, setShowCreditModal] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -96,6 +97,9 @@ export default function ClientQuestionnaire() {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     setGeneratedOtp(code);
     setOtpSent(true);
+    // שמירת ליד חלקי ראשוני ברגע בקשת קוד האימות (פרטי קשר הוזנו) — לשיחת המשך.
+    // בבקשת קוד חוזרת באותו סשן זה מעדכן את אותו הליד ולא יוצר כפילות.
+    savePartialLead();
   };
 
   const verifyOtp = () => {
@@ -111,6 +115,46 @@ export default function ClientQuestionnaire() {
     if (s === 5 && !formData.equity) errors.equity = 'חובה להזין הון עצמי';
     setFieldErrors(errors);
     return Object.keys(errors).filter(k => errors[k]).length === 0;
+  };
+
+  // בונה את מטען הנתונים של הליד מהמצב הנוכחי (משותף לשמירה חלקית ולסופית)
+  /** @param {{ status?: string }} [opts] */
+  const buildLeadPayload = ({ status } = {}) => ({
+    fullName,
+    phone: formData.phone,
+    email: formData.email,
+    idNumber: formData.idNumber,
+    birthDate: formData.birthDate,
+    age: formData.age ? Number(formData.age) : undefined,
+    purpose: formData.mortgageType,
+    propertyPrice: formData.propertyPrice ? Number(String(formData.propertyPrice).replace(/,/g, '')) : undefined,
+    loanAmount: formData.loanAmount ? Number(String(formData.loanAmount).replace(/,/g, '')) : undefined,
+    equity: formData.equity ? Number(String(formData.equity).replace(/,/g, '')) : undefined,
+    netIncome: calcTotalIncome(),
+    monthlyDebts: formData.monthlyDebts ? Number(String(formData.monthlyDebts).replace(/,/g, '')) : 0,
+    monthlyOverdraft: formData.monthlyOverdraft ? Number(String(formData.monthlyOverdraft).replace(/,/g, '')) : 0,
+    loanDuration: formData.loanDuration ? Number(formData.loanDuration) : undefined,
+    maritalStatus: borrowers[0]?.maritalStatus,
+    childrenUnder18: Number(borrowers[0]?.childrenUnder18 || 0),
+    creditHistory: borrowers[0]?.creditHistory,
+    employmentStatusA: (borrowers[0]?.employmentTypes || []).join(', '),
+    status,
+  });
+
+  // שמירת ליד חלקי (ליד "לא הושלם" שמתעדכן בכל שלב) — fire-and-forget, לעולם לא חוסם ניווט.
+  // הזהות נקבעת לפי currentLeadId של הסשן הנוכחי בלבד; אין חיפוש/מיזוג לפי טלפון/ת.ז,
+  // כך שכל מילוי חוזר של הטופס נשמר כליד חדש ואינו דורס נתונים קיימים.
+  const savePartialLead = async () => {
+    try {
+      if (!currentLeadId) {
+        const lead = await base44.entities.Lead.create(buildLeadPayload({ status: 'partial' }));
+        setCurrentLeadId(lead.id);
+      } else {
+        await base44.entities.Lead.update(currentLeadId, buildLeadPayload({ status: 'partial' }));
+      }
+    } catch (err) {
+      console.error('savePartialLead failed:', err);
+    }
   };
 
   const handleSubmit = async () => {
@@ -133,27 +177,14 @@ export default function ClientQuestionnaire() {
         };
       });
 
-      await base44.entities.Lead.create({
-        fullName,
-        phone: formData.phone,
-        email: formData.email,
-        idNumber: formData.idNumber,
-        birthDate: formData.birthDate,
-        age: Number(formData.age),
-        purpose: formData.mortgageType,
-        propertyPrice: Number(String(formData.propertyPrice).replace(/,/g, '')),
-        loanAmount: Number(String(formData.loanAmount).replace(/,/g, '')),
-        equity: Number(String(formData.equity).replace(/,/g, '')),
-        netIncome: calcTotalIncome(),
-        monthlyDebts: Number(String(formData.monthlyDebts).replace(/,/g, '')),
-        monthlyOverdraft: Number(String(formData.monthlyOverdraft).replace(/,/g, '')),
-        loanDuration: Number(formData.loanDuration),
-        maritalStatus: borrowers[0]?.maritalStatus,
-        childrenUnder18: Number(borrowers[0]?.childrenUnder18 || 0),
-        creditHistory: borrowers[0]?.creditHistory,
-        employmentStatusA: (borrowers[0]?.employmentTypes || []).join(', '),
-        status: 'new',
-      });
+      // שדרוג הליד החלקי של הסשן (אם קיים) לליד מלא, אחרת יצירה (fallback אם השמירות החלקיות נכשלו)
+      const leadPayload = buildLeadPayload({ status: 'new' });
+      if (currentLeadId) {
+        await base44.entities.Lead.update(currentLeadId, leadPayload);
+      } else {
+        const lead = await base44.entities.Lead.create(leadPayload);
+        setCurrentLeadId(lead.id);
+      }
       setSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -429,7 +460,7 @@ export default function ClientQuestionnaire() {
                 if (step === 1 && !otpSent) startVerification();
                 else if (step === 1 && otpSent) verifyOtp();
                 else if (step === 5) { if (validateStep(5)) handleSubmit(); }
-                else if (validateStep(step)) setStep(s => s + 1);
+                else if (validateStep(step)) { setStep(s => s + 1); savePartialLead(); }
               }}
               disabled={submitting}
               className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 ${step > 1 ? 'flex-[2]' : 'flex-1'}`}

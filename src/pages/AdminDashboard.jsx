@@ -3,10 +3,11 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import AdminOnly from '@/components/AdminOnly';
 import {
-  Users, CheckCircle, Clock, Search, Filter, Download, BadgeCheck, Eye, RefreshCw
+  Users, CheckCircle, Clock, Search, Filter, Download, BadgeCheck, Eye, RefreshCw, AlertCircle
 } from 'lucide-react';
 
 const STATUS_LABELS = {
+  partial: { label: 'לא הושלם', color: 'bg-orange-100 text-orange-800' },
   new: { label: 'חדש', color: 'bg-blue-100 text-blue-800' },
   contacted: { label: 'נוצר קשר', color: 'bg-yellow-100 text-yellow-800' },
   in_process: { label: 'בתהליך', color: 'bg-purple-100 text-purple-800' },
@@ -105,6 +106,7 @@ function AdminDashboardContent() {
 
   const stats = {
     total: leads.length,
+    partial: leads.filter(l => l.status === 'partial').length,
     new: leads.filter(l => l.status === 'new').length,
     purchased: leads.filter(l => l.isPurchased).length,
     approved: leads.filter(l => l.status === 'approved').length,
@@ -137,9 +139,10 @@ function AdminDashboardContent() {
       <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
           {[
             { label: 'סה"כ לידים', value: stats.total, icon: Users, color: 'text-blue-600' },
+            { label: 'לא הושלמו', value: stats.partial, icon: AlertCircle, color: 'text-orange-600' },
             { label: 'לידים חדשים', value: stats.new, icon: Clock, color: 'text-yellow-600' },
             { label: 'רכשו דוח', value: stats.purchased, icon: BadgeCheck, color: 'text-green-600' },
             { label: 'מאושרים', value: stats.approved, icon: CheckCircle, color: 'text-purple-600' },

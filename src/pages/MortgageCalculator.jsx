@@ -234,6 +234,9 @@ export default function MortgageCalculator() {
       await base44.functions.invoke('sendEmailVerification', { email: formData.email });
       setUserInputCode("");
       setCodeSent(true);
+      // שמירת ליד חלקי ראשוני ברגע בקשת קוד האימות (פרטי קשר הוזנו) — לשיחת המשך.
+      // בבקשת קוד חוזרת באותו סשן זה מעדכן את אותו הליד ולא יוצר כפילות.
+      savePartialLead();
     } catch (err) {
       const cooldown = err?.response?.status === 429;
       setFieldErrors({
@@ -345,6 +348,52 @@ export default function MortgageCalculator() {
       return { loanAmount: 0, ltv: 0, dti: 0, score: 0, status: { color: 'green', text: '', subtitle: '', action: null, icon: 'check' }, mixA: { tracks: [], total: 0 }, mixB: { tracks: [], total: 0 }, mixC: { tracks: [], total: 0 }, actualDuration: 25, isReverse: false, isSenior: false, isBalloon: false };
     }
   }, [formData, borrowers, maxTerm, rates, ALL_PURPOSE_RATES, isRefinance, totalExistingMortgagePayments, needsExistingProperty, totalEquity]);
+
+  // בונה את מטען הנתונים של הליד מהמצב הנוכחי של הטופס (משותף לשמירה חלקית ולסופית)
+  /** @param {{ status?: string, aiAnalysis?: string }} [opts] */
+  const buildLeadPayload = ({ status, aiAnalysis: analysisText } = {}) => ({
+    fullName,
+    phone: formData.phone,
+    email: formData.email,
+    emailVerified,
+    idNumber: formData.idNumber,
+    birthDate: formData.birthDate,
+    age: formData.age ? Number(formData.age) : undefined,
+    mortgageType: formData.mortgageType,
+    loanDuration: isRefinance ? results.remainingYears : (formData.loanDuration ? Number(formData.loanDuration) : undefined),
+    loanAmount: isRefinance ? results.balance : results.loanAmount,
+    propertyPrice: isRefinance ? undefined : (formData.propertyPrice ? Number(String(formData.propertyPrice).replace(/,/g,'')) : undefined),
+    equity: isRefinance ? undefined : (formData.equity ? Number(String(formData.equity).replace(/,/g,'')) : undefined),
+    monthlyDebts: formData.monthlyDebts ? Number(String(formData.monthlyDebts).replace(/,/g,'')) : 0,
+    ltv: isRefinance ? 0 : results.ltv,
+    score: results.score,
+    netIncome: getTotalIncome(),
+    // שדות מחזור
+    ...(isRefinance ? {
+      refinanceBalance: results.balance,
+      currentMonthlyPayment: results.currentMonthly,
+      refinanceRemainingYears: results.remainingYears,
+    } : {}),
+    ...(analysisText !== undefined ? { aiAnalysis: analysisText } : {}),
+    isPurchased: false,
+    status,
+  });
+
+  // שמירת ליד חלקי (ליד "לא הושלם" שמתעדכן בכל שלב) — fire-and-forget, לעולם לא חוסם ניווט.
+  // הזהות נקבעת לפי currentLeadId של הסשן הנוכחי בלבד; אין חיפוש/מיזוג לפי טלפון/ת.ז,
+  // כך שכל מילוי חוזר של הטופס נשמר כליד חדש ואינו דורס נתונים קיימים.
+  const savePartialLead = async () => {
+    try {
+      if (!currentLeadId) {
+        const lead = await base44.entities.Lead.create(buildLeadPayload({ status: 'partial' }));
+        setCurrentLeadId(lead.id);
+      } else {
+        await base44.entities.Lead.update(currentLeadId, buildLeadPayload({ status: 'partial' }));
+      }
+    } catch (err) {
+      console.error('savePartialLead failed:', err);
+    }
+  };
 
   const generateFullAnalysis = async () => {
     if (!isRefinance && !validateStep(6)) return;
@@ -474,35 +523,14 @@ ${results.score}/100
         isSpouse: b.isSpouse || false,
       })).filter(b => b.fullName || b.idNumber);
 
-      const lead = await base44.entities.Lead.create({
-        fullName,
-        phone: formData.phone,
-        email: formData.email,
-        emailVerified,
-        idNumber: formData.idNumber,
-        birthDate: formData.birthDate,
-        age: formData.age ? Number(formData.age) : undefined,
-        mortgageType: formData.mortgageType,
-        loanDuration: isRefinance ? results.remainingYears : (formData.loanDuration ? Number(formData.loanDuration) : undefined),
-        loanAmount: isRefinance ? results.balance : results.loanAmount,
-        propertyPrice: isRefinance ? undefined : (formData.propertyPrice ? Number(String(formData.propertyPrice).replace(/,/g,'')) : undefined),
-        equity: isRefinance ? undefined : (formData.equity ? Number(String(formData.equity).replace(/,/g,'')) : undefined),
-        monthlyDebts: formData.monthlyDebts ? Number(String(formData.monthlyDebts).replace(/,/g,'')) : 0,
-        ltv: isRefinance ? 0 : results.ltv,
-        score: results.score,
-        aiAnalysis: analysis,
-        netIncome: getTotalIncome(),
-        // שדות מחזור
-        ...(isRefinance ? {
-          refinanceBalance: results.balance,
-          currentMonthlyPayment: results.currentMonthly,
-          refinanceRemainingYears: results.remainingYears,
-        } : {}),
-        isPurchased: false,
-        status: 'new'
-      });
-      
-      setCurrentLeadId(lead.id);
+      // שדרוג הליד החלקי של הסשן (אם קיים) לליד מלא, אחרת יצירה (fallback אם השמירות החלקיות נכשלו)
+      const leadPayload = buildLeadPayload({ status: 'new', aiAnalysis: analysis });
+      if (currentLeadId) {
+        await base44.entities.Lead.update(currentLeadId, leadPayload);
+      } else {
+        const lead = await base44.entities.Lead.create(leadPayload);
+        setCurrentLeadId(lead.id);
+      }
     } catch (err) {
       console.error(err);
       setAiAnalysis("הניתוח הושלם. קיימת היתכנות גבוהה לעסקה.");
@@ -1283,7 +1311,7 @@ ${results.score}/100
                     // מחזור: דלג על שלב 5 (הון עצמי) ושלב 6 (תקופה) — לא רלוונטיים
                     if (isRefinance && step === 4) { generateFullAnalysis(); scrollToTop(); }
                     else if (step === 6) { generateFullAnalysis(); scrollToTop(); }
-                    else { setStep(s => s + 1); }
+                    else { setStep(s => s + 1); savePartialLead(); }
                   }
                 }}
                 disabled={isSendingCode || isVerifyingCode}
