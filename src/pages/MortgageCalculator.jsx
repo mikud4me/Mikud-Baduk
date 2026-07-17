@@ -28,6 +28,10 @@ import FormattedAnalysis from '@/components/mikud/FormattedAnalysis';
 // v2.2
 const TODAY_DATE = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
 
+// אימות מייל מושבת זמנית: המסך והקוד נשמרים, אך כל ערך מאפשר להמשיך ואין שליחת מייל.
+// להפעלה מחדש: שנה ל-true (נדרשים סוד ה-Resend, הישות EmailVerification והשדה Lead.emailVerified).
+const EMAIL_VERIFICATION_ENABLED = false;
+
 export default function MortgageCalculator() {
   const [step, setStep] = useState(1);
   const mainRef = useRef(null);
@@ -228,6 +232,13 @@ export default function MortgageCalculator() {
       setFieldErrors(errors);
       return;
     }
+    // אימות מייל מושבת — מדלגים על שליחת הקוד ומציגים את מסך האימות (כל ערך יעבור)
+    if (!EMAIL_VERIFICATION_ENABLED) {
+      setUserInputCode("");
+      setCodeSent(true);
+      savePartialLead();
+      return;
+    }
     // שליחת קוד אימות אמיתי לכתובת הדוא״ל — הקוד נוצר ונבדק בצד השרת בלבד
     setIsSendingCode(true);
     try {
@@ -250,6 +261,12 @@ export default function MortgageCalculator() {
   };
 
   const verifyEmailCode = async () => {
+    // אימות מייל מושבת — כל ערך מאפשר להמשיך
+    if (!EMAIL_VERIFICATION_ENABLED) {
+      setEmailVerified(true);
+      setStep(2);
+      return;
+    }
     setIsVerifyingCode(true);
     try {
       const res = await base44.functions.invoke('verifyEmailCode', {
@@ -851,18 +868,26 @@ ${results.score}/100
                 <div className="animate-in zoom-in-95 duration-500 text-center py-8">
                   <Mail size={40} className="text-[#001a33] mx-auto mb-4" />
                   <h4 className="text-lg font-black text-[#001a33] mb-2 text-center">הזן קוד אימות</h4>
-                  <p className="mb-4 text-sm text-gray-600 text-center">
-                    שלחנו קוד אימות בן 6 ספרות לכתובת <span className="font-bold text-[#1e3a5f]" dir="ltr">{formData.email}</span>
-                  </p>
+                  {EMAIL_VERIFICATION_ENABLED ? (
+                    <p className="mb-4 text-sm text-gray-600 text-center">
+                      שלחנו קוד אימות בן 6 ספרות לכתובת <span className="font-bold text-[#1e3a5f]" dir="ltr">{formData.email}</span>
+                    </p>
+                  ) : (
+                    <div className="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-800 font-bold text-center">
+                      אימות המייל מושבת כרגע — ניתן להזין כל ערך ולהמשיך
+                    </div>
+                  )}
                   <PremiumInput label="הזן קוד" name="otp" value={userInputCode} onChange={(n, v) => setUserInputCode(v)} placeholder="______" icon={Key} error={fieldErrors.otp} />
-                  <button
-                    type="button"
-                    onClick={startVerification}
-                    disabled={isSendingCode}
-                    className="mt-4 text-sm font-bold text-[#1e3a5f] hover:underline disabled:opacity-50 disabled:no-underline"
-                  >
-                    {isSendingCode ? "שולח..." : "שלח קוד מחדש"}
-                  </button>
+                  {EMAIL_VERIFICATION_ENABLED && (
+                    <button
+                      type="button"
+                      onClick={startVerification}
+                      disabled={isSendingCode}
+                      className="mt-4 text-sm font-bold text-[#1e3a5f] hover:underline disabled:opacity-50 disabled:no-underline"
+                    >
+                      {isSendingCode ? "שולח..." : "שלח קוד מחדש"}
+                    </button>
+                  )}
                 </div>
               )}
 
