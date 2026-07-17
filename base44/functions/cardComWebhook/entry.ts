@@ -6,7 +6,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 // terminal credentials (GetLpResult) and verify ResponseCode + amount ourselves.
 const CARDCOM_RESULT_URL = 'https://secure.cardcom.solutions/api/v11/LowProfile/GetLpResult';
 
-const AMOUNT = 589; // must match createCardComPayment
+// TODO: TEST VALUE — set back to 589 before go-live. Must match createCardComPayment.
+const AMOUNT = 1; // must match createCardComPayment
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);

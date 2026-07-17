@@ -6,7 +6,8 @@ const CARDCOM_CREATE_URL = 'https://secure.cardcom.solutions/api/v11/LowProfile/
 
 // The single source of truth for what the report costs. NIS, VAT-included.
 // Never trust an amount from the client (same invariant as the Stripe PRICE_ID).
-const AMOUNT = 589;
+// TODO: TEST VALUE — set back to 589 before go-live. Must match cardComWebhook.
+const AMOUNT = 1;
 const PRODUCT_NAME = 'דוח תמהיל משכנתא — מיקוד משכנתאות';
 
 // CardCom redirects the (iframe) browser to whatever we hand it here — only ever
