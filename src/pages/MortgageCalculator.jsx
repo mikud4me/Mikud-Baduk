@@ -20,6 +20,7 @@ import ExistingPropertyForm from '@/components/mikud/ExistingPropertyForm';
 import EquityCompletionForm from '@/components/mikud/EquityCompletionForm';
 import HowItWorks from '@/components/mikud/HowItWorks';
 import SocialProof from '@/components/mikud/SocialProof';
+import AdvisorComparison from '@/components/mikud/AdvisorComparison';
 import FooterCTA from '@/components/mikud/FooterCTA';
 import BirthDateInput from '@/components/mikud/BirthDateInput';
 import FormattedAnalysis from '@/components/mikud/FormattedAnalysis';
@@ -1801,7 +1802,7 @@ ${results.score}/100
                 </div>
               </div>
 
-
+              {!isPurchased && <AdvisorComparison />}
 
               {!isPurchased && (
                 <div className="mb-6 p-5 rounded-2xl border-2 border-dashed border-[#d4af37] bg-[#1e3a5f]/5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
