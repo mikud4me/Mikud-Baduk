@@ -6,14 +6,14 @@ import { Check, X, Minus, Crown } from 'lucide-react';
 const COLS = [
   { key: 'alone', label: 'לבד' },
   { key: 'advisor', label: 'יועץ משכנתאות רגיל' },
-  { key: 'mikud', label: 'מיקוד', highlight: true },
+  { key: 'mikud', label: 'מיקוד משכנתאות', highlight: true },
 ];
 
 const rows = [
   {
     criterion: 'עלות',
-    alone: 'חינם (אבל עלול לעלות ביוקר)',
-    advisor: '~₪6,000–₪10,000\n(~0.5%–1% מהמשכנתא)',
+    alone: 'חינם — אבל עלול לעלות ביוקר',
+    advisor: '~₪6,000–₪10,000',
     mikud: '₪499 בלבד',
   },
   {
@@ -29,7 +29,7 @@ const rows = [
     mikud: true,
   },
   {
-    criterion: 'ניתוח מיידי',
+    criterion: 'אורך התהליך',
     alone: 'ימים של מחקר',
     advisor: 'ימים–שבועות',
     mikud: '5 דקות',
@@ -110,11 +110,6 @@ export default function AdvisorComparison() {
               >
                 {col.label}
               </span>
-              {col.highlight && (
-                <span className="text-[9px] sm:text-[10px] font-bold text-white/80 tracking-widest uppercase">
-                  מומלץ
-                </span>
-              )}
             </div>
           ))}
         </div>
