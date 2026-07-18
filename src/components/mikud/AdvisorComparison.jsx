@@ -12,8 +12,8 @@ const COLS = [
 const rows = [
   {
     criterion: 'עלות',
-    alone: 'חינם (אבל עלול לעלות ביוקר)',
-    advisor: '~₪6,000–₪10,000\n(~0.5%–1% מהמשכנתא)',
+    alone: 'חינם — אבל עלול לעלות ביוקר',
+    advisor: '~₪6,000–₪10,000',
     mikud: '₪499 בלבד',
   },
   {
@@ -29,7 +29,7 @@ const rows = [
     mikud: true,
   },
   {
-    criterion: 'ניתוח מיידי',
+    criterion: 'אורך התהליך',
     alone: 'ימים של מחקר',
     advisor: 'ימים–שבועות',
     mikud: '5 דקות',
