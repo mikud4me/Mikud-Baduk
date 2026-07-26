@@ -13,7 +13,7 @@ export default function PowerScore({ score }) {
         <path
           d="M 20 100 A 80 80 0 0 1 180 100"
           fill="none"
-          stroke="#e5e7eb"
+          stroke="#E1E4EA"
           strokeWidth="20"
           strokeLinecap="round"
         />
@@ -36,7 +36,7 @@ export default function PowerScore({ score }) {
           x="100"
           y="85"
           textAnchor="middle"
-          className="fill-[#1e3a5f] text-4xl font-black"
+          className="fill-[#0C084A] text-4xl font-black"
         >
           {score}
         </text>
@@ -44,14 +44,14 @@ export default function PowerScore({ score }) {
           x="100"
           y="105"
           textAnchor="middle"
-          className="fill-gray-500 text-sm font-bold"
+          className="fill-mist-500 text-sm font-bold"
         >
           /100
         </text>
       </svg>
 
       {/* Labels */}
-      <div className="flex justify-between text-xs font-bold text-gray-500 px-2 mt-2">
+      <div className="flex justify-between text-xs font-bold text-mist-500 px-2 mt-2">
         <span>חלש</span>
         <span>בינוני</span>
         <span>חזק</span>

@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 const riskLabels = {
     low: { label: "שמרני", color: "bg-emerald-100 text-emerald-700" },
-    medium: { label: "מאוזן", color: "bg-blue-100 text-blue-700" },
+    medium: { label: "מאוזן", color: "bg-brand-100 text-brand-700" },
     high: { label: "אגרסיבי", color: "bg-amber-100 text-amber-700" }
 };
 
@@ -32,9 +32,9 @@ export default function MixComparison({ mixes }) {
             transition={{ duration: 0.5, delay: 0.3 }}
         >
             <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl overflow-hidden">
-                <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-white">
-                    <CardTitle className="text-xl font-bold text-slate-800 flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
+                <CardHeader className="border-b bg-gradient-to-r from-mist-50 to-white">
+                    <CardTitle className="text-xl font-bold text-mist-800 flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-periwinkle-500 to-periwinkle-600 shadow-lg">
                             <BarChart3 className="w-5 h-5 text-white" />
                         </div>
                         השוואת תמהילים
@@ -44,10 +44,10 @@ export default function MixComparison({ mixes }) {
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-slate-50/50">
-                                    <TableHead className="text-right font-semibold text-slate-600">פרמטר</TableHead>
+                                <TableRow className="bg-mist-50/50">
+                                    <TableHead className="text-right font-semibold text-mist-600">פרמטר</TableHead>
                                     {mixes.map((mix, idx) => (
-                                        <TableHead key={idx} className="text-center font-semibold text-slate-600">
+                                        <TableHead key={idx} className="text-center font-semibold text-mist-600">
                                             {mix.name}
                                         </TableHead>
                                     ))}
@@ -56,12 +56,12 @@ export default function MixComparison({ mixes }) {
                             <TableBody>
                                 <TableRow>
                                     <TableCell className="font-medium flex items-center gap-2">
-                                        <Wallet className="w-4 h-4 text-slate-400" />
+                                        <Wallet className="w-4 h-4 text-mist-400" />
                                         החזר חודשי
                                     </TableCell>
                                     {mixes.map((mix, idx) => (
                                         <TableCell key={idx} className="text-center">
-                                            <span className={`font-bold ${mix.monthly_payment === lowestPayment ? 'text-emerald-600' : 'text-slate-700'}`}>
+                                            <span className={`font-bold ${mix.monthly_payment === lowestPayment ? 'text-emerald-600' : 'text-mist-700'}`}>
                                                 {formatCurrency(mix.monthly_payment)}
                                             </span>
                                             {mix.monthly_payment === lowestPayment && (
@@ -72,12 +72,12 @@ export default function MixComparison({ mixes }) {
                                 </TableRow>
                                 <TableRow>
                                     <TableCell className="font-medium flex items-center gap-2">
-                                        <TrendingDown className="w-4 h-4 text-slate-400" />
+                                        <TrendingDown className="w-4 h-4 text-mist-400" />
                                         סה״כ ריבית
                                     </TableCell>
                                     {mixes.map((mix, idx) => (
                                         <TableCell key={idx} className="text-center">
-                                            <span className={`font-bold ${mix.total_interest === lowestInterest ? 'text-emerald-600' : 'text-slate-700'}`}>
+                                            <span className={`font-bold ${mix.total_interest === lowestInterest ? 'text-emerald-600' : 'text-mist-700'}`}>
                                                 {formatCurrency(mix.total_interest)}
                                             </span>
                                             {mix.total_interest === lowestInterest && (
@@ -89,18 +89,18 @@ export default function MixComparison({ mixes }) {
                                 <TableRow>
                                     <TableCell className="font-medium">סה״כ לתשלום</TableCell>
                                     {mixes.map((mix, idx) => (
-                                        <TableCell key={idx} className="text-center font-bold text-slate-700">
+                                        <TableCell key={idx} className="text-center font-bold text-mist-700">
                                             {formatCurrency(mix.total_payment)}
                                         </TableCell>
                                     ))}
                                 </TableRow>
                                 <TableRow>
                                     <TableCell className="font-medium flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-slate-400" />
+                                        <Clock className="w-4 h-4 text-mist-400" />
                                         תקופה
                                     </TableCell>
                                     {mixes.map((mix, idx) => (
-                                        <TableCell key={idx} className="text-center text-slate-600">
+                                        <TableCell key={idx} className="text-center text-mist-600">
                                             {mix.loan_period_years} שנים
                                         </TableCell>
                                     ))}

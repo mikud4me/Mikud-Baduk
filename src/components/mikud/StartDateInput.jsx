@@ -34,11 +34,11 @@ export default function StartDateInput({ value, onChange, label = 'תאריך ה
     emit(month, val);
   };
 
-  const baseInput = `h-12 border-2 border-[#1e3a5f] rounded-xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base text-center bg-white`;
+  const baseInput = `h-12 border border-transparent rounded-md outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-center bg-periwinkle-100`;
 
   return (
     <div className="mb-3">
-      <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
+      <label className="text-xs font-normal text-mist-600 mb-2 block flex items-center gap-1">
         <Calendar size={13} /> {label}
       </label>
       <div className="flex gap-2 items-start" dir="ltr">
@@ -53,10 +53,10 @@ export default function StartDateInput({ value, onChange, label = 'תאריך ה
             value={month}
             onChange={handleMonth}
           />
-          <span className="text-xs text-gray-400 mt-1 font-medium">חודש</span>
+          <span className="text-xs text-mist-400 mt-1 font-medium">חודש</span>
         </div>
 
-        <div className="flex items-center pb-5 text-gray-400 font-bold text-xl">/</div>
+        <div className="flex items-center pb-5 text-mist-400 font-bold text-xl">/</div>
 
         {/* שנה */}
         <div className="flex flex-col items-center flex-[2]">
@@ -70,7 +70,7 @@ export default function StartDateInput({ value, onChange, label = 'תאריך ה
             value={year}
             onChange={handleYear}
           />
-          <span className="text-xs text-gray-400 mt-1 font-medium">שנה</span>
+          <span className="text-xs text-mist-400 mt-1 font-medium">שנה</span>
         </div>
       </div>
     </div>

@@ -1,43 +1,67 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import leumiImg from '@/assets/banks/leumi.png';
+import hapoalimImg from '@/assets/banks/hapoalim.png';
+import discountImg from '@/assets/banks/discount.png';
+import mizrachiImg from '@/assets/banks/mizrachi.png';
+import yerushalayimImg from '@/assets/banks/yerushalayim.png';
+import beinleumiImg from '@/assets/banks/beinleumi.png';
 
 const banks = [
-  { name: 'לאומי', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/1e6e34e3d_.png', scale: 1 },
-  { name: 'הפועלים', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/6f82f9fcf_bankhapoalim.png', scale: 2.2 },
-  { name: 'דיסקונט', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/552ec864d_image.png', scale: 1 },
-  { name: 'מזרחי טפחות', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/e0ed091a8_mizrachi.png', scale: 2.2 },
-  { name: 'ירושלים', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/ad9176516_ye.png', scale: 1 },
-  { name: 'הבינלאומי', img: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/22943f9c3_.jpg', scale: 2.0 },
+  { name: 'לאומי', img: leumiImg, heightScale: 1.15 },
+  { name: 'הפועלים', img: hapoalimImg },
+  { name: 'דיסקונט', img: discountImg },
+  { name: 'מזרחי טפחות', img: mizrachiImg, heightScale: 1.1 },
+  { name: 'ירושלים', img: yerushalayimImg, heightScale: 0.9775 },
+  { name: 'הבינלאומי', img: beinleumiImg, heightScale: 0.8 },
 ];
 
 export default function BankLogosCarousel() {
-  return (
-    <div className="bg-white border-y border-gray-100 py-6 sm:py-8">
-      {/* Styled Title */}
-      <div className="max-w-7xl mx-auto px-4 mb-6 sm:mb-8 text-center">
-        <div className="inline-flex flex-col items-center gap-2">
-          <h2 className="text-2xl sm:text-3xl font-black text-[#1e3a5f]" style={{ letterSpacing: '-0.01em' }}>
-            בשיתוף פעולה עם כל הבנקים המובילים במשק
-          </h2>
-          <div className="h-1 w-24 rounded-full bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f] mt-1" />
-        </div>
-      </div>
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
 
-      {/* Logos */}
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-10 px-4 sm:px-8">
-        {banks.map((bank) => (
-          <div
-            key={bank.name}
-            className="flex items-center justify-center p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
-          >
-            <img
-              src={bank.img}
-              alt={`בנק ${bank.name}`}
-              style={{ width: 'clamp(65px, 20vw, 100px)', height: '48px', transform: `scale(${bank.scale || 1})` }}
-              className="object-contain opacity-75 group-hover:opacity-100 transition-opacity duration-300"
-              onError={(e) => { e.target.style.display = 'none'; }}
-            />
-          </div>
-        ))}
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="bg-white py-9 px-4 sm:px-8">
+      <div
+        ref={sectionRef}
+        className="max-w-6xl mx-auto rounded-3xl bg-gradient-to-br from-[#959EFF] to-[#4D87F7] px-6 sm:px-10 py-8 sm:py-10 text-center overflow-hidden"
+      >
+        <h2 className="text-white/70 text-sm sm:text-base font-medium mb-8">
+          בשיתוף פעולה עם כל הבנקים המובילים במשק
+        </h2>
+
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+          {banks.map((bank, i) => (
+            <div key={bank.name} className="flex items-center justify-center">
+              <img
+                src={bank.img}
+                alt={`בנק ${bank.name}`}
+                style={{
+                  height: `${2 * (bank.heightScale || 1)}rem`,
+                  transform: `translateY(${visible ? 0 : 14}px)`,
+                  transitionDelay: `${i * 90}ms`,
+                }}
+                className={`w-auto object-contain transition-all duration-700 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

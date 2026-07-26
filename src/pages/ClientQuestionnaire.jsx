@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
   User, Home, ChevronLeft, Phone, Wallet, Building2,
-  Mail, BadgeCheck, Calendar, Coins, TrendingDown,
+  Mail, BadgeCheck, Coins, TrendingDown,
   Key, Target, X, UserPlus, AlertCircle, Smartphone
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import PremiumInput from '@/components/mikud/PremiumInput';
 import BorrowerForm from '@/components/mikud/BorrowerForm';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const defaultBorrower = () => ({
   maritalStatus: 'single',
@@ -84,13 +85,19 @@ export default function ClientQuestionnaire() {
     if (!formData.birthDate) {
       errors.birthDate = 'נא להזין תאריך לידה';
     } else {
+      const [by, bm, bd] = formData.birthDate.split('-').map(Number);
       const birthDate = new Date(formData.birthDate);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
-      if (age < 18 || age > 100) errors.birthDate = 'גיל לא תקין (18–100)';
-      else setFormData(prev => ({ ...prev, age: age.toString() }));
+      const isValidCalendarDate = !isNaN(birthDate.getTime()) && birthDate.getFullYear() === by && birthDate.getMonth() + 1 === bm && birthDate.getDate() === bd;
+      if (!isValidCalendarDate) {
+        errors.birthDate = 'תאריך לידה לא תקין';
+      } else {
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+        if (age < 18 || age > 100) errors.birthDate = 'גיל לא תקין (18–100)';
+        else setFormData(prev => ({ ...prev, age: age.toString() }));
+      }
     }
     if (!formData.consent) errors.consent = 'חובה לאשר יצירת קשר';
     if (Object.keys(errors).length > 0) { setFieldErrors(errors); return; }
@@ -204,10 +211,10 @@ export default function ClientQuestionnaire() {
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <BadgeCheck size={48} className="text-green-600" />
           </div>
-          <h2 className="text-3xl font-black text-[#1e3a5f] mb-4">תודה רבה!</h2>
-          <p className="text-gray-600 font-medium text-lg mb-2">הפרטים התקבלו בהצלחה</p>
-          <p className="text-gray-500 text-sm">נציג שלנו יחזור אליך בהקדם</p>
-          <a href="tel:2324" className="mt-8 inline-block bg-[#1e3a5f] text-white px-10 py-4 rounded-full font-black text-xl shadow-lg hover:bg-[#152d47] transition-all">
+          <h2 className="text-3xl font-black text-[#0C084A] mb-4">תודה רבה!</h2>
+          <p className="text-mist-600 font-medium text-lg mb-2">הפרטים התקבלו בהצלחה</p>
+          <p className="text-mist-500 text-sm">נציג שלנו יחזור אליך בהקדם</p>
+          <a href="tel:2324" className="mt-8 inline-block bg-[#0C084A] text-white px-10 py-4 rounded-full font-black text-xl shadow-lg hover:bg-[#0153F4] transition-all">
             2324*
           </a>
         </div>
@@ -219,13 +226,13 @@ export default function ClientQuestionnaire() {
     <div className="min-h-screen font-sans text-right bg-white" dir="rtl">
 
       {/* Header */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm h-20 px-6 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-white border-b border-mist-100 shadow-sm h-20 px-6 flex items-center justify-between">
         <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
           alt="מיקוד משכנתאות"
           className="h-16 w-auto object-contain"
         />
-        <a href="tel:2324" className="bg-[#1e3a5f] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#152d47] transition-all shadow-md">
+        <a href="tel:2324" className="bg-[#0C084A] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#0153F4] transition-all shadow-md">
           2324*
         </a>
       </nav>
@@ -233,34 +240,34 @@ export default function ClientQuestionnaire() {
       <main className="max-w-2xl mx-auto px-4 py-10">
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border-4 border-[#1e3a5f] relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
-          <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-[#1e3a5f] via-[#c9a961] to-[#1e3a5f]" />
+        <div className="bg-white rounded-3xl shadow-2xl p-8 border-4 border-[#0C084A] relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#0C084A] via-[#0153F4] to-[#0C084A]" />
+          <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-[#0C084A] via-[#0153F4] to-[#0C084A]" />
 
           {/* Step Header */}
           <div className="flex items-center justify-between mb-10">
             <div className="flex-1">
-              <div className="inline-flex items-center gap-3 bg-[#1e3a5f] px-5 py-2.5 rounded-full shadow-sm mb-2">
-                <div className="w-9 h-9 rounded-full bg-[#c9a961] flex items-center justify-center">
+              <div className="inline-flex items-center gap-3 bg-[#0C084A] px-5 py-2.5 rounded-full shadow-sm mb-2">
+                <div className="w-9 h-9 rounded-full bg-[#0153F4] flex items-center justify-center">
                   <StepIcon size={18} className="text-white" />
                 </div>
                 <div>
                   <h2 className="text-base sm:text-xl font-bold text-white leading-none">
                     {step === 1 && !otpSent ? 'בואו נכיר' : step === 1 && otpSent ? 'אימות זהות' : STEP_TITLES[step]}
                   </h2>
-                  <p className="text-[#c9a961] font-medium text-xs mt-1">שלב {step} מתוך 5</p>
+                  <p className="text-[#0153F4] font-medium text-xs mt-1">שלב {step} מתוך 5</p>
                 </div>
               </div>
             </div>
             {/* Progress Circle */}
             <div className="relative w-20 h-20 flex items-center justify-center">
               <svg className="w-full h-full transform -rotate-90">
-                <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-gray-200" />
-                <circle cx="40" cy="40" r="36" stroke="#c9a961" strokeWidth="3" fill="transparent" strokeDasharray={226} strokeDashoffset={226 - (226 * step) / 5} strokeLinecap="round" className="transition-all duration-1000" />
+                <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-mist-200" />
+                <circle cx="40" cy="40" r="36" stroke="#0153F4" strokeWidth="3" fill="transparent" strokeDasharray={226} strokeDashoffset={226 - (226 * step) / 5} strokeLinecap="round" className="transition-all duration-1000" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-[#1e3a5f]">{step}</span>
-                <span className="text-xs font-medium text-gray-400">מתוך 5</span>
+                <span className="text-2xl font-bold text-[#0C084A]">{step}</span>
+                <span className="text-xs font-medium text-mist-400">מתוך 5</span>
               </div>
             </div>
           </div>
@@ -275,12 +282,11 @@ export default function ClientQuestionnaire() {
               <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} />
 
               <div className="mb-5">
-                <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
-                  <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2"><Calendar size={16} className="text-gray-500" /></div>
+                <label className="flex items-center text-[#0C084A] font-normal text-sm mb-2">
                   תאריך לידה
                 </label>
                 <input type="date" min="1924-01-01" max="2007-12-31"
-                  className="w-full bg-white h-14 px-5 border-2 border-[#1e3a5f] rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base text-right shadow-md"
+                  className="w-full bg-white h-14 px-5 border-2 border-[#0C084A] rounded-2xl outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-right shadow-md"
                   value={formData.birthDate || ''}
                   onChange={(e) => handleInputChange('birthDate', e.target.value)}
                 />
@@ -295,20 +301,21 @@ export default function ClientQuestionnaire() {
               <PremiumInput label="טלפון נייד" name="phone" value={formData.phone} placeholder="05XXXXXXXX" icon={Phone} onChange={handleInputChange} error={fieldErrors.phone} />
               <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="example@email.com" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} />
 
-              <div className="mt-4 flex items-center gap-3 p-4 rounded-xl border-2 bg-slate-50">
-                <input type="checkbox" className="w-5 h-5 rounded flex-shrink-0 accent-[#1e3a5f]" checked={formData.consent} onChange={(e) => handleInputChange('consent', e.target.checked)} />
-                <p className="text-xs text-slate-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
+              <div className="mt-4 flex items-start gap-3 p-4 rounded-xl border-2 bg-mist-50">
+                <Checkbox checked={formData.consent} onCheckedChange={(checked) => handleInputChange('consent', checked)} className="mt-0.5" />
+                <p className="text-xs text-mist-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
               </div>
               {fieldErrors.consent && <p className="text-red-600 text-xs font-bold mt-1">{fieldErrors.consent}</p>}
 
-              <div className="mt-3 flex items-center gap-3 p-4 rounded-xl border-2 bg-amber-50 border-amber-200">
-                <input type="checkbox" className="w-5 h-5 rounded flex-shrink-0 accent-[#1e3a5f]"
+              <div className="mt-3 flex items-start gap-3 p-4 rounded-xl border-2 bg-periwinkle-100 border-periwinkle-200">
+                <Checkbox
                   checked={formData.creditConsent}
-                  onChange={(e) => { handleInputChange('creditConsent', e.target.checked); if (e.target.checked) setShowCreditModal(true); }}
+                  onCheckedChange={(checked) => { handleInputChange('creditConsent', checked); if (checked) setShowCreditModal(true); }}
+                  className="mt-0.5"
                 />
-                <p className="text-xs text-amber-800 font-bold leading-relaxed text-right">
+                <p className="text-xs text-[#0C084A] font-bold leading-relaxed text-right">
                   אני מאשר לבנק לבצע בדיקת חווי אשראי (BDI).{' '}
-                  <button type="button" onClick={() => setShowCreditModal(true)} className="underline text-[#1e3a5f]">מה זה אומר?</button>
+                  <button type="button" onClick={() => setShowCreditModal(true)} className="underline text-[#0C084A]">מה זה אומר?</button>
                 </p>
               </div>
             </div>
@@ -317,25 +324,25 @@ export default function ClientQuestionnaire() {
           {/* מודל BDI */}
           {showCreditModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowCreditModal(false)}>
-              <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border-4 border-[#1e3a5f] text-right" onClick={e => e.stopPropagation()}>
+              <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border-4 border-[#0C084A] text-right" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-5">
-                  <button onClick={() => setShowCreditModal(false)}><X size={24} className="text-gray-400" /></button>
-                  <h3 className="text-xl font-black text-[#1e3a5f]">מהי בדיקת חווי אשראי?</h3>
+                  <button onClick={() => setShowCreditModal(false)}><X size={24} className="text-mist-400" /></button>
+                  <h3 className="text-xl font-black text-[#0C084A]">מהי בדיקת חווי אשראי?</h3>
                 </div>
-                <div className="space-y-4 text-sm text-gray-700">
-                  <p className="font-bold text-[#1e3a5f]">בדיקת BDI היא בדיקה שגרתית שהבנק מבצע לפני אישור משכנתא.</p>
-                  <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-xl">
-                    <p className="font-bold text-blue-800 mb-2">מה הבנק בודק?</p>
-                    <ul className="space-y-1 text-blue-700 text-xs">
+                <div className="space-y-4 text-sm text-mist-700">
+                  <p className="font-bold text-[#0C084A]">בדיקת BDI היא בדיקה שגרתית שהבנק מבצע לפני אישור משכנתא.</p>
+                  <div className="bg-brand-50 border-r-4 border-brand-500 p-4 rounded-xl">
+                    <p className="font-bold text-brand-800 mb-2">מה הבנק בודק?</p>
+                    <ul className="space-y-1 text-brand-700 text-xs">
                       <li>• היסטוריית תשלומים</li>
                       <li>• חובות ועיקולים קיימים</li>
                       <li>• דירוג האשראי הכללי</li>
                     </ul>
                   </div>
-                  <p className="text-xs text-gray-500">הבדיקה אינה פוגעת בדירוג האשראי שלך.</p>
+                  <p className="text-xs text-mist-500">הבדיקה אינה פוגעת בדירוג האשראי שלך.</p>
                 </div>
                 <button onClick={() => { setShowCreditModal(false); handleInputChange('creditConsent', true); }}
-                  className="mt-6 w-full bg-[#1e3a5f] text-white py-3 rounded-2xl font-black hover:bg-[#152d47] transition-all">
+                  className="mt-6 w-full bg-[#0C084A] text-white py-3 rounded-2xl font-black hover:bg-[#0153F4] transition-all">
                   הבנתי ומאשר ✓
                 </button>
               </div>
@@ -345,10 +352,10 @@ export default function ClientQuestionnaire() {
           {/* STEP 1 OTP */}
           {step === 1 && otpSent && (
             <div className="text-center py-8">
-              <Smartphone size={40} className="text-[#1e3a5f] mx-auto mb-4" />
-              <h4 className="text-lg font-black text-[#1e3a5f] mb-4">הזן קוד אימות</h4>
+              <Smartphone size={40} className="text-[#0C084A] mx-auto mb-4" />
+              <h4 className="text-lg font-black text-[#0C084A] mb-4">הזן קוד אימות</h4>
               <PremiumInput label="הזן קוד" name="otp" value={userInputOtp} onChange={(n, v) => setUserInputOtp(v)} placeholder="0000" icon={Key} error={fieldErrors.otp} />
-              <p className="mt-2 text-xs text-slate-400 italic">קוד לבדיקה: <span className="text-[#c9a961] font-bold">{generatedOtp}</span></p>
+              <p className="mt-2 text-xs text-mist-400 italic">קוד לבדיקה: <span className="text-[#0153F4] font-bold">{generatedOtp}</span></p>
             </div>
           )}
 
@@ -358,7 +365,7 @@ export default function ClientQuestionnaire() {
               <div className="flex gap-2 mb-5 flex-wrap">
                 {borrowers.map((b, idx) => (
                   <button key={idx} onClick={() => setActiveBorrowerTab(idx)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${activeBorrowerTab === idx ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white text-[#1e3a5f] border-[#1e3a5f]/30'}`}>
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${activeBorrowerTab === idx ? 'bg-[#0C084A] text-white border-[#0C084A]' : 'bg-white text-[#0C084A] border-[#0C084A]/30'}`}>
                     <User size={14} />
                     לווה {['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}
                     {idx > 0 && (
@@ -367,7 +374,7 @@ export default function ClientQuestionnaire() {
                   </button>
                 ))}
                 {borrowers.length < 5 && (
-                  <button onClick={addBorrower} className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm border-2 border-dashed border-[#c9a961] text-[#c9a961] hover:bg-[#c9a961]/10 transition-all">
+                  <button onClick={addBorrower} className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm border-2 border-dashed border-[#0153F4] text-[#0153F4] hover:bg-[#0153F4]/10 transition-all">
                     <UserPlus size={14} /> הוסף לווה
                   </button>
                 )}
@@ -403,9 +410,9 @@ export default function ClientQuestionnaire() {
           {step === 4 && (
             <div className="animate-in fade-in duration-500">
               {/* סיכום הכנסות */}
-              <div className="mb-5 p-4 bg-[#1e3a5f]/5 rounded-xl border border-[#1e3a5f]/15">
-                <p className="text-sm font-bold text-[#1e3a5f] mb-3 flex items-center gap-2">
-                  <Coins size={16} className="text-[#c9a961]" /> סיכום הכנסות לווים
+              <div className="mb-5 p-4 bg-[#0C084A]/5 rounded-xl border border-[#0C084A]/15">
+                <p className="text-sm font-bold text-[#0C084A] mb-3 flex items-center gap-2">
+                  <Coins size={16} className="text-[#0153F4]" /> סיכום הכנסות לווים
                 </p>
                 {borrowers.map((b, idx) => {
                   const sources = b.incomeSources || {};
@@ -415,15 +422,15 @@ export default function ClientQuestionnaire() {
                     return acc + Number(String(src.amount || '0').replace(/,/g, ''));
                   }, 0);
                   return (
-                    <div key={idx} className="flex justify-between items-center py-1.5 border-b border-gray-200 last:border-0 text-sm">
-                      <span className="text-gray-600 font-medium">לווה {['א','ב','ג','ד','ה'][idx] || idx+1} {idx > 0 && b.borrowerType === 'additional' ? <span className="text-amber-600 text-xs">(נוסף - 50%)</span> : ''}</span>
-                      <span className="font-bold text-[#1e3a5f]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(totalB * factor))}</span>
+                    <div key={idx} className="flex justify-between items-center py-1.5 border-b border-mist-200 last:border-0 text-sm">
+                      <span className="text-mist-600 font-medium">לווה {['א','ב','ג','ד','ה'][idx] || idx+1} {idx > 0 && b.borrowerType === 'additional' ? <span className="text-amber-600 text-xs">(נוסף - 50%)</span> : ''}</span>
+                      <span className="font-bold text-[#0C084A]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(totalB * factor))}</span>
                     </div>
                   );
                 })}
-                <div className="flex justify-between items-center pt-2 text-sm font-black text-[#1e3a5f]">
+                <div className="flex justify-between items-center pt-2 text-sm font-black text-[#0C084A]">
                   <span>סה"כ מוכר לבנק</span>
-                  <span className="text-[#c9a961]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(calcTotalIncome()))}</span>
+                  <span className="text-[#0153F4]">₪{new Intl.NumberFormat('he-IL').format(Math.floor(calcTotalIncome()))}</span>
                 </div>
               </div>
               {fieldErrors.netIncome && (
@@ -450,7 +457,7 @@ export default function ClientQuestionnaire() {
             {(step > 1 || otpSent) && (
               <button
                 onClick={() => { if (step === 1 && otpSent) setOtpSent(false); else setStep(s => s - 1); }}
-                className="flex-1 h-14 rounded-full font-bold text-base text-gray-600 border-2 border-gray-200 hover:bg-gray-50 transition-all"
+                className="flex-1 h-14 rounded-full font-bold text-base text-mist-600 border-2 border-mist-200 hover:bg-mist-50 transition-all"
               >
                 ← חזור
               </button>
@@ -463,7 +470,7 @@ export default function ClientQuestionnaire() {
                 else if (validateStep(step)) { setStep(s => s + 1); savePartialLead(); }
               }}
               disabled={submitting}
-              className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#1e3a5f] text-white hover:bg-[#152d47] active:scale-95 ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
+              className={`h-14 rounded-full font-bold text-lg shadow-md transition-all bg-[#0C084A] text-white hover:bg-[#0153F4] active:scale-95 ${step > 1 ? 'flex-[2]' : 'flex-1'}`}
             >
               {submitting ? 'שולח...' : step === 5 ? 'שלח טופס' : step === 1 && !otpSent ? 'שלח קוד אימות' : (
                 <span className="flex items-center justify-center gap-2">המשך <ChevronLeft size={20} /></span>

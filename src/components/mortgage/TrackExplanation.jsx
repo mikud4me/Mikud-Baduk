@@ -73,14 +73,14 @@ export default function TrackExplanation() {
             transition={{ duration: 0.5 }}
         >
             <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl overflow-hidden">
-                <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-white">
-                    <CardTitle className="text-xl font-bold text-slate-800 flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg">
+                <CardHeader className="border-b bg-gradient-to-r from-mist-50 to-white">
+                    <CardTitle className="text-xl font-bold text-mist-800 flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 shadow-lg">
                             <BookOpen className="w-5 h-5 text-white" />
                         </div>
                         מדריך מסלולי משכנתא
                     </CardTitle>
-                    <p className="text-slate-500 mt-1">הכירו את סוגי המסלולים השונים ובחרו בחוכמה</p>
+                    <p className="text-mist-500 mt-1">הכירו את סוגי המסלולים השונים ובחרו בחוכמה</p>
                 </CardHeader>
                 <CardContent className="pt-4">
                     <Accordion type="single" collapsible className="space-y-2">
@@ -92,17 +92,17 @@ export default function TrackExplanation() {
                             >
                                 <AccordionTrigger className="hover:no-underline py-4">
                                     <div className="flex items-center gap-3">
-                                        <span className="font-bold text-slate-800">{track.name}</span>
+                                        <span className="font-bold text-mist-800">{track.name}</span>
                                         <Badge className={riskColors[track.risk]}>{riskLabels[track.risk]}</Badge>
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="pb-4">
                                     <div className="space-y-4">
-                                        <p className="text-slate-600">{track.description}</p>
+                                        <p className="text-mist-600">{track.description}</p>
                                         
-                                        <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                                            <Percent className="w-4 h-4 text-blue-600" />
-                                            <span className="text-sm text-blue-700">טווח ריבית אופייני: <strong>{track.typical_rate}</strong></span>
+                                        <div className="flex items-center gap-2 p-3 bg-brand-50 rounded-lg">
+                                            <Percent className="w-4 h-4 text-brand-600" />
+                                            <span className="text-sm text-brand-700">טווח ריבית אופייני: <strong>{track.typical_rate}</strong></span>
                                         </div>
 
                                         <div className="grid md:grid-cols-2 gap-4">
@@ -113,7 +113,7 @@ export default function TrackExplanation() {
                                                 </div>
                                                 <ul className="space-y-1">
                                                     {track.pros.map((pro, idx) => (
-                                                        <li key={idx} className="text-sm text-slate-600 flex items-start gap-2">
+                                                        <li key={idx} className="text-sm text-mist-600 flex items-start gap-2">
                                                             <span className="text-emerald-500 mt-1">✓</span>
                                                             {pro}
                                                         </li>
@@ -127,7 +127,7 @@ export default function TrackExplanation() {
                                                 </div>
                                                 <ul className="space-y-1">
                                                     {track.cons.map((con, idx) => (
-                                                        <li key={idx} className="text-sm text-slate-600 flex items-start gap-2">
+                                                        <li key={idx} className="text-sm text-mist-600 flex items-start gap-2">
                                                             <span className="text-red-500 mt-1">✗</span>
                                                             {con}
                                                         </li>

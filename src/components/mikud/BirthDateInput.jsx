@@ -1,26 +1,43 @@
 import React, { useState, useRef } from 'react';
-import { Calendar, AlertCircle } from 'lucide-react';
 
 /**
  * שדה תאריך לידה עם 3 תיבות קלט נפרדות: יום / חודש / שנה
  * מחזיר value בפורמט YYYY-MM-DD
  */
-export default function BirthDateInput({ value, onChange, error }) {
+export default function BirthDateInput({ value, onChange, error, onInvalidChange }) {
   // parse existing value
   const parts = value ? value.split('-') : ['', '', ''];
   const [year, setYear] = useState(parts[0] || '');
   const [month, setMonth] = useState(parts[1] || '');
   const [day, setDay] = useState(parts[2] || '');
+  const [dateError, setDateError] = useState('');
 
   const monthRef = useRef(null);
   const yearRef = useRef(null);
 
-  const emit = (d, m, y) => {
-    if (d && m && y && y.length === 4) {
-      const dd = d.padStart(2, '0');
-      const mm = m.padStart(2, '0');
-      onChange(`${y}-${mm}-${dd}`);
+  const validateAndEmit = (d, m, y) => {
+    if (d.length === 2 && m.length === 2 && y.length === 4) {
+      const dayNum = Number(d);
+      const monthNum = Number(m);
+      const yearNum = Number(y);
+      const dateObj = new Date(`${y}-${m}-${d}`);
+      const isValid =
+        dayNum >= 1 && dayNum <= 31 && monthNum >= 1 && monthNum <= 12 &&
+        !isNaN(dateObj.getTime()) &&
+        dateObj.getFullYear() === yearNum && dateObj.getMonth() + 1 === monthNum && dateObj.getDate() === dayNum;
+
+      if (isValid) {
+        setDateError('');
+        onInvalidChange?.(false);
+        onChange(`${y}-${m}-${d}`);
+      } else {
+        setDateError('תאריך לידה לא תקין');
+        onInvalidChange?.(true);
+        onChange('');
+      }
     } else {
+      setDateError('');
+      onInvalidChange?.(false);
       onChange('');
     }
   };
@@ -28,31 +45,29 @@ export default function BirthDateInput({ value, onChange, error }) {
   const handleDay = (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 2);
     setDay(val);
-    emit(val, month, year);
+    validateAndEmit(val, month, year);
     if (val.length === 2) monthRef.current?.focus();
   };
 
   const handleMonth = (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 2);
     setMonth(val);
-    emit(day, val, year);
+    validateAndEmit(day, val, year);
     if (val.length === 2) yearRef.current?.focus();
   };
 
   const handleYear = (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 4);
     setYear(val);
-    emit(day, month, val);
+    validateAndEmit(day, month, val);
   };
 
-  const baseInput = `h-14 border-2 rounded-2xl outline-none focus:border-[#c9a961] focus:ring-4 focus:ring-[#c9a961]/20 transition-all text-gray-900 font-semibold text-base text-center shadow-md bg-gradient-to-br from-white to-gray-50 ${error ? 'border-red-500' : 'border-[#1e3a5f]'}`;
+  const showError = dateError || error;
+  const baseInput = `h-[2.8rem] border rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder:text-[12.8px] text-center bg-periwinkle-100 ${showError ? 'border-red-500' : 'border-transparent'}`;
 
   return (
     <div className="mb-5 text-right w-full">
-      <label className="flex items-center text-[#1e3a5f] font-semibold text-sm mb-2">
-        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center ml-2">
-          <Calendar size={16} className="text-gray-500" />
-        </div>
+      <label className="flex items-center text-[#0C084A] font-normal text-sm mb-2">
         <span>תאריך לידה</span>
       </label>
 
@@ -68,10 +83,10 @@ export default function BirthDateInput({ value, onChange, error }) {
             value={day}
             onChange={handleDay}
           />
-          <span className="text-xs text-gray-400 mt-1 font-medium">יום</span>
+          <span className="text-xs text-mist-400 mt-1 font-medium">יום</span>
         </div>
 
-        <div className="flex items-center pb-5 text-gray-400 font-bold text-xl">/</div>
+        <div className="flex items-center pb-5 text-mist-400 font-bold text-xl">/</div>
 
         {/* חודש */}
         <div className="flex flex-col items-center flex-1">
@@ -85,10 +100,10 @@ export default function BirthDateInput({ value, onChange, error }) {
             value={month}
             onChange={handleMonth}
           />
-          <span className="text-xs text-gray-400 mt-1 font-medium">חודש</span>
+          <span className="text-xs text-mist-400 mt-1 font-medium">חודש</span>
         </div>
 
-        <div className="flex items-center pb-5 text-gray-400 font-bold text-xl">/</div>
+        <div className="flex items-center pb-5 text-mist-400 font-bold text-xl">/</div>
 
         {/* שנה */}
         <div className="flex flex-col items-center flex-[2]">
@@ -102,15 +117,12 @@ export default function BirthDateInput({ value, onChange, error }) {
             value={year}
             onChange={handleYear}
           />
-          <span className="text-xs text-gray-400 mt-1 font-medium">שנה</span>
+          <span className="text-xs text-mist-400 mt-1 font-medium">שנה</span>
         </div>
       </div>
 
-      {error && (
-        <div className="mt-3 flex items-center gap-3 bg-red-50 border-2 border-red-500 px-5 py-3 rounded-2xl">
-          <AlertCircle size={20} className="text-red-600" />
-          <p className="text-red-700 text-sm font-bold">{error}</p>
-        </div>
+      {showError && (
+        <p className="mt-2 text-red-600 text-xs font-bold">{dateError || error}</p>
       )}
     </div>
   );

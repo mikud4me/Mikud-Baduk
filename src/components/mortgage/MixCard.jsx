@@ -27,10 +27,10 @@ const riskConfig = {
     medium: {
         label: "מאוזן",
         icon: TrendingUp,
-        color: "from-blue-500 to-blue-600",
-        bgColor: "bg-blue-50",
-        textColor: "text-blue-700",
-        borderColor: "border-blue-200"
+        color: "from-brand-500 to-brand-600",
+        bgColor: "bg-brand-50",
+        textColor: "text-brand-700",
+        borderColor: "border-brand-200"
     },
     high: {
         label: "אגרסיבי",
@@ -61,7 +61,7 @@ export default function MixCard({ mix, index, onSelect, isSelected }) {
             transition={{ duration: 0.5, delay: index * 0.15 }}
         >
             <Card className={`relative overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-2xl ${
-                isSelected ? `ring-2 ring-blue-500 shadow-2xl` : 'shadow-lg hover:-translate-y-1'
+                isSelected ? `ring-2 ring-brand-500 shadow-2xl` : 'shadow-lg hover:-translate-y-1'
             }`}
             onClick={() => onSelect(mix)}
             >
@@ -75,7 +75,7 @@ export default function MixCard({ mix, index, onSelect, isSelected }) {
                                 <Icon className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <CardTitle className="text-xl font-bold text-slate-800">
+                                <CardTitle className="text-xl font-bold text-mist-800">
                                     {mix.name}
                                 </CardTitle>
                                 <Badge className={`mt-1 ${config.bgColor} ${config.textColor} border-0`}>
@@ -89,7 +89,7 @@ export default function MixCard({ mix, index, onSelect, isSelected }) {
                 <CardContent className="space-y-5">
                     {/* Monthly Payment Highlight */}
                     <div className={`p-4 rounded-2xl ${config.bgColor} ${config.borderColor} border`}>
-                        <p className="text-sm text-slate-500 mb-1">החזר חודשי</p>
+                        <p className="text-sm text-mist-500 mb-1">החזר חודשי</p>
                         <p className={`text-3xl font-bold ${config.textColor}`}>
                             {formatCurrency(mix.monthly_payment)}
                         </p>
@@ -97,17 +97,17 @@ export default function MixCard({ mix, index, onSelect, isSelected }) {
 
                     {/* Tracks */}
                     <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-500">הרכב התמהיל:</p>
+                        <p className="text-sm font-medium text-mist-500">הרכב התמהיל:</p>
                         <div className="space-y-2">
                             {mix.tracks?.map((track, idx) => (
-                                <div key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
+                                <div key={idx} className="flex items-center justify-between py-2 px-3 bg-mist-50 rounded-lg">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${config.color}`} />
-                                        <span className="text-sm text-slate-600">{trackTypeNames[track.track_type]}</span>
+                                        <span className="text-sm text-mist-600">{trackTypeNames[track.track_type]}</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-sm">
-                                        <span className="text-slate-500">{track.interest_rate}%</span>
-                                        <span className="font-medium text-slate-700">{formatCurrency(track.amount)}</span>
+                                        <span className="text-mist-500">{track.interest_rate}%</span>
+                                        <span className="font-medium text-mist-700">{formatCurrency(track.amount)}</span>
                                     </div>
                                 </div>
                             ))}
@@ -116,13 +116,13 @@ export default function MixCard({ mix, index, onSelect, isSelected }) {
 
                     {/* Summary Stats */}
                     <div className="grid grid-cols-2 gap-3 pt-2">
-                        <div className="text-center p-3 bg-slate-50 rounded-xl">
-                            <p className="text-xs text-slate-400">סה״כ ריבית</p>
-                            <p className="text-lg font-bold text-slate-700">{formatCurrency(mix.total_interest)}</p>
+                        <div className="text-center p-3 bg-mist-50 rounded-xl">
+                            <p className="text-xs text-mist-400">סה״כ ריבית</p>
+                            <p className="text-lg font-bold text-mist-700">{formatCurrency(mix.total_interest)}</p>
                         </div>
-                        <div className="text-center p-3 bg-slate-50 rounded-xl">
-                            <p className="text-xs text-slate-400">סה״כ לתשלום</p>
-                            <p className="text-lg font-bold text-slate-700">{formatCurrency(mix.total_payment)}</p>
+                        <div className="text-center p-3 bg-mist-50 rounded-xl">
+                            <p className="text-xs text-mist-400">סה״כ לתשלום</p>
+                            <p className="text-lg font-bold text-mist-700">{formatCurrency(mix.total_payment)}</p>
                         </div>
                     </div>
 

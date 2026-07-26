@@ -168,38 +168,38 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
   return (
     <div className="fixed bottom-4 left-4 z-[300] flex flex-col items-start" dir="rtl">
       {isOpen && (
-        <div className="bg-white w-[85vw] sm:w-[360px] h-[500px] mb-3 rounded-2xl shadow-2xl border border-[#d4af37]/30 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4">
+        <div className="bg-white w-[85vw] sm:w-[360px] h-[500px] mb-3 rounded-2xl shadow-2xl border border-[#1362FF]/30 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4">
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#001a33] to-[#003d66] p-3 text-white flex justify-between items-center flex-shrink-0">
+          <div className="bg-gradient-to-r from-[#06042A] to-[#0141C2] p-3 text-white flex justify-between items-center flex-shrink-0">
             <div className="flex items-center gap-2">
-              <MikoAvatar className="w-9 h-9 ring-2 ring-[#d4af37] rounded-full" />
+              <MikoAvatar className="w-9 h-9 ring-2 ring-[#1362FF] rounded-full" />
               <div>
                 <span className="text-sm font-bold block">מיקו AI</span>
-                <span className="text-[10px] text-[#d4af37] block">יועץ משכנתאות חכם</span>
+                <span className="text-[10px] text-[#1362FF] block">יועץ משכנתאות חכם ✨</span>
               </div>
             </div>
             <div className="flex items-center gap-1">
               <button
                 onClick={resetChat}
-                className="hover:text-[#d4af37] transition-colors p-1.5 hover:bg-white/10 rounded-lg"
+                className="hover:text-[#1362FF] transition-colors p-1.5 hover:bg-white/10 rounded-lg"
                 title="שיחה חדשה"
               >
                 <RefreshCw size={15} />
               </button>
-              <button onClick={() => setIsOpen(false)} className="hover:text-[#d4af37] transition-colors p-1.5 hover:bg-white/10 rounded-lg">
+              <button onClick={() => setIsOpen(false)} className="hover:text-[#1362FF] transition-colors p-1.5 hover:bg-white/10 rounded-lg">
                 <X size={18} />
               </button>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-mist-50">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-start' : 'justify-end'}`}>
                 <div className={`px-4 py-3 rounded-2xl max-w-[88%] text-sm leading-relaxed whitespace-pre-line ${
                   m.role === 'user'
-                    ? 'bg-white text-slate-800 rounded-br-none border border-slate-200 shadow-sm'
-                    : 'bg-gradient-to-br from-[#001a33] to-[#1e3a5f] text-white rounded-bl-none shadow-md'
+                    ? 'bg-white text-mist-800 rounded-br-none border border-mist-200 shadow-sm'
+                    : 'bg-gradient-to-br from-[#06042A] to-[#0C084A] text-white rounded-bl-none shadow-md'
                 }`}>
                   {m.text}
                 </div>
@@ -207,10 +207,10 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
             ))}
             {loading && (
               <div className="flex justify-end">
-                <div className="bg-[#001a33] rounded-2xl rounded-bl-none px-4 py-3 flex gap-1 items-center">
-                  <span className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="bg-[#06042A] rounded-2xl rounded-bl-none px-4 py-3 flex gap-1 items-center">
+                  <span className="w-2 h-2 bg-[#1362FF] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-[#1362FF] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-[#1362FF] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             )}
@@ -219,12 +219,12 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
 
           {/* Quick questions */}
           {showQuickQuestions && (
-            <div className="px-3 pb-2 grid grid-cols-3 gap-1.5 bg-slate-50 border-t border-slate-100 pt-2 flex-shrink-0">
+            <div className="px-3 pb-2 grid grid-cols-3 gap-1.5 bg-mist-50 border-t border-mist-100 pt-2 flex-shrink-0">
               {QUICK_QUESTIONS.map((q, i) => (
                 <button
                   key={i}
                   onClick={() => sendMessage(q)}
-                  className="text-[11px] bg-white border border-[#d4af37]/50 text-[#1e3a5f] font-semibold px-2 py-1.5 rounded-xl hover:bg-[#d4af37]/10 transition-all text-center leading-tight"
+                  className="text-[11px] bg-white border border-[#1362FF]/50 text-[#0C084A] font-semibold px-2 py-1.5 rounded-xl hover:bg-[#1362FF]/10 transition-all text-center leading-tight"
                 >
                   {q}
                 </button>
@@ -233,9 +233,9 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
           )}
 
           {/* Input */}
-          <div className="p-3 bg-white border-t border-slate-200 flex gap-2 flex-shrink-0">
+          <div className="p-3 bg-white border-t border-mist-200 flex gap-2 flex-shrink-0">
             <input
-              className="flex-1 bg-slate-50 border border-slate-200 focus:border-[#d4af37] rounded-xl px-3 py-2 text-sm outline-none text-right font-medium transition-all"
+              className="flex-1 bg-mist-50 border border-mist-200 focus:border-[#1362FF] rounded-xl px-3 py-2 text-sm outline-none text-right font-medium transition-all"
               placeholder="שאל את מיקו..."
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -244,7 +244,7 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
             <button
               onClick={() => sendMessage(input)}
               disabled={loading || !input.trim()}
-              className="bg-[#d4af37] text-[#001a33] p-2.5 rounded-xl active:scale-95 transition-all disabled:opacity-40"
+              className="bg-[#1362FF] text-[#06042A] p-2.5 rounded-xl active:scale-95 transition-all disabled:opacity-40"
             >
               <Send size={16} />
             </button>
@@ -254,7 +254,7 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 sm:w-20 sm:h-20 shadow-2xl hover:scale-110 transition-all rounded-full overflow-hidden border-4 border-[#d4af37] bg-white relative group"
+        className="w-16 h-16 sm:w-20 sm:h-20 shadow-2xl hover:scale-110 transition-all rounded-full overflow-hidden border-4 border-[#1362FF] bg-white relative group"
       >
         <MikoAvatar className="w-full h-full" />
         {!isOpen && (

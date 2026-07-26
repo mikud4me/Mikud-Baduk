@@ -5,7 +5,7 @@ module.exports = {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: ['"Open Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"']
+  			sans: ['Heebo', 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji']
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -13,6 +13,42 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			brand: {
+  				50: '#EAF1FF',
+  				100: '#D5E3FF',
+  				200: '#ABC7FF',
+  				300: '#7DA6FF',
+  				400: '#4C82FF',
+  				500: '#1F63FF',
+  				600: '#0153F4',
+  				700: '#0141C2',
+  				800: '#023090',
+  				900: '#04205F'
+  			},
+  			mist: {
+  				50: '#F7F8FA',
+  				100: '#EEF0F4',
+  				200: '#E1E4EA',
+  				300: '#CBCFD9',
+  				400: '#B9BBBE',
+  				500: '#8E8E8E',
+  				600: '#707070',
+  				700: '#54566B',
+  				800: '#302C5C',
+  				900: '#0C084A'
+  			},
+  			periwinkle: {
+  				50: '#F7F7FF',
+  				100: '#F3F3FF',
+  				200: '#E4E4FF',
+  				300: '#D5DCFA',
+  				400: '#BABAFF',
+  				500: '#8E97FF',
+  				600: '#6774FF',
+  				700: '#4F5AE0',
+  				800: '#3B44B0',
+  				900: '#2A3080'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

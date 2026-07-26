@@ -9,12 +9,12 @@ const badges = [
 
 export default function FooterCTA() {
   return (
-    <footer className="w-full bg-gradient-to-br from-[#0f1f35] to-[#1e3a5f] py-12 sm:py-16 px-4 border-t-4 border-[#c9a961]" dir="rtl">
+    <footer className="w-full bg-gradient-to-br from-[#06042A] to-[#0C084A] py-24 px-4 border-t-4 border-[#0153F4]" dir="rtl">
       <div className="max-w-3xl mx-auto text-center">
 
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight">
-            הגיע הזמן לשלם <span className="text-[#c9a961]">פחות</span> על המשכנתא שלכם
+        <div className="mb-8">
+          <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tight">
+            הגיע הזמן לשלם <span className="text-[#0153F4]">פחות</span> על המשכנתא שלכם
           </h2>
         </div>
 
@@ -33,14 +33,14 @@ export default function FooterCTA() {
             <h2 className="text-2xl sm:text-4xl font-black text-white leading-none tracking-tight whitespace-nowrap">
               המטרה שלנו
             </h2>
-            <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-[#c9a961] to-transparent" />
-            <h2 className="text-2xl sm:text-4xl font-black text-[#c9a961] leading-none tracking-tight whitespace-nowrap">
+            <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-[#0153F4] to-transparent" />
+            <h2 className="text-3xl sm:text-5xl font-black text-[#0153F4] leading-none tracking-tight whitespace-nowrap">
               החיסכון שלכם &nbsp;!!!
             </h2>
           </div>
         </div>
 
-        <p className="text-gray-400 text-sm sm:text-base font-light mb-8 sm:mb-10 leading-relaxed max-w-xl mx-auto">
+        <p className="text-mist-400 text-sm sm:text-base font-light mb-12 leading-relaxed max-w-xl mx-auto">
           מומחי מיקוד ישיגו לכם את התנאים הטובים ביותר מהמערכת הבנקאית.<br/>
           פגישת ייעוץ ראשונה — בחינם ובלי התחייבות.
         </p>
@@ -49,16 +49,16 @@ export default function FooterCTA() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 sm:mb-10">
           <a
             href="tel:2324"
-            className="inline-flex items-center gap-3 bg-[#c9a961] hover:bg-[#d4b975] text-[#1e3a5f] px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-black text-2xl sm:text-3xl shadow-2xl hover:scale-105 active:scale-95 transition-all"
+            className="inline-flex items-center gap-3 bg-[#0153F4] hover:bg-[#4C82FF] text-[#0C084A] px-10 py-5 rounded-2xl font-black text-3xl sm:text-4xl shadow-2xl hover:scale-105 active:scale-95 transition-all"
           >
             <Phone size={24} />
             2324*
           </a>
           <a
             href="mailto:Office@mikud4me.co.il"
-            className="inline-flex items-center gap-3 bg-white/10 hover:bg-white/15 border border-white/20 hover:border-[#c9a961]/50 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm sm:text-base transition-all"
+            className="inline-flex items-center gap-3 bg-white/10 hover:bg-white/15 border border-white/20 hover:border-[#0153F4]/50 text-white px-8 py-5 rounded-2xl font-semibold text-sm sm:text-base transition-all"
           >
-            <Mail size={18} className="text-[#c9a961]" />
+            <Mail size={18} className="text-[#0153F4]" />
             Office@mikud4me.co.il
           </a>
         </div>
@@ -69,8 +69,8 @@ export default function FooterCTA() {
             const Icon = b.icon;
             return (
               <div key={i} className="flex items-center gap-2 bg-white/8 border border-white/15 px-4 py-2 rounded-full">
-                <Icon size={13} className="text-[#c9a961]" />
-                <span className="text-gray-300 text-xs font-semibold">{b.text}</span>
+                <Icon size={13} className="text-[#0153F4]" />
+                <span className="text-mist-300 text-xs font-semibold">{b.text}</span>
               </div>
             );
           })}
@@ -78,7 +78,7 @@ export default function FooterCTA() {
 
         <div className="w-full h-px bg-white/10 mb-6" />
 
-        <p className="text-gray-600 text-xs">
+        <p className="text-mist-600 text-xs">
           © {new Date().getFullYear()} מיקוד משכנתאות בע"מ &nbsp;·&nbsp; כל הזכויות שמורות &nbsp;·&nbsp; רישיון תיווך פיננסי
         </p>
       </div>

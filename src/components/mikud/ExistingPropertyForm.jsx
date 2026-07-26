@@ -165,7 +165,7 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
       />
 
       {isForSale && (
-        <div className="pr-4 border-r-4 border-blue-400 space-y-3 animate-in fade-in duration-200">
+        <div className="pr-4 border-r-4 border-brand-400 space-y-3 animate-in fade-in duration-200">
           <PremiumInput
             label="האם יש הסכם מכירה חתום?"
             name="hasSaleAgreement"
@@ -203,8 +203,8 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
           )}
 
           {/* אין צורך בשאלת מחיר מכירה נפרדת — השווי שהוזן בתחילה משמש גם כמחיר מכירה */}
-          <div className="p-3 bg-blue-50 border-2 border-blue-300 rounded-xl animate-in fade-in duration-200">
-            <p className="text-xs text-blue-700 font-bold leading-relaxed">
+          <div className="p-3 bg-brand-50 border-2 border-brand-300 rounded-xl animate-in fade-in duration-200">
+            <p className="text-xs text-brand-700 font-bold leading-relaxed">
               💡 מחיר הנכס שהוזן למעלה (₪{data.existingPropertyValue ? new Intl.NumberFormat('he-IL').format(Number(String(data.existingPropertyValue).replace(/,/g,''))) : '—'}) ישמש גם כמחיר המכירה לחישוב ההון הפנוי.
             </p>
           </div>
