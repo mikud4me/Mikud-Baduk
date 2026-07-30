@@ -16,11 +16,11 @@ export default function BirthDateInput({ value, onChange, error, onInvalidChange
   const yearRef = useRef(null);
 
   const validateAndEmit = (d, m, y) => {
-    if (d.length === 2 && m.length === 2 && y.length === 4) {
+    if (d.length >= 1 && d.length <= 2 && m.length >= 1 && m.length <= 2 && y.length === 4) {
       const dayNum = Number(d);
       const monthNum = Number(m);
       const yearNum = Number(y);
-      const dateObj = new Date(`${y}-${m}-${d}`);
+      const dateObj = new Date(yearNum, monthNum - 1, dayNum);
       const isValid =
         dayNum >= 1 && dayNum <= 31 && monthNum >= 1 && monthNum <= 12 &&
         !isNaN(dateObj.getTime()) &&
@@ -29,7 +29,7 @@ export default function BirthDateInput({ value, onChange, error, onInvalidChange
       if (isValid) {
         setDateError('');
         onInvalidChange?.(false);
-        onChange(`${y}-${m}-${d}`);
+        onChange(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
       } else {
         setDateError('תאריך לידה לא תקין');
         onInvalidChange?.(true);
