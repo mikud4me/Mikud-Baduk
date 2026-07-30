@@ -26,6 +26,17 @@ VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
 VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
 ```
 
+The refinance quick-check subsystem (`/RefinanceQuickCheck`) talks to its own
+Supabase project directly (not through Base44), so it also needs:
+
+```
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
+```
+
+Without these the refinance page shows a "not configured" state instead of
+the upload flow; the rest of the app is unaffected.
+
 Run the app: `npm run dev`
 
 **Publish your changes**
