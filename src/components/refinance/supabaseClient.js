@@ -4,15 +4,26 @@ import { createClient } from '@supabase/supabase-js';
 // only — safe to expose in the frontend bundle. Every Edge Function call and
 // table access from this subsystem is anonymous by design (no user login).
 //
-// Constructed lazily/guarded rather than unconditionally: this module sits on
-// the static import chain App.jsx -> pages.config.js -> RefinanceQuickCheck.jsx
-// -> here, so if createClient() threw on a missing env var (which it does
-// synchronously), it would white-screen the *entire* app, not just this page.
-// RefinanceQuickCheck.jsx checks `isSupabaseConfigured` and renders a "not
-// configured" state instead of using `supabase` when it's false.
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Fallback values below are the same project's publishable/anon key + URL —
+// not secrets (Supabase's whole design has this pair shipped in every client
+// bundle; RLS, not secrecy, is what's supposed to protect the data). Hardcoded
+// as a fallback because Base44's env var configuration for this app wasn't
+// reliably reaching the Vite build; a real VITE_SUPABASE_URL / VITE_SUPABASE_
+// PUBLISHABLE_KEY env var still takes precedence if present, e.g. to point a
+// future build at a different Supabase project without a code change.
+const FALLBACK_SUPABASE_URL = 'https://mandtjqtjkhbjhxhbjvx.supabase.co';
+const FALLBACK_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_pF3CQNav5svC5WMMV3H2Fg_H68wHFhC';
 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || FALLBACK_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_PUBLISHABLE_KEY;
+
+// Kept as a guard (rather than constructing unconditionally) for the same
+// reason as before: this module sits on the static import chain App.jsx ->
+// pages.config.js -> RefinanceQuickCheck.jsx -> here, so a createClient()
+// throw (e.g. both the env var and the fallback ever being cleared) would
+// white-screen the *entire* app, not just this page. RefinanceQuickCheck.jsx
+// checks `isSupabaseConfigured` and renders a "not configured" state instead
+// of using `supabase` when it's false.
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
 export const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseKey) : null;
