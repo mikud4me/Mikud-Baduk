@@ -32,6 +32,11 @@ waiting for explicit go-ahead each time. Still stop and ask before anything
 destructive or history-rewriting (force-push, reset --hard, amending pushed
 commits) or before pushing work you're not confident in.
 
+This project does not use a PR-review workflow — this applies even when working
+from a worktree (e.g. background jobs): once a worktree branch's change is
+verified, merge it into `main` and push directly rather than stopping after
+opening a draft PR.
+
 ### Environment
 Requires `.env.local` (git-ignored) with `VITE_BASE44_APP_ID` and
 `VITE_BASE44_APP_BASE_URL`. See README.md. These can also be supplied as URL
