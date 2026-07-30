@@ -40,7 +40,7 @@ function buildHeadline(analysisResult) {
 }
 
 // נאב עליון עקבי עם שאר אתר מיקוד — לוגו מחזיר לדף הראשי (לא ריענון, כי זה לא דף המחשבון)
-function RefinanceNav() {
+function RefinanceNav({ isChatOpen, setIsChatOpen }) {
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-mist-100 shadow-sm backdrop-blur-xl h-28 sm:h-32 px-6 sm:px-10 flex items-center justify-between">
       <a href={createPageUrl('MortgageCalculator')} className="flex items-center gap-2 cursor-pointer group">
@@ -48,6 +48,14 @@ function RefinanceNav() {
         <span className="text-3xl sm:text-4xl font-black text-[#0153F4] transition-colors">בדוק</span>
       </a>
       <div className="flex items-center gap-6">
+        {setIsChatOpen && (
+          <button
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className="hidden sm:block text-[#0C084A] font-bold hover:text-[#0153F4] transition-all"
+          >
+            שאלות?
+          </button>
+        )}
         <a href="tel:2324" className="bg-[#0C084A] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#0153F4] transition-all shadow-md hover:shadow-lg text-center">
           2324*
         </a>
@@ -68,6 +76,7 @@ export default function RefinanceQuickCheck() {
   const [pdfTrigger, setPdfTrigger] = useState(0);
   const [hasExtraDebts, setHasExtraDebts] = useState(null); // null=לא נבחר, true/false
   const [extraDebts, setExtraDebts] = useState([{ creditor: '', monthly_repayment: '', remaining_balance: '', estimated_interest: 15 }]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // פרטי קשר — נאספים לפני העלאת המסמך ונשמרים כליד
   const [leadId, setLeadId] = useState(null);
@@ -310,7 +319,7 @@ export default function RefinanceQuickCheck() {
 
   if (!isSupabaseConfigured) {
     return (
-      <div className="min-h-screen bg-white" dir="rtl">
+      <div className="min-h-screen bg-white overflow-x-hidden" dir="rtl">
         <RefinanceNav />
         <div className="max-w-2xl mx-auto px-4 py-24 text-center">
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-amber-100 flex items-center justify-center">
@@ -328,8 +337,8 @@ export default function RefinanceQuickCheck() {
   }
 
   return (
-    <div className="min-h-screen bg-white" dir="rtl">
-      <RefinanceNav />
+    <div className="min-h-screen bg-white overflow-x-hidden" dir="rtl">
+      <RefinanceNav isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
       <div className="py-12">
       <div className="max-w-5xl mx-auto px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
@@ -1306,7 +1315,7 @@ export default function RefinanceQuickCheck() {
       </div>
       </div>
       <FooterCTA />
-      <MortgageChatbot />
+      <MortgageChatbot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
     </div>
   );
 }
