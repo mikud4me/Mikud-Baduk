@@ -785,6 +785,15 @@ ${results.score}/100
           <span className="text-3xl sm:text-4xl font-black text-[#0153F4] transition-colors">בדוק</span>
         </div>
         <div className="flex items-center gap-6">
+          <div className="relative hidden sm:block">
+            <div className="absolute -inset-3 bg-gradient-to-r from-brand-400/40 to-brand-600/30 rounded-full blur-xl pointer-events-none" />
+            <a
+              href={createPageUrl('RefinanceQuickCheck')}
+              className="relative bg-[#0153F4] text-white px-6 py-3 rounded-full font-black text-lg hover:bg-[#0141C2] hover:scale-105 transition-all shadow-lg"
+            >
+              ממחזרים את המשכנתא?
+            </a>
+          </div>
           <button
             onClick={() => setIsChatOpen(!isChatOpen)}
             className="hidden sm:block text-[#0C084A] font-bold hover:text-[#0153F4] transition-all"
@@ -793,9 +802,6 @@ ${results.score}/100
           </button>
           <a href={createPageUrl('AdminDashboard')} className="hidden sm:block text-[#0C084A] font-bold text-sm hover:text-[#0153F4] transition-all">
             פאנל ניהול
-          </a>
-          <a href={createPageUrl('RefinanceQuickCheck')} className="hidden sm:block text-[#0C084A] font-bold text-sm hover:text-[#0153F4] transition-all">
-            ממחזרים את המשכנתא?
           </a>
           <a href="tel:2324" className="bg-[#0C084A] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#0153F4] transition-all shadow-md hover:shadow-lg text-center">
             2324*
