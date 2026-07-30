@@ -17,14 +17,14 @@ export default function BalloonTrapAlert({ externalDebts }) {
   const totalBalloonDebt = balloonLoans.reduce((s, d) => s + (d.remaining_balance || 0), 0);
 
   return (
-    <Card className="border-2 border-orange-400 bg-gradient-to-br from-orange-50 to-red-50">
-      <CardContent className="p-5">
+    <Card className="rounded-2xl sm:rounded-3xl border border-orange-300 bg-orange-50 shadow-xl overflow-hidden">
+      <CardContent className="p-5 sm:p-6">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center flex-shrink-0">
             <Bomb className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="font-black text-orange-900 text-lg mb-1">
+            <h3 className="font-semibold text-orange-900 text-lg mb-1">
               ⚠️ פצצת זמן תזרימית זוהתה!
             </h3>
             <p className="text-orange-800 text-sm mb-3">
@@ -40,7 +40,7 @@ export default function BalloonTrapAlert({ externalDebts }) {
                     <p className="text-xs text-orange-700">
                       החזר חודשי: ₪{loan.monthly_repayment?.toLocaleString()} |
                       יחס לקרן: {((loan.monthly_repayment / loan.remaining_balance) * 100).toFixed(2)}%
-                      <span className="text-red-600 font-bold"> ← ריבית בלבד!</span>
+                      <span className="text-red-600 font-bold"> · ריבית בלבד</span>
                     </p>
                   </div>
                   <div className="text-right">

@@ -90,7 +90,7 @@ export default function RefinanceCalculator({ currentLoan, savings, clientInfo, 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="rounded-3xl border-2 border-red-300 bg-white shadow-xl">
+        <Card className="rounded-2xl sm:rounded-3xl border border-red-300 bg-white shadow-xl overflow-hidden">
           <CardHeader className="border-b border-red-100">
             <CardTitle className="flex items-center gap-2 text-2xl">
               <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
@@ -132,9 +132,9 @@ export default function RefinanceCalculator({ currentLoan, savings, clientInfo, 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className={`rounded-3xl border-2 ${strategicInsight.borderColor} bg-white shadow-xl`}>
+      <Card className={`rounded-2xl sm:rounded-3xl border ${strategicInsight.borderColor} bg-white shadow-xl overflow-hidden`}>
         <CardHeader className="border-b border-mist-100">
-          <CardTitle className="flex items-center gap-2 text-2xl">
+          <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl font-semibold">
             {strategicInsight.icon && (
               <div className={`w-12 h-12 ${strategicInsight.iconBg} rounded-xl flex items-center justify-center`}>
                 <span className="text-2xl">{strategicInsight.icon}</span>
@@ -146,7 +146,7 @@ export default function RefinanceCalculator({ currentLoan, savings, clientInfo, 
         <CardContent className="pt-6">
           {/* תוצאת החיסכון הראשית */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className={`rounded-2xl p-6 border-2 bg-white ${monthlySavingsValue >= 0 ? 'border-green-300' : 'border-amber-300'}`}>
+            <div className={`rounded-2xl p-6 border bg-white ${monthlySavingsValue >= 0 ? 'border-green-300' : 'border-amber-300'}`}>
               <div className="flex items-center gap-3 mb-3">
                 <div className={`w-10 h-10 ${monthlySavingsValue >= 0 ? 'bg-green-100' : 'bg-amber-100'} rounded-xl flex items-center justify-center`}>
                   {monthlySavingsValue >= 0 ? (
@@ -167,7 +167,7 @@ export default function RefinanceCalculator({ currentLoan, savings, clientInfo, 
               </p>
             </div>
 
-            <div className="rounded-2xl p-6 border-2 border-[#0153F4]/40 bg-white">
+            <div className="rounded-2xl p-6 border border-[#0153F4]/40 bg-white">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center">
                   <span className="text-xl">💰</span>
@@ -239,7 +239,7 @@ export default function RefinanceCalculator({ currentLoan, savings, clientInfo, 
           )}
 
           {/* ניתוח אסטרטגי */}
-          <div className={`p-6 rounded-xl border-2 ${strategicInsight.borderColor} bg-mist-50`}>
+          <div className={`p-6 rounded-xl border ${strategicInsight.borderColor} bg-mist-50`}>
             <div className="flex items-start gap-4">
               <div className={`w-14 h-14 ${strategicInsight.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
                 <span className="text-3xl">{strategicInsight.icon}</span>

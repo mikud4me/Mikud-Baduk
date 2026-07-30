@@ -46,7 +46,7 @@ export default function MixTable({ title, subtitle, tracks, totalPmt, isRecommen
 
   return (
     <div
-      className={`bg-white rounded-2xl overflow-hidden shadow-md border-2 text-right w-full relative flex flex-col transition-all duration-300 hover:shadow-xl ${isRecommended ? 'border-[#0153F4]' : 'border-mist-200'}`}
+      className={`bg-white rounded-2xl overflow-hidden shadow-md border text-right w-full relative flex flex-col transition-all duration-300 hover:shadow-xl ${isRecommended ? 'border-[#0153F4]' : 'border-mist-200'}`}
       dir="rtl"
     >
       {/* פס צבע עליון */}
@@ -114,7 +114,7 @@ export default function MixTable({ title, subtitle, tracks, totalPmt, isRecommen
             </div>
           ))}
           {/* סה"כ חודשי בולט */}
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0C084A]/5 border-2 border-[#0C084A]/20 mt-1">
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0C084A]/5 border border-[#0C084A]/20 mt-1">
             <span className="font-black text-xs text-[#0C084A]">סה"כ לחודש</span>
             <span className="font-black text-base text-[#0C084A]">₪{formatCurrency(Math.floor(totalPmt))}</span>
           </div>

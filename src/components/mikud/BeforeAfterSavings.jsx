@@ -1,4 +1,5 @@
 import React from 'react';
+import { Check, X } from 'lucide-react';
 import Amount from '@/components/mikud/Amount';
 
 const STAT_ROWS = [
@@ -35,10 +36,15 @@ export default function BeforeAfterSavings() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
-        <div className="rounded-3xl bg-mist-50 border border-mist-200 p-6 sm:p-8">
-          <span className="inline-block bg-mist-100 text-mist-700 text-xs font-bold rounded-full px-3 py-1.5 mb-4">
-            לפני · משכנתא סטנדרטית
-          </span>
+        <div className="rounded-3xl bg-red-50 border border-red-200 p-6 sm:p-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+              <X className="w-4 h-4 text-red-600" />
+            </div>
+            <span className="inline-block bg-red-100 text-red-700 text-xs font-bold rounded-full px-3 py-1.5">
+              לפני · משכנתא סטנדרטית
+            </span>
+          </div>
           <div>
             {STAT_ROWS.map((row, i) => (
               <StatRow key={row.key} label={row.label} value={row.before} isLast={i === STAT_ROWS.length - 1} />
@@ -46,10 +52,15 @@ export default function BeforeAfterSavings() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white border-2 border-[#0153F4] shadow-xl shadow-brand-100/60 p-6 sm:p-8">
-          <span className="inline-block bg-periwinkle-100 text-[#0153F4] text-xs font-bold rounded-full px-3 py-1.5 mb-4">
-            אחרי · תמהיל חכם מותאם אישית
-          </span>
+        <div className="rounded-3xl bg-white border border-green-200 shadow-xl shadow-brand-100/60 p-6 sm:p-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+              <Check className="w-4 h-4 text-green-600" strokeWidth={3} />
+            </div>
+            <span className="inline-block bg-green-100 text-green-700 text-xs font-bold rounded-full px-3 py-1.5">
+              אחרי · תמהיל חכם מותאם אישית
+            </span>
+          </div>
           <div>
             {STAT_ROWS.map((row, i) => (
               <StatRow key={row.key} label={row.label} value={row.after} highlight isLast={i === STAT_ROWS.length - 1} />

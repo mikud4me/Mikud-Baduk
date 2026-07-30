@@ -32,7 +32,7 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
         tooltip="בנכס מקבלן — יש בנק מלווה ספציפי שחייבים לעבוד מולו"
       />
 
-      <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl">
+      <div className="p-4 bg-amber-50 border border-amber-400 rounded-2xl">
         <div className="flex items-start gap-3">
           <AlertTriangle size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
@@ -112,7 +112,7 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
           )}
 
           {/* אזהרת DTI */}
-          <div className="p-3 bg-red-50 border-2 border-red-400 rounded-xl">
+          <div className="p-3 bg-red-50 border border-red-400 rounded-xl">
             <div className="flex items-start gap-2">
               <AlertTriangle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-red-700 font-bold leading-relaxed">
@@ -179,7 +179,7 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
           />
 
           {hasSaleAgreement && (
-            <div className="p-3 bg-green-50 border-2 border-green-400 rounded-xl animate-in fade-in duration-200">
+            <div className="p-3 bg-green-50 border border-green-400 rounded-xl animate-in fade-in duration-200">
               <div className="flex items-start gap-2">
                 <CheckCircle size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-green-700 font-bold leading-relaxed">
@@ -191,7 +191,7 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
           )}
 
           {!hasSaleAgreement && data.hasSaleAgreement === 'no' && (
-            <div className="p-3 bg-amber-50 border-2 border-amber-400 rounded-xl animate-in fade-in duration-200">
+            <div className="p-3 bg-amber-50 border border-amber-400 rounded-xl animate-in fade-in duration-200">
               <div className="flex items-start gap-2">
                 <AlertTriangle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 font-bold leading-relaxed">
@@ -203,7 +203,7 @@ export default function ExistingPropertyForm({ data, onChange, errors = {} }) {
           )}
 
           {/* אין צורך בשאלת מחיר מכירה נפרדת — השווי שהוזן בתחילה משמש גם כמחיר מכירה */}
-          <div className="p-3 bg-brand-50 border-2 border-brand-300 rounded-xl animate-in fade-in duration-200">
+          <div className="p-3 bg-brand-50 border border-brand-300 rounded-xl animate-in fade-in duration-200">
             <p className="text-xs text-brand-700 font-bold leading-relaxed">
               💡 מחיר הנכס שהוזן למעלה (₪{data.existingPropertyValue ? new Intl.NumberFormat('he-IL').format(Number(String(data.existingPropertyValue).replace(/,/g,''))) : '—'}) ישמש גם כמחיר המכירה לחישוב ההון הפנוי.
             </p>

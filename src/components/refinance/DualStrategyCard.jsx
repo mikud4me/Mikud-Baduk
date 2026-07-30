@@ -16,19 +16,19 @@ export default function DualStrategyCard({ dualStrategy, currentMonthlyPayment }
   const isABetter = true;
 
   return (
-    <div style={{ marginBottom: '24px' }}>
+    <section className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 p-5 sm:p-8 mb-6">
       {/* כותרת */}
       <div style={{ textAlign: 'center', marginBottom: '16px' }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
           background: '#EAF1FF', border: '1px solid #ABC7FF',
-          borderRadius: '20px', padding: '6px 16px', marginBottom: '8px'
+          borderRadius: '9999px', padding: '6px 16px', marginBottom: '8px'
         }}>
           <span style={{ color: '#0153F4', fontSize: '12px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase' }}>
             בחר את הדרך שלך
           </span>
         </div>
-        <h3 style={{ color: '#0C084A', fontSize: 'clamp(15px, 4vw, 20px)', fontWeight: 900, margin: 0 }}>2 אסטרטגיות מחזור — כל אחת לצורך אחר</h3>
+        <h3 style={{ color: '#0C084A', fontSize: 'clamp(15px, 4vw, 20px)', fontWeight: 600, margin: 0 }}>2 אסטרטגיות מחזור — כל אחת לצורך אחר</h3>
         <p style={{ color: '#8E8E8E', fontSize: '13px', marginTop: '4px' }}>
           החזר נוכחי: <strong style={{ color: '#0153F4' }}>₪{formatNum(current)}</strong> — כמה רוצים לשנות?
         </p>
@@ -44,7 +44,7 @@ export default function DualStrategyCard({ dualStrategy, currentMonthlyPayment }
           style={{
             background: '#FFFFFF',
             border: isABetter ? '2px solid #0153F4' : '1px solid #E1E4EA',
-            borderRadius: '16px',
+            borderRadius: '24px',
             padding: '20px',
             position: 'relative',
             overflow: 'hidden',
@@ -132,7 +132,7 @@ export default function DualStrategyCard({ dualStrategy, currentMonthlyPayment }
           style={{
             background: '#FFFFFF',
             border: !isABetter ? '2px solid #0153F4' : '1px solid #E1E4EA',
-            borderRadius: '16px',
+            borderRadius: '24px',
             padding: '20px',
             position: 'relative',
             overflow: 'hidden',
@@ -212,6 +212,6 @@ export default function DualStrategyCard({ dualStrategy, currentMonthlyPayment }
           </div>
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 }

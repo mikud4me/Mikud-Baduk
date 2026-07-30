@@ -7,10 +7,9 @@ import {
 } from '@/components/refinance/supabaseClient';
 import {
   Upload, Loader2, DollarSign,
-  CheckCircle, AlertCircle, Lock, TrendingUp, X, ChevronDown, ChevronUp, Download, Check
+  CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { createPageUrl } from '@/utils';
 import RefinanceCalculator from '@/components/refinance/RefinanceCalculator';
 import BleedingPathChart from '@/components/refinance/BleedingPathChart';
 import BalloonTrapAlert from '@/components/refinance/BalloonTrapAlert';
@@ -19,6 +18,9 @@ import DualStrategyCard from '@/components/refinance/DualStrategyCard';
 import LiveRatesBadge from '@/components/refinance/LiveRatesBadge';
 import MortgageChatbot from '@/components/refinance/MortgageChatbot';
 import FooterCTA from '@/components/mikud/FooterCTA';
+import PremiumInput from '@/components/mikud/PremiumInput';
+import MikudHeader from '@/components/mikud/MikudHeader';
+import ProfessionalAnalysis from '@/components/mikud/ProfessionalAnalysis';
 import { isValidIsraeliID, isValidEmail, isValidIsraeliPhone } from '@/components/refinance/validators';
 
 // מקור אמת יחיד למספרי הליבה שחוזרים על עצמם בכמה מקומות בדוח (חיסכון נטו, החזר חדש, ריבית חדשה וכו')
@@ -37,31 +39,6 @@ function buildHeadline(analysisResult) {
     isWorthwhile: savings?.isWorthwhile,
     breakEvenMonths: savings?.breakEvenMonths
   };
-}
-
-// נאב עליון עקבי עם שאר אתר מיקוד — לוגו מחזיר לדף הראשי (לא ריענון, כי זה לא דף המחשבון)
-function RefinanceNav({ isChatOpen, setIsChatOpen }) {
-  return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-mist-100 shadow-sm backdrop-blur-xl h-28 sm:h-32 px-6 sm:px-10 flex items-center justify-between">
-      <a href={createPageUrl('MortgageCalculator')} className="flex items-center gap-2 cursor-pointer group">
-        <Check size={26} className="text-[#0153F4] flex-shrink-0" strokeWidth={3} />
-        <span className="text-3xl sm:text-4xl font-black text-[#0153F4] transition-colors">בדוק</span>
-      </a>
-      <div className="flex items-center gap-6">
-        {setIsChatOpen && (
-          <button
-            onClick={() => setIsChatOpen(!isChatOpen)}
-            className="hidden sm:block text-[#0C084A] font-bold hover:text-[#0153F4] transition-all"
-          >
-            שאלות?
-          </button>
-        )}
-        <a href="tel:2324" className="bg-[#0C084A] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#0153F4] transition-all shadow-md hover:shadow-lg text-center">
-          2324*
-        </a>
-      </div>
-    </nav>
-  );
 }
 
 export default function RefinanceQuickCheck() {
@@ -320,7 +297,7 @@ export default function RefinanceQuickCheck() {
   if (!isSupabaseConfigured) {
     return (
       <div className="min-h-screen bg-white overflow-x-hidden" dir="rtl">
-        <RefinanceNav />
+        <MikudHeader activePage="refinance" />
         <div className="max-w-2xl mx-auto px-4 py-24 text-center">
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-amber-100 flex items-center justify-center">
             <AlertCircle className="w-8 h-8 text-amber-600" />
@@ -338,19 +315,28 @@ export default function RefinanceQuickCheck() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden" dir="rtl">
-      <RefinanceNav isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
-      <div className="py-12">
-      <div className="max-w-5xl mx-auto px-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 mb-5 rounded-full bg-mist-50 border-2 border-[#0153F4]/30">
-            <span className="text-sm font-black text-mist-900 tracking-tight uppercase">ניתוח מחזור כירורגי</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-mist-900 mb-3 tracking-tight">כמה כסף תחסוך במחזור?</h1>
-          <p className="text-mist-500 max-w-xl mx-auto">העלה יתרת סילוק משכנתא וקבל מיד חישוב חיסכון אמיתי</p>
-          <div className="flex items-center justify-center gap-6 text-sm text-mist-500 mt-4">
-            <div className="flex items-center gap-1.5"><span>ריביות שוק אמיתיות</span></div>
-            <div className="flex items-center gap-1.5"><Lock className="w-4 h-4 text-mist-500" /><span>מאובטח</span></div>
-            <div className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-600" /><span>חינם</span></div>
+      <MikudHeader activePage="refinance" isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
+      <main className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
+      <div className="w-full max-w-4xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16 animate-in fade-in slide-in-from-top-8 duration-1000">
+          <h1 className="text-[1.89rem] sm:text-[2.835rem] font-extrabold text-[#0C084A] mb-6 leading-tight tracking-tight">
+            המחזור החכם<br/>
+            <span className="text-[#0153F4]">מתחיל כאן</span>
+          </h1>
+          <p className="text-lg text-[#A7A8AB] max-w-2xl mx-auto leading-relaxed font-normal">העלו יתרת סילוק וקבלו ניתוח אישי של אפשרויות המחזור שלכם</p>
+          <div className="flex justify-center gap-6 sm:gap-10 mt-6 sm:mt-8 text-sm">
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-2xl sm:text-3xl font-bold text-[#0C084A]">ריביות שוק</div>
+              <span className="text-mist-500">נתונים עדכניים</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-2xl sm:text-3xl font-bold text-[#0C084A]">20–40 שנ׳</div>
+              <span className="text-mist-500">זמן ניתוח</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-2xl sm:text-3xl font-bold text-[#0C084A]">0₪</div>
+              <span className="text-mist-500">עלות הבדיקה</span>
+            </div>
           </div>
         </motion.div>
 
@@ -361,58 +347,18 @@ export default function RefinanceQuickCheck() {
         )}
 
         {!isResumingLead && !leadId && !analysisResult && (
-          <div className="bg-white border-2 border-mist-200 rounded-3xl p-6 md:p-8 mb-6 shadow-xl">
+          <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-mist-100 transition-all duration-700 relative overflow-hidden">
             <div className="space-y-5">
-              <div>
-                <p className="text-xs font-bold text-[#0153F4] uppercase tracking-wider mb-2">פרטים אישיים</p>
-                <p className="text-sm text-mist-500">לפני העלאת המסמך, נשמח לקבל כמה פרטים ליצירת קשר</p>
+              <div className="mb-6 text-right">
+                <h2 className="text-lg sm:text-2xl font-bold text-[#0C084A] leading-none">בואו נכיר</h2>
+                <p className="text-[#0153F4] font-medium text-xs mt-2">לפני העלאת המסמך, נשמח לקבל כמה פרטים ליצירת קשר</p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <input
-                    placeholder="שם מלא"
-                    value={contactFullName}
-                    onChange={e => setContactFullName(e.target.value)}
-                    onBlur={() => markContactTouched('fullName')}
-                    disabled={isSubmittingContact}
-                    className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder-mist-400"
-                  />
-                  {contactTouched.fullName && liveContactErrors.fullName && <p className="text-xs text-red-600 mt-1">{liveContactErrors.fullName}</p>}
-                </div>
-                <div>
-                  <input
-                    placeholder="תעודת זהות"
-                    value={contactIdNumber}
-                    onChange={e => setContactIdNumber(e.target.value)}
-                    onBlur={() => markContactTouched('idNumber')}
-                    disabled={isSubmittingContact}
-                    className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder-mist-400"
-                  />
-                  {contactTouched.idNumber && liveContactErrors.idNumber && <p className="text-xs text-red-600 mt-1">{liveContactErrors.idNumber}</p>}
-                </div>
-                <div>
-                  <input
-                    placeholder="טלפון"
-                    value={contactPhone}
-                    onChange={e => setContactPhone(e.target.value)}
-                    onBlur={() => markContactTouched('phone')}
-                    disabled={isSubmittingContact}
-                    className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder-mist-400"
-                  />
-                  {contactTouched.phone && liveContactErrors.phone && <p className="text-xs text-red-600 mt-1">{liveContactErrors.phone}</p>}
-                </div>
-                <div>
-                  <input
-                    placeholder="אימייל"
-                    value={contactEmail}
-                    onChange={e => setContactEmail(e.target.value)}
-                    onBlur={() => markContactTouched('email')}
-                    disabled={isSubmittingContact}
-                    className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder-mist-400"
-                  />
-                  {contactTouched.email && liveContactErrors.email && <p className="text-xs text-red-600 mt-1">{liveContactErrors.email}</p>}
-                </div>
+              <div className="grid sm:grid-cols-2 gap-3 mb-1">
+                <PremiumInput label="שם מלא" name="refinanceFullName" value={contactFullName} onChange={(_, value) => setContactFullName(value)} onBlur={() => markContactTouched('fullName')} disabled={isSubmittingContact} autoComplete="name" error={contactTouched.fullName ? liveContactErrors.fullName : undefined} />
+                <PremiumInput label="מספר תעודת זהות" name="refinanceIdNumber" value={contactIdNumber} onChange={(_, value) => setContactIdNumber(value)} onBlur={() => markContactTouched('idNumber')} disabled={isSubmittingContact} inputMode="numeric" maxLength={9} autoComplete="off" error={contactTouched.idNumber ? liveContactErrors.idNumber : undefined} />
+                <PremiumInput label="טלפון נייד" name="refinancePhone" value={contactPhone} onChange={(_, value) => setContactPhone(value)} onBlur={() => markContactTouched('phone')} disabled={isSubmittingContact} inputMode="tel" autoComplete="tel" error={contactTouched.phone ? liveContactErrors.phone : undefined} />
+                <PremiumInput label="כתובת דוא״ל" name="refinanceEmail" value={contactEmail} onChange={(_, value) => setContactEmail(value)} onBlur={() => markContactTouched('email')} disabled={isSubmittingContact} type="email" autoComplete="email" error={contactTouched.email ? liveContactErrors.email : undefined} />
               </div>
 
               {contactErrors.submit && (
@@ -425,12 +371,12 @@ export default function RefinanceQuickCheck() {
               <Button
                 onClick={handleContactSubmit}
                 disabled={isSubmittingContact || !isContactFormValid}
-                className="w-full h-14 bg-[#0C084A] hover:bg-[#0153F4] text-white font-black text-base rounded-xl shadow-xl transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full h-14 rounded-full font-semibold text-lg shadow-md transition-all bg-[#0C084A] text-white hover:bg-[#0153F4] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isSubmittingContact ? (
                   <><Loader2 className="w-5 h-5 ml-2 animate-spin" /> שומר...</>
                 ) : (
-                  'המשך להעלאת מסמך ←'
+                  <span className="flex items-center justify-center gap-2">המשך להעלאת מסמך <ChevronLeft size={24} /></span>
                 )}
               </Button>
             </div>
@@ -438,7 +384,7 @@ export default function RefinanceQuickCheck() {
         )}
 
         {leadId && !analysisResult && (
-          <div className="bg-white border-2 border-mist-200 rounded-3xl p-6 md:p-8 mb-6 shadow-xl">
+          <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-mist-100 transition-all duration-700 relative overflow-hidden">
             <div className="space-y-6">
 
               {/* מה להעלות */}
@@ -455,10 +401,13 @@ export default function RefinanceQuickCheck() {
 
               {/* אזור העלאה */}
               <div>
-                <p className="text-xs font-bold text-[#0153F4] uppercase tracking-wider mb-3">העלאת דף יתרת סילוק</p>
+                <div className="mb-6 text-right">
+                  <h2 className="text-lg sm:text-2xl font-bold text-[#0C084A] leading-none">העלאת מסמך</h2>
+                  <p className="text-[#0153F4] font-medium text-xs mt-2">דף יתרת סילוק עדכני מהבנק</p>
+                </div>
                 <div
                   onClick={() => document.getElementById('refinance-files').click()}
-                  className="border-2 border-dashed border-mist-300 rounded-2xl p-10 text-center hover:border-[#0153F4]/60 hover:bg-[#0153F4]/5 transition-all cursor-pointer"
+                  className="border border-dashed border-mist-300 rounded-xl p-10 text-center hover:border-[#0153F4]/60 hover:bg-[#0153F4]/5 transition-all cursor-pointer focus-within:border-[#0153F4] focus-within:bg-periwinkle-100"
                 >
                   <Upload className="w-12 h-12 text-mist-400 mx-auto mb-3" />
                   <p className="text-base font-bold text-mist-900 mb-1">גרור לכאן או לחץ להעלאה</p>
@@ -514,13 +463,13 @@ export default function RefinanceQuickCheck() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setHasExtraDebts(false)}
-                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border-2 ${hasExtraDebts === false ? 'bg-[#0153F4] text-white border-[#0153F4]' : 'border-mist-300 text-mist-500 hover:border-[#0153F4]'}`}
+                      className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all border ${hasExtraDebts === false ? 'bg-[#0C084A] text-white border-[#0C084A]' : 'border-mist-300 text-mist-600 hover:border-[#0C084A]/40 hover:bg-mist-50'}`}
                     >
                       לא, רק המשכנתא
                     </button>
                     <button
                       onClick={() => setHasExtraDebts(true)}
-                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border-2 ${hasExtraDebts === true ? 'bg-[#0153F4] text-white border-[#0153F4]' : 'border-mist-300 text-mist-500 hover:border-[#0153F4]'}`}
+                      className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all border ${hasExtraDebts === true ? 'bg-[#0C084A] text-white border-[#0C084A]' : 'border-mist-300 text-mist-600 hover:border-[#0C084A]/40 hover:bg-mist-50'}`}
                     >
                       כן, יש לי חובות נוספים
                     </button>
@@ -529,34 +478,46 @@ export default function RefinanceQuickCheck() {
                   {hasExtraDebts === true && (
                     <div className="space-y-2 mt-2">
                       {extraDebts.map((debt, idx) => (
-                        <div key={idx} className="grid grid-cols-2 gap-2">
-                          <input
-                            placeholder="מקור החוב (למשל: הלוואת רכב)"
-                            value={debt.creditor}
-                            onChange={e => { const d = [...extraDebts]; d[idx].creditor = e.target.value; setExtraDebts(d); }}
-                            className="col-span-2 bg-white border border-mist-200 rounded-lg px-3 py-2 text-mist-900 text-xs placeholder-mist-400"
-                          />
-                          <input
-                            placeholder="החזר חודשי ₪"
-                            type="number"
-                            value={debt.monthly_repayment}
-                            onChange={e => { const d = [...extraDebts]; d[idx].monthly_repayment = e.target.value; setExtraDebts(d); }}
-                            className="bg-white border border-mist-200 rounded-lg px-3 py-2 text-mist-900 text-xs placeholder-mist-400"
-                          />
-                          <input
-                            placeholder="יתרה ₪"
-                            type="number"
-                            value={debt.remaining_balance}
-                            onChange={e => { const d = [...extraDebts]; d[idx].remaining_balance = e.target.value; setExtraDebts(d); }}
-                            className="bg-white border border-mist-200 rounded-lg px-3 py-2 text-mist-900 text-xs placeholder-mist-400"
-                          />
+                        <div key={idx} className="grid grid-cols-2 gap-3 rounded-xl bg-white p-3 border border-mist-200">
+                          <div className="col-span-2">
+                            <label htmlFor={`debt-creditor-${idx}`} className="block text-[#0C084A] font-normal text-sm mb-2">מקור החוב</label>
+                            <input
+                              id={`debt-creditor-${idx}`}
+                              placeholder="לדוגמה: הלוואת רכב"
+                              value={debt.creditor}
+                              onChange={e => { const d = [...extraDebts]; d[idx].creditor = e.target.value; setExtraDebts(d); }}
+                              className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder-mist-400"
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor={`debt-payment-${idx}`} className="block text-[#0C084A] font-normal text-sm mb-2">החזר חודשי</label>
+                            <input
+                              id={`debt-payment-${idx}`}
+                              placeholder="₪"
+                              type="number"
+                              value={debt.monthly_repayment}
+                              onChange={e => { const d = [...extraDebts]; d[idx].monthly_repayment = e.target.value; setExtraDebts(d); }}
+                              className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder-mist-400"
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor={`debt-balance-${idx}`} className="block text-[#0C084A] font-normal text-sm mb-2">יתרה לסילוק</label>
+                            <input
+                              id={`debt-balance-${idx}`}
+                              placeholder="₪"
+                              type="number"
+                              value={debt.remaining_balance}
+                              onChange={e => { const d = [...extraDebts]; d[idx].remaining_balance = e.target.value; setExtraDebts(d); }}
+                              className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base placeholder-mist-400"
+                            />
+                          </div>
                         </div>
                       ))}
-                      <button
+                      <button type="button"
                         onClick={() => setExtraDebts([...extraDebts, { creditor: '', monthly_repayment: '', remaining_balance: '', estimated_interest: 15 }])}
-                        className="text-xs text-[#0153F4] hover:text-[#0141C2] underline"
+                        className="w-full py-3 rounded-xl border border-dashed border-[#0153F4] text-[#0153F4] font-bold text-sm hover:bg-[#0153F4]/10 transition-all"
                       >
-                        + הוסף חוב נוסף
+                        הוסף חוב נוסף
                       </button>
                     </div>
                   )}
@@ -573,12 +534,12 @@ export default function RefinanceQuickCheck() {
               <Button
                 onClick={handleAnalyze}
                 disabled={files.length === 0 || isAnalyzing || hasExtraDebts === null}
-                className="w-full h-14 bg-[#0C084A] hover:bg-[#0153F4] text-white font-black text-base rounded-xl shadow-xl transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full h-14 rounded-full font-semibold text-lg shadow-md transition-all bg-[#0C084A] text-white hover:bg-[#0153F4] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? (
                   <><Loader2 className="w-5 h-5 ml-2 animate-spin" /> מנתח...</>
                 ) : (
-                  files.length > 0 && hasExtraDebts !== null ? `נתח מסמך ←` : files.length > 0 ? 'בחר האם יש חובות נוספים ↑' : 'העלה מסמך והתחל ניתוח'
+                  files.length > 0 && hasExtraDebts !== null ? <span className="flex items-center justify-center gap-2">נתח מסמך <ChevronLeft size={24} /></span> : files.length > 0 ? 'בחר סוג חובות כדי להמשיך' : 'העלה מסמך והתחל ניתוח'
                 )}
               </Button>
             </div>
@@ -587,20 +548,20 @@ export default function RefinanceQuickCheck() {
 
         <AnimatePresence>
           {analysisResult && (
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} className="space-y-6">
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} className="refinance-report space-y-6">
               {/* כפתורי פעולה עליונים */}
               <div className="flex justify-between items-center gap-3 flex-wrap">
                 <Button
                   onClick={() => { setIsDownloadingPdf(true); setPdfTrigger(t => t + 1); }}
                   disabled={isDownloadingPdf}
-                  className="flex items-center gap-2 h-11 px-6 bg-[#0C084A] hover:bg-[#0153F4] text-white font-black rounded-xl shadow-xl transition-all"
+                  className="flex items-center gap-2 h-14 px-6 bg-[#0C084A] hover:bg-[#0153F4] text-white font-semibold text-lg rounded-full shadow-md transition-all active:scale-95"
                 >
                   {isDownloadingPdf ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                   {isDownloadingPdf ? 'מייצר PDF...' : 'הורד דוח PDF'}
                 </Button>
                 <button
                   onClick={() => { setAnalysisResult(null); setFiles([]); setError(null); }}
-                  className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-mist-50 text-mist-900 text-sm font-bold rounded-xl transition-all border-2 border-mist-200 hover:border-[#0153F4]/50"
+                  className="flex items-center gap-2 h-14 px-6 bg-white hover:bg-mist-50 text-mist-600 text-base font-bold rounded-full transition-all border border-mist-200 hover:border-mist-300 active:scale-95"
                 >
                   <X className="w-4 h-4" />
                   התחל מחדש / העלה מסמך אחר
@@ -608,10 +569,10 @@ export default function RefinanceQuickCheck() {
               </div>
               {/* 🏷️ Badge סוג התיק */}
               <div className="flex flex-col items-center gap-3 mb-4">
-                <Badge className={`text-lg px-6 py-3 ${
+                <Badge className={`rounded-full text-base px-5 py-2 font-bold ${
                   analysisResult.savings?.equityReleaseAnalysis
-                    ? 'bg-purple-100 text-purple-800 border-2 border-purple-300'
-                    : 'bg-brand-50 text-[#0141C2] border-2 border-[#0153F4]/30'
+                    ? 'bg-purple-100 text-purple-800 border border-purple-300'
+                    : 'bg-brand-50 text-[#0141C2] border border-[#0153F4]/30'
                 }`}>
                   {analysisResult.savings?.equityReleaseAnalysis
                     ? '🏦 סוג התיק: משכנתא לכל מטרה (איחוד חובות)'
@@ -619,7 +580,7 @@ export default function RefinanceQuickCheck() {
                 </Badge>
 
                 {analysisResult.savings?.arrearsDebt > 0 && (
-                  <div className="bg-red-50 border-2 border-red-300 text-red-800 px-6 py-3 rounded-xl flex items-center gap-3">
+                  <div className="bg-red-50 border border-red-300 text-red-800 px-6 py-3 rounded-xl flex items-center gap-3">
                     <AlertCircle className="w-6 h-6 text-red-600" />
                     <div>
                       <p className="font-black text-lg">🚨 זוהה פיגור במשכנתא: ₪{analysisResult.savings.arrearsDebt.toLocaleString()}</p>
@@ -631,7 +592,7 @@ export default function RefinanceQuickCheck() {
 
               {/* אזהרת תאריך יתרת סילוק ישן — חסימה קריטית */}
               {analysisResult.statementDateWarning && (
-                <div className="bg-red-50 border-2 border-red-300 text-red-800 px-5 py-4 rounded-xl mb-2">
+                <div className="bg-red-50 border border-red-300 text-red-800 px-5 py-4 rounded-xl mb-2">
                   <div className="flex items-start gap-3 mb-3">
                     <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
                     <div>
@@ -650,25 +611,7 @@ export default function RefinanceQuickCheck() {
                 </div>
               )}
 
-              {/* חוות דעת מומחה - ניתוח כדאיות */}
-              {analysisResult.conclusionText && (
-                <Card className="border-2 border-[#0153F4]/40 bg-mist-50 shadow-xl mb-6">
-                  <CardHeader className="border-b border-mist-200 pb-4">
-                    <CardTitle className="flex items-center gap-3 text-2xl font-black text-mist-900">
-                      חוות דעת מומחה - ניתוח כדאיות
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-6">
-                    <div className="text-mist-700 text-lg leading-relaxed whitespace-pre-line font-medium">
-                      {analysisResult.conclusionText}
-                    </div>
-                    <div className="mt-5 pt-5 border-t border-mist-200 flex items-center justify-center gap-2 text-[#0153F4] font-bold">
-                      <span>המשיכו לקרוא כדי לראות את כל האפשרויות העומדות בפניכם</span>
-                      <ChevronDown className="w-5 h-5 animate-bounce" />
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              <ProfessionalAnalysis text={analysisResult.conclusionText} title="חוות דעת מומחה - ניתוח כדאיות" />
 
               {/* ריביות שוק בזמן אמת */}
               <LiveRatesBadge newRates={analysisResult.newRates} />
@@ -690,12 +633,12 @@ export default function RefinanceQuickCheck() {
               {/* אזור השוואה נקי וברור - לפני מול אחרי, כשני בלוקים נפרדים */}
               <div className="grid md:grid-cols-2 gap-4 mb-6">
                 {/* המשכנתא הנוכחית */}
-                <div className="rounded-3xl border-2 border-red-200 bg-white p-5 shadow-sm">
+                <div className="rounded-3xl border border-red-200 bg-red-50 p-6 sm:p-8">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
                       <X className="w-4 h-4 text-red-600" />
                     </div>
-                    <h3 className="text-xl font-black text-red-700">המשכנתא הנוכחית</h3>
+                    <h3 className="text-xl font-semibold text-red-700">המשכנתא הנוכחית</h3>
                   </div>
                   <div className="rounded-xl p-4 border border-red-200 bg-red-50 mb-3">
                     <p className="text-sm text-mist-500 mb-1">החזר חודשי</p>
@@ -722,12 +665,12 @@ export default function RefinanceQuickCheck() {
                 </div>
 
                 {/* אחרי המחזור */}
-                <div className="rounded-3xl border-2 border-green-200 bg-white p-5 shadow-sm">
+                <div className="rounded-3xl border border-green-200 bg-white p-6 sm:p-8 shadow-xl shadow-brand-100/60">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                       <CheckCircle className="w-4 h-4 text-green-600" />
                     </div>
-                    <h3 className="text-xl font-black text-green-700">אחרי המחזור</h3>
+                    <h3 className="text-xl font-semibold text-green-700">אחרי המחזור</h3>
                   </div>
                   <div className="rounded-xl p-4 border border-green-200 bg-green-50 mb-3">
                     <p className="text-sm text-mist-500 mb-1">החזר חודשי חדש</p>
@@ -759,7 +702,7 @@ export default function RefinanceQuickCheck() {
               </div>
 
               {analysisResult.savings?.feeWarning && (
-                <Card className="border-2 border-red-500 bg-red-50 mb-6">
+                <Card className="border border-red-500 bg-red-50 mb-6">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -777,7 +720,7 @@ export default function RefinanceQuickCheck() {
                 <Button
                   variant="outline"
                   onClick={() => setShowAdvancedAnalysis(!showAdvancedAnalysis)}
-                  className="bg-white border-[#0153F4] text-[#0153F4] hover:bg-[#0153F4]/10 gap-2 h-12 px-6 rounded-xl shadow-sm transition-all"
+                  className="bg-white border border-mist-200 text-[#0C084A] hover:border-[#0153F4] hover:bg-periwinkle-100 gap-2 h-14 px-6 rounded-full font-semibold text-lg shadow-sm transition-all active:scale-95"
                 >
                   {showAdvancedAnalysis ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                   <span className="font-bold text-base">
@@ -795,8 +738,8 @@ export default function RefinanceQuickCheck() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden space-y-6"
                   >
-                    <div className="p-6 border-2 border-mist-200 rounded-2xl bg-mist-50 space-y-6">
-                      <h3 className="text-xl font-bold text-mist-900 text-center mb-4">ניתוח כלכלי מעמיק</h3>
+                    <div className="p-6 sm:p-8 border border-mist-100 rounded-2xl sm:rounded-3xl bg-white shadow-xl space-y-6">
+                      <h3 className="text-xl font-semibold text-[#0C084A] text-center mb-4">ניתוח כלכלי מעמיק</h3>
 
                       {/* פירוט המסלולים הקיימים */}
                       {analysisResult.currentLoan.tracks && analysisResult.currentLoan.tracks.length > 0 && (
@@ -857,7 +800,7 @@ export default function RefinanceQuickCheck() {
               </AnimatePresence>
 
               {analysisResult.savings?.equityReleaseAnalysis && (
-                <Card className="border-2 border-purple-500 bg-gradient-to-br from-purple-50 to-white">
+                <Card className="border border-purple-500 bg-gradient-to-br from-purple-50 to-white">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <DollarSign className="w-5 h-5 text-purple-600" />
@@ -871,7 +814,7 @@ export default function RefinanceQuickCheck() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
-                        className="bg-white border-2 border-blue-500 rounded-xl p-6"
+                        className="bg-white border border-blue-500 rounded-xl p-6"
                       >
                         <div className="text-center mb-6">
                           <h3 className="font-bold text-blue-900 text-2xl mb-2">🔍 הפרדה אסטרטגית - מה באמת קורה?</h3>
@@ -885,7 +828,7 @@ export default function RefinanceQuickCheck() {
                             initial={{ x: -50, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-400 rounded-2xl p-6 relative overflow-hidden"
+                            className="bg-gradient-to-br from-red-50 to-red-100 border border-red-400 rounded-2xl p-6 relative overflow-hidden"
                           >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-red-300 rounded-full opacity-20 -mr-16 -mt-16"></div>
                             <div className="relative z-10">
@@ -924,7 +867,7 @@ export default function RefinanceQuickCheck() {
                             initial={{ x: 50, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-400 rounded-2xl p-6 relative overflow-hidden"
+                            className="bg-gradient-to-br from-green-50 to-green-100 border border-green-400 rounded-2xl p-6 relative overflow-hidden"
                           >
                             <div className="absolute top-0 left-0 w-32 h-32 bg-green-300 rounded-full opacity-20 -ml-16 -mt-16"></div>
                             <div className="relative z-10">
@@ -1023,7 +966,7 @@ export default function RefinanceQuickCheck() {
                           initial={{ scale: 0.9, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: 0.6, type: "spring" }}
-                          className="bg-gradient-to-r from-green-100 via-emerald-100 to-teal-100 border-2 border-green-500 rounded-2xl p-6 shadow-xl"
+                          className="bg-gradient-to-r from-green-100 via-emerald-100 to-teal-100 border border-green-500 rounded-2xl p-6 shadow-xl"
                         >
                           <div className="text-center space-y-3">
                             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full mb-2">
@@ -1059,18 +1002,18 @@ export default function RefinanceQuickCheck() {
                         </motion.div>
                       </motion.div>
                     )}
-                    <div className="bg-purple-50 border-2 border-purple-300 rounded-xl p-4">
+                    <div className="bg-purple-50 border border-purple-300 rounded-xl p-4">
                       <h3 className="font-bold text-purple-900 mb-3">🎯 המצב הנוכחי שלך</h3>
                       <div className="grid md:grid-cols-3 gap-4">
                         <div className="bg-white rounded-lg p-3">
                           <p className="text-xs text-slate-600 mb-1">משכנתא נוכחית</p>
                           <p className="text-lg font-bold text-slate-900">₪{analysisResult.savings.equityReleaseAnalysis.currentMortgageBalance.toLocaleString()}</p>
                         </div>
-                        <div className="bg-white rounded-lg p-3 border-2 border-red-300">
+                        <div className="bg-white rounded-lg p-3 border border-red-300">
                           <p className="text-xs text-red-700 mb-1">חובות חיצוניים (בנקים/מינוס)</p>
                           <p className="text-lg font-bold text-red-600">₪{analysisResult.savings.equityReleaseAnalysis.totalExternalDebt.toLocaleString()}</p>
                         </div>
-                        <div className="bg-white rounded-lg p-3 border-2 border-blue-300">
+                        <div className="bg-white rounded-lg p-3 border border-blue-300">
                           <p className="text-xs text-blue-700 mb-1">שווי הנכס</p>
                           <p className="text-lg font-bold text-blue-600">₪{analysisResult.savings.equityReleaseAnalysis.propertyValue.toLocaleString()}</p>
                         </div>
@@ -1078,7 +1021,7 @@ export default function RefinanceQuickCheck() {
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
-                      <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4">
+                      <div className="bg-red-50 border border-red-300 rounded-xl p-4">
                         <h4 className="font-bold text-red-900 mb-2">❌ לפני - תזרים יוצא חודשי</h4>
                         <p className="text-3xl font-bold text-red-600 mb-3">₪{analysisResult.savings.equityReleaseAnalysis.currentMonthlyBurden.toLocaleString()}</p>
                         <div className="text-xs text-red-800 space-y-1">
@@ -1089,7 +1032,7 @@ export default function RefinanceQuickCheck() {
                         </div>
                       </div>
 
-                      <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4">
+                      <div className="bg-green-50 border border-green-300 rounded-xl p-4">
                         <h4 className="font-bold text-green-900 mb-2">✅ אחרי - תשלום חודשי אחד</h4>
                         <p className="text-3xl font-bold text-green-600 mb-3">₪{analysisResult.savings.equityReleaseAnalysis.newMonthlyPayment.toLocaleString()}</p>
                         <div className="text-xs text-green-800 space-y-1">
@@ -1102,8 +1045,8 @@ export default function RefinanceQuickCheck() {
 
                     <div className={`rounded-xl p-6 text-center ${
                       analysisResult.savings.equityReleaseAnalysis.monthlyCashFlowImprovement > 0
-                        ? 'bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-400'
-                        : 'bg-gradient-to-r from-red-100 to-orange-100 border-2 border-red-400'
+                        ? 'bg-gradient-to-r from-green-100 to-emerald-100 border border-green-400'
+                        : 'bg-gradient-to-r from-red-100 to-orange-100 border border-red-400'
                     }`}>
                       <p className="text-sm font-semibold mb-2">🚀 שיפור תזרים חודשי</p>
                       <p className={`text-5xl font-black ${
@@ -1167,7 +1110,7 @@ export default function RefinanceQuickCheck() {
                     className="overflow-hidden space-y-6 mt-6"
                   >
                     {analysisResult.savings?.indexDamageAlerts?.length > 0 && (
-                      <Card className="border-2 border-red-300 bg-red-50">
+                      <Card className="border border-red-300 bg-red-50">
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2 text-red-700">
                             <AlertCircle className="w-5 h-5" />
@@ -1185,7 +1128,7 @@ export default function RefinanceQuickCheck() {
                               <p className="text-xs text-red-600/80 mt-1">{alert.note}</p>
                             </div>
                           ))}
-                          <div className="bg-white rounded-lg p-3 border-2 border-red-300 text-center">
+                          <div className="bg-white rounded-lg p-3 border border-red-300 text-center">
                             <p className="text-sm font-bold text-mist-900">סך נזק המדד הכולל:</p>
                             <p className="text-3xl font-black text-red-600">
                               +₪{analysisResult.savings.indexDamageAlerts.reduce((s, a) => s + (a.indexDamage || 0), 0).toLocaleString()}
@@ -1219,7 +1162,7 @@ export default function RefinanceQuickCheck() {
                     const trackColors = ['#0153F4', '#16A34A', '#D97706', '#7C3AED'];
 
                     return (
-                      <div key={mix.mix_number} className="relative flex flex-col rounded-2xl overflow-hidden bg-white"
+                      <div key={mix.mix_number} className="relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden bg-white"
                         style={{
                           border: isRecommended ? '2px solid #0153F4' : '1px solid #E1E4EA',
                           boxShadow: isRecommended ? '0 8px 24px rgba(1,83,244,0.15)' : '0 4px 16px rgba(12,8,74,0.06)'
@@ -1313,7 +1256,7 @@ export default function RefinanceQuickCheck() {
           )}
         </AnimatePresence>
       </div>
-      </div>
+      </main>
       <FooterCTA />
       <MortgageChatbot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
     </div>

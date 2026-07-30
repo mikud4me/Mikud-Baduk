@@ -143,13 +143,13 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
             aria-modal="true"
             aria-labelledby="pensioner-modal-title"
             tabIndex={-1}
-            className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-amber-400 text-right animate-in zoom-in-95 duration-300 outline-none"
+            className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border border-amber-400 text-right animate-in zoom-in-95 duration-300 outline-none"
           >
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle size={32} className="text-amber-500 flex-shrink-0" />
               <h3 id="pensioner-modal-title" className="text-lg font-black text-[#0C084A]">האם אתה בטוח שאתה פנסיונר?</h3>
             </div>
-            <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 mb-5">
+            <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 mb-5">
               <p className="text-amber-800 font-bold text-sm leading-relaxed">
                 לפי תאריך הלידה, גיל הלווה הוא <span className="text-amber-900 font-black">{borrowerAge} שנים</span>.
               </p>
@@ -160,7 +160,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button onClick={cancelPensioner}
-                className="py-3 px-4 rounded-2xl border-2 border-mist-300 font-bold text-sm text-mist-600 hover:bg-mist-50 transition-all">
+                className="py-3 px-4 rounded-2xl border border-mist-300 font-bold text-sm text-mist-600 hover:bg-mist-50 transition-all">
                 לא, ביטול
               </button>
               <button onClick={confirmPensioner}
@@ -174,7 +174,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
 
       {/* סוג לווה - רק מלווה 2 ומעלה */}
       {!isFirst && !borrower.isSpouse && (
-        <div className="p-4 bg-[#0C084A]/5 rounded-xl border-2 border-[#0C084A]/20 mb-4">
+        <div className="p-4 bg-[#0C084A]/5 rounded-xl border border-[#0C084A]/20 mb-4">
           <p className="text-sm font-bold text-[#0C084A] mb-3">סוג לווה</p>
           <div className="grid grid-cols-2 gap-3">
             <label className={`flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition-all ${borrower.borrowerType !== 'additional' ? 'border-[#0153F4] bg-[#0153F4]/10' : 'border-mist-200 bg-white hover:border-[#0C084A]/40'}`}>
@@ -197,7 +197,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
 
       {/* הסבר בן/בת זוג */}
       {!isFirst && borrower.isSpouse && (
-        <div className="p-4 bg-green-50 rounded-xl border-2 border-green-400 mb-4">
+        <div className="p-4 bg-green-50 rounded-xl border border-green-400 mb-4">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-lg">👫</span>
             <p className="text-sm font-black text-green-800">בן/בת זוג — לווה מלא</p>
@@ -344,7 +344,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
       {selectedTypes.map(type => {
         const src = incomeSources[type] || {};
         return (
-          <div key={type} className="p-4 bg-mist-50 rounded-xl border-2 border-[#0C084A]/10 space-y-3">
+          <div key={type} className="p-4 bg-mist-50 rounded-xl border border-[#0C084A]/10 space-y-3">
             <p className="font-bold text-[#0C084A] text-sm flex items-center gap-2">
               <Coins size={16} className="text-[#0153F4]" />
               הכנסה מ{INCOME_TYPE_LABELS[type] || type}
@@ -380,7 +380,7 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
 
       {/* הכנסות נוספות */}
       {EXTRA_INCOME_OPTIONS.length > 0 && (
-        <div className="p-4 bg-brand-50 rounded-xl border-2 border-brand-200 space-y-3">
+        <div className="p-4 bg-brand-50 rounded-xl border border-brand-200 space-y-3">
           <p className="font-bold text-[#0C084A] text-sm">הכנסות נוספות</p>
           {EXTRA_INCOME_OPTIONS.map(opt => {
             const src = incomeSources[opt.val] || {};

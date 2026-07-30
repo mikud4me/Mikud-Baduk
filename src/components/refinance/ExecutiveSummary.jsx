@@ -161,7 +161,7 @@ export default function ExecutiveSummary({ analysisResult, headline, externalTri
         {/* ── PDF trigger button (small, internal) ── */}
         <div className="flex justify-end">
           <Button onClick={handlePrint} disabled={isGenerating} variant="outline" size="sm"
-            className="border-[#0153F4]/60 text-[#0153F4] hover:bg-[#0153F4]/10 gap-2">
+            className="h-10 rounded-full border-mist-200 text-[#0C084A] font-semibold hover:border-[#0153F4] hover:bg-periwinkle-100 gap-2">
             {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
             {isGenerating ? 'מייצר...' : 'הורד דוח מלא'}
           </Button>

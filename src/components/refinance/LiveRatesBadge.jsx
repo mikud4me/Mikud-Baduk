@@ -16,34 +16,22 @@ export default function LiveRatesBadge({ newRates }) {
   ].filter(i => i.value);
 
   return (
-    <div style={{
-      background: '#FFFFFF',
-      border: '1px solid #E1E4EA',
-      borderRadius: '12px',
-      padding: '12px 16px',
-      marginBottom: '20px',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-        <TrendingUp style={{ width: '14px', height: '14px', color: '#0153F4' }} />
-        <span style={{ fontSize: '11px', fontWeight: 800, color: '#0153F4', textTransform: 'uppercase', letterSpacing: '1px' }}>
+    <section className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 p-5 sm:p-6 mb-6">
+      <div className="flex items-center gap-2 mb-4">
+        <TrendingUp className="w-4 h-4 text-[#0153F4]" />
+        <span className="text-xs font-bold text-[#0153F4] uppercase tracking-wider">
           ריביות שוק בזמן אמת — ששימשו לחישוב
         </span>
-        <span style={{ fontSize: '10px', color: '#8E8E8E', marginRight: 'auto' }}>עודכן היום</span>
+        <span className="mr-auto text-xs text-mist-500">עודכן היום</span>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+      <div className="flex flex-wrap gap-2">
         {items.map((item, i) => (
-          <div key={i} style={{
-            background: '#F7F8FA',
-            border: `1px solid ${item.color}30`,
-            borderRadius: '8px',
-            padding: '6px 12px',
-            display: 'flex', alignItems: 'center', gap: '6px'
-          }}>
-            <span style={{ fontSize: '11px', color: '#8E8E8E' }}>{item.label}</span>
-            <span style={{ fontSize: '14px', fontWeight: 900, color: item.color }}>{item.value?.toFixed(2)}%</span>
+          <div key={i} className="flex items-center gap-2 bg-mist-50 rounded-xl px-3 py-2 border" style={{ borderColor: `${item.color}30` }}>
+            <span className="text-xs text-mist-500">{item.label}</span>
+            <span className="text-base font-bold" style={{ color: item.color }}>{item.value?.toFixed(2)}%</span>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

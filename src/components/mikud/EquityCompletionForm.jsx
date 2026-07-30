@@ -79,7 +79,7 @@ export default function EquityCompletionForm({ data, onChange, errors = {}, gap,
 
                 {/* אזהרת שעבוד נכס קיים */}
                 {checked && opt.val === 'balloon_existing' && (
-                  <div className="mr-2 p-4 bg-red-50 border-2 border-red-400 rounded-2xl animate-in fade-in duration-200">
+                  <div className="mr-2 p-4 bg-red-50 border border-red-400 rounded-2xl animate-in fade-in duration-200">
                     <div className="flex items-start gap-3">
                       <AlertTriangle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
                       <div>
@@ -96,7 +96,7 @@ export default function EquityCompletionForm({ data, onChange, errors = {}, gap,
 
                 {/* אזהרת עזרת משפחה */}
                 {checked && opt.val === 'family_help' && (
-                  <div className="mr-2 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in fade-in duration-200">
+                  <div className="mr-2 p-4 bg-amber-50 border border-amber-400 rounded-2xl animate-in fade-in duration-200">
                     <div className="flex items-start gap-3">
                       <AlertTriangle size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
                       <div>

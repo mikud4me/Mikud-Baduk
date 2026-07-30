@@ -16,7 +16,7 @@ export default function CalculationBreakdown({ analysisData }) {
   const { currentLoan, savings, surgicalAnalysis } = analysisData;
 
   return (
-    <Card className="border-2 border-purple-300 bg-purple-50">
+    <Card className="border border-purple-300 bg-purple-50">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-purple-900 flex items-center gap-2">
@@ -36,7 +36,7 @@ export default function CalculationBreakdown({ analysisData }) {
       {expanded && (
         <CardContent className="space-y-4">
           {/* 🏷️ סוג התיק לניתוח */}
-          <div className="bg-gradient-to-r from-blue-100 to-purple-100 border-2 border-blue-400 rounded-xl p-4 mb-4">
+          <div className="bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-400 rounded-xl p-4 mb-4">
             <h4 className="font-bold text-blue-900 mb-2 text-center">📋 סוג התיק לניתוח</h4>
             <div className="text-center">
               <span className={`inline-block text-base px-5 py-2 rounded-full font-bold ${
@@ -52,7 +52,7 @@ export default function CalculationBreakdown({ analysisData }) {
           </div>
 
           {/* שלב 1: נתוני המשכנתא הקיימת */}
-          <div className="bg-white rounded-xl p-4 border-2 border-red-200">
+          <div className="bg-white rounded-xl p-4 border border-red-200">
             <h4 className="font-bold text-red-900 mb-3 flex items-center gap-2">
               <span className="bg-red-100 w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
               נתוני המשכנתא הקיימת (כפי שהוזנו)
@@ -113,7 +113,7 @@ export default function CalculationBreakdown({ analysisData }) {
           </div>
 
           {/* שלב 2: חישוב סך תשלומים ישנים */}
-          <div className="bg-white rounded-xl p-4 border-2 border-orange-200">
+          <div className="bg-white rounded-xl p-4 border border-orange-200">
             <h4 className="font-bold text-orange-900 mb-3 flex items-center gap-2">
               <span className="bg-orange-100 w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
               חישוב סך תשלומים במשכנתא הנוכחית
@@ -158,7 +158,7 @@ export default function CalculationBreakdown({ analysisData }) {
           </div>
 
           {/* שלב 3: חישוב תשלומים חדשים */}
-          <div className="bg-white rounded-xl p-4 border-2 border-green-200">
+          <div className="bg-white rounded-xl p-4 border border-green-200">
             <h4 className="font-bold text-green-900 mb-3 flex items-center gap-2">
               <span className="bg-green-100 w-6 h-6 rounded-full flex items-center justify-center text-sm">3</span>
               חישוב משכנתא חדשה (אחרי מחזור)
@@ -190,7 +190,7 @@ export default function CalculationBreakdown({ analysisData }) {
           </div>
 
           {/* שלב 4: עמלות */}
-          <div className="bg-white rounded-xl p-4 border-2 border-yellow-200">
+          <div className="bg-white rounded-xl p-4 border border-yellow-200">
             <h4 className="font-bold text-yellow-900 mb-3 flex items-center gap-2">
               <span className="bg-yellow-100 w-6 h-6 rounded-full flex items-center justify-center text-sm">4</span>
               עמלות מחזור
@@ -216,7 +216,7 @@ export default function CalculationBreakdown({ analysisData }) {
           </div>
 
           {/* שלב 5: חישוב חיסכון סופי */}
-          <div className="bg-white rounded-xl p-4 border-2 border-blue-200">
+          <div className="bg-white rounded-xl p-4 border border-blue-200">
             <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
               <span className="bg-blue-100 w-6 h-6 rounded-full flex items-center justify-center text-sm">5</span>
               חישוב חיסכון סופי
@@ -243,7 +243,7 @@ export default function CalculationBreakdown({ analysisData }) {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-3 rounded border-2 border-blue-400">
+              <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-3 rounded border border-blue-400">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-blue-900">תוצאה סופית - חיסכון נטו:</span>
                   <span className="text-2xl font-bold text-blue-600">₪{savings?.netSavings?.toLocaleString()}</span>
@@ -253,7 +253,7 @@ export default function CalculationBreakdown({ analysisData }) {
           </div>
 
           {/* אזהרות */}
-          <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4">
+          <div className="bg-red-50 border border-red-300 rounded-xl p-4">
             <h4 className="font-bold text-red-900 mb-2 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
               נקודות לבדיקה

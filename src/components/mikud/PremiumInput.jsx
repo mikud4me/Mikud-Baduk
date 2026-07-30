@@ -14,7 +14,10 @@ const parseInputToNumber = (val) => {
 
 const NON_FORMAT_FIELDS = ['age', 'loanDuration', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'youngestBorrowerAge'];
 
-export default function PremiumInput({ label, name, value, placeholder, options, onChange, error, min, max, type = "text" }) {
+export default function PremiumInput({
+  label, name, value, placeholder, options, onChange, error, min, max, type = "text",
+  onBlur, disabled = false, inputMode, maxLength, autoComplete,
+}) {
   const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'existingPropertyValue', 'existingMortgageBalance', 'existingMortgagePayment', 'rentalIncome', 'salePrice', 'completionAmount', 'refinanceBalance', 'currentMonthlyPayment', 'refinanceIncreaseAmount', 'appraisalValue', 'rentIncomeFromPurchased'].includes(name) || name.startsWith('amount_');
   const displayValue = isNumeric && value !== "" && !NON_FORMAT_FIELDS.includes(name) ? formatCurrency(value) : value;
   const inputId = `premium-input-${name}`;
@@ -26,7 +29,7 @@ export default function PremiumInput({ label, name, value, placeholder, options,
       </label>
 
       {options ? (
-        <Select dir="rtl" value={value} onValueChange={(v) => onChange(name, v)}>
+        <Select dir="rtl" value={value} onValueChange={(v) => onChange(name, v)} disabled={disabled}>
           <SelectTrigger id={inputId} className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-right cursor-pointer [&_svg]:text-[#0153F4]">
             <SelectValue />
           </SelectTrigger>
@@ -67,6 +70,11 @@ export default function PremiumInput({ label, name, value, placeholder, options,
             id={inputId}
             type={type}
             placeholder={placeholder}
+            disabled={disabled}
+            onBlur={onBlur}
+            inputMode={inputMode}
+            maxLength={maxLength}
+            autoComplete={autoComplete}
             className={`w-full bg-periwinkle-100 h-[2.8rem] px-5 border rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-right ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-transparent'}`}
             value={displayValue}
             onChange={(e) => onChange(name, isNumeric ? parseInputToNumber(e.target.value) : e.target.value)}
@@ -80,7 +88,7 @@ export default function PremiumInput({ label, name, value, placeholder, options,
       )}
 
       {error && (
-        <div className="mt-3 flex items-center gap-3 bg-red-50 border-2 border-red-500 px-5 py-3 rounded-2xl">
+        <div className="mt-3 flex items-center gap-3 bg-red-50 border border-red-500 px-5 py-3 rounded-2xl">
           <AlertCircle size={20} className="text-red-600" />
           <p className="text-red-700 text-sm font-bold">{error}</p>
         </div>

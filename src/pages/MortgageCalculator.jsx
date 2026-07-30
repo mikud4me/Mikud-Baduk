@@ -6,7 +6,6 @@ import {
   Lock, Key, Target, ShieldAlert, X, UserPlus, Trash2
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { createPageUrl } from '@/utils';
 import {
   DEFAULT_RATES, formatCurrency, calculatePayment, cleanAiText,
   getReverseMortgageMaxLTV, calcTotalIncome, calculateResults, calculateRefinanceResults,
@@ -27,9 +26,10 @@ import SocialProof from '@/components/mikud/SocialProof';
 import AdvisorComparison from '@/components/mikud/AdvisorComparison';
 import FooterCTA from '@/components/mikud/FooterCTA';
 import BirthDateInput from '@/components/mikud/BirthDateInput';
-import FormattedAnalysis from '@/components/mikud/FormattedAnalysis';
 import Amount from '@/components/mikud/Amount';
 import CelebratingScoreBadge from '@/components/mikud/CelebratingScoreBadge';
+import MikudHeader from '@/components/mikud/MikudHeader';
+import ProfessionalAnalysis from '@/components/mikud/ProfessionalAnalysis';
 
 
 // v2.2
@@ -795,37 +795,7 @@ ${results.score}/100
         </div>
       )}
 
-      <nav className="sticky top-0 z-50 bg-white border-b border-mist-100 shadow-sm backdrop-blur-xl h-28 sm:h-32 px-6 sm:px-10 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.location.reload()}>
-            <Check size={26} className="text-[#0153F4] flex-shrink-0" strokeWidth={3} />
-            <span className="text-3xl sm:text-4xl font-black text-[#0153F4] transition-colors">בדוק</span>
-          </div>
-          <div className="relative hidden sm:block">
-            <div className="absolute -inset-3 bg-gradient-to-r from-brand-400/40 to-brand-600/30 rounded-full blur-xl pointer-events-none" />
-            <a
-              href={createPageUrl('RefinanceQuickCheck')}
-              className="relative bg-[#0153F4] text-white px-6 py-3 rounded-full font-black text-lg hover:bg-[#0141C2] hover:scale-105 transition-all shadow-lg"
-            >
-              ממחזרים את המשכנתא?
-            </a>
-          </div>
-        </div>
-        <div className="flex items-center gap-6">
-          <button
-            onClick={() => setIsChatOpen(!isChatOpen)}
-            className="hidden sm:block text-[#0C084A] font-bold hover:text-[#0153F4] transition-all"
-          >
-            שאלות?
-          </button>
-          <a href={createPageUrl('AdminDashboard')} className="hidden sm:block text-[#0C084A] font-bold text-sm hover:text-[#0153F4] transition-all">
-            פאנל ניהול
-          </a>
-          <a href="tel:2324" className="bg-[#0C084A] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#0153F4] transition-all shadow-md hover:shadow-lg text-center">
-            2324*
-          </a>
-        </div>
-      </nav>
+      <MikudHeader isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} onBrandClick={() => window.location.reload()} />
 
       <main ref={mainRef} className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
         {step <= 6 ? (
@@ -944,14 +914,14 @@ ${results.score}/100
                     aria-modal="true"
                     aria-labelledby="spouse-reminder-modal-title"
                     tabIndex={-1}
-                    className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-[#0153F4] text-right animate-in zoom-in-95 duration-300 outline-none"
+                    className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border border-[#0153F4] text-right animate-in zoom-in-95 duration-300 outline-none"
                     onClick={e => e.stopPropagation()}
                   >
                     <div className="flex items-center justify-between mb-5">
                       <button onClick={() => setShowSpouseReminderModal(false)} className="text-mist-400 hover:text-mist-600"><X size={24} /></button>
                       <h3 id="spouse-reminder-modal-title" className="text-xl font-black text-[#0C084A]">שכחת למלא פרטי בן/בת זוג</h3>
                     </div>
-                    <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 mb-6 text-center">
+                    <div className="bg-amber-50 border border-amber-300 rounded-2xl p-5 mb-6 text-center">
                       <div className="text-4xl mb-3">👫</div>
                       <p className="text-amber-800 font-bold text-sm leading-relaxed">
                         זיהינו שאתה נשוי/אה — הוספנו לווה ב' (בן/בת זוג) אוטומטית.
@@ -976,7 +946,7 @@ ${results.score}/100
                           setStep(s => s + 1);
                           scrollToTop();
                         }}
-                        className="py-3 px-4 rounded-2xl border-2 border-mist-300 font-bold text-sm text-mist-600 hover:bg-mist-50 transition-all"
+                        className="py-3 px-4 rounded-2xl border border-mist-300 font-bold text-sm text-mist-600 hover:bg-mist-50 transition-all"
                       >
                         המשך בלי זה
                       </button>
@@ -994,7 +964,7 @@ ${results.score}/100
                     aria-modal="true"
                     aria-labelledby="credit-modal-title"
                     tabIndex={-1}
-                    className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border-4 border-[#0C084A] text-right animate-in zoom-in-95 duration-300 outline-none"
+                    className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-[#0C084A] text-right animate-in zoom-in-95 duration-300 outline-none"
                     onClick={e => e.stopPropagation()}
                   >
                     <div className="flex items-center justify-between mb-5">
@@ -1067,7 +1037,7 @@ ${results.score}/100
                       return (
                       <div
                         key={idx}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${activeBorrowerTab === idx ? 'bg-[#0C084A] text-white border-[#0C084A]' : needsAttention ? 'bg-amber-50 text-amber-700 border-amber-400 animate-pulse' : 'bg-white text-[#0C084A] border-[#0C084A]/30 hover:border-[#0C084A]'}`}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border ${activeBorrowerTab === idx ? 'bg-[#0C084A] text-white border-[#0C084A]' : needsAttention ? 'bg-amber-50 text-amber-700 border-amber-400 animate-pulse' : 'bg-white text-[#0C084A] border-[#0C084A]/30 hover:border-[#0C084A]'}`}
                       >
                         <button
                           type="button"
@@ -1092,7 +1062,7 @@ ${results.score}/100
                     {borrowers.length < 5 && (
                       <button
                         onClick={addBorrower}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm border-2 border-dashed border-[#0153F4] text-[#0153F4] hover:bg-[#0153F4]/10 transition-all"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm border border-dashed border-[#0153F4] text-[#0153F4] hover:bg-[#0153F4]/10 transition-all"
                       >
                         <UserPlus size={14} /> הוסף לווה
                       </button>
@@ -1137,7 +1107,7 @@ ${results.score}/100
                   
                   {isRefinance && (
                     <div className="animate-in fade-in duration-300">
-                      <div className="mb-5 p-4 bg-brand-50 border-2 border-brand-400 rounded-2xl">
+                      <div className="mb-5 p-4 bg-brand-50 border border-brand-400 rounded-2xl">
                         <p className="text-brand-900 font-black text-sm">מחזור משכנתא — שיפור תנאים</p>
                         <p className="text-brand-700 text-xs mt-1 leading-relaxed">נחשב כמה תחסכו על המשכנתא הקיימת שלכם ונציג 3 תמהילים חדשים.</p>
                       </div>
@@ -1156,14 +1126,14 @@ ${results.score}/100
                   )}
 
                   {isReverseMortgage && (
-                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                    <div className="mb-5 p-4 bg-amber-50 border border-amber-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
                       <p className="text-amber-800 font-bold text-sm">משכנתא הפוכה</p>
                       <p className="text-amber-700 text-xs mt-1 leading-relaxed">ללא החזר חודשי חובה. הסכום נפרע מהנכס בסיום. אחוז המימון נקבע לפי גיל הלווה הצעיר ביותר.</p>
                     </div>
                   )}
 
                   {formData.mortgageType === 'purchase_machir_matarah' && (
-                    <div className="mb-5 p-4 bg-green-50 border-2 border-green-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                    <div className="mb-5 p-4 bg-green-50 border border-green-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
                       <p className="text-green-900 font-black text-sm mb-2">✅ מחיר מטרה — תנאי מימון מועדפים</p>
                       <ul className="text-green-800 text-xs space-y-1 list-none">
                         <li>• ניתן לממן עד <strong>90% ממחיר הרכישה</strong></li>
@@ -1178,7 +1148,7 @@ ${results.score}/100
                   )}
 
                   {formData.mortgageType === 'purchase_additional' && (
-                    <div className="mb-5 p-4 bg-orange-50 border-2 border-orange-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                    <div className="mb-5 p-4 bg-orange-50 border border-orange-400 rounded-2xl animate-in slide-in-from-top-2 duration-300">
                       <p className="text-orange-900 font-black text-sm mb-2">⚠️ נכס נוסף / דירה להשקעה — 50% מימון בלבד</p>
                       <ul className="text-orange-800 text-xs space-y-1 list-none">
                         <li>• לפי תקנות בנק ישראל — מקסימום 50% LTV על נכס שאינו יחיד</li>
@@ -1190,7 +1160,7 @@ ${results.score}/100
                   )}
 
                   {isSeniorBankMortgage && (
-                    <div className="mb-5 p-4 bg-brand-50 border-2 border-brand-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
+                    <div className="mb-5 p-4 bg-brand-50 border border-brand-500 rounded-2xl animate-in slide-in-from-top-2 duration-300">
                       <p className="text-brand-900 font-black text-sm mb-2">משכנתא בנקאית לגיל הזהב – כל מטרה</p>
                       <ul className="text-brand-800 text-xs space-y-1 list-none">
                         <li>פריסה עד 30 שנה ללא הגבלת גיל עליונה</li>
@@ -1247,7 +1217,7 @@ ${results.score}/100
                       {existingProperties.length < 5 && (
                         <button
                           onClick={addExistingProperty}
-                          className="w-full mt-2 py-3 rounded-2xl border-2 border-dashed border-[#0153F4] text-[#0153F4] font-bold text-sm hover:bg-[#0153F4]/10 transition-all flex items-center justify-center gap-2"
+                          className="w-full mt-2 py-3 rounded-2xl border border-dashed border-[#0153F4] text-[#0153F4] font-bold text-sm hover:bg-[#0153F4]/10 transition-all flex items-center justify-center gap-2"
                         >
                           <Building2 size={15} /> + הוסף נכס קיים נוסף
                         </button>
@@ -1260,7 +1230,7 @@ ${results.score}/100
               {step === 4 && (
                 <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                   {isReverseMortgage && (
-                    <div className="mb-5 p-4 bg-brand-50 border-2 border-brand-300 rounded-2xl">
+                    <div className="mb-5 p-4 bg-brand-50 border border-brand-300 rounded-2xl">
                       <p className="text-brand-800 font-bold text-sm">משכנתא לגיל הזהב — מסלול ייעודי</p>
                       <p className="text-brand-700 text-xs mt-1">אין חובת הוכחת יחס החזר (DTI). הכנסות משמשות לחיזוק התיק בלבד.</p>
                     </div>
@@ -1327,7 +1297,7 @@ ${results.score}/100
                         const rentOut = Number(String(formData.monthlyOverdraft || '0').replace(/,/g, ''));
                         const diff = rentIn - rentOut;
                         return (
-                          <div className={`mt-3 p-3 rounded-xl border-2 ${diff >= 0 ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
+                          <div className={`mt-3 p-3 rounded-xl border ${diff >= 0 ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
                             <p className={`text-sm font-black ${diff >= 0 ? 'text-green-800' : 'text-red-800'}`}>
                               {diff >= 0
                                 ? `✅ הפרש חיובי: +₪${new Intl.NumberFormat('he-IL').format(Math.abs(diff))} — יתווסף להכנסה המוכרת`
@@ -1357,7 +1327,7 @@ ${results.score}/100
 
                   {/* אזהרה כשיש משכנתאות קיימות בלי הסכם מכירה */}
                   {needsExistingProperty && totalExistingMortgagePayments > 0 && (
-                    <div className="mt-3 p-4 bg-red-50 border-2 border-red-400 rounded-2xl animate-in fade-in duration-300">
+                    <div className="mt-3 p-4 bg-red-50 border border-red-400 rounded-2xl animate-in fade-in duration-300">
                       <div className="flex items-start gap-3">
                         <AlertCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
                         <div>
@@ -1388,7 +1358,7 @@ ${results.score}/100
                     />
                   )}
                   {isRefinance && (
-                    <div className="p-6 bg-brand-50 border-2 border-brand-400 rounded-2xl text-right">
+                    <div className="p-6 bg-brand-50 border border-brand-400 rounded-2xl text-right">
                       <p className="text-brand-900 font-black text-base mb-3">📋 מסמכים נדרשים למחזור</p>
                       <ul className="text-brand-800 text-sm space-y-2">
                         <li>• תעודת זהות + ספח מעודכן (לכל לווה)</li>
@@ -1402,7 +1372,7 @@ ${results.score}/100
                     </div>
                   )}
                   {isReverseMortgage && (
-                    <div className="mb-5 p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl">
+                    <div className="mb-5 p-4 bg-amber-50 border border-amber-300 rounded-2xl">
                       <p className="text-amber-800 font-bold text-sm">מסמכים נדרשים — משכנתא לגיל הזהב</p>
                       <ul className="mt-2 text-amber-700 text-xs space-y-1 list-disc list-inside">
                         <li>תעודת זהות + ספח (לווידוא גיל)</li>
@@ -1413,7 +1383,7 @@ ${results.score}/100
                     </div>
                   )}
                   {borrowers.some(b => (b.employmentTypes || []).includes('pensioner')) && !isReverseMortgage && (
-                    <div className="mb-5 p-4 bg-brand-50 border-2 border-brand-300 rounded-2xl">
+                    <div className="mb-5 p-4 bg-brand-50 border border-brand-300 rounded-2xl">
                       <p className="text-brand-800 font-bold text-sm">מסמכים נדרשים — פנסיונר/ית</p>
                       <ul className="mt-2 text-brand-700 text-xs space-y-1 list-disc list-inside">
                         <li>אישור גמלה/פנסיה (מקרן/ביטוח לאומי)</li>
@@ -1461,7 +1431,7 @@ ${results.score}/100
 
                       {formData.seniorBalloon && (
                         <div className="animate-in slide-in-from-top-2 duration-300">
-                          <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl mb-4">
+                          <div className="p-4 bg-red-50 border border-red-400 rounded-xl mb-4">
                             <p className="text-red-800 font-black text-xs">גילוי נאות חובה: מדובר בהלוואת בלון. הקרן אינה נפרעת במהלך התקופה ותשולם במלואה בתום {formData.loanDuration} שנה.</p>
                           </div>
                           <PremiumInput label="אסטרטגיית יציאה – כיצד תפרע הקרן בסיום?" name="balloonExitStrategy" value={formData.balloonExitStrategy} icon={Target} onChange={handleInputChange}
@@ -1478,7 +1448,7 @@ ${results.score}/100
                       )}
 
                       {/* מסמך יורשים */}
-                      <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-xl text-right">
+                      <div className="p-4 bg-amber-50 border border-amber-400 rounded-xl text-right">
                         <p className="text-amber-900 font-black text-xs mb-1">מסמך חובה: חתימת ילדים / יורשים</p>
                         <p className="text-amber-700 text-xs">טופס יידוע ואישור יורשים על נטילת המשכנתא יידרש על ידי הבנק ויצורף להגשה.</p>
                       </div>
@@ -1497,7 +1467,7 @@ ${results.score}/100
               {step > 1 && (
                 <button 
                   onClick={() => { if(step === 1 && codeSent) setCodeSent(false); else if(step > 1) setStep(s => s - 1); }}
-                  className="flex-1 h-14 rounded-full font-bold text-base text-mist-600 border-2 border-mist-200 hover:border-mist-300 hover:bg-mist-50 transition-all active:scale-95 text-center group"
+                  className="flex-1 h-14 rounded-full font-bold text-base text-mist-600 border border-mist-200 hover:border-mist-300 hover:bg-mist-50 transition-all active:scale-95 text-center group"
                 >
                   <span className="group-hover:translate-x-1 inline-block transition-transform">→ חזור</span>
                 </button>
@@ -1704,14 +1674,7 @@ ${results.score}/100
                 </div>
 
                 {/* ניתוח מקצועי מלא */}
-                <div className="bg-periwinkle-100 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl mb-5 sm:mb-6 text-right">
-                  <h3 className="text-base sm:text-lg font-semibold text-[#0C084A] mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-                    <Sparkles size={14} className="sm:w-5 sm:h-5 text-[#0153F4]" /> ניתוח מקצועי מלא
-                  </h3>
-                  <div className="text-mist-700 text-sm sm:text-base leading-relaxed font-normal">
-                    {aiAnalysis ? <FormattedAnalysis text={aiAnalysis} /> : null}
-                  </div>
-                </div>
+                <ProfessionalAnalysis text={aiAnalysis} />
 
                 {/* תשלום מינימלי + הכנסה נדרשת */}
                 {!isRefinance && results.minMix && (
