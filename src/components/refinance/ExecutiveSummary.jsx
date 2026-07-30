@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer, Target, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Printer, Loader2 } from 'lucide-react';
 
 export default function ExecutiveSummary({ analysisResult, headline, externalTrigger, onTriggerDone }) {
   const printRef = useRef(null);
@@ -113,17 +113,6 @@ export default function ExecutiveSummary({ analysisResult, headline, externalTri
     <div className="space-y-3 -mt-2">
       {/* ── תוצאת הביניים — המשך ישיר לשתי האסטרטגיות, לא כרטיס נפרד ── */}
       <div className="border-t border-mist-200 pt-4">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-bold text-mist-500 uppercase tracking-wider flex items-center gap-2">
-            <Target className="w-3.5 h-3.5 text-[#0153F4]" />
-            השורה התחתונה
-          </span>
-          <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${isWorthwhile ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-amber-100 text-amber-700 border border-amber-300'}`}>
-            {isWorthwhile ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-            {isWorthwhile ? 'כדאי למחזר' : 'כדאיות גבולית'}
-          </div>
-        </div>
-
         {/* Trinity View — שלושת עמודי הוודאות */}
         <div className="grid grid-cols-3 gap-2 md:gap-3 mb-3">
           {/* עמוד 1: Index Shield */}

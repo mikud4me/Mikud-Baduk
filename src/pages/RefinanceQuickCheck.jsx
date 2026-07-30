@@ -7,7 +7,7 @@ import {
 } from '@/components/refinance/supabaseClient';
 import {
   Upload, Loader2, DollarSign,
-  CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download
+  CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download, Sparkle
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import RefinanceCalculator from '@/components/refinance/RefinanceCalculator';
@@ -15,7 +15,6 @@ import BleedingPathChart from '@/components/refinance/BleedingPathChart';
 import BalloonTrapAlert from '@/components/refinance/BalloonTrapAlert';
 import ExecutiveSummary from '@/components/refinance/ExecutiveSummary';
 import DualStrategyCard from '@/components/refinance/DualStrategyCard';
-import LiveRatesBadge from '@/components/refinance/LiveRatesBadge';
 import MortgageChatbot from '@/components/refinance/MortgageChatbot';
 import FooterCTA from '@/components/mikud/FooterCTA';
 import PremiumInput from '@/components/mikud/PremiumInput';
@@ -39,6 +38,52 @@ function buildHeadline(analysisResult) {
     isWorthwhile: savings?.isWorthwhile,
     breakEvenMonths: savings?.breakEvenMonths
   };
+}
+
+const SAVINGS_CELEBRATION_PARTICLES = [
+  { angle: -100, distance: 40, size: 12, delay: 0.56, color: '#0153F4' },
+  { angle: -55, distance: 48, size: 9, delay: 0.68, color: '#F5B700' },
+  { angle: -15, distance: 42, size: 11, delay: 0.6, color: '#0153F4' },
+  { angle: 30, distance: 46, size: 8, delay: 0.8, color: '#F5B700' },
+  { angle: 80, distance: 40, size: 10, delay: 0.72, color: '#0153F4' },
+  { angle: 130, distance: 44, size: 9, delay: 0.64, color: '#F5B700' },
+  { angle: 175, distance: 40, size: 11, delay: 0.88, color: '#0153F4' },
+  { angle: -140, distance: 46, size: 8, delay: 0.76, color: '#F5B700' },
+];
+
+function CelebratingSavingsAmount({ value }) {
+  const isPositive = value >= 0;
+
+  return (
+    <motion.div
+      className="relative inline-flex items-center justify-center"
+      initial={{ scale: 0.3, rotate: 0 }}
+      animate={{ scale: [0.3, 1.2, 0.9, 1.06, 0.98, 1], rotate: [0, -12, 10, -6, 4, 0] }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+    >
+      {SAVINGS_CELEBRATION_PARTICLES.map((particle, index) => {
+        const radians = (particle.angle * Math.PI) / 180;
+        const x = Math.cos(radians) * particle.distance;
+        const y = Math.sin(radians) * particle.distance;
+
+        return (
+          <motion.span
+            key={index}
+            className="absolute top-1/2 left-1/2 flex items-center justify-center"
+            style={{ width: particle.size, height: particle.size, marginLeft: -particle.size / 2, marginTop: -particle.size / 2 }}
+            initial={{ opacity: 0, x: 0, y: 0, scale: 0, rotate: 0 }}
+            animate={{ opacity: [0, 1, 0], x: [0, x], y: [0, y], scale: [0, 1, 0.4], rotate: 90 }}
+            transition={{ duration: 1.6, delay: particle.delay, ease: 'easeOut' }}
+          >
+            <Sparkle size={particle.size} fill={particle.color} color={particle.color} />
+          </motion.span>
+        );
+      })}
+      <span className={`text-3xl font-black ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+        {isPositive ? '' : '-'}₪{Math.abs(value || 0).toLocaleString()}
+      </span>
+    </motion.div>
+  );
 }
 
 export default function RefinanceQuickCheck() {
@@ -67,6 +112,10 @@ export default function RefinanceQuickCheck() {
   const [contactTouched, setContactTouched] = useState({});
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
   const markContactTouched = (field) => setContactTouched(t => ({ ...t, [field]: true }));
+
+  useEffect(() => {
+    document.title = 'בדיקת מחזור משכנתא | מיקוד';
+  }, []);
 
   // שחזור ליד קיים לפי ?lead= בכתובת (למשל אחרי רענון דף)
   useEffect(() => {
@@ -596,7 +645,7 @@ export default function RefinanceQuickCheck() {
                   <div className="flex items-start gap-3 mb-3">
                     <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-base font-black text-red-800 mb-1">⛔ תיק לא כשיר להגשה לבנק</p>
+                      <p className="text-base font-black text-red-800 mb-1">תיק לא כשיר להגשה לבנק</p>
                       <p className="text-sm font-semibold text-red-700">{analysisResult.statementDateWarning}</p>
                     </div>
                   </div>
@@ -612,9 +661,6 @@ export default function RefinanceQuickCheck() {
               )}
 
               <ProfessionalAnalysis text={analysisResult.conclusionText} title="חוות דעת מומחה - ניתוח כדאיות" />
-
-              {/* ריביות שוק בזמן אמת */}
-              <LiveRatesBadge newRates={analysisResult.newRates} />
 
               {/* 2 אסטרטגיות מחזור */}
               <DualStrategyCard
@@ -685,16 +731,11 @@ export default function RefinanceQuickCheck() {
                       <p className="text-xs text-mist-500 mb-1">תקופה חדשה</p>
                       <p className="text-lg font-bold text-mist-900">{analysisResult.newLoan?.periodYears} שנים</p>
                     </div>
-                    <div className="rounded-xl p-3 border border-green-100 bg-green-50/60 flex flex-col justify-center">
-                      <p className="text-xs text-mist-500 mb-1">{headline.netSavings >= 0 ? 'חיסכון חודשי' : 'הפרש חודשי'}</p>
-                      <p className={`text-lg font-bold ${headline.monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {headline.monthlySavings >= 0 ? '' : '-'}₪{Math.abs(headline.monthlySavings || 0).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="rounded-xl p-3 border border-green-100 bg-green-50/60 flex flex-col justify-center">
-                      <p className="text-xs text-mist-500 mb-1">חיסכון כולל נטו</p>
-                      <p className={`text-lg font-bold ${headline.netSavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {headline.netSavings >= 0 ? '' : '-'}₪{Math.abs(headline.netSavings || 0).toLocaleString()}
+                    <div className="col-span-2 rounded-xl p-4 border border-green-100 bg-green-50/60 text-center">
+                      <p className="text-xs text-mist-500 mb-1">{headline.netSavings >= 0 ? 'חיסכון כולל נטו' : 'עלות כוללת נטו'}</p>
+                      <CelebratingSavingsAmount value={headline.netSavings} />
+                      <p className="text-xs text-mist-400 mt-2">
+                        {headline.monthlySavings >= 0 ? 'חיסכון חודשי' : 'הפרש חודשי'}: {headline.monthlySavings >= 0 ? '' : '-'}₪{Math.abs(headline.monthlySavings || 0).toLocaleString()}
                       </p>
                     </div>
                   </div>
