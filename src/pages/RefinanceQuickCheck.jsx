@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-  supabase, uploadFileToStorage, parseInvokeError, getStoragePathFromSignedUrl, isSupabaseConfigured
+  supabase, uploadFileToStorage, isSupabaseConfigured
 } from '@/components/refinance/supabaseClient';
+import { analyzeRefinanceDocument } from '@/components/refinance/analysisClient';
 import {
   Upload, Loader2, DollarSign,
   CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download, Sparkle
@@ -377,44 +378,26 @@ export default function RefinanceQuickCheck() {
     setIsAnalyzing(true);
 
     let file_url = null;
-    // analyzeRefinanceDocument needs the plain storage path, not the signed
-    // URL -- see getStoragePathFromSignedUrl's comment in supabaseClient.js.
-    // file_url itself stays the signed URL, used for the lead record/local
-    // display exactly as before. Declared here (not inside the try block)
-    // so it's also in scope for the retry attempt in the catch block below.
-    let file_path = null;
+    const externalDebtsInput = hasExtraDebts
+      ? extraDebts
+          .filter(d => d.creditor && Number(d.monthly_repayment) > 0)
+          .map(d => ({
+            creditor: d.creditor,
+            monthly_repayment: Number.parseFloat(String(d.monthly_repayment)) || 0,
+            remaining_balance: Number.parseFloat(String(d.remaining_balance)) || 0,
+            estimated_interest: Number.parseFloat(String(d.estimated_interest)) || 15
+          }))
+      : [];
 
     try {
       file_url = await uploadFileToStorage(files[0]);
-      file_path = getStoragePathFromSignedUrl(file_url);
 
-      // Build external debts array if user indicated they have extra debts
-      const externalDebtsInput = hasExtraDebts
-        ? extraDebts
-            .filter(d => d.creditor && d.monthly_repayment > 0)
-            .map(d => ({
-              creditor: d.creditor,
-              monthly_repayment: parseFloat(d.monthly_repayment) || 0,
-              remaining_balance: parseFloat(d.remaining_balance) || 0,
-              estimated_interest: parseFloat(d.estimated_interest) || 15
-            }))
-        : [];
-
-      const { data, error } = await supabase.functions.invoke('analyzeRefinanceDocument', {
-        body: {
-          file_url: file_path,
-          loan_period_years: 20,
-          transaction_type: transactionType,
-          external_debts_input: externalDebtsInput
-        }
+      const data = await analyzeRefinanceDocument({
+        file_url,
+        loan_period_years: 20,
+        transaction_type: transactionType,
+        external_debts_input: externalDebtsInput
       });
-
-      if (error) {
-        // analyzeRefinanceDocument always returns HTTP 200, even for success:false analysis
-        // failures — a populated `error` here means a true gateway/network failure (502/timeout),
-        // not an analysis rejection. Throw so the outer catch's retry logic picks it up.
-        throw error;
-      }
 
       if (!data?.success) {
         const errorMsg = data?.error || 'שגיאה בניתוח הקובץ. ודא שהמסמך הוא דף יתרת סילוק תקין מהבנק.';
@@ -436,20 +419,20 @@ export default function RefinanceQuickCheck() {
     } catch (err) {
       console.error('Analysis error:', err);
 
-      // Retry once if we have the file_url already uploaded. supabase-js has no axios-style
-      // err.code/err.response — network/relay failures are FunctionsFetchError/FunctionsRelayError
-      // instances, and a genuine gateway timeout surfaces as a FunctionsHttpError whose message
-      // mentions the status. Match on message text (and error name) rather than the old axios shape.
-      const isRetryable = err?.message?.includes('502') || err?.message?.includes('504') || err?.message?.includes('timeout') || err?.message?.includes('Network Error') || err?.name === 'FunctionsFetchError' || err?.name === 'FunctionsRelayError';
+      // Retry the HTTP request once for transport/gateway failures. Model-level
+      // failures are retried inside the analyzer and return success:false.
+      const errorMessage = err?.message?.toLowerCase() || '';
+      const isRetryable = [0, 429, 502, 504].includes(err?.status)
+        || errorMessage.includes('timeout')
+        || errorMessage.includes('network');
       if (file_url && isRetryable) {
         try {
-          const { data: retryData, error: retryError } = await supabase.functions.invoke('analyzeRefinanceDocument', {
-            body: { file_url: file_path, loan_period_years: 20, transaction_type: transactionType }
+          const retryData = await analyzeRefinanceDocument({
+            file_url,
+            loan_period_years: 20,
+            transaction_type: transactionType,
+            external_debts_input: externalDebtsInput
           });
-          if (retryError) {
-            const errBody = await parseInvokeError(retryError);
-            throw new Error(errBody?.error || retryError.message || 'שגיאה בניתוח הקובץ');
-          }
           if (!retryData?.success) {
             throw new Error(retryData?.error || 'שגיאה בניתוח הקובץ');
           }

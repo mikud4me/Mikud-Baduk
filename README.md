@@ -38,6 +38,23 @@ VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 ```
 
+The refinance document analyzer is implemented as the portable Deno function
+at `base44/functions/analyzeRefinanceDocument/entry.ts`. Base44 hosts its HTTP
+endpoint, but the function does not use the Base44 SDK, entities, or
+integrations. It downloads the document from its short-lived Supabase signed
+URL and analyzes PDFs and images with Gemini only.
+
+Configure `GEMINI_API_KEY` as a Base44 backend secret before deploying the
+function. The following settings are optional:
+
+```
+# Frontend: defaults to /functions/analyzeRefinanceDocument
+VITE_REFINANCE_ANALYSIS_URL=https://your-app-domain/functions/analyzeRefinanceDocument
+
+# Backend: defaults to the current Supabase project origin
+REFINANCE_STORAGE_ORIGIN=https://your-project.supabase.co
+```
+
 Run the app: `npm run dev`
 
 **Publish your changes**

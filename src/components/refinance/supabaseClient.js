@@ -28,10 +28,9 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
 export const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseKey) : null;
 
-// ── Shared upload helper (replaces base44.integrations.Core.UploadFile) ──
-// Uploads to the private `documents` bucket, then mints a 1-hour signed URL —
-// required because extractSingleChunk/analyzeRefinanceDocument fetch() the file
-// server-side and the bucket has no public read policy, only anon insert+select.
+// Uploads to the private `documents` bucket, then mints a one-hour signed URL.
+// The refinance analyzer downloads the file through that URL without receiving
+// any Supabase service-role credential.
 export async function uploadFileToStorage(file) {
   // Deliberately drop the original filename from the storage path — a Hebrew
   // (or any non-ASCII/special-character) filename embedded in the object key
@@ -49,42 +48,4 @@ export async function uploadFileToStorage(file) {
     .createSignedUrl(path, 3600);
   if (signedError) throw signedError;
   return signedData.signedUrl;
-}
-
-// ── Extracts the plain storage path (e.g. "uploads/abc.pdf") back out of a
-// signed URL returned by uploadFileToStorage() above. ──
-// analyzeRefinanceDocument needs this instead of the signed URL itself:
-// Supabase's gateway was found (live testing, 2026-07-29) to return an
-// instant, empty 503 -- before the function even runs, no logs -- whenever
-// THAT specific function's request body contains a /storage/v1/object/sign/
-// URL pointing at this same project (every other function handles the exact
-// same signed URL fine; this one also imports the 'openai' package, so it's
-// plausibly a deliberate anti-SSRF rule rather than a bug). Sending the bare
-// path instead avoids the pattern entirely -- the function downloads it
-// directly via its own service-role storage client, no signed URL needed.
-export function getStoragePathFromSignedUrl(signedUrl) {
-  const marker = '/object/sign/documents/';
-  const idx = signedUrl.indexOf(marker);
-  if (idx === -1) return null;
-  return signedUrl.slice(idx + marker.length).split('?')[0];
-}
-
-// ── Shared error-shape helper for supabase.functions.invoke() ──
-// The old Base44 SDK behaved like axios: a rejected call carried the server's
-// JSON error body at err.response.data. supabase-js is NOT axios-shaped — invoke()
-// resolves to { data: null, error } on any non-2xx response, where `error` is a
-// FunctionsHttpError (or FunctionsRelayError/FunctionsFetchError for
-// relay/network failures) and the JSON body our Edge Functions actually wrote
-// ({ error, error_code, ... }) is only reachable via error.context.json().
-// This recovers that body so call sites can keep checking `.error`/`.error_code`
-// the same way the original code did.
-export async function parseInvokeError(error) {
-  if (error?.context?.json) {
-    try {
-      return await error.context.json();
-    } catch {
-      // Body wasn't JSON — a true network/relay failure, not a structured error response.
-    }
-  }
-  return null;
 }
