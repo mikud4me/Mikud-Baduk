@@ -25,6 +25,13 @@ npm run typecheck  # tsc against jsconfig.json (checkJs; JSDoc-level checks only
 There is **no test suite** — do not assume tests exist. Verify changes by
 running the app and exercising the flow.
 
+### Git workflow
+Once a change is complete, verified (lint/typecheck pass, behavior checked),
+and you are confident it's correct — commit it and push to `main` without
+waiting for explicit go-ahead each time. Still stop and ask before anything
+destructive or history-rewriting (force-push, reset --hard, amending pushed
+commits) or before pushing work you're not confident in.
+
 ### Environment
 Requires `.env.local` (git-ignored) with `VITE_BASE44_APP_ID` and
 `VITE_BASE44_APP_BASE_URL`. See README.md. These can also be supplied as URL
