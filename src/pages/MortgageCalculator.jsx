@@ -1773,7 +1773,7 @@ ${results.score}/100
                   </div>
                   <button onClick={handlePurchaseClick} disabled={paymentLoading} className="bg-[#0C084A] text-white px-6 py-3 rounded-full font-black text-sm shadow-lg hover:bg-[#1362FF] hover:text-[#06042A] transition-all flex-shrink-0 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
                     {paymentLoading && <Loader2 size={16} className="animate-spin" />}
-                    רכוש דוח ₪499 + מע"מ
+                    רכוש דוח ₪499
                   </button>
                 </div>
               )}
