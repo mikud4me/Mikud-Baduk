@@ -422,11 +422,14 @@ export default function RefinanceQuickCheck() {
       // Retry the HTTP request once for transport/gateway failures. Model-level
       // failures are retried inside the analyzer and return success:false.
       const errorMessage = err?.message?.toLowerCase() || '';
-      const isRetryable = [0, 429, 502, 504].includes(err?.status)
+      const isRetryable = [0, 429, 502, 503, 504].includes(err?.status)
         || errorMessage.includes('timeout')
         || errorMessage.includes('network');
       if (file_url && isRetryable) {
         try {
+          // Avoid immediately repeating a request while Gemini or the gateway
+          // is still recovering from a temporary capacity spike.
+          await new Promise(resolve => setTimeout(resolve, 4000));
           const retryData = await analyzeRefinanceDocument({
             file_url,
             loan_period_years: 20,

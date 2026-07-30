@@ -113,6 +113,28 @@ async function invokeGemini({ model, prompt, files = [], schema = null, useSearc
   return schema ? JSON.parse(text) : text;
 }
 
+function getGeminiErrorDetails(error) {
+  const message = String(error?.message || error || '');
+  const numericCandidates = [
+    error?.status,
+    error?.code,
+    error?.response?.status,
+  ];
+  let status = numericCandidates
+    .map((value) => Number(value))
+    .find((value) => Number.isInteger(value) && value >= 400 && value <= 599);
+
+  if (!status) {
+    const codeMatch = message.match(/(?:"code"\s*:\s*|\bHTTP\s+)(\d{3})/i);
+    status = codeMatch ? Number(codeMatch[1]) : 0;
+  }
+
+  const isTransient = [408, 429, 500, 502, 503, 504].includes(status)
+    || /\bUNAVAILABLE\b|high demand|overloaded|temporarily unavailable/i.test(message);
+
+  return { message, status, isTransient };
+}
+
 async function invokeGeminiWithRetry(options) {
   let lastError;
   for (let attempt = 1; attempt <= 2; attempt += 1) {
@@ -121,8 +143,14 @@ async function invokeGeminiWithRetry(options) {
     } catch (error) {
       lastError = error;
       if (attempt === 2) break;
-      console.warn(`Gemini attempt ${attempt} failed; retrying once: ${error?.message || error}`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const details = getGeminiErrorDetails(error);
+      const retryDelayMs = details.isTransient
+        ? 3000 + Math.floor(Math.random() * 1500)
+        : 500;
+      console.warn(
+        `Gemini attempt ${attempt} failed; retrying once in ${retryDelayMs}ms: ${details.message}`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
     }
   }
   throw lastError;
@@ -1473,13 +1501,22 @@ Today: ${today}`,
 
   } catch (error) {
     console.error('Error:', error);
-    // Return 200 with success:false so the frontend can show a user-friendly message
-    const isModelError = error.message?.includes('Gemini') ||
-      error.message?.includes('JSON') ||
-      error.message?.includes('Invalid request');
+    const geminiError = getGeminiErrorDetails(error);
+    if (geminiError.isTransient) {
+      return jsonResponse({
+        success: false,
+        error: 'Gemini is temporarily busy. Please try again in a few moments.',
+      }, { status: geminiError.status || 503 });
+    }
+
+    // Return 200 with success:false for document/model validation failures so
+    // the frontend can show the existing user-friendly message.
+    const isModelError = geminiError.message.includes('Gemini') ||
+      geminiError.message.includes('JSON') ||
+      geminiError.message.includes('Invalid request');
     const userMessage = isModelError
       ? 'שגיאה בניתוח המסמך. ודא שהקובץ הוא PDF או תמונה ברורים וקריאים ונסה שוב.'
-      : (error.message || 'שגיאה בניתוח. נסה שוב.');
+      : (geminiError.message || 'שגיאה בניתוח. נסה שוב.');
     return jsonResponse({ success: false, error: userMessage }, { status: 200 });
   }
 });
