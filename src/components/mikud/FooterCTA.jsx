@@ -1,5 +1,6 @@
 import React from 'react';
 import { Phone, Shield, Clock, HeartHandshake, Mail } from 'lucide-react';
+import { createPageUrl } from '@/utils';
 
 const badges = [
   { icon: Shield, text: 'ללא התחייבות' },
@@ -80,6 +81,10 @@ export default function FooterCTA() {
 
         <p className="text-mist-600 text-xs">
           © {new Date().getFullYear()} מיקוד משכנתאות בע"מ &nbsp;·&nbsp; כל הזכויות שמורות &nbsp;·&nbsp; רישיון תיווך פיננסי
+          &nbsp;·&nbsp;
+          <a href={createPageUrl('AccessibilityStatement')} className="hover:text-[#0153F4] underline">
+            הצהרת נגישות
+          </a>
         </p>
       </div>
     </footer>
