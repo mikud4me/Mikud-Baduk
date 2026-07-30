@@ -367,6 +367,7 @@ export default function RefinanceQuickCheck() {
       <MikudHeader activePage="refinance" isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
       <main className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
       <div className="w-full max-w-4xl">
+        {!analysisResult && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16 animate-in fade-in slide-in-from-top-8 duration-1000">
           <h1 className="text-[1.89rem] sm:text-[2.835rem] font-extrabold text-[#0C084A] mb-6 leading-tight tracking-tight">
             המחזור החכם<br/>
@@ -388,6 +389,7 @@ export default function RefinanceQuickCheck() {
             </div>
           </div>
         </motion.div>
+        )}
 
         {isResumingLead && !analysisResult && (
           <div className="flex justify-center py-12">
@@ -650,7 +652,7 @@ export default function RefinanceQuickCheck() {
                     </div>
                   </div>
                   <div className="bg-white border border-red-200 rounded-lg px-4 py-3">
-                    <p className="text-sm text-red-800 font-bold mb-1">⚠️ מה עושים?</p>
+                    <p className="text-sm text-red-800 font-bold mb-1">מה עושים?</p>
                     <p className="text-xs text-red-700 leading-relaxed">יש לבקש <strong>יתרת סילוק עדכנית</strong> מהבנק הנוכחי (בנק הפועלים) — ניתן להזמין באפליקציה, בסניף, או בטלפון. לאחר קבלת המסמך החדש, העלה אותו מחדש לקבלת חישוב מדויק.</p>
                   </div>
                   <div className="mt-3 flex items-center gap-2 text-xs text-red-700">
