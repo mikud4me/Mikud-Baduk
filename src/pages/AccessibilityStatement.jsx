@@ -45,9 +45,9 @@ export default function AccessibilityStatement() {
                 <Phone size={16} />
                 [להשלמה: מספר טלפון ישיר לרכז/ת הנגישות]
               </a>
-              <a href="mailto:Office@mikud4me.co.il" className="flex items-center gap-2 text-[#1e3a5f] hover:underline w-fit">
+              <a href="mailto:office@mikud4me.co.il" className="flex items-center gap-2 text-[#1e3a5f] hover:underline w-fit">
                 <Mail size={16} />
-                [להשלמה: כתובת דוא"ל לפניות נגישות]
+                office@mikud4me.co.il
               </a>
             </div>
           </div>
