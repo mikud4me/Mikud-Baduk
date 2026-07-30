@@ -796,11 +796,11 @@ ${results.score}/100
       )}
 
       <nav className="sticky top-0 z-50 bg-white border-b border-mist-100 shadow-sm backdrop-blur-xl h-28 sm:h-32 px-6 sm:px-10 flex items-center justify-between">
-        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.location.reload()}>
-          <Check size={26} className="text-[#0153F4] flex-shrink-0" strokeWidth={3} />
-          <span className="text-3xl sm:text-4xl font-black text-[#0153F4] transition-colors">בדוק</span>
-        </div>
         <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.location.reload()}>
+            <Check size={26} className="text-[#0153F4] flex-shrink-0" strokeWidth={3} />
+            <span className="text-3xl sm:text-4xl font-black text-[#0153F4] transition-colors">בדוק</span>
+          </div>
           <div className="relative hidden sm:block">
             <div className="absolute -inset-3 bg-gradient-to-r from-brand-400/40 to-brand-600/30 rounded-full blur-xl pointer-events-none" />
             <a
@@ -810,6 +810,8 @@ ${results.score}/100
               ממחזרים את המשכנתא?
             </a>
           </div>
+        </div>
+        <div className="flex items-center gap-6">
           <button
             onClick={() => setIsChatOpen(!isChatOpen)}
             className="hidden sm:block text-[#0C084A] font-bold hover:text-[#0153F4] transition-all"

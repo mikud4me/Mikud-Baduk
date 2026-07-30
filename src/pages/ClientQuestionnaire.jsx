@@ -230,12 +230,12 @@ export default function ClientQuestionnaire() {
 
       {/* Header */}
       <nav className="sticky top-0 z-50 bg-white border-b border-mist-100 shadow-sm h-20 px-6 flex items-center justify-between">
-        <img
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
-          alt="מיקוד משכנתאות"
-          className="h-16 w-auto object-contain"
-        />
         <div className="flex items-center gap-6">
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
+            alt="מיקוד משכנתאות"
+            className="h-16 w-auto object-contain"
+          />
           <div className="relative hidden sm:block">
             <div className="absolute -inset-3 bg-gradient-to-r from-brand-400/40 to-brand-600/30 rounded-full blur-xl pointer-events-none" />
             <a
@@ -245,6 +245,8 @@ export default function ClientQuestionnaire() {
               ממחזרים את המשכנתא?
             </a>
           </div>
+        </div>
+        <div className="flex items-center gap-6">
           <a href="tel:2324" className="bg-[#0C084A] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#0153F4] transition-all shadow-md">
             2324*
           </a>
