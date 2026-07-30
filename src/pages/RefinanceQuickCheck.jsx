@@ -123,16 +123,12 @@ function buildRefinanceMixCards(mixes) {
   const recommended = selectedMixes.find((mix) => Number(mix.mix_number) === 2)
     || selectedMixes.find((mix) => BALANCED_RISK_LEVELS.has(mix.risk_level))
     || selectedMixes[0];
-
-  return selectedMixes
+  const orderedMixes = selectedMixes
     .slice()
-    .sort((a, b) => {
-      if (a === recommended) return -1;
-      if (b === recommended) return 1;
-      if (LOW_RISK_LEVELS.has(a.risk_level)) return -1;
-      if (LOW_RISK_LEVELS.has(b.risk_level)) return 1;
-      return Number(a.mix_number || 0) - Number(b.mix_number || 0);
-    })
+    .sort((a, b) => Number(a.mix_number || 0) - Number(b.mix_number || 0));
+  const recommendedIndex = orderedMixes.indexOf(recommended);
+
+  return orderedMixes
     .map((mix, index) => {
       const isRecommended = mix === recommended;
       const mixType = isRecommended
@@ -141,7 +137,7 @@ function buildRefinanceMixCards(mixes) {
           ? 'conservative'
           : HIGH_RISK_LEVELS.has(mix.risk_level)
             ? 'prime'
-            : index === 1 ? 'conservative' : 'prime';
+            : index < recommendedIndex ? 'conservative' : 'prime';
       const durationYears = Number(mix.tracks?.[0]?.period_years)
         || Math.round(
           (mix.tracks || []).reduce(
