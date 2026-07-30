@@ -794,6 +794,9 @@ ${results.score}/100
           <a href={createPageUrl('AdminDashboard')} className="hidden sm:block text-[#0C084A] font-bold text-sm hover:text-[#0153F4] transition-all">
             פאנל ניהול
           </a>
+          <a href={createPageUrl('RefinanceQuickCheck')} className="hidden sm:block text-[#0C084A] font-bold text-sm hover:text-[#0153F4] transition-all">
+            ממחזרים את המשכנתא?
+          </a>
           <a href="tel:2324" className="bg-[#0C084A] text-white px-8 py-3 rounded-full font-bold text-base hover:bg-[#0153F4] transition-all shadow-md hover:shadow-lg text-center">
             2324*
           </a>
