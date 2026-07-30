@@ -48,8 +48,8 @@ Configure `GEMINI_API_KEY` as a Base44 backend secret before deploying the
 function. The following settings are optional:
 
 ```
-# Frontend: defaults to /functions/analyzeRefinanceDocument
-VITE_REFINANCE_ANALYSIS_URL=https://your-app-domain/functions/analyzeRefinanceDocument
+# Frontend: normally unset; the app derives Base44's app-scoped function URL
+VITE_REFINANCE_ANALYSIS_URL=https://app--your-app-name.base44.app/api/apps/your-app-id/functions/analyzeRefinanceDocument
 
 # Backend: defaults to the current Supabase project origin
 REFINANCE_STORAGE_ORIGIN=https://your-project.supabase.co
