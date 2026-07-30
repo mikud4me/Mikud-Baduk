@@ -7,6 +7,24 @@ const fmt = (val) => {
   return new Intl.NumberFormat('he-IL').format(Math.round(val));
 };
 
+function SavingsAnnotation({ label, value }) {
+  if (value == null || !Number.isFinite(Number(value))) return null;
+
+  const numericValue = Number(value);
+  const sign = numericValue > 0 ? '+' : numericValue < 0 ? '-' : '';
+  const colorClass = numericValue > 0
+    ? 'text-green-600'
+    : numericValue < 0
+      ? 'text-red-600'
+      : 'text-mist-500';
+
+  return (
+    <span className={`text-[10px] sm:text-[11px] font-bold ${colorClass}`}>
+      ({label}: {sign}₪{fmt(Math.abs(numericValue))})
+    </span>
+  );
+}
+
 const MIX_META = {
   recommended: {
     icon: Sparkles,
@@ -52,7 +70,18 @@ const MIX_META = {
   },
 };
 
-function MixCard({ title, tracks, totalPmt, mixType = 'recommended', loanAmount, durationYears, saving, isValid = true }) {
+function MixCard({
+  title,
+  tracks = [],
+  totalPmt,
+  mixType = 'recommended',
+  loanAmount,
+  durationYears,
+  saving,
+  monthlySaving,
+  totalSaving,
+  isValid = true,
+}) {
   const [expanded, setExpanded] = useState(false);
   const meta = MIX_META[mixType] || MIX_META.recommended;
   const Icon = meta.icon;
@@ -107,7 +136,13 @@ function MixCard({ title, tracks, totalPmt, mixType = 'recommended', loanAmount,
           <div className="w-full flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-mist-700 font-semibold">תשלום חודשי</span>
-              <span className="font-semibold text-base sm:text-lg" style={{ color: meta.accentColor }}><Amount value={Math.floor(totalPmt)} /></span>
+              <span
+                className={`font-semibold text-base sm:text-lg ${monthlySaving != null ? 'flex flex-wrap items-baseline justify-end gap-x-1.5' : ''}`}
+                style={{ color: meta.accentColor }}
+              >
+                <Amount value={Math.floor(totalPmt)} />
+                <SavingsAnnotation label="חיסכון חודשי" value={monthlySaving} />
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-mist-700 font-semibold">משך זמן</span>
@@ -115,7 +150,10 @@ function MixCard({ title, tracks, totalPmt, mixType = 'recommended', loanAmount,
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-mist-700 font-semibold">סך החזר כולל</span>
-              <span className="font-semibold text-base sm:text-lg text-[#0C084A]"><Amount value={Math.floor(totalPayment)} /></span>
+              <span className={`font-semibold text-base sm:text-lg text-[#0C084A] ${totalSaving != null ? 'flex flex-wrap items-baseline justify-end gap-x-1.5' : ''}`}>
+                <Amount value={Math.floor(totalPayment)} />
+                <SavingsAnnotation label="חיסכון כולל" value={totalSaving} />
+              </span>
             </div>
           </div>
           {!expanded && (
@@ -193,7 +231,51 @@ function MixCard({ title, tracks, totalPmt, mixType = 'recommended', loanAmount,
   );
 }
 
-export default function MixComparison({ mixA, mixB, mixC, cpiMix, loanAmount, durationYears, isRefinance, isPurchased, isDeclarationApprovalPossible, minMix, totalIncome }) {
+export default function MixComparison({
+  mixes = null,
+  mixA = null,
+  mixB = null,
+  mixC = null,
+  cpiMix = null,
+  loanAmount = 0,
+  durationYears = 25,
+  isRefinance = false,
+  isPurchased = false,
+  isDeclarationApprovalPossible = true,
+  minMix = null,
+  totalIncome = 0,
+}) {
+  const cards = mixes?.length
+    ? mixes.slice(0, 3)
+    : [
+        {
+          id: 'recommended',
+          title: isRefinance ? mixB.label : 'תמהיל אסטרטגי',
+          tracks: mixB.tracks,
+          totalPmt: mixB.total,
+          mixType: 'recommended',
+          saving: isRefinance ? mixB.saving : undefined,
+          isValid: mixB.isValid !== false,
+        },
+        {
+          id: 'conservative',
+          title: isRefinance ? mixA.label : 'תמהיל שמרני',
+          tracks: mixA.tracks,
+          totalPmt: mixA.total,
+          mixType: 'conservative',
+          saving: isRefinance ? mixA.saving : undefined,
+          isValid: mixA.isValid !== false,
+        },
+        {
+          id: 'prime',
+          title: isRefinance ? mixC.label : 'תמהיל פריים',
+          tracks: mixC.tracks,
+          totalPmt: mixC.total,
+          mixType: 'prime',
+          saving: isRefinance ? mixC.saving : undefined,
+          isValid: mixC.isValid !== false,
+        },
+      ];
 
   return (
     <div dir="rtl" className="space-y-6">
@@ -206,36 +288,21 @@ export default function MixComparison({ mixA, mixB, mixC, cpiMix, loanAmount, du
 
       {/* גריד הכרטיסים */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
-        <MixCard
-          title={isRefinance ? mixB.label : 'תמהיל אסטרטגי'}
-          tracks={mixB.tracks}
-          totalPmt={mixB.total}
-          mixType="recommended"
-          loanAmount={loanAmount}
-          durationYears={durationYears}
-          saving={isRefinance ? mixB.saving : undefined}
-          isValid={mixB.isValid !== false}
-        />
-        <MixCard
-          title={isRefinance ? mixA.label : 'תמהיל שמרני'}
-          tracks={mixA.tracks}
-          totalPmt={mixA.total}
-          mixType="conservative"
-          loanAmount={loanAmount}
-          durationYears={durationYears}
-          saving={isRefinance ? mixA.saving : undefined}
-          isValid={mixA.isValid !== false}
-        />
-        <MixCard
-          title={isRefinance ? mixC.label : 'תמהיל פריים'}
-          tracks={mixC.tracks}
-          totalPmt={mixC.total}
-          mixType="prime"
-          loanAmount={loanAmount}
-          durationYears={durationYears}
-          saving={isRefinance ? mixC.saving : undefined}
-          isValid={mixC.isValid !== false}
-        />
+        {cards.map((card) => (
+          <MixCard
+            key={card.id}
+            title={card.title}
+            tracks={card.tracks}
+            totalPmt={card.totalPmt}
+            mixType={card.mixType}
+            loanAmount={card.loanAmount ?? loanAmount}
+            durationYears={card.durationYears ?? durationYears}
+            saving={card.saving}
+            monthlySaving={card.monthlySaving}
+            totalSaving={card.totalSaving}
+            isValid={card.isValid !== false}
+          />
+        ))}
       </div>
 
       {/* תמהיל חירום צמוד מדד — מוצג כש-DTI חורג מ-40% */}

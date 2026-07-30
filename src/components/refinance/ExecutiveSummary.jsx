@@ -113,18 +113,27 @@ export default function ExecutiveSummary({ analysisResult, headline, externalTri
     <div className="space-y-3 -mt-2">
       {/* ── תוצאת הביניים — המשך ישיר לשתי האסטרטגיות, לא כרטיס נפרד ── */}
       <div className="border-t border-mist-200 pt-4">
-        {/* Strategy tag */}
-        <div className="text-center text-xs text-[#0153F4] font-bold opacity-80 mb-3">
-          {strategy.title} · {strategy.description}
-        </div>
-
-        {/* ── PDF trigger button (small, internal) ── */}
-        <div className="flex justify-end">
-          <Button onClick={handlePrint} disabled={isGenerating} variant="outline" size="sm"
-            className="h-10 rounded-full border-mist-200 text-[#0C084A] font-semibold hover:border-[#0153F4] hover:bg-periwinkle-100 gap-2">
+        <div dir="ltr" className="grid grid-cols-[1fr_minmax(0,2fr)_1fr] items-center gap-2 sm:gap-4">
+          {/* ── PDF trigger button (small, internal) ── */}
+          <Button
+            dir="rtl"
+            onClick={handlePrint}
+            disabled={isGenerating}
+            variant="outline"
+            size="sm"
+            className="justify-self-start h-10 px-3 sm:px-4 rounded-full border-mist-200 text-[#0C084A] font-semibold hover:border-[#0153F4] hover:bg-periwinkle-100 gap-2"
+          >
             {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-            {isGenerating ? 'מייצר...' : 'הורד דוח מלא'}
+            <span className="hidden sm:inline">{isGenerating ? 'מייצר...' : 'הורד דוח מלא'}</span>
+            <span className="sm:hidden">{isGenerating ? 'מייצר...' : 'הורד'}</span>
           </Button>
+
+          {/* Strategy tag */}
+          <div dir="rtl" className="text-center text-xs text-[#0153F4] font-bold opacity-80">
+            {strategy.title} · {strategy.description}
+          </div>
+
+          <div aria-hidden="true" />
         </div>
       </div>
 

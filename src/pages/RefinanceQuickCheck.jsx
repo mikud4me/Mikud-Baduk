@@ -20,6 +20,7 @@ import FooterCTA from '@/components/mikud/FooterCTA';
 import PremiumInput from '@/components/mikud/PremiumInput';
 import MikudHeader from '@/components/mikud/MikudHeader';
 import ProfessionalAnalysis from '@/components/mikud/ProfessionalAnalysis';
+import MixComparison from '@/components/mikud/MixComparison';
 import { isValidIsraeliID, isValidEmail, isValidIsraeliPhone } from '@/components/refinance/validators';
 
 // מקור אמת יחיד למספרי הליבה שחוזרים על עצמם בכמה מקומות בדוח (חיסכון נטו, החזר חדש, ריבית חדשה וכו')
@@ -38,6 +39,136 @@ function buildHeadline(analysisResult) {
     isWorthwhile: savings?.isWorthwhile,
     breakEvenMonths: savings?.breakEvenMonths
   };
+}
+
+const LOW_RISK_LEVELS = new Set(['conservative', 'low']);
+const BALANCED_RISK_LEVELS = new Set(['balanced', 'medium']);
+const HIGH_RISK_LEVELS = new Set(['aggressive', 'high']);
+
+function calculateTrackMonthlyPayment(track, mixMonthlyPayment) {
+  const explicitPayment = Number(track?.monthly_payment ?? track?.monthlyPayment);
+  if (Number.isFinite(explicitPayment) && explicitPayment >= 0) return explicitPayment;
+
+  const years = Number(track?.period_years);
+  const months = years * 12;
+  const percentage = Number(track?.percentage);
+  const amount = Number(track?.amount);
+  const fallbackPayment = Number.isFinite(percentage) && Number.isFinite(Number(mixMonthlyPayment))
+    ? Number(mixMonthlyPayment) * percentage / 100
+    : 0;
+
+  if (!Number.isFinite(amount) || amount <= 0 || !Number.isFinite(months) || months <= 0) {
+    return fallbackPayment;
+  }
+
+  const rawRate = Number(track?.interest_rate);
+  if (!Number.isFinite(rawRate) || rawRate === 0) return amount / months;
+
+  const annualRate = Math.abs(rawRate) > 1 ? rawRate / 100 : rawRate;
+  const monthlyRate = annualRate / 12;
+  const growth = Math.pow(1 + monthlyRate, months);
+  const payment = amount * monthlyRate * growth / (growth - 1);
+
+  return Number.isFinite(payment) ? payment : fallbackPayment;
+}
+
+function normalizeTrackRate(rate) {
+  const numericRate = Number(rate);
+  if (!Number.isFinite(numericRate)) return 0;
+  return Math.abs(numericRate) > 1 ? numericRate / 100 : numericRate;
+}
+
+function buildTrackDescription(track) {
+  const details = [];
+  const percentage = Number(track?.percentage);
+  const amount = Number(track?.amount);
+
+  if (Number.isFinite(percentage)) details.push(`${percentage}% מהסכום`);
+  if (Number.isFinite(amount) && amount > 0) {
+    details.push(`₪${Math.round(amount).toLocaleString('he-IL')}`);
+  }
+
+  return details.join(' · ');
+}
+
+function chooseRefinanceMixes(mixes) {
+  const sortedMixes = (mixes || [])
+    .filter(Boolean)
+    .slice()
+    .sort((a, b) => Number(a.mix_number || 0) - Number(b.mix_number || 0));
+
+  if (sortedMixes.length <= 3) return sortedMixes;
+
+  const recommended = sortedMixes.find((mix) => Number(mix.mix_number) === 2)
+    || sortedMixes.find((mix) => BALANCED_RISK_LEVELS.has(mix.risk_level))
+    || sortedMixes[0];
+  const selected = [recommended];
+  const addFirstMatch = (predicate) => {
+    const match = sortedMixes.find((mix) => !selected.includes(mix) && predicate(mix));
+    if (match) selected.push(match);
+  };
+
+  addFirstMatch((mix) => LOW_RISK_LEVELS.has(mix.risk_level));
+  addFirstMatch((mix) => HIGH_RISK_LEVELS.has(mix.risk_level));
+
+  sortedMixes.forEach((mix) => {
+    if (selected.length < 3 && !selected.includes(mix)) selected.push(mix);
+  });
+
+  return selected.slice(0, 3);
+}
+
+function buildRefinanceMixCards(mixes) {
+  const selectedMixes = chooseRefinanceMixes(mixes);
+  const recommended = selectedMixes.find((mix) => Number(mix.mix_number) === 2)
+    || selectedMixes.find((mix) => BALANCED_RISK_LEVELS.has(mix.risk_level))
+    || selectedMixes[0];
+
+  return selectedMixes
+    .slice()
+    .sort((a, b) => {
+      if (a === recommended) return -1;
+      if (b === recommended) return 1;
+      if (LOW_RISK_LEVELS.has(a.risk_level)) return -1;
+      if (LOW_RISK_LEVELS.has(b.risk_level)) return 1;
+      return Number(a.mix_number || 0) - Number(b.mix_number || 0);
+    })
+    .map((mix, index) => {
+      const isRecommended = mix === recommended;
+      const mixType = isRecommended
+        ? 'recommended'
+        : LOW_RISK_LEVELS.has(mix.risk_level)
+          ? 'conservative'
+          : HIGH_RISK_LEVELS.has(mix.risk_level)
+            ? 'prime'
+            : index === 1 ? 'conservative' : 'prime';
+      const durationYears = Number(mix.tracks?.[0]?.period_years)
+        || Math.round(
+          (mix.tracks || []).reduce(
+            (sum, track) => sum + Number(track.period_years || 0) * Number(track.percentage || 0),
+            0
+          ) / 100
+        )
+        || 20;
+
+      return {
+        id: mix.mix_number ?? `${mix.mix_name}-${index}`,
+        title: mix.mix_name,
+        mixType,
+        totalPmt: Number(mix.total_monthly_payment) || 0,
+        durationYears,
+        monthlySaving: mix.monthly_savings,
+        totalSaving: mix.net_savings,
+        tracks: (mix.tracks || []).map((track) => ({
+          name: track.track_type,
+          desc: buildTrackDescription(track),
+          rate: normalizeTrackRate(track.interest_rate),
+          years: Number(track.period_years) || durationYears,
+          pmt: calculateTrackMonthlyPayment(track, mix.total_monthly_payment),
+        })),
+        isValid: mix.is_valid !== false,
+      };
+    });
 }
 
 const SAVINGS_CELEBRATION_PARTICLES = [
@@ -152,6 +283,10 @@ export default function RefinanceQuickCheck() {
 
   const headline = useMemo(
     () => analysisResult ? buildHeadline(analysisResult) : null,
+    [analysisResult]
+  );
+  const refinanceMixes = useMemo(
+    () => buildRefinanceMixCards(analysisResult?.mixes),
     [analysisResult]
   );
 
@@ -664,20 +799,6 @@ export default function RefinanceQuickCheck() {
 
               <ProfessionalAnalysis text={analysisResult.conclusionText} title="חוות דעת מומחה - ניתוח כדאיות" />
 
-              {/* 2 אסטרטגיות מחזור */}
-              <DualStrategyCard
-                dualStrategy={analysisResult.dualStrategy}
-                currentMonthlyPayment={headline.currentMonthlyPayment}
-              />
-
-              {/* 📄 Executive Summary (Now includes the printable report) */}
-              <ExecutiveSummary
-                analysisResult={analysisResult}
-                headline={headline}
-                externalTrigger={pdfTrigger}
-                onTriggerDone={() => setIsDownloadingPdf(false)}
-              />
-
               {/* אזור השוואה נקי וברור - לפני מול אחרי, כשני בלוקים נפרדים */}
               <div className="grid md:grid-cols-2 gap-6 items-start mb-6">
                 {/* המשכנתא הנוכחית */}
@@ -743,6 +864,20 @@ export default function RefinanceQuickCheck() {
                   </div>
                 </div>
               </div>
+
+              {/* 📄 אסטרטגיית המחזור והדוח המלא */}
+              <ExecutiveSummary
+                analysisResult={analysisResult}
+                headline={headline}
+                externalTrigger={pdfTrigger}
+                onTriggerDone={() => setIsDownloadingPdf(false)}
+              />
+
+              {/* 2 אסטרטגיות מחזור */}
+              <DualStrategyCard
+                dualStrategy={analysisResult.dualStrategy}
+                currentMonthlyPayment={headline.currentMonthlyPayment}
+              />
 
               {analysisResult.savings?.feeWarning && (
                 <Card className="border border-red-500 bg-red-50 mb-6">
@@ -1186,115 +1321,15 @@ export default function RefinanceQuickCheck() {
                 )}
               </AnimatePresence>
 
-              <div className="space-y-6 mt-8">
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-mist-900 mb-2">3 תמהילי מחזור מומלצים</h2>
-                  <p className="text-mist-500">בחר את התמהיל המתאים לך ביותר</p>
+              {refinanceMixes.length > 0 && (
+                <div className="mt-8">
+                  <MixComparison
+                    mixes={refinanceMixes}
+                    loanAmount={analysisResult.currentLoan?.remainingBalance}
+                    isRefinance
+                  />
                 </div>
-
-                <div className={`grid gap-4 ${analysisResult.mixes?.length === 4 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
-                  {analysisResult.mixes?.filter(Boolean).map((mix) => {
-                    const riskConfig = ({
-                      conservative: { label: 'שמרני', icon: '🛡️', accent: '#707070', accentBg: '#F7F8FA', desc: 'מינימום סיכון, יציבות מלאה' },
-                      balanced:     { label: 'מאוזן',  icon: '⚖️', accent: '#0153F4', accentBg: '#EAF1FF',  desc: 'האיזון הטוב בין ריבית וסיכון' },
-                      aggressive:   { label: 'אגרסיבי',icon: '🚀', accent: '#D97706', accentBg: '#FFFBEB',  desc: 'ריבית נמוכה, גמישות גבוהה' },
-                    }[mix.risk_level]) ?? { label: 'מותאם', icon: '✦', accent: '#0153F4', accentBg: '#EAF1FF', desc: '' };
-
-                    const isRecommended = mix.mix_number === 2;
-                    const periodYears = mix.tracks?.[0]?.period_years || Math.round((mix.tracks?.reduce((s,t) => s + (t.period_years||0) * (t.percentage||0), 0) / 100)) || 20;
-                    const trackColors = ['#0153F4', '#16A34A', '#D97706', '#7C3AED'];
-
-                    return (
-                      <div key={mix.mix_number} className="relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden bg-white"
-                        style={{
-                          border: isRecommended ? '2px solid #0153F4' : '1px solid #E1E4EA',
-                          boxShadow: isRecommended ? '0 8px 24px rgba(1,83,244,0.15)' : '0 4px 16px rgba(12,8,74,0.06)'
-                        }}>
-
-                        {/* תג מומלץ */}
-                        {isRecommended && (
-                          <div className="absolute top-0 left-0 right-0 text-center py-2 text-xs font-black tracking-widest uppercase"
-                            style={{ background: 'linear-gradient(90deg, #0141C2, #0153F4, #0141C2)', color: '#FFFFFF', letterSpacing: '0.15em' }}>
-                            ⭐ המומלץ עבורך
-                          </div>
-                        )}
-
-                        <div className={`p-5 ${isRecommended ? 'pt-10' : 'pt-5'}`}>
-                          {/* כותרת + רמת סיכון */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-base">{riskConfig.icon}</span>
-                                <span className="text-xs font-bold tracking-wider uppercase" style={{ color: riskConfig.accent }}>{riskConfig.label}</span>
-                              </div>
-                              <h3 className="text-lg font-black text-mist-900 leading-tight">{mix.mix_name}</h3>
-                              <p className="text-xs text-mist-500 mt-0.5">{riskConfig.desc}</p>
-                            </div>
-                            <div className="text-left">
-                              <p className="text-xs text-mist-500">תקופה</p>
-                              <p className="text-lg font-black text-mist-900">{periodYears}<span className="text-xs font-normal text-mist-500 mr-0.5">שנ'</span></p>
-                            </div>
-                          </div>
-
-                          {/* החזר חודשי — מרכז הכרטיס */}
-                          <div className="rounded-xl p-4 mb-4 text-center" style={{ background: riskConfig.accentBg, border: `1px solid ${riskConfig.accent}30` }}>
-                            <p className="text-xs text-mist-500 mb-1">החזר חודשי חדש</p>
-                            <p className="text-xl md:text-3xl font-black text-mist-900">₪{mix.total_monthly_payment?.toLocaleString()}</p>
-                            {mix.monthly_savings > 0 && (
-                              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 border border-green-300">
-                                <span className="text-xs font-bold text-green-700">חיסכון חודשי: ₪{mix.monthly_savings?.toLocaleString()}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* חיסכון כולל */}
-                          {mix.net_savings > 0 && (
-                            <div className="rounded-xl p-3 mb-4 text-center bg-green-50 border border-green-200">
-                              <p className="text-xs text-mist-500 mb-0.5">חיסכון כולל לאורך כל התקופה</p>
-                              <p className="text-lg md:text-2xl font-black text-green-700">₪{mix.net_savings.toLocaleString()}</p>
-                            </div>
-                          )}
-
-                          {/* פירוט מסלולים */}
-                          <div className="space-y-2 mb-4">
-                            <p className="text-xs font-bold text-mist-500 uppercase tracking-wider mb-2">פירוט מסלולים</p>
-                            {mix.tracks?.map((track, i) => (
-                              <div key={i} className="flex items-center gap-2 p-2.5 rounded-lg bg-mist-50 border border-mist-200">
-                                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: trackColors[i % trackColors.length] }} />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs text-mist-900 font-semibold truncate">{track.track_type}</p>
-                                  <p className="text-xs text-mist-500">{track.period_years ? `${track.period_years} שנים` : ''}</p>
-                                </div>
-                                <div className="text-left flex-shrink-0">
-                                  <p className="text-sm font-black text-mist-900">{track.interest_rate?.toFixed(2)}%</p>
-                                  <p className="text-xs text-mist-500">{track.percentage}% מהסכום</p>
-                                </div>
-                                {track.amount > 0 && (
-                                  <div className="text-left flex-shrink-0 mr-1">
-                                    <p className="text-xs font-bold" style={{ color: riskConfig.accent }}>₪{Math.round(track.amount).toLocaleString()}</p>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* יתרונות */}
-                          {mix.advantages?.length > 0 && (
-                            <div className="space-y-1.5 pt-3 border-t border-mist-200">
-                              {mix.advantages.slice(0, 2).map((adv, i) => (
-                                <div key={i} className="flex items-start gap-2 text-xs text-mist-500">
-                                  <span className="flex-shrink-0 mt-0.5" style={{ color: riskConfig.accent }}>✓</span>
-                                  <span>{adv}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
