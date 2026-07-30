@@ -53,7 +53,7 @@ function Cell({ value, highlight }) {
   if (value === true) {
     return (
       <Check
-        className={`w-5 h-5 mx-auto ${highlight ? 'text-[#c9a961]' : 'text-green-600'}`}
+        className={`w-5 h-5 mx-auto ${highlight ? 'text-[#0153F4]' : 'text-green-600'}`}
         strokeWidth={3}
       />
     );
@@ -67,7 +67,7 @@ function Cell({ value, highlight }) {
   return (
     <span
       className={`block text-xs sm:text-sm leading-snug whitespace-pre-line ${
-        highlight ? 'text-[#1e3a5f] font-black' : 'text-slate-600 font-bold'
+        highlight ? 'text-[#0C084A] font-black' : 'text-mist-600 font-bold'
       }`}
     >
       {value}
@@ -78,18 +78,18 @@ function Cell({ value, highlight }) {
 export default function AdvisorComparison() {
   return (
     <div
-      className="bg-gray-50 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border border-gray-200 mb-6 sm:mb-10 text-right animate-in fade-in slide-in-from-bottom-4 duration-500"
+      className="bg-mist-50 p-4 sm:p-6 md:p-8 rounded-3xl border border-mist-200 mb-6 sm:mb-10 text-right animate-in fade-in slide-in-from-bottom-4 duration-500"
       dir="rtl"
     >
-      <p className="text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase text-[#c9a961] mb-2">
+      <p className="text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase text-[#0153F4] mb-2">
         למה מיקוד
       </p>
-      <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-[#1e3a5f] mb-5 sm:mb-7 leading-tight">
+      <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-[#0C084A] mb-5 sm:mb-7 leading-tight">
         3 דרכים לקחת משכנתא — רק אחת עובדת בשבילך
       </h3>
 
       {/* טבלת השוואה — גריד רספונסיבי (4 עמודות: קריטריון + 3 אפשרויות) */}
-      <div className="overflow-hidden rounded-xl sm:rounded-2xl border border-gray-200 bg-white">
+      <div className="overflow-hidden rounded-3xl border border-mist-200 bg-white">
         {/* כותרות */}
         <div className="grid grid-cols-[1.4fr_repeat(3,1fr)] sm:grid-cols-[2fr_repeat(3,1fr)]">
           <div className="p-2 sm:p-4" />
@@ -97,15 +97,15 @@ export default function AdvisorComparison() {
             <div
               key={col.key}
               className={`p-2 sm:p-4 text-center flex flex-col items-center justify-center gap-1 ${
-                col.highlight ? 'bg-[#1e3a5f]' : 'bg-gray-50'
+                col.highlight ? 'bg-[#0C084A]' : 'bg-mist-50'
               }`}
             >
               {col.highlight && (
-                <Crown className="w-4 h-4 text-[#c9a961]" fill="#c9a961" />
+                <Crown className="w-4 h-4 text-[#0153F4]" fill="#0153F4" />
               )}
               <span
                 className={`text-[11px] sm:text-sm font-black leading-tight ${
-                  col.highlight ? 'text-[#c9a961]' : 'text-slate-500'
+                  col.highlight ? 'text-[#0153F4]' : 'text-mist-500'
                 }`}
               >
                 {col.label}
@@ -118,14 +118,14 @@ export default function AdvisorComparison() {
         {rows.map((row, i) => (
           <div
             key={i}
-            className="grid grid-cols-[1.4fr_repeat(3,1fr)] sm:grid-cols-[2fr_repeat(3,1fr)] border-t border-gray-100"
+            className="grid grid-cols-[1.4fr_repeat(3,1fr)] sm:grid-cols-[2fr_repeat(3,1fr)] border-t border-mist-100"
           >
             <div className="p-2 sm:p-4 flex flex-col justify-center">
-              <span className="text-xs sm:text-base font-bold text-[#1e3a5f] leading-snug">
+              <span className="text-xs sm:text-base font-bold text-[#0C084A] leading-snug">
                 {row.criterion}
               </span>
               {row.hint && (
-                <span className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug mt-0.5">
+                <span className="text-[10px] sm:text-xs text-mist-400 font-medium leading-snug mt-0.5">
                   ({row.hint})
                 </span>
               )}
@@ -134,7 +134,7 @@ export default function AdvisorComparison() {
               <div
                 key={col.key}
                 className={`p-2 sm:p-4 flex items-center justify-center text-center ${
-                  col.highlight ? 'bg-[#1e3a5f]/5' : ''
+                  col.highlight ? 'bg-periwinkle-100' : ''
                 }`}
               >
                 <Cell value={row[col.key]} highlight={col.highlight} />
@@ -144,7 +144,7 @@ export default function AdvisorComparison() {
         ))}
       </div>
 
-      <p className="mt-4 sm:mt-5 text-sm sm:text-base font-bold text-[#1e3a5f] text-center leading-relaxed">
+      <p className="mt-4 sm:mt-5 text-sm sm:text-base font-bold text-[#0C084A] text-center leading-relaxed">
         כל היתרונות של יועץ מקצועי — בשבריר מהמחיר, תוך דקות.
       </p>
     </div>
