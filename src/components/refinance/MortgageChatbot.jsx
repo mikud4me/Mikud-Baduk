@@ -76,8 +76,7 @@ const QUICK_ACTIONS = [
   { icon: TrendingUp, label: 'בדיקת מחזור', page: 'RefinanceQuickCheck', color: 'bg-green-600 hover:bg-green-700' },
 ];
 
-export default function MortgageChatbot() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function MortgageChatbot({ isOpen, setIsOpen }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
