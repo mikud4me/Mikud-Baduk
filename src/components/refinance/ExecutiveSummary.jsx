@@ -113,35 +113,6 @@ export default function ExecutiveSummary({ analysisResult, headline, externalTri
     <div className="space-y-3 -mt-2">
       {/* ── תוצאת הביניים — המשך ישיר לשתי האסטרטגיות, לא כרטיס נפרד ── */}
       <div className="border-t border-mist-200 pt-4">
-        {/* Trinity View — שלושת עמודי הוודאות */}
-        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-3">
-          {/* עמוד 1: Index Shield */}
-          <div className="bg-gradient-to-br from-emerald-600 to-green-700 rounded-xl p-2 md:p-4 text-white flex flex-col items-center text-center">
-            <p className="text-[9px] md:text-xs font-bold opacity-80 mb-1">🛡️ מגן מדד</p>
-            <p className="text-base md:text-3xl font-black leading-tight">₪{indexDamage.toLocaleString()}</p>
-            <p className="text-[8px] md:text-xs opacity-70 mt-1 hidden md:block">חיסכון מהצמדה לאורך כל התקופה</p>
-          </div>
-          {/* עמוד 2: חיסכון חודשי / מקדמה */}
-          {monthlyFreed < 0 ? (
-            <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl p-2 md:p-4 text-white flex flex-col items-center text-center">
-              <p className="text-[9px] md:text-xs font-bold opacity-80 mb-1">⚠️ מקדמה</p>
-              <p className="text-base md:text-3xl font-black leading-tight">+₪{Math.abs(monthlyFreed).toLocaleString()}</p>
-              <p className="text-[8px] md:text-xs opacity-70 mt-1 hidden md:block">₪/חודש יותר — נמס מול ₪{indexDamage.toLocaleString()} מגן מדד</p>
-            </div>
-          ) : (
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-2 md:p-4 text-white flex flex-col items-center text-center">
-              <p className="text-[9px] md:text-xs font-bold opacity-80 mb-1">💙 חיסכון חודשי</p>
-              <p className="text-base md:text-3xl font-black leading-tight">₪{monthlyFreed.toLocaleString()}</p>
-              <p className="text-[8px] md:text-xs opacity-70 mt-1 hidden md:block">פחות מהעו"ש כל חודש</p>
-            </div>
-          )}
-          {/* עמוד 3: Bottom Line */}
-          <div className="bg-gradient-to-br from-[#0153F4] to-[#0141C2] rounded-xl p-2 md:p-4 text-white flex flex-col items-center text-center">
-            <p className="text-[9px] md:text-xs font-black opacity-80 mb-1">💰 רווח נטו</p>
-            <p className="text-base md:text-3xl font-black leading-tight">₪{netSavings.toLocaleString()}</p>
-            <p className="text-[8px] md:text-xs opacity-70 mt-1 hidden md:block">השורה התחתונה שנשארת בכיס</p>
-          </div>
-        </div>
         {/* Strategy tag */}
         <div className="text-center text-xs text-[#0153F4] font-bold opacity-80 mb-3">
           {strategy.title} · {strategy.description}
