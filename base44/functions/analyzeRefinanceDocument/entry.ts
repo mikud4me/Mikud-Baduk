@@ -10,6 +10,28 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// Keep the literal Deno.env lookup at module scope so Base44's deployment
+// scanner can bind this secret to the function version. The normalized and
+// process.env fallbacks cover malformed dashboard keys and Base44 runtime
+// variants without ever exposing the key to the browser.
+const directGeminiApiKey = Deno.env.get('GEMINI_API_KEY');
+const denoEnvironment = Deno.env.toObject();
+const normalizedGeminiEntry = Object.entries(denoEnvironment).find(
+  ([key, value]) => key.trim() === 'GEMINI_API_KEY' && Boolean(value?.trim()),
+);
+const nodeProcess = Reflect.get(globalThis, 'process');
+const processGeminiApiKey = nodeProcess?.env?.GEMINI_API_KEY;
+const GEMINI_API_KEY = (
+  directGeminiApiKey?.trim()
+  || normalizedGeminiEntry?.[1]?.trim()
+  || (typeof processGeminiApiKey === 'string' ? processGeminiApiKey.trim() : '')
+);
+const GEMINI_SECRET_STATUS = GEMINI_API_KEY
+  ? 'configured'
+  : Deno.env.has('GEMINI_API_KEY')
+    ? 'empty'
+    : 'missing-from-function-environment';
+
 function jsonResponse(body, init = {}) {
   return Response.json(body, {
     ...init,
@@ -61,10 +83,11 @@ const guessMimeType = (url) => {
 // Gemini supports the JSON Schema subset used by the existing extraction
 // contract, including nullable type arrays.
 async function invokeGemini({ model, prompt, files = [], schema = null, useSearchGrounding = false }) {
-  const apiKey = Deno.env.get('GEMINI_API_KEY');
-  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
+  if (!GEMINI_API_KEY) {
+    throw new Error(`GEMINI_API_KEY is not configured (${GEMINI_SECRET_STATUS})`);
+  }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
   const parts = [{ text: prompt }];
   for (const { mimeType, data } of files) {
     parts.push({ inlineData: { mimeType, data } });
