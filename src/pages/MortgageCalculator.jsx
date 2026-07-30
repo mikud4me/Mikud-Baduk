@@ -72,6 +72,15 @@ export default function MortgageCalculator() {
   const [showSpouseReminderModal, setShowSpouseReminderModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState(null);
+
+  // Move focus into each modal's dialog container when it opens, so screen
+  // reader users land on it instead of it opening silently behind the backdrop.
+  const paymentModalRef = useRef(null);
+  const spouseReminderModalRef = useRef(null);
+  const creditModalRef = useRef(null);
+  useEffect(() => { if (showPaymentModal) paymentModalRef.current?.focus(); }, [showPaymentModal]);
+  useEffect(() => { if (showSpouseReminderModal) spouseReminderModalRef.current?.focus(); }, [showSpouseReminderModal]);
+  useEffect(() => { if (showCreditModal) creditModalRef.current?.focus(); }, [showCreditModal]);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState(null);
   const [demoPending, setDemoPending] = useState(false);
@@ -758,9 +767,16 @@ ${results.score}/100
 
       {showPaymentModal && paymentUrl && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md h-[640px] max-h-[92vh] overflow-hidden flex flex-col">
+          <div
+            ref={paymentModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-modal-title"
+            tabIndex={-1}
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md h-[640px] max-h-[92vh] overflow-hidden flex flex-col outline-none"
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-mist-100 flex-shrink-0">
-              <h3 className="font-black text-[#0C084A] text-sm">תשלום מאובטח — מיקוד משכנתאות</h3>
+              <h3 id="payment-modal-title" className="font-black text-[#0C084A] text-sm">תשלום מאובטח — מיקוד משכנתאות</h3>
               <button
                 onClick={() => { closePaymentModal(); verifyAndUnlock(); }}
                 className="p-1 rounded-lg hover:bg-mist-50 transition-colors"
@@ -850,7 +866,7 @@ ${results.score}/100
             {(step > 1 || codeSent || heroStarted) && (
             <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-mist-100 transition-all duration-700 relative overflow-hidden">
               <div className="mb-6 text-right">
-                <h2 className="text-lg sm:text-2xl font-bold text-[#0C084A] leading-none">
+                <h1 className="text-lg sm:text-2xl font-bold text-[#0C084A] leading-none">
                   {step === 1 && !codeSent && "בואו נכיר"}
                   {step === 1 && codeSent && "אימות זהות"}
                   {step === 2 && "פרופיל אישי"}
@@ -858,7 +874,7 @@ ${results.score}/100
                   {step === 4 && "מצב כלכלי"}
                   {step === 5 && "הון עצמי והשלמת עסקה"}
                   {step === 6 && "העדפות"}
-                </h2>
+                </h1>
                 <p className="text-[#0153F4] font-medium text-xs mt-2">שלב {step} מתוך 6</p>
               </div>
 
@@ -885,8 +901,8 @@ ${results.score}/100
 
                   {/* אישור יצירת קשר */}
                   <div className="mt-4 flex items-center gap-3 p-2.5 rounded-xl border bg-mist-50 shadow-inner">
-                    <Checkbox checked={formData.consent} onCheckedChange={(checked) => handleInputChange('consent', checked)} />
-                    <p className="text-[11px] text-mist-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
+                    <Checkbox checked={formData.consent} onCheckedChange={(checked) => handleInputChange('consent', checked)} aria-labelledby="consent-contact-label" />
+                    <p id="consent-contact-label" className="text-[11px] text-mist-600 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
                   </div>
                   {fieldErrors.consent && <p className="text-red-600 text-xs font-bold mt-1 text-right">{fieldErrors.consent}</p>}
 
@@ -898,8 +914,9 @@ ${results.score}/100
                         handleInputChange('creditConsent', checked);
                         if (checked) setShowCreditModal(true);
                       }}
+                      aria-labelledby="consent-credit-label"
                     />
-                    <p className="text-[11px] text-[#0C084A] font-bold leading-relaxed text-right">
+                    <p id="consent-credit-label" className="text-[11px] text-[#0C084A] font-bold leading-relaxed text-right">
                       אני מאשר לבנק לבצע בדיקת חווי אשראי (BDI) במסגרת בחינת הבקשה.{' '}
                       <button type="button" onClick={() => setShowCreditModal(true)} className="underline text-[#0C084A] hover:text-[#0153F4]">מה זה אומר?</button>
                     </p>
@@ -910,10 +927,18 @@ ${results.score}/100
               {/* מודל תזכורת למלא פרטי בן/בת זוג */}
               {showSpouseReminderModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowSpouseReminderModal(false)}>
-                  <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-[#0153F4] text-right animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                  <div
+                    ref={spouseReminderModalRef}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="spouse-reminder-modal-title"
+                    tabIndex={-1}
+                    className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-[#0153F4] text-right animate-in zoom-in-95 duration-300 outline-none"
+                    onClick={e => e.stopPropagation()}
+                  >
                     <div className="flex items-center justify-between mb-5">
                       <button onClick={() => setShowSpouseReminderModal(false)} className="text-mist-400 hover:text-mist-600"><X size={24} /></button>
-                      <h3 className="text-xl font-black text-[#0C084A]">שכחת למלא פרטי בן/בת זוג</h3>
+                      <h3 id="spouse-reminder-modal-title" className="text-xl font-black text-[#0C084A]">שכחת למלא פרטי בן/בת זוג</h3>
                     </div>
                     <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 mb-6 text-center">
                       <div className="text-4xl mb-3">👫</div>
@@ -952,10 +977,18 @@ ${results.score}/100
               {/* מודל הסבר חווי אשראי */}
               {showCreditModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowCreditModal(false)}>
-                  <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border-4 border-[#0C084A] text-right animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                  <div
+                    ref={creditModalRef}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="credit-modal-title"
+                    tabIndex={-1}
+                    className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border-4 border-[#0C084A] text-right animate-in zoom-in-95 duration-300 outline-none"
+                    onClick={e => e.stopPropagation()}
+                  >
                     <div className="flex items-center justify-between mb-5">
                       <button onClick={() => setShowCreditModal(false)} className="text-mist-400 hover:text-mist-600"><X size={24} /></button>
-                      <h3 className="text-xl font-black text-[#0C084A]">מהי בדיקת חווי אשראי?</h3>
+                      <h3 id="credit-modal-title" className="text-xl font-black text-[#0C084A]">מהי בדיקת חווי אשראי?</h3>
                     </div>
                     <div className="space-y-4 text-sm text-mist-700 leading-relaxed">
                       <p className="font-bold text-[#0C084A] text-base">בדיקת BDI (Credit Check) היא בדיקה שגרתית שהבנק מבצע לפני אישור משכנתא.</p>
@@ -972,7 +1005,7 @@ ${results.score}/100
                         <p className="font-bold text-green-800 mb-1">מה אתה מאשר?</p>
                         <p className="text-green-700 text-xs">אתה מאשר לבנק לפנות לחברת BDI ולקבל דוח אשראי עליך לצורך בחינת הבקשה למשכנתא בלבד. המידע משמש לצורך הערכת כשירות ההלוואה ואינו מועבר לגורם שלישי.</p>
                       </div>
-                      <p className="text-xs text-mist-500 font-medium">הבדיקה אינה פוגעת בדירוג האשראי שלך.</p>
+                      <p className="text-xs text-mist-600 font-medium">הבדיקה אינה פוגעת בדירוג האשראי שלך.</p>
                     </div>
                     <button
                       onClick={() => { setShowCreditModal(false); handleInputChange('creditConsent', true); }}
@@ -987,7 +1020,7 @@ ${results.score}/100
               {step === 1 && codeSent && !emailVerified && (
                 <div className="animate-in zoom-in-95 duration-500 text-center py-8">
                   <Mail size={40} className="text-[#0C084A] mx-auto mb-4" />
-                  <h4 className="text-lg font-black text-[#0C084A] mb-2 text-center">הזן קוד אימות</h4>
+                  <h2 className="text-lg font-black text-[#0C084A] mb-2 text-center">הזן קוד אימות</h2>
                   {EMAIL_VERIFICATION_ENABLED ? (
                     <p className="mb-4 text-sm text-mist-600 text-center">
                       שלחנו קוד אימות בן 6 ספרות לכתובת <span className="font-bold text-[#0C084A]" dir="ltr">{formData.email}</span>
@@ -1021,21 +1054,28 @@ ${results.score}/100
                       }, 0);
                       const needsAttention = idx > 0 && bIncome === 0;
                       return (
-                      <button
+                      <div
                         key={idx}
-                        onClick={() => setActiveBorrowerTab(idx)}
                         className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${activeBorrowerTab === idx ? 'bg-[#0C084A] text-white border-[#0C084A]' : needsAttention ? 'bg-amber-50 text-amber-700 border-amber-400 animate-pulse' : 'bg-white text-[#0C084A] border-[#0C084A]/30 hover:border-[#0C084A]'}`}
                       >
-                        <User size={14} />
-                        לווה {['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}
-                        {needsAttention && <span className="text-amber-500 text-xs font-black">!</span>}
+                        <button
+                          type="button"
+                          onClick={() => setActiveBorrowerTab(idx)}
+                          className="flex items-center gap-1.5 bg-transparent text-inherit"
+                        >
+                          <User size={14} />
+                          לווה {['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}
+                          {needsAttention && <span className="text-amber-500 text-xs font-black">!</span>}
+                        </button>
                         {idx > 0 && (
-                          <span
-                            onClick={e => { e.stopPropagation(); removeBorrower(idx); }}
-                            className="mr-1 text-red-400 hover:text-red-600 font-black cursor-pointer"
-                          >×</span>
+                          <button
+                            type="button"
+                            onClick={() => removeBorrower(idx)}
+                            aria-label={`הסר לווה ${['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}`}
+                            className="mr-1 text-red-400 hover:text-red-600 font-black bg-transparent"
+                          >×</button>
                         )}
-                      </button>
+                      </div>
                       );
                     })}
                     {borrowers.length < 5 && (
@@ -1380,12 +1420,18 @@ ${results.score}/100
                   {isSeniorBankMortgage && (
                     <div className="mt-6 space-y-4 text-right animate-in slide-in-from-top-2 duration-300">
                       {/* מתג בלון */}
-                      <div className={`p-5 rounded-2xl border cursor-pointer transition-all ${formData.seniorBalloon ? 'bg-brand-900 border-brand-400 text-white' : 'bg-brand-50 border-brand-300 text-brand-900'}`}
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={formData.seniorBalloon}
+                        className={`p-5 rounded-2xl border cursor-pointer transition-all ${formData.seniorBalloon ? 'bg-brand-900 border-brand-400 text-white' : 'bg-brand-50 border-brand-300 text-brand-900'}`}
                         onClick={() => {
                           const next = !formData.seniorBalloon;
                           handleInputChange('seniorBalloon', next);
                           if (next) handleInputChange('loanDuration', Math.min(Number(formData.loanDuration), 15).toString());
-                        }}>
+                        }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.currentTarget.click(); } }}
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-all ${formData.seniorBalloon ? 'bg-brand-400 justify-end' : 'bg-mist-300 justify-start'}`}>
                             <div className="w-4 h-4 rounded-full bg-white shadow" />
@@ -1511,7 +1557,7 @@ ${results.score}/100
               <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 relative overflow-hidden">
                 {/* כותרת הדוח */}
                 <div className="px-6 sm:px-10 py-6 sm:py-8 text-right border-b border-mist-100">
-                  <h2 className="text-[21.6px] sm:text-[27px] md:text-[32.4px] font-semibold text-[#0C084A] leading-tight">דוח היתכנות משכנתא</h2>
+                  <h1 className="text-[21.6px] sm:text-[27px] md:text-[32.4px] font-semibold text-[#0C084A] leading-tight">דוח היתכנות משכנתא</h1>
                   <p className="text-mist-600 text-sm sm:text-base font-medium mt-2 leading-relaxed">
                     היי {formData.firstName}! ניתחנו את הנתונים הפיננסיים שלך ומצאנו את מסלולי המשכנתא המשתלמים ביותר עבורך.
                   </p>

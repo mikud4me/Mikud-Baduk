@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { User, ShieldCheck, Coins, AlertTriangle } from 'lucide-react';
 import PremiumInput from './PremiumInput';
 import StartDateInput from './StartDateInput';
@@ -58,6 +58,8 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
   const [pendingPensioner, setPendingPensioner] = useState(false);
   const [idError, setIdError] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const pensionerModalRef = useRef(null);
+  useEffect(() => { if (showPensionerWarning) pensionerModalRef.current?.focus(); }, [showPensionerWarning]);
 
   const update = (field, value) => onChange({ ...borrower, [field]: value });
 
@@ -135,10 +137,17 @@ export default function BorrowerForm({ borrower, index, onChange, errors = {}, b
       {/* אזהרת פנסיונר צעיר */}
       {showPensionerWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-amber-400 text-right animate-in zoom-in-95 duration-300">
+          <div
+            ref={pensionerModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pensioner-modal-title"
+            tabIndex={-1}
+            className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 border-4 border-amber-400 text-right animate-in zoom-in-95 duration-300 outline-none"
+          >
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle size={32} className="text-amber-500 flex-shrink-0" />
-              <h3 className="text-lg font-black text-[#0C084A]">האם אתה בטוח שאתה פנסיונר?</h3>
+              <h3 id="pensioner-modal-title" className="text-lg font-black text-[#0C084A]">האם אתה בטוח שאתה פנסיונר?</h3>
             </div>
             <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 mb-5">
               <p className="text-amber-800 font-bold text-sm leading-relaxed">

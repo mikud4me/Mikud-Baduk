@@ -28,7 +28,7 @@ export default function BeforeAfterSavings() {
           <br />
           למשכנתא חכמה
         </h2>
-        <p className="text-mist-500 max-w-xl mx-auto leading-relaxed">
+        <p className="text-mist-600 max-w-xl mx-auto leading-relaxed">
           דוגמה להמחשה על הלוואה של <Amount value={1200000} /> ל-25 שנה. ההבדל בתמהיל הנכון —
           מצטבר לסכום שמשנה חיים.
         </p>
@@ -36,7 +36,7 @@ export default function BeforeAfterSavings() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
         <div className="rounded-3xl bg-mist-50 border border-mist-200 p-6 sm:p-8">
-          <span className="inline-block bg-mist-100 text-mist-500 text-xs font-bold rounded-full px-3 py-1.5 mb-4">
+          <span className="inline-block bg-mist-100 text-mist-700 text-xs font-bold rounded-full px-3 py-1.5 mb-4">
             לפני · משכנתא סטנדרטית
           </span>
           <div>
@@ -73,7 +73,7 @@ export default function BeforeAfterSavings() {
         </div>
       </div>
 
-      <p className="text-center text-xs text-mist-400 mt-4">
+      <p className="text-center text-xs text-mist-600 mt-4">
         * הנתונים להמחשה בלבד. החיסכון בפועל תלוי בפרופיל הפיננסי ובתנאי השוק.
       </p>
     </div>

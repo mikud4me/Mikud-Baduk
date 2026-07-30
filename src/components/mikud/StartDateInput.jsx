@@ -49,11 +49,12 @@ export default function StartDateInput({ value, onChange, label = 'תאריך ה
             inputMode="numeric"
             placeholder="MM"
             maxLength={2}
+            aria-label={`חודש - ${label}`}
             className={`${baseInput} w-full`}
             value={month}
             onChange={handleMonth}
           />
-          <span className="text-xs text-mist-400 mt-1 font-medium">חודש</span>
+          <span className="text-xs text-mist-600 mt-1 font-medium">חודש</span>
         </div>
 
         <div className="flex items-center pb-5 text-mist-400 font-bold text-xl">/</div>
@@ -66,11 +67,12 @@ export default function StartDateInput({ value, onChange, label = 'תאריך ה
             inputMode="numeric"
             placeholder="YYYY"
             maxLength={4}
+            aria-label={`שנה - ${label}`}
             className={`${baseInput} w-full`}
             value={year}
             onChange={handleYear}
           />
-          <span className="text-xs text-mist-400 mt-1 font-medium">שנה</span>
+          <span className="text-xs text-mist-600 mt-1 font-medium">שנה</span>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   User, Home, ChevronLeft, Phone, Wallet, Building2,
   Mail, BadgeCheck, Coins, TrendingDown,
@@ -29,6 +29,8 @@ export default function ClientQuestionnaire() {
   const [submitting, setSubmitting] = useState(false);
   const [currentLeadId, setCurrentLeadId] = useState(null);
   const [showCreditModal, setShowCreditModal] = useState(false);
+  const creditModalRef = useRef(null);
+  useEffect(() => { if (showCreditModal) creditModalRef.current?.focus(); }, [showCreditModal]);
 
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', phone: '', email: '',
@@ -211,9 +213,9 @@ export default function ClientQuestionnaire() {
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <BadgeCheck size={48} className="text-green-600" />
           </div>
-          <h2 className="text-3xl font-black text-[#0C084A] mb-4">תודה רבה!</h2>
+          <h1 className="text-3xl font-black text-[#0C084A] mb-4">תודה רבה!</h1>
           <p className="text-mist-600 font-medium text-lg mb-2">הפרטים התקבלו בהצלחה</p>
-          <p className="text-mist-500 text-sm">נציג שלנו יחזור אליך בהקדם</p>
+          <p className="text-mist-600 text-sm">נציג שלנו יחזור אליך בהקדם</p>
           <a href="tel:2324" className="mt-8 inline-block bg-[#0C084A] text-white px-10 py-4 rounded-full font-black text-xl shadow-lg hover:bg-[#0153F4] transition-all">
             2324*
           </a>
@@ -252,9 +254,9 @@ export default function ClientQuestionnaire() {
                   <StepIcon size={18} className="text-white" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-xl font-bold text-white leading-none">
+                  <h1 className="text-base sm:text-xl font-bold text-white leading-none">
                     {step === 1 && !otpSent ? 'בואו נכיר' : step === 1 && otpSent ? 'אימות זהות' : STEP_TITLES[step]}
-                  </h2>
+                  </h1>
                   <p className="text-[#0153F4] font-medium text-xs mt-1">שלב {step} מתוך 5</p>
                 </div>
               </div>
@@ -282,10 +284,10 @@ export default function ClientQuestionnaire() {
               <PremiumInput label="מספר תעודת זהות" name="idNumber" value={formData.idNumber} placeholder="123456789" icon={BadgeCheck} onChange={handleInputChange} error={fieldErrors.idNumber} />
 
               <div className="mb-5">
-                <label className="flex items-center text-[#0C084A] font-normal text-sm mb-2">
+                <label htmlFor="cq-birthDate" className="flex items-center text-[#0C084A] font-normal text-sm mb-2">
                   תאריך לידה
                 </label>
-                <input type="date" min="1924-01-01" max="2007-12-31"
+                <input type="date" id="cq-birthDate" min="1924-01-01" max="2007-12-31"
                   className="w-full bg-white h-14 px-5 border-2 border-[#0C084A] rounded-2xl outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-right shadow-md"
                   value={formData.birthDate || ''}
                   onChange={(e) => handleInputChange('birthDate', e.target.value)}
@@ -302,8 +304,8 @@ export default function ClientQuestionnaire() {
               <PremiumInput label="כתובת דוא״ל" name="email" value={formData.email} placeholder="example@email.com" icon={Mail} onChange={handleInputChange} type="email" error={fieldErrors.email} />
 
               <div className="mt-4 flex items-start gap-3 p-4 rounded-xl border-2 bg-mist-50">
-                <Checkbox checked={formData.consent} onCheckedChange={(checked) => handleInputChange('consent', checked)} className="mt-0.5" />
-                <p className="text-xs text-mist-500 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
+                <Checkbox checked={formData.consent} onCheckedChange={(checked) => handleInputChange('consent', checked)} className="mt-0.5" aria-labelledby="cq-consent-contact-label" />
+                <p id="cq-consent-contact-label" className="text-xs text-mist-600 font-bold leading-relaxed text-right">אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.</p>
               </div>
               {fieldErrors.consent && <p className="text-red-600 text-xs font-bold mt-1">{fieldErrors.consent}</p>}
 
@@ -312,8 +314,9 @@ export default function ClientQuestionnaire() {
                   checked={formData.creditConsent}
                   onCheckedChange={(checked) => { handleInputChange('creditConsent', checked); if (checked) setShowCreditModal(true); }}
                   className="mt-0.5"
+                  aria-labelledby="cq-consent-credit-label"
                 />
-                <p className="text-xs text-[#0C084A] font-bold leading-relaxed text-right">
+                <p id="cq-consent-credit-label" className="text-xs text-[#0C084A] font-bold leading-relaxed text-right">
                   אני מאשר לבנק לבצע בדיקת חווי אשראי (BDI).{' '}
                   <button type="button" onClick={() => setShowCreditModal(true)} className="underline text-[#0C084A]">מה זה אומר?</button>
                 </p>
@@ -324,10 +327,18 @@ export default function ClientQuestionnaire() {
           {/* מודל BDI */}
           {showCreditModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowCreditModal(false)}>
-              <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border-4 border-[#0C084A] text-right" onClick={e => e.stopPropagation()}>
+              <div
+                ref={creditModalRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="cq-credit-modal-title"
+                tabIndex={-1}
+                className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border-4 border-[#0C084A] text-right outline-none"
+                onClick={e => e.stopPropagation()}
+              >
                 <div className="flex items-center justify-between mb-5">
                   <button onClick={() => setShowCreditModal(false)}><X size={24} className="text-mist-400" /></button>
-                  <h3 className="text-xl font-black text-[#0C084A]">מהי בדיקת חווי אשראי?</h3>
+                  <h3 id="cq-credit-modal-title" className="text-xl font-black text-[#0C084A]">מהי בדיקת חווי אשראי?</h3>
                 </div>
                 <div className="space-y-4 text-sm text-mist-700">
                   <p className="font-bold text-[#0C084A]">בדיקת BDI היא בדיקה שגרתית שהבנק מבצע לפני אישור משכנתא.</p>
@@ -339,7 +350,7 @@ export default function ClientQuestionnaire() {
                       <li>• דירוג האשראי הכללי</li>
                     </ul>
                   </div>
-                  <p className="text-xs text-mist-500">הבדיקה אינה פוגעת בדירוג האשראי שלך.</p>
+                  <p className="text-xs text-mist-600">הבדיקה אינה פוגעת בדירוג האשראי שלך.</p>
                 </div>
                 <button onClick={() => { setShowCreditModal(false); handleInputChange('creditConsent', true); }}
                   className="mt-6 w-full bg-[#0C084A] text-white py-3 rounded-2xl font-black hover:bg-[#0153F4] transition-all">
@@ -353,9 +364,9 @@ export default function ClientQuestionnaire() {
           {step === 1 && otpSent && (
             <div className="text-center py-8">
               <Smartphone size={40} className="text-[#0C084A] mx-auto mb-4" />
-              <h4 className="text-lg font-black text-[#0C084A] mb-4">הזן קוד אימות</h4>
+              <h2 className="text-lg font-black text-[#0C084A] mb-4">הזן קוד אימות</h2>
               <PremiumInput label="הזן קוד" name="otp" value={userInputOtp} onChange={(n, v) => setUserInputOtp(v)} placeholder="0000" icon={Key} error={fieldErrors.otp} />
-              <p className="mt-2 text-xs text-mist-400 italic">קוד לבדיקה: <span className="text-[#0153F4] font-bold">{generatedOtp}</span></p>
+              <p className="mt-2 text-xs text-mist-600 italic">קוד לבדיקה: <span className="text-[#0153F4] font-bold">{generatedOtp}</span></p>
             </div>
           )}
 
@@ -364,14 +375,16 @@ export default function ClientQuestionnaire() {
             <div className="animate-in fade-in duration-500">
               <div className="flex gap-2 mb-5 flex-wrap">
                 {borrowers.map((b, idx) => (
-                  <button key={idx} onClick={() => setActiveBorrowerTab(idx)}
+                  <div key={idx}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${activeBorrowerTab === idx ? 'bg-[#0C084A] text-white border-[#0C084A]' : 'bg-white text-[#0C084A] border-[#0C084A]/30'}`}>
-                    <User size={14} />
-                    לווה {['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}
+                    <button type="button" onClick={() => setActiveBorrowerTab(idx)} className="flex items-center gap-1.5 bg-transparent text-inherit">
+                      <User size={14} />
+                      לווה {['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}
+                    </button>
                     {idx > 0 && (
-                      <span onClick={e => { e.stopPropagation(); removeBorrower(idx); }} className="mr-1 text-red-400 hover:text-red-600 font-black cursor-pointer">×</span>
+                      <button type="button" onClick={() => removeBorrower(idx)} aria-label={`הסר לווה ${['א', 'ב', 'ג', 'ד', 'ה'][idx] || (idx + 1)}`} className="mr-1 text-red-400 hover:text-red-600 font-black bg-transparent">×</button>
                     )}
-                  </button>
+                  </div>
                 ))}
                 {borrowers.length < 5 && (
                   <button onClick={addBorrower} className="flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm border-2 border-dashed border-[#0153F4] text-[#0153F4] hover:bg-[#0153F4]/10 transition-all">

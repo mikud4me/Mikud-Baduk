@@ -427,7 +427,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
             </div>
           </div>
         </div>
-        <p className="text-xs text-mist-400 mt-3 font-medium">* מלאו את שם הבנק לפני השליחה. ניתן לשלוח לכמה בנקים במקביל.</p>
+        <p className="text-xs text-mist-700 mt-3 font-medium">* מלאו את שם הבנק לפני השליחה. ניתן לשלוח לכמה בנקים במקביל.</p>
       </Section>
 
       {/* תסריט השיחה */}

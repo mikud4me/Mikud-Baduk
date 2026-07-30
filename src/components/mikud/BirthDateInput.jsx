@@ -79,11 +79,12 @@ export default function BirthDateInput({ value, onChange, error, onInvalidChange
             inputMode="numeric"
             placeholder="DD"
             maxLength={2}
+            aria-label="יום לידה"
             className={`${baseInput} w-full`}
             value={day}
             onChange={handleDay}
           />
-          <span className="text-xs text-mist-400 mt-1 font-medium">יום</span>
+          <span className="text-xs text-mist-600 mt-1 font-medium">יום</span>
         </div>
 
         <div className="flex items-center pb-5 text-mist-400 font-bold text-xl">/</div>
@@ -96,11 +97,12 @@ export default function BirthDateInput({ value, onChange, error, onInvalidChange
             inputMode="numeric"
             placeholder="MM"
             maxLength={2}
+            aria-label="חודש לידה"
             className={`${baseInput} w-full`}
             value={month}
             onChange={handleMonth}
           />
-          <span className="text-xs text-mist-400 mt-1 font-medium">חודש</span>
+          <span className="text-xs text-mist-600 mt-1 font-medium">חודש</span>
         </div>
 
         <div className="flex items-center pb-5 text-mist-400 font-bold text-xl">/</div>
@@ -113,11 +115,12 @@ export default function BirthDateInput({ value, onChange, error, onInvalidChange
             inputMode="numeric"
             placeholder="YYYY"
             maxLength={4}
+            aria-label="שנת לידה"
             className={`${baseInput} w-full`}
             value={year}
             onChange={handleYear}
           />
-          <span className="text-xs text-mist-400 mt-1 font-medium">שנה</span>
+          <span className="text-xs text-mist-600 mt-1 font-medium">שנה</span>
         </div>
       </div>
 

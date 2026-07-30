@@ -41,7 +41,7 @@ export default function BankLogosCarousel() {
         ref={sectionRef}
         className="max-w-6xl mx-auto rounded-3xl bg-gradient-to-br from-[#959EFF] to-[#4D87F7] px-6 sm:px-10 py-8 sm:py-10 text-center overflow-hidden"
       >
-        <h2 className="text-white/70 text-sm sm:text-base font-medium mb-8">
+        <h2 className="text-[#0C084A] text-sm sm:text-base font-medium mb-8">
           בשיתוף פעולה עם כל הבנקים המובילים במשק
         </h2>
 

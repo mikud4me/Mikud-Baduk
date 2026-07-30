@@ -67,7 +67,7 @@ export default function MixTable({ title, subtitle, tracks, totalPmt, isRecommen
           <Icon size={16} className={isRecommended ? 'text-[#0153F4]' : 'text-mist-500'} />
           <h4 className={`text-sm sm:text-base font-black leading-tight ${isRecommended ? 'text-white' : 'text-[#0C084A]'}`}>{title}</h4>
         </div>
-        <p className={`text-[11px] mb-3 leading-snug ${isRecommended ? 'text-white/70' : 'text-mist-500'}`}>{subtitle || meta.strategy}</p>
+        <p className={`text-[11px] mb-3 leading-snug ${isRecommended ? 'text-white/70' : 'text-mist-600'}`}>{subtitle || meta.strategy}</p>
         <div className={`rounded-xl px-4 py-3 text-center ${isRecommended ? 'bg-white/15 border border-white/20' : 'bg-[#0C084A]'}`}>
           <p className="text-[10px] text-white/60 font-semibold mb-0.5">החזר חודשי</p>
           <p className="text-2xl sm:text-3xl font-black text-white">₪{formatCurrency(Math.floor(totalPmt))}</p>

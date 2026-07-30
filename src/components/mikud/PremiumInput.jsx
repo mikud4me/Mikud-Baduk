@@ -17,16 +17,17 @@ const NON_FORMAT_FIELDS = ['age', 'loanDuration', 'idNumber', 'childrenUnder18',
 export default function PremiumInput({ label, name, value, placeholder, options, onChange, error, min, max, type = "text" }) {
   const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'existingPropertyValue', 'existingMortgageBalance', 'existingMortgagePayment', 'rentalIncome', 'salePrice', 'completionAmount', 'refinanceBalance', 'currentMonthlyPayment', 'refinanceIncreaseAmount', 'appraisalValue', 'rentIncomeFromPurchased'].includes(name) || name.startsWith('amount_');
   const displayValue = isNumeric && value !== "" && !NON_FORMAT_FIELDS.includes(name) ? formatCurrency(value) : value;
+  const inputId = `premium-input-${name}`;
 
   return (
     <div className="mb-5 text-right w-full group">
-      <label className="flex items-center text-[#0C084A] font-normal text-sm mb-2 group-focus-within:text-[#0153F4] transition-colors">
+      <label htmlFor={inputId} className="flex items-center text-[#0C084A] font-normal text-sm mb-2 group-focus-within:text-[#0153F4] transition-colors">
         <span className="flex-1">{label}</span>
       </label>
 
       {options ? (
         <Select dir="rtl" value={value} onValueChange={(v) => onChange(name, v)}>
-          <SelectTrigger className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-right cursor-pointer [&_svg]:text-[#0153F4]">
+          <SelectTrigger id={inputId} className="w-full bg-periwinkle-100 h-[2.8rem] px-5 border border-transparent rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-right cursor-pointer [&_svg]:text-[#0153F4]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-white border border-mist-100 rounded-lg shadow-lg" dir="rtl">
@@ -44,6 +45,7 @@ export default function PremiumInput({ label, name, value, placeholder, options,
       ) : type === "range" ? (
         <div className="py-1" dir="ltr">
           <input
+            id={inputId}
             type="range"
             min={min}
             max={max}
@@ -53,7 +55,7 @@ export default function PremiumInput({ label, name, value, placeholder, options,
             value={value}
             onChange={(e) => onChange(name, e.target.value)}
           />
-          <div className="flex justify-between text-xs text-mist-400 mt-3" dir="rtl">
+          <div className="flex justify-between text-xs text-mist-600 mt-3" dir="rtl">
             <span>{max} שנים</span>
             <span className="text-[#0C084A] font-bold text-sm">{value} שנים</span>
             <span>{min} שנים</span>
@@ -62,6 +64,7 @@ export default function PremiumInput({ label, name, value, placeholder, options,
       ) : (
         <div className="relative">
           <input
+            id={inputId}
             type={type}
             placeholder={placeholder}
             className={`w-full bg-periwinkle-100 h-[2.8rem] px-5 border rounded-lg outline-none focus:border-[#0153F4] focus:ring-4 focus:ring-[#0153F4]/20 transition-all text-mist-900 font-semibold text-base text-right ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-transparent'}`}

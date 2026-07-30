@@ -105,7 +105,7 @@ export default function AdvisorComparison() {
               )}
               <span
                 className={`text-[11px] sm:text-sm font-black leading-tight ${
-                  col.highlight ? 'text-[#0153F4]' : 'text-mist-500'
+                  col.highlight ? 'text-[#0153F4]' : 'text-mist-600'
                 }`}
               >
                 {col.label}
@@ -125,7 +125,7 @@ export default function AdvisorComparison() {
                 {row.criterion}
               </span>
               {row.hint && (
-                <span className="text-[10px] sm:text-xs text-mist-400 font-medium leading-snug mt-0.5">
+                <span className="text-[10px] sm:text-xs text-mist-600 font-medium leading-snug mt-0.5">
                   ({row.hint})
                 </span>
               )}
