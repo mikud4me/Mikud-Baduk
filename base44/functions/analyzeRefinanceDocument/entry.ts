@@ -3,6 +3,13 @@ import { GoogleGenAI } from "npm:@google/genai@^2.0.0";
 // Portable refinance analysis core. The hosting platform only supplies a
 // standard Deno HTTP runtime and the GEMINI_API_KEY environment variable.
 const GEMINI_MODEL = 'gemini-3.5-flash';
+// Caps generation so a run-away response can't stall the request. Extraction of
+// a 12-track statement fits comfortably; before this cap a single call was
+// observed still streaming after 5 minutes.
+const MAX_OUTPUT_TOKENS = 16384;
+// No per-call deadline existed at all, so one stuck Gemini call held the whole
+// analysis open until the caller gave up.
+const GEMINI_CALL_TIMEOUT_MS = 90_000;
 const DEFAULT_STORAGE_ORIGIN = 'https://mandtjqtjkhbjhxhbjvx.supabase.co';
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -58,6 +65,16 @@ function validateDocumentUrl(value) {
   return url.toString();
 }
 
+// Rejects if `promise` hasn't settled within `ms`. The underlying request keeps
+// running — the SDK exposes no abort hook — but the caller stops waiting on it.
+function withTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(label)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 // ── base64 helper — safe for large files (avoids call-stack blowup on big arrays) ──
 function bytesToBase64(bytes) {
     let binary = '';
@@ -80,11 +97,34 @@ const guessMimeType = (url) => {
     return MIME_MAP[ext] || 'application/octet-stream';
 };
 
-// Gemini supports the JSON Schema subset used by the existing extraction
-// contract, including nullable type arrays.
+// Raised when the model answers with something that isn't the JSON we asked
+// for. Kept distinct from Gemini transport/capacity errors so the top-level
+// handler can't mistake an internal contract failure for an unreadable upload.
+class GeminiContractError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'GeminiContractError';
+  }
+}
+
+// Structured output must be requested via `responseMimeType` + `responseJsonSchema`
+// on GenerateContentConfig. An earlier revision set a `responseFormat` object
+// (the shape belonging to the separate `interactions.create` API); that key
+// isn't part of GenerateContentConfig, so the SDK dropped it silently, JSON mode
+// was never enabled, and every extraction came back as prose that blew up in
+// JSON.parse. `responseJsonSchema` — not `responseSchema` — is the correct field
+// here: these schemas use standard JSON Schema nullable type arrays
+// (`type: ["string", "null"]`), which the OpenAPI-subset `responseSchema` rejects.
 async function invokeGemini({ model, prompt, files = [], schema = null, useSearchGrounding = false }) {
   if (!GEMINI_API_KEY) {
     throw new Error(`GEMINI_API_KEY is not configured (${GEMINI_SECRET_STATUS})`);
+  }
+
+  // Gemini rejects search grounding combined with a response schema. Nothing
+  // passes both today; fail loudly if that ever changes rather than quietly
+  // dropping one of them the way the old config shape did.
+  if (useSearchGrounding && schema) {
+    throw new Error('Gemini cannot combine search grounding with a response schema');
   }
 
   const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
@@ -93,28 +133,47 @@ async function invokeGemini({ model, prompt, files = [], schema = null, useSearc
     parts.push({ inlineData: { mimeType, data } });
   }
 
-  const config = {};
+  const config = { maxOutputTokens: MAX_OUTPUT_TOKENS };
   if (useSearchGrounding) config.tools = [{ googleSearch: {} }];
   if (schema) {
-    config.responseFormat = {
-      text: {
-        mimeType: 'application/json',
-        schema,
-      },
-    };
+    config.responseMimeType = 'application/json';
+    config.responseJsonSchema = schema;
   }
 
-  const result = await ai.models.generateContent({
-    model,
-    contents: [{ role: 'user', parts }],
-    config,
-  });
+  const result = await withTimeout(
+    ai.models.generateContent({
+      model,
+      contents: [{ role: 'user', parts }],
+      config,
+    }),
+    GEMINI_CALL_TIMEOUT_MS,
+    `Gemini call exceeded ${Math.round(GEMINI_CALL_TIMEOUT_MS / 1000)}s`,
+  );
   const text = result.text || '';
-  return schema ? JSON.parse(text) : text;
+  if (!schema) return text;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Surface what the model actually said. A bare SyntaxError here reads as
+    // "…is not valid JSON", which the old top-level catch matched on the
+    // substring "JSON" and reported to the borrower as an unreadable document.
+    throw new GeminiContractError(
+      `Model did not return JSON (got ${text.length} chars): ${text.slice(0, 200)}`,
+    );
+  }
 }
 
 function getGeminiErrorDetails(error) {
   const message = String(error?.message || error || '');
+
+  // A contract violation is deterministic, and its message embeds raw model
+  // output — which could contain any words at all, including the ones the
+  // transient heuristic below looks for. Classify it before that can happen.
+  if (error instanceof GeminiContractError) {
+    return { message, status: 0, isTransient: false, isContractError: true };
+  }
+
   const numericCandidates = [
     error?.status,
     error?.code,
@@ -132,7 +191,7 @@ function getGeminiErrorDetails(error) {
   const isTransient = [408, 429, 500, 502, 503, 504].includes(status)
     || /\bUNAVAILABLE\b|high demand|overloaded|temporarily unavailable/i.test(message);
 
-  return { message, status, isTransient };
+  return { message, status, isTransient, isContractError: false };
 }
 
 async function invokeGeminiWithRetry(options) {
@@ -144,9 +203,16 @@ async function invokeGeminiWithRetry(options) {
       lastError = error;
       if (attempt === 2) break;
       const details = getGeminiErrorDetails(error);
-      const retryDelayMs = details.isTransient
-        ? 3000 + Math.floor(Math.random() * 1500)
-        : 500;
+      // Only genuinely transient failures are worth a second attempt. Retrying
+      // deterministic ones (bad config, contract violations) just doubled the
+      // load: one submit already fans out to several concurrent calls, each
+      // carrying the full document, so blind retry can tip a rate limit on its
+      // own and still cannot succeed.
+      if (!details.isTransient) {
+        console.warn(`Gemini attempt ${attempt} failed permanently: ${details.message}`);
+        break;
+      }
+      const retryDelayMs = 3000 + Math.floor(Math.random() * 1500);
       console.warn(
         `Gemini attempt ${attempt} failed; retrying once in ${retryDelayMs}ms: ${details.message}`,
       );
@@ -379,7 +445,21 @@ Only extract what you can clearly read. Return null if unclear.`;
           schema: IDENTITY_SCHEMA,
         }),
       ]);
-      return { extractionResult: extr, identityResult: ident };
+
+      // Structured output is only actually in force if the SDK accepted our
+      // schema fields. Assert the shape rather than trusting the config: a
+      // silently-ignored config key is exactly how this broke before, and
+      // downstream code indexes into these objects assuming they're populated.
+      if (!extr || typeof extr !== 'object' || Array.isArray(extr)) {
+        throw new GeminiContractError('Extraction did not return a JSON object');
+      }
+      if (!Array.isArray(extr.tracks) && typeof extr.remaining_balance !== 'number') {
+        throw new GeminiContractError(
+          `Extraction matched no part of the schema (keys: ${Object.keys(extr).join(', ') || 'none'})`,
+        );
+      }
+
+      return { extractionResult: extr, identityResult: ident && typeof ident === 'object' ? ident : {} };
     };
 
     const { extractionResult, identityResult } = await runExtractionWithRetry();
@@ -1505,16 +1585,31 @@ Today: ${today}`,
     if (geminiError.isTransient) {
       return jsonResponse({
         success: false,
-        error: 'Gemini is temporarily busy. Please try again in a few moments.',
+        error: 'שירות הניתוח עמוס כרגע. נסה שוב בעוד מספר רגעים.',
+        errorCode: 'MODEL_BUSY',
       }, { status: geminiError.status || 503 });
     }
 
-    // Return 200 with success:false for document/model validation failures so
-    // the frontend can show the existing user-friendly message.
-    const isModelError = geminiError.message.includes('Gemini') ||
-      geminiError.message.includes('JSON') ||
-      geminiError.message.includes('Invalid request');
-    const userMessage = isModelError
+    // A contract error means OUR request was wrong, not the borrower's upload.
+    // Telling them to rescan a perfectly good statement is what hid the
+    // `responseFormat` bug for as long as it did, so keep the two apart and log
+    // the detail server-side.
+    if (geminiError.isContractError) {
+      console.error('Gemini contract violation — this is a bug in the analyzer, not the document');
+      return jsonResponse({
+        success: false,
+        error: 'תקלה זמנית בשירות הניתוח. אנא נסה שוב, ואם התקלה חוזרת — צור איתנו קשר.',
+        errorCode: 'ANALYZER_CONTRACT_ERROR',
+      }, { status: 200 });
+    }
+
+    // Return 200 with success:false for genuine document-readability failures
+    // so the frontend can show the user-friendly message. Matched narrowly:
+    // the old check keyed on the bare substring 'JSON', which swept up internal
+    // parse failures too.
+    const isDocumentError = /unreadable|unsupported|corrupt|could not (?:read|parse) (?:the )?(?:file|document|pdf)/i
+      .test(geminiError.message);
+    const userMessage = isDocumentError
       ? 'שגיאה בניתוח המסמך. ודא שהקובץ הוא PDF או תמונה ברורים וקריאים ונסה שוב.'
       : (geminiError.message || 'שגיאה בניתוח. נסה שוב.');
     return jsonResponse({ success: false, error: userMessage }, { status: 200 });

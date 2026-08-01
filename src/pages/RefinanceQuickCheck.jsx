@@ -402,6 +402,15 @@ export default function RefinanceQuickCheck() {
       if (!data?.success) {
         const errorMsg = data?.error || 'שגיאה בניתוח הקובץ. ודא שהמסמך הוא דף יתרת סילוק תקין מהבנק.';
         setError(`❌ ${errorMsg}`);
+        // Record the failed attempt. Without this the lead row keeps its
+        // initial state and we lose both the fact that an analysis was tried
+        // and the file that failed — the two things needed to follow it up.
+        updateLead({
+          status: 'error',
+          file_url,
+          has_extra_debts: hasExtraDebts,
+          external_debts: externalDebtsInput
+        });
         return;
       }
 
@@ -419,17 +428,17 @@ export default function RefinanceQuickCheck() {
     } catch (err) {
       console.error('Analysis error:', err);
 
-      // Retry the HTTP request once for transport/gateway failures. Model-level
-      // failures are retried inside the analyzer and return success:false.
+      // Retry only true transport failures. A 503 from the analyzer already
+      // means it exhausted its own retries, so repeating the whole request just
+      // makes the borrower sit through a second full failure.
       const errorMessage = err?.message?.toLowerCase() || '';
-      const isRetryable = [0, 429, 502, 503, 504].includes(err?.status)
+      const isRetryable = [0, 502, 504].includes(err?.status)
         || errorMessage.includes('timeout')
         || errorMessage.includes('network');
+      let finalMessage = err?.message || 'שגיאה לא צפויה';
+
       if (file_url && isRetryable) {
         try {
-          // Avoid immediately repeating a request while Gemini or the gateway
-          // is still recovering from a temporary capacity spike.
-          await new Promise(resolve => setTimeout(resolve, 4000));
           const retryData = await analyzeRefinanceDocument({
             file_url,
             loan_period_years: 20,
@@ -445,15 +454,27 @@ export default function RefinanceQuickCheck() {
             status: 'analyzed',
             file_url,
             has_extra_debts: hasExtraDebts,
+            external_debts: externalDebtsInput,
             analysis_result: retryData,
             analyzed_at: new Date().toISOString()
           });
           return;
         } catch (retryErr) {
-          setError('⏱️ הניתוח לוקח זמן רב. נסה להעלות קובץ קטן יותר, או צור איתנו קשר ישירות.');
+          finalMessage = retryErr?.message || finalMessage;
         }
-      } else {
-        setError(`❌ שגיאה בניתוח: ${err.message}. נסה שוב או צור קשר.`);
+      }
+
+      // Show what actually went wrong. The old copy here blamed file size for
+      // every failure, which sent people re-exporting perfectly good statements
+      // while the real fault was server-side.
+      setError(`❌ ${finalMessage}`);
+      if (file_url) {
+        updateLead({
+          status: 'error',
+          file_url,
+          has_extra_debts: hasExtraDebts,
+          external_debts: externalDebtsInput
+        });
       }
     } finally {
       setIsAnalyzing(false);
