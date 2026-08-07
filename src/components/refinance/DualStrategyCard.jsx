@@ -1,217 +1,139 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 /**
- * DualStrategyCard — מציג שתי אסטרטגיות מחזור:
- * A: מקסימום חיסכון (קיצור שנים)
- * B: מקסימום חמצן (הפחתת החזר חודשי)
+ * Shows one refinance strategy at a time so customers can focus on the
+ * trade-off that matters to them: total savings or monthly cash flow.
  */
 export default function DualStrategyCard({ dualStrategy, currentMonthlyPayment }) {
+  const [selectedStrategy, setSelectedStrategy] = useState('savings');
+
   if (!dualStrategy) return null;
+
   const { strategyA, strategyB } = dualStrategy;
   const current = currentMonthlyPayment || dualStrategy.currentMonthly || 0;
+  const strategy = selectedStrategy === 'savings' ? strategyA : strategyB;
+  const isSavingsStrategy = selectedStrategy === 'savings';
+  const formatNum = (number) => Math.round(number || 0).toLocaleString('he-IL');
+  const netSavings = strategy?.netSavings || 0;
+  const hasPositiveSavings = netSavings >= 0;
 
-  const formatNum = (n) => Math.round(n || 0).toLocaleString();
-  // A תמיד עדיף מבחינת חיסכון כלכלי — B הוא "חמצן" לתזרים, לא חיסכון
-  const isABetter = true;
+  const choices = [
+    { id: 'savings', label: 'מקסימום חיסכון', icon: '🏆' },
+    { id: 'cashflow', label: 'מקסימום חמצן', icon: '🫁' },
+  ];
 
   return (
-    <section className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 p-5 sm:p-8 mb-6">
-      {/* כותרת */}
-      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          background: '#EAF1FF', border: '1px solid #ABC7FF',
-          borderRadius: '9999px', padding: '6px 16px', marginBottom: '8px'
-        }}>
-          <span style={{ color: '#0153F4', fontSize: '12px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase' }}>
-            בחר את הדרך שלך
-          </span>
+    <section className="mb-6 rounded-2xl border border-mist-100 bg-white p-5 shadow-xl sm:rounded-3xl sm:p-8" dir="rtl">
+      <div className="mb-5 text-center">
+        <div className="mb-2 inline-flex items-center rounded-full border border-[#ABC7FF] bg-[#EAF1FF] px-4 py-1.5">
+          <span className="text-xs font-black uppercase tracking-[0.08em] text-[#0153F4]">בחר את הדרך שלך</span>
         </div>
-        <h3 style={{ color: '#0C084A', fontSize: 'clamp(15px, 4vw, 20px)', fontWeight: 600, margin: 0 }}>2 אסטרטגיות מחזור — כל אחת לצורך אחר</h3>
-        <p style={{ color: '#8E8E8E', fontSize: '13px', marginTop: '4px' }}>
-          החזר נוכחי: <strong style={{ color: '#0153F4' }}>₪{formatNum(current)}</strong> — כמה רוצים לשנות?
+        <h3 className="m-0 text-[clamp(15px,4vw,20px)] font-semibold text-[#0C084A]">2 אסטרטגיות מחזור — כל אחת לצורך אחר</h3>
+        <p className="mt-1 text-[13px] text-[#8E8E8E]">
+          החזר נוכחי: <strong className="text-[#0153F4]">₪{formatNum(current)}</strong> — כמה רוצים לשנות?
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        {/* Strategy A — מקסימום חיסכון */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          style={{
-            background: '#FFFFFF',
-            border: isABetter ? '2px solid #0153F4' : '1px solid #E1E4EA',
-            borderRadius: '24px',
-            padding: '20px',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: isABetter ? '0 8px 24px rgba(1,83,244,0.15)' : 'none'
-          }}
-        >
-          {/* פס העליון תופס גובה קבוע בשני הכרטיסים כדי שהתוכן מתחתיו יתחיל באותו גובה */}
-          <div style={{
-            margin: '-20px -20px 12px -20px', textAlign: 'center',
-            padding: '5px', fontSize: '10px', fontWeight: 900, letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            background: isABetter ? 'linear-gradient(90deg, #0141C2, #0153F4, #0141C2)' : 'transparent',
-            color: isABetter ? '#FFFFFF' : 'transparent'
-          }}>⭐ חיסכון מרבי</div>
-
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '10px',
-                background: '#F0FDF4', border: '1px solid #BBF7D0',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px'
-              }}>🏆</div>
-              <div>
-                <div style={{ color: '#16A34A', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  מקסימום חיסכון
-                </div>
-                <div style={{ color: '#0C084A', fontSize: '14px', fontWeight: 800 }}>קיצור שנים</div>
-              </div>
-            </div>
-
-            {/* ⏱️ הבידול המרכזי של האסטרטגיה הזו */}
-            {strategyA?.yearsShortened > 0 && (
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                background: '#F0FDF4', border: '1px solid #BBF7D0',
-                borderRadius: '10px', padding: '8px 10px', marginBottom: '10px'
-              }}>
-                <span style={{ fontSize: '15px' }}>⏱️</span>
-                <span style={{ color: '#16A34A', fontSize: '14px', fontWeight: 900 }}>
-                  קיצור של {strategyA.yearsShortened} שנים מהתקופה
-                </span>
-              </div>
-            )}
-
-            {/* 💰 חיסכון נטו כולל — הסטטיסטיקה המרכזית */}
-            <div style={{
-              background: 'linear-gradient(135deg, #ECFDF5, #F0FDF4)',
-              border: '1px solid #BBF7D0',
-              borderRadius: '12px', padding: '16px 12px', marginBottom: '10px', textAlign: 'center'
-            }}>
-              <div style={{ color: '#15803D', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>חיסכון נטו כולל לאורך התקופה</div>
-              <div style={{ color: '#16A34A', fontSize: 'clamp(26px, 7vw, 38px)', fontWeight: 900, lineHeight: 1.1 }}>
-                {(strategyA?.netSavings || 0) >= 0 ? '' : '-'}₪{formatNum(Math.abs(strategyA?.netSavings || 0))}
-              </div>
-            </div>
-
-            {/* נתונים משניים */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
-              <div style={{ background: '#F7F8FA', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                <div style={{ color: '#8E8E8E', fontSize: '9px', marginBottom: '2px' }}>החזר חודשי חדש</div>
-                <div style={{ color: '#0C084A', fontSize: '16px', fontWeight: 900 }}>₪{formatNum(strategyA?.monthlyPayment)}</div>
-                {strategyA?.monthlyDelta !== undefined && (
-                  <div style={{ fontSize: '9px', color: strategyA.monthlyDelta <= 0 ? '#16A34A' : '#DC2626', fontWeight: 700 }}>
-                    {strategyA.monthlyDelta <= 0 ? `▼ ₪${formatNum(Math.abs(strategyA.monthlyDelta))} פחות` : `▲ ₪${formatNum(Math.abs(strategyA.monthlyDelta))} יותר`}
-                  </div>
-                )}
-              </div>
-              <div style={{ background: '#F7F8FA', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                <div style={{ color: '#8E8E8E', fontSize: '9px', marginBottom: '2px' }}>תקופה</div>
-                <div style={{ color: '#0C084A', fontSize: '16px', fontWeight: 900 }}>{strategyA?.periodYears}<span style={{ fontSize: '10px', color: '#8E8E8E', marginRight: '2px' }}>שנ'</span></div>
-              </div>
-            </div>
-
-            <div style={{ fontSize: '11px', color: '#8E8E8E', fontStyle: 'italic', textAlign: 'center' }}>
-              {strategyA?.suitedFor}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Strategy B — מקסימום חמצן */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          style={{
-            background: '#FFFFFF',
-            border: !isABetter ? '2px solid #0153F4' : '1px solid #E1E4EA',
-            borderRadius: '24px',
-            padding: '20px',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: !isABetter ? '0 8px 24px rgba(1,83,244,0.15)' : 'none'
-          }}
-        >
-          {/* פס העליון תופס גובה קבוע בשני הכרטיסים כדי שהתוכן מתחתיו יתחיל באותו גובה */}
-          <div style={{
-            margin: '-20px -20px 12px -20px', textAlign: 'center',
-            padding: '5px', fontSize: '10px', fontWeight: 900, letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            background: !isABetter ? 'linear-gradient(90deg, #0141C2, #0153F4, #0141C2)' : 'transparent',
-            color: !isABetter ? '#FFFFFF' : 'transparent'
-          }}>⭐ חמצן לתזרים</div>
-
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '10px',
-                background: '#EFF6FF', border: '1px solid #BFDBFE',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px'
-              }}>🫁</div>
-              <div>
-                <div style={{ color: '#0153F4', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  מקסימום חמצן
-                </div>
-                <div style={{ color: '#0C084A', fontSize: '14px', fontWeight: 800 }}>הפחתת החזר</div>
-              </div>
-            </div>
-
-            {/* 🪙 הבידול המרכזי של האסטרטגיה הזו */}
-            {strategyB?.monthlyRelief > 0 && (
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                background: '#EFF6FF', border: '1px solid #BFDBFE',
-                borderRadius: '10px', padding: '8px 10px', marginBottom: '10px'
-              }}>
-                <span style={{ fontSize: '15px' }}>🪙</span>
-                <span style={{ color: '#0153F4', fontSize: '14px', fontWeight: 900 }}>
-                  ₪{formatNum(strategyB.monthlyRelief)} יותר בעו"ש כל חודש
-                </span>
-              </div>
-            )}
-
-            {/* 💰 חיסכון נטו כולל — הסטטיסטיקה המרכזית */}
-            <div style={{
-              background: (strategyB?.netSavings || 0) >= 0
-                ? 'linear-gradient(135deg, #ECFDF5, #F0FDF4)'
-                : 'linear-gradient(135deg, #FFFBEB, #FEF3C7)',
-              border: (strategyB?.netSavings || 0) >= 0 ? '1px solid #BBF7D0' : '1px solid #FDE68A',
-              borderRadius: '12px', padding: '16px 12px', marginBottom: '10px', textAlign: 'center'
-            }}>
-              <div style={{ color: (strategyB?.netSavings || 0) >= 0 ? '#15803D' : '#B45309', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>
-                {(strategyB?.netSavings || 0) >= 0 ? 'חיסכון נטו כולל לאורך התקופה' : 'עלות נוספת לתקופה (מחיר ה"חמצן")'}
-              </div>
-              <div style={{ color: (strategyB?.netSavings || 0) >= 0 ? '#16A34A' : '#D97706', fontSize: 'clamp(26px, 7vw, 38px)', fontWeight: 900, lineHeight: 1.1 }}>
-                {(strategyB?.netSavings || 0) >= 0 ? `₪${formatNum(strategyB?.netSavings)}` : `+₪${formatNum(Math.abs(strategyB?.netSavings || 0))}`}
-              </div>
-            </div>
-
-            {/* נתונים משניים */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
-              <div style={{ background: '#F7F8FA', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                <div style={{ color: '#8E8E8E', fontSize: '9px', marginBottom: '2px' }}>החזר חודשי חדש</div>
-                <div style={{ color: '#0C084A', fontSize: '16px', fontWeight: 900 }}>₪{formatNum(strategyB?.monthlyPayment)}</div>
-              </div>
-              <div style={{ background: '#F7F8FA', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                <div style={{ color: '#8E8E8E', fontSize: '9px', marginBottom: '2px' }}>תקופה</div>
-                <div style={{ color: '#0C084A', fontSize: '16px', fontWeight: 900 }}>{strategyB?.periodYears}<span style={{ fontSize: '10px', color: '#8E8E8E', marginRight: '2px' }}>שנ'</span></div>
-                <div style={{ color: '#8E8E8E', fontSize: '9px' }}>מקסימום מותר</div>
-              </div>
-            </div>
-
-            <div style={{ fontSize: '11px', color: '#8E8E8E', fontStyle: 'italic', textAlign: 'center' }}>
-              {strategyB?.suitedFor}
-            </div>
-          </div>
-        </motion.div>
+      <div className="mx-auto mb-4 flex w-full max-w-md rounded-2xl border border-[#D5E2FF] bg-[#F4F7FF] p-1" role="tablist" aria-label="בחירת אסטרטגיית מחזור">
+        {choices.map((choice) => {
+          const isSelected = selectedStrategy === choice.id;
+          return (
+            <button
+              key={choice.id}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              aria-controls="refinance-strategy-panel"
+              onClick={() => setSelectedStrategy(choice.id)}
+              className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-extrabold transition-all duration-200 sm:text-sm ${
+                isSelected
+                  ? 'bg-[#0153F4] text-white shadow-[0_4px_12px_rgba(1,83,244,0.28)]'
+                  : 'text-[#0C084A] hover:bg-white hover:text-[#0153F4]'
+              }`}
+            >
+              <span aria-hidden="true">{choice.icon}</span>
+              <span>{choice.label}</span>
+            </button>
+          );
+        })}
       </div>
+
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={selectedStrategy}
+          id="refinance-strategy-panel"
+          role="tabpanel"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+          className="relative overflow-hidden rounded-3xl border-2 border-[#0153F4] bg-white p-5 shadow-[0_8px_24px_rgba(1,83,244,0.15)]"
+        >
+          <div className="-mx-5 -mt-5 mb-4 bg-gradient-to-r from-[#0141C2] via-[#0153F4] to-[#0141C2] px-3 py-1.5 text-center text-[10px] font-black uppercase tracking-[0.15em] text-white">
+            ⭐ {isSavingsStrategy ? 'חיסכון מרבי' : 'חמצן לתזרים'}
+          </div>
+
+          <div className="mb-3 flex items-center gap-2">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl border text-xl ${
+              isSavingsStrategy ? 'border-green-200 bg-green-50' : 'border-blue-200 bg-blue-50'
+            }`}>
+              {isSavingsStrategy ? '🏆' : '🫁'}
+            </div>
+            <div>
+              <div className={`text-[10px] font-bold uppercase tracking-[0.1em] ${isSavingsStrategy ? 'text-green-600' : 'text-[#0153F4]'}`}>
+                {isSavingsStrategy ? 'מקסימום חיסכון' : 'מקסימום חמצן'}
+              </div>
+              <div className="text-sm font-extrabold text-[#0C084A]">{isSavingsStrategy ? 'קיצור שנים' : 'הפחתת החזר'}</div>
+            </div>
+          </div>
+
+          {isSavingsStrategy && strategy?.yearsShortened > 0 && (
+            <div className="mb-3 flex items-center justify-center gap-1.5 rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm font-black text-green-600">
+              <span aria-hidden="true">⏱️</span>
+              קיצור של {strategy.yearsShortened} שנים מהתקופה
+            </div>
+          )}
+          {!isSavingsStrategy && strategy?.monthlyRelief > 0 && (
+            <div className="mb-3 flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-black text-[#0153F4]">
+              <span aria-hidden="true">🪙</span>
+              ₪{formatNum(strategy.monthlyRelief)} יותר בעו"ש כל חודש
+            </div>
+          )}
+
+          <div className={`mb-3 rounded-xl border p-4 text-center ${
+            hasPositiveSavings ? 'border-green-200 bg-gradient-to-br from-emerald-50 to-green-50' : 'border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100'
+          }`}>
+            <div className={`mb-1 text-[11px] font-bold ${hasPositiveSavings ? 'text-green-700' : 'text-amber-700'}`}>
+              {hasPositiveSavings ? 'חיסכון נטו כולל לאורך התקופה' : 'עלות נוספת לתקופה (מחיר ה"חמצן")'}
+            </div>
+            <div className={`text-[clamp(26px,7vw,38px)] font-black leading-none ${hasPositiveSavings ? 'text-green-600' : 'text-amber-600'}`}>
+              {hasPositiveSavings ? '' : '+'}₪{formatNum(Math.abs(netSavings))}
+            </div>
+          </div>
+
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            <div className="rounded-lg bg-[#F7F8FA] p-2 text-center">
+              <div className="mb-0.5 text-[9px] text-[#8E8E8E]">החזר חודשי חדש</div>
+              <div className="text-base font-black text-[#0C084A]">₪{formatNum(strategy?.monthlyPayment)}</div>
+              {strategy?.monthlyDelta !== undefined && (
+                <div className={`text-[9px] font-bold ${strategy.monthlyDelta <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {strategy.monthlyDelta <= 0
+                    ? `▼ ₪${formatNum(Math.abs(strategy.monthlyDelta))} פחות`
+                    : `▲ ₪${formatNum(Math.abs(strategy.monthlyDelta))} יותר`}
+                </div>
+              )}
+            </div>
+            <div className="rounded-lg bg-[#F7F8FA] p-2 text-center">
+              <div className="mb-0.5 text-[9px] text-[#8E8E8E]">תקופה</div>
+              <div className="text-base font-black text-[#0C084A]">{strategy?.periodYears}<span className="mr-0.5 text-[10px] text-[#8E8E8E]">שנ'</span></div>
+              {!isSavingsStrategy && <div className="text-[9px] text-[#8E8E8E]">מקסימום מותר</div>}
+            </div>
+          </div>
+
+          <p className="m-0 text-center text-[11px] italic text-[#8E8E8E]">{strategy?.suitedFor}</p>
+        </motion.div>
+      </AnimatePresence>
     </section>
   );
 }
