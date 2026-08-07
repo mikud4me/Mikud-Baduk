@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/appClient';
 import { createPageUrl } from '@/utils';
 import AdminOnly from '@/components/AdminOnly';
 import {
@@ -59,7 +59,7 @@ function LeadProfileContent() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) { setLoading(false); return; }
-    base44.entities.Lead.filter({ id }).then(results => {
+    appClient.entities.Lead.filter({ id }).then(results => {
       const found = results?.[0];
       if (found) { setLead(found); setStatus(found.status || 'new'); }
       setLoading(false);
@@ -68,7 +68,7 @@ function LeadProfileContent() {
 
   const updateStatus = async (newStatus) => {
     setStatus(newStatus);
-    await base44.entities.Lead.update(lead.id, { status: newStatus });
+    await appClient.entities.Lead.update(lead.id, { status: newStatus });
   };
 
   const exportJson = () => {

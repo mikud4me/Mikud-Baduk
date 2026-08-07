@@ -1,0 +1,26 @@
+project_id = "mikud"
+
+[functions.mortgage-leads]
+verify_jwt = false
+[functions.refinance-leads]
+verify_jwt = false
+[functions.send-email-verification]
+verify_jwt = false
+[functions.verify-email-code]
+verify_jwt = false
+[functions.get-bank-of-israel-rates]
+verify_jwt = false
+[functions.mortgage-ai]
+verify_jwt = false
+[functions.create-cardcom-payment]
+verify_jwt = false
+[functions.verify-cardcom-payment]
+verify_jwt = false
+[functions.cardcom-webhook]
+verify_jwt = false
+[functions.generate-pdf-report]
+verify_jwt = false
+[functions.analyze-refinance-document]
+verify_jwt = false
+[functions.document-upload]
+verify_jwt = false

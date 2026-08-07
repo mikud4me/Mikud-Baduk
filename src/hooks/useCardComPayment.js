@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/appClient';
 
 /**
  * Shared CardCom LowProfile lifecycle. A report is unlocked only after the
@@ -27,7 +27,7 @@ export function useCardComPayment({ leadId, leadType = 'mortgage', onPaid }) {
     setPaymentNotice('מאמת את התשלום…');
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        const res = await base44.functions.invoke('verifyCardComPayment', {
+        const res = await appClient.functions.invoke('verifyCardComPayment', {
           leadId,
           leadType,
           lowProfileId,
@@ -61,7 +61,7 @@ export function useCardComPayment({ leadId, leadType = 'mortgage', onPaid }) {
     setPaymentNotice(null);
     setPaymentLoading(true);
     try {
-      const response = await base44.functions.invoke('createCardComPayment', {
+      const response = await appClient.functions.invoke('createCardComPayment', {
         leadId,
         leadType,
         origin: window.location.origin,

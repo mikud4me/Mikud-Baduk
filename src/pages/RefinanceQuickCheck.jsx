@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-  supabase, uploadFileToStorage, isSupabaseConfigured
+  uploadFileToStorage, isSupabaseConfigured
 } from '@/components/refinance/supabaseClient';
 import { analyzeRefinanceDocument } from '@/components/refinance/analysisClient';
+import { refinanceLeads } from '@/api/refinanceLeads';
 import {
   Upload, Loader2, DollarSign,
   CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download, Sparkle
@@ -182,6 +183,28 @@ const SAVINGS_CELEBRATION_PARTICLES = [
   { angle: -140, distance: 46, size: 8, delay: 0.76, color: '#F5B700' },
 ];
 
+const REFINANCE_OUTCOME = {
+  DOCUMENT_INVALID: 'document_invalid',
+  FINANCIAL_INELIGIBLE: 'financial_ineligible',
+  ELIGIBLE: 'eligible',
+};
+
+function getRefinanceOutcome(analysisResult, ignoreDocumentValidity) {
+  if (!analysisResult) return null;
+
+  if (analysisResult.statementDateWarning && !ignoreDocumentValidity) {
+    return REFINANCE_OUTCOME.DOCUMENT_INVALID;
+  }
+
+  // The analyzer will populate this when financial-eligibility rules are added.
+  // Keep the UI path ready without inferring an eligibility decision today.
+  if (analysisResult.eligibility?.status === REFINANCE_OUTCOME.FINANCIAL_INELIGIBLE) {
+    return REFINANCE_OUTCOME.FINANCIAL_INELIGIBLE;
+  }
+
+  return REFINANCE_OUTCOME.ELIGIBLE;
+}
+
 function CelebratingSavingsAmount({ value }) {
   const isPositive = value >= 0;
 
@@ -230,6 +253,7 @@ export default function RefinanceQuickCheck() {
   const [hasExtraDebts, setHasExtraDebts] = useState(null); // null=לא נבחר, true/false
   const [extraDebts, setExtraDebts] = useState([{ creditor: '', monthly_repayment: '', remaining_balance: '', estimated_interest: 15 }]);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [demoDocumentOverride, setDemoDocumentOverride] = useState(false);
 
   // פרטי קשר — נאספים לפני העלאת המסמך ונשמרים כליד
   const [leadId, setLeadId] = useState(null);
@@ -270,14 +294,8 @@ export default function RefinanceQuickCheck() {
 
     (async () => {
       try {
-        // .single() errors (PGRST116) when zero rows match — treat that the same as "no lead"
-        // rather than surfacing it, matching the old entity.get()'s "returns falsy" behavior.
-        const { data: lead, error: leadError } = await supabase
-          .from('refinance_leads')
-          .select('*')
-          .eq('id', id)
-          .single();
-        if (leadError || !lead) return;
+        const lead = await refinanceLeads.get(id);
+        if (!lead) return;
         setLeadId(lead.id);
         setTier(lead.tier || 'free');
         setIsPurchased(lead.tier === 'paid');
@@ -311,6 +329,10 @@ export default function RefinanceQuickCheck() {
   const refinanceMixes = useMemo(
     () => buildRefinanceMixCards(analysisResult?.mixes),
     [analysisResult]
+  );
+  const refinanceOutcome = useMemo(
+    () => getRefinanceOutcome(analysisResult, demoDocumentOverride),
+    [analysisResult, demoDocumentOverride]
   );
 
   useEffect(() => {
@@ -351,9 +373,7 @@ export default function RefinanceQuickCheck() {
     setContactErrors({});
     setIsSubmittingContact(true);
     try {
-      const { data: lead, error: createError } = await supabase
-        .from('refinance_leads')
-        .insert({
+      const lead = await refinanceLeads.create({
           full_name: contactFullName.trim(),
           email: contactEmail.trim(),
           phone: contactPhone.trim(),
@@ -361,10 +381,7 @@ export default function RefinanceQuickCheck() {
           contact_consent: contactConsent,
           terms_accepted: termsAccepted,
           terms_accepted_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-      if (createError) throw createError;
+        });
       setLeadId(lead.id);
       setHasFinancialDetails(false);
       const url = new URL(window.location.href);
@@ -381,8 +398,7 @@ export default function RefinanceQuickCheck() {
   const updateLead = async (data) => {
     if (!leadId) return;
     try {
-      const { error: updateError } = await supabase.from('refinance_leads').update(data).eq('id', leadId);
-      if (updateError) throw updateError;
+      await refinanceLeads.update(leadId, data);
     } catch (err) {
       console.error('Failed to update lead record:', err);
     }
@@ -433,17 +449,11 @@ export default function RefinanceQuickCheck() {
     setFinancialDetailsError('');
     setIsSubmittingFinancialDetails(true);
     try {
-      const { data: updatedLead, error: updateError } = await supabase
-        .from('refinance_leads')
-        .update({
+      const updatedLead = await refinanceLeads.update(leadId, {
           monthly_income: Number(monthlyIncome),
           property_purchase_price: Number(propertyPurchasePrice),
           estimated_current_property_value: estimatedCurrentPropertyValue ? Number(estimatedCurrentPropertyValue) : null
-        })
-        .eq('id', leadId)
-        .select('id')
-        .single();
-      if (updateError) throw updateError;
+        });
       if (!updatedLead) throw new Error('The refinance lead was not updated');
       setHasFinancialDetails(true);
     } catch (err) {
@@ -475,6 +485,7 @@ export default function RefinanceQuickCheck() {
     }
 
     setError(null);
+    setDemoDocumentOverride(false);
     setIsAnalyzing(true);
 
     let file_url = null;
@@ -579,6 +590,48 @@ export default function RefinanceQuickCheck() {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const returnToDocumentUpload = () => {
+    setAnalysisResult(null);
+    setFiles([]);
+    setError(null);
+    setShowAdvancedAnalysis(false);
+    setIsDownloadingPdf(false);
+    setDemoDocumentOverride(false);
+    window.requestAnimationFrame(() => document.getElementById('refinance-files')?.click());
+  };
+
+  const startRefinanceOver = () => {
+    setAnalysisResult(null);
+    setFiles([]);
+    setError(null);
+    setShowAdvancedAnalysis(false);
+    setIsDownloadingPdf(false);
+    setDemoDocumentOverride(false);
+    setLeadId(null);
+    setTier('free');
+    setIsPurchased(false);
+    setContactFullName('');
+    setContactEmail('');
+    setContactPhone('');
+    setContactIdNumber('');
+    setContactConsent(false);
+    setTermsAccepted(false);
+    setContactErrors({});
+    setContactTouched({});
+    setMonthlyIncome('');
+    setPropertyPurchasePrice('');
+    setEstimatedCurrentPropertyValue('');
+    setFinancialDetailsTouched({});
+    setFinancialDetailsError('');
+    setHasFinancialDetails(false);
+    setHasExtraDebts(null);
+    setExtraDebts([{ creditor: '', monthly_repayment: '', remaining_balance: '', estimated_interest: 15 }]);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('lead');
+    window.history.replaceState(null, '', url);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (!isSupabaseConfigured) {
@@ -936,6 +989,96 @@ export default function RefinanceQuickCheck() {
         <AnimatePresence>
           {analysisResult && (
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} className="refinance-report space-y-6">
+              {refinanceOutcome === REFINANCE_OUTCOME.DOCUMENT_INVALID && (
+                <motion.section
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="max-w-2xl mx-auto rounded-3xl border border-red-200 bg-gradient-to-br from-red-50 via-white to-amber-50 p-7 sm:p-10 text-center shadow-xl"
+                >
+                  <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                    <AlertCircle className="h-9 w-9 text-red-600" />
+                  </div>
+                  <Badge className="mb-4 border border-red-200 bg-red-100 text-red-800">נדרש מסמך עדכני</Badge>
+                  <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">עדיין לא ניתן להמשיך למחזור</h2>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-red-800">{analysisResult.statementDateWarning}</p>
+                  <div className="mt-6 rounded-2xl border border-red-100 bg-white p-4 text-right">
+                    <p className="font-black text-red-900">מה עושים עכשיו?</p>
+                    <p className="mt-1 text-sm leading-relaxed text-red-700">בקשו מהבנק דף יתרת סילוק עדכני, ואז העלו אותו כאן לבדיקה מחדש. הפרטים שכבר מילאתם נשמרו.</p>
+                  </div>
+                  <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                    <Button onClick={returnToDocumentUpload} className="h-14 rounded-full bg-[#0C084A] px-6 font-black text-white hover:bg-[#0153F4]">
+                      <Upload className="ml-2 h-5 w-5" />
+                      העלאת מסמך עדכני
+                    </Button>
+                    {PAYMENT_BYPASS_ENABLED && (
+                      <Button variant="outline" onClick={() => setDemoDocumentOverride(true)} className="h-14 rounded-full border-[#0153F4] px-6 font-bold text-[#0C084A] hover:bg-periwinkle-100">
+                        הצגת התוצאה (דמו)
+                      </Button>
+                    )}
+                  </div>
+                </motion.section>
+              )}
+
+              {refinanceOutcome === REFINANCE_OUTCOME.FINANCIAL_INELIGIBLE && (
+                <motion.section
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="max-w-2xl mx-auto rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-7 sm:p-10 text-center shadow-xl"
+                >
+                  <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+                    <AlertCircle className="h-9 w-9 text-amber-600" />
+                  </div>
+                  <Badge className="mb-4 border border-amber-200 bg-amber-100 text-amber-800">לא ניתן להתקדם כרגע</Badge>
+                  <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">המחזור אינו מתאים לנתונים הפיננסיים שהוזנו</h2>
+                  <p className="mt-3 text-sm leading-relaxed text-amber-900">לפי הנתונים שנבדקו, אין כרגע מסלול מחזור שאפשר להתקדם איתו. לא בוצע חיוב ולא נפתח דוח מלא.</p>
+                  <p className="mt-3 text-xs leading-relaxed text-amber-800">ההחלטה הסופית על אישור אשראי מתקבלת תמיד על ידי הבנק.</p>
+                  <Button onClick={startRefinanceOver} className="mt-6 h-14 rounded-full bg-[#0C084A] px-6 font-black text-white hover:bg-[#0153F4]">
+                    להתחלת תהליך מחדש
+                    <ChevronLeft className="mr-2 h-5 w-5" />
+                  </Button>
+                </motion.section>
+              )}
+
+              {refinanceOutcome === REFINANCE_OUTCOME.ELIGIBLE && (
+                <>
+                  <motion.section
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="overflow-hidden rounded-3xl border border-[#0153F4]/20 bg-gradient-to-br from-periwinkle-100 via-white to-green-50 p-6 sm:p-8 shadow-xl"
+                  >
+                    <div className="grid items-center gap-6 md:grid-cols-[auto_1fr_auto]">
+                      <motion.div
+                        initial={{ scale: 0.5, rotate: -12 }}
+                        animate={{ scale: [0.5, 1.12, 0.96, 1], rotate: [-12, 8, -3, 0] }}
+                        transition={{ duration: 0.75, ease: 'easeOut' }}
+                        className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#0153F4] shadow-lg shadow-brand-200"
+                      >
+                        <CheckCircle className="h-11 w-11 text-white" />
+                      </motion.div>
+                      <div className="text-center md:text-right">
+                        <Badge className="mb-3 border border-green-200 bg-green-100 text-green-800">תוצאת הבדיקה</Badge>
+                        <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">אפשר להתקדם למחזור המשכנתא</h2>
+                        <p className="mt-2 text-sm leading-relaxed text-mist-600">מצאנו שאפשר להמשיך לבחינת מסלולי המחזור המותאמים לכם.</p>
+                      </div>
+                      <div className="rounded-2xl border border-green-200 bg-white/80 p-4 text-center">
+                        <p className="text-xs font-bold text-mist-500">חיסכון כלכלי נטו</p>
+                        <CelebratingSavingsAmount value={headline?.netSavings || 0} />
+                      </div>
+                    </div>
+                    <div className="mt-6 rounded-2xl border border-[#0153F4]/15 bg-white/80 p-4 text-right">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-[#0153F4]" />
+                        <h3 className="font-black text-[#0C084A]">עד כמה המחזור מומלץ?</h3>
+                      </div>
+                      {headline?.isWorthwhile === true ? (
+                        <p className="mt-2 text-sm font-bold text-green-700">מומלץ בחום — הניתוח מצביע על כדאיות כלכלית ברורה למחזור.</p>
+                      ) : headline?.isWorthwhile === false ? (
+                        <p className="mt-2 text-sm font-bold text-amber-700">כדאי לבחון בזהירות — קיימת אפשרות למחזור, אך הכדאיות הכלכלית אינה חד-משמעית.</p>
+                      ) : (
+                        <p className="mt-2 text-sm font-bold text-[#0C084A]">כדאי לקבל חוות דעת מקצועית לפני שמתקדמים.</p>
+                      )}
+                    </div>
+                  </motion.section>
               {/* כפתורי פעולה עליונים */}
               <div className="flex justify-between items-center gap-3 flex-wrap">
                 <Button
@@ -1542,6 +1685,8 @@ export default function RefinanceQuickCheck() {
                       isPurchased={isPurchased}
                     />
                   </div>
+                </>
+              )}
                 </>
               )}
             </motion.div>

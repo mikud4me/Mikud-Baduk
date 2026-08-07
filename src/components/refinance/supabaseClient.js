@@ -1,21 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Replaces base44Client.js for this subsystem only. Uses the publishable key
+// Shared Supabase client for the application. Uses the publishable key
 // only — safe to expose in the frontend bundle. Every Edge Function call and
 // table access from this subsystem is anonymous by design (no user login).
 //
 // Fallback values below are the same project's publishable/anon key + URL —
 // not secrets (Supabase's whole design has this pair shipped in every client
 // bundle; RLS, not secrecy, is what's supposed to protect the data). Hardcoded
-// as a fallback because Base44's env var configuration for this app wasn't
-// reliably reaching the Vite build; a real VITE_SUPABASE_URL / VITE_SUPABASE_
-// PUBLISHABLE_KEY env var still takes precedence if present, e.g. to point a
-// future build at a different Supabase project without a code change.
-const FALLBACK_SUPABASE_URL = 'https://mandtjqtjkhbjhxhbjvx.supabase.co';
-const FALLBACK_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_pF3CQNav5svC5WMMV3H2Fg_H68wHFhC';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || FALLBACK_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 // Kept as a guard (rather than constructing unconditionally) for the same
 // reason as before: this module sits on the static import chain App.jsx ->
@@ -38,14 +31,17 @@ export async function uploadFileToStorage(file) {
   // Request (found via live testing 2026-07-29). A UUID + the file's own
   // extension is always ASCII-safe and carries everything the backend
   // functions need (they only ever inspect the extension, never the name).
-  const extMatch = file.name.match(/\.[a-zA-Z0-9]+$/);
-  const ext = extMatch ? extMatch[0] : '';
-  const path = `uploads/${crypto.randomUUID()}${ext}`;
-  const { error: uploadError } = await supabase.storage.from('documents').upload(path, file);
+  const { data: uploadTicket, error: ticketError } = await supabase.functions.invoke('document-upload', {
+    body: { action: 'create', filename: file.name },
+  });
+  if (ticketError) throw ticketError;
+  const { path, token } = uploadTicket || {};
+  if (!path || !token) throw new Error('Document upload ticket is missing');
+  const { error: uploadError } = await supabase.storage.from('documents').uploadToSignedUrl(path, token, file);
   if (uploadError) throw uploadError;
-  const { data: signedData, error: signedError } = await supabase.storage
-    .from('documents')
-    .createSignedUrl(path, 3600);
+  const { data: signedData, error: signedError } = await supabase.functions.invoke('document-upload', {
+    body: { action: 'read', path },
+  });
   if (signedError) throw signedError;
   return signedData.signedUrl;
 }

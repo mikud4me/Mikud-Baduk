@@ -5,7 +5,7 @@ import {
   Coins, TrendingDown,
   Lock, Key, Target, ShieldAlert, X, UserPlus, Trash2
 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/appClient';
 import {
   DEFAULT_RATES, formatCurrency, calculatePayment, cleanAiText,
   getReverseMortgageMaxLTV, calcTotalIncome, calculateResults, calculateRefinanceResults,
@@ -163,7 +163,7 @@ export default function MortgageCalculator() {
       try {
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
         const response = await Promise.race([
-          base44.functions.invoke('getBankOfIsraelRates'),
+          appClient.functions.invoke('getBankOfIsraelRates'),
           timeoutPromise
         ]);
         if (response.data?.success && response.data?.rates) {
@@ -299,7 +299,7 @@ export default function MortgageCalculator() {
     // שליחת קוד אימות אמיתי לכתובת הדוא״ל — הקוד נוצר ונבדק בצד השרת בלבד
     setIsSendingCode(true);
     try {
-      await base44.functions.invoke('sendEmailVerification', { email: formData.email });
+      await appClient.functions.invoke('sendEmailVerification', { email: formData.email });
       setUserInputCode("");
       setCodeSent(true);
       // שמירת ליד חלקי ראשוני ברגע בקשת קוד האימות (פרטי קשר הוזנו) — לשיחת המשך.
@@ -327,7 +327,7 @@ export default function MortgageCalculator() {
     }
     setIsVerifyingCode(true);
     try {
-      const res = await base44.functions.invoke('verifyEmailCode', {
+      const res = await appClient.functions.invoke('verifyEmailCode', {
         email: formData.email,
         code: userInputCode,
       });
@@ -466,10 +466,10 @@ export default function MortgageCalculator() {
   const savePartialLead = async () => {
     try {
       if (!currentLeadId) {
-        const lead = await base44.entities.Lead.create(buildLeadPayload({ status: 'partial' }));
+        const lead = await appClient.entities.Lead.create(buildLeadPayload({ status: 'partial' }));
         setCurrentLeadId(lead.id);
       } else {
-        await base44.entities.Lead.update(currentLeadId, buildLeadPayload({ status: 'partial' }));
+        await appClient.entities.Lead.update(currentLeadId, buildLeadPayload({ status: 'partial' }));
       }
     } catch (err) {
       console.error('savePartialLead failed:', err);
@@ -577,18 +577,12 @@ ${results.score}/100
 
     try {
       const [analysisResponse, emailResponse] = await Promise.all([
-        base44.integrations.Core.InvokeLLM({ 
-          prompt, 
-          add_context_from_internet: false 
-        }),
-        base44.integrations.Core.InvokeLLM({ 
-          prompt: emailPrompt, 
-          add_context_from_internet: false 
-        })
+        appClient.ai.generate(prompt),
+        appClient.ai.generate(emailPrompt)
       ]);
       
-      const analysis = analysisResponse?.output || analysisResponse || "הניתוח הושלם. קיימת היתכנות גבוהה לעסקה.";
-      const email = emailResponse?.output || emailResponse || "";
+      const analysis = analysisResponse || "הניתוח הושלם. קיימת היתכנות גבוהה לעסקה.";
+      const email = emailResponse || "";
       
       setAiAnalysis(cleanAiText(analysis));
       setBankerEmail(email.replace(/[*#]/g, ''));
@@ -604,9 +598,9 @@ ${results.score}/100
       // שדרוג הליד החלקי של הסשן (אם קיים) לליד מלא, אחרת יצירה (fallback אם השמירות החלקיות נכשלו)
       const leadPayload = buildLeadPayload({ status: 'new', aiAnalysis: analysis });
       if (currentLeadId) {
-        await base44.entities.Lead.update(currentLeadId, leadPayload);
+        await appClient.entities.Lead.update(currentLeadId, leadPayload);
       } else {
-        const lead = await base44.entities.Lead.create(leadPayload);
+        const lead = await appClient.entities.Lead.create(leadPayload);
         setCurrentLeadId(lead.id);
       }
     } catch (err) {
@@ -668,11 +662,7 @@ ${results.score}/100
         setInsightLoading(false);
         return;
       }
-      const response = await base44.integrations.Core.InvokeLLM({ 
-        prompt: types[type].prompt,
-        add_context_from_internet: false 
-      });
-      const data = response?.output || response || "פנה ליועץ לקבלת המידע המלא.";
+      const data = await appClient.ai.generate(types[type].prompt) || "פנה ליועץ לקבלת המידע המלא.";
       setAiInsights({ type: types[type].label, content: cleanAiText(data) });
     } catch (e) {
       setAiInsights({ type: types[type].label, content: "פנה ליועץ לקבלת המידע המלא." });

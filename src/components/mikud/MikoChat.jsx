@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, RefreshCw } from 'lucide-react';
 import MikoAvatar from './MikoAvatar';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/appClient';
 
 const QUICK_QUESTIONS = [
   "מה התמהיל המומלץ?",
@@ -140,10 +140,7 @@ export default function MikoChat({ formData, results, isPurchased, isOpen, setIs
     const systemPrompt = buildSystemPrompt(formData, results, isPurchased, rates);
 
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `${systemPrompt}\n\n===== היסטוריית השיחה =====\n${conversationHistory}\n\nמיקו:`,
-        add_context_from_internet: false,
-      });
+      const response = await appClient.ai.generate(`${systemPrompt}\n\n===== היסטוריית השיחה =====\n${conversationHistory}\n\nמיקו:`);
 
       const reply = typeof response === 'string'
         ? response.trim()

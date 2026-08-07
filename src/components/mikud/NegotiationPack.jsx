@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, FileCheck, Target, Download, ChevronDown, ChevronUp, Mail, Loader2, Rocket, Copy, Check } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/appClient';
 
 const formatCurrency = (val) => {
   if (!val || isNaN(val)) return "0";
@@ -201,7 +201,7 @@ export default function NegotiationPack({ formData, results, selectedMix, fullNa
     }
 
     try {
-      const response = await base44.functions.invoke('generatePdfReport', {
+      const response = await appClient.functions.invoke('generatePdfReport', {
         formData,
         results: { ...results, aiAnalysis: results.aiAnalysis },
         fullName: displayName,

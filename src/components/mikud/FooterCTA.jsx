@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, Shield, Clock, HeartHandshake, Mail } from 'lucide-react';
 import { createPageUrl } from '@/utils';
+import footerCta from '@/assets/brand/footer-cta.png';
 
 const badges = [
   { icon: Shield, text: 'ללא התחייבות' },
@@ -22,7 +23,7 @@ export default function FooterCTA() {
         {/* לוגו */}
         <div className="flex justify-center mb-6 sm:mb-8">
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/422e07a04_2.png"
+            src={footerCta}
             alt="מיקוד משכנתאות"
             className="h-28 sm:h-36 w-auto object-contain"
           />

@@ -4,7 +4,8 @@ import {
   Mail, BadgeCheck, Coins, TrendingDown,
   Key, Target, X, UserPlus, AlertCircle, Smartphone
 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/appClient';
+import mikudLogo from '@/assets/brand/mikud-logo.jpg';
 import PremiumInput from '@/components/mikud/PremiumInput';
 import BorrowerForm from '@/components/mikud/BorrowerForm';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -157,10 +158,10 @@ export default function ClientQuestionnaire() {
   const savePartialLead = async () => {
     try {
       if (!currentLeadId) {
-        const lead = await base44.entities.Lead.create(buildLeadPayload({ status: 'partial' }));
+        const lead = await appClient.entities.Lead.create(buildLeadPayload({ status: 'partial' }));
         setCurrentLeadId(lead.id);
       } else {
-        await base44.entities.Lead.update(currentLeadId, buildLeadPayload({ status: 'partial' }));
+        await appClient.entities.Lead.update(currentLeadId, buildLeadPayload({ status: 'partial' }));
       }
     } catch (err) {
       console.error('savePartialLead failed:', err);
@@ -190,9 +191,9 @@ export default function ClientQuestionnaire() {
       // שדרוג הליד החלקי של הסשן (אם קיים) לליד מלא, אחרת יצירה (fallback אם השמירות החלקיות נכשלו)
       const leadPayload = buildLeadPayload({ status: 'new' });
       if (currentLeadId) {
-        await base44.entities.Lead.update(currentLeadId, leadPayload);
+        await appClient.entities.Lead.update(currentLeadId, leadPayload);
       } else {
-        const lead = await base44.entities.Lead.create(leadPayload);
+        const lead = await appClient.entities.Lead.create(leadPayload);
         setCurrentLeadId(lead.id);
       }
       setSubmitted(true);
@@ -232,7 +233,7 @@ export default function ClientQuestionnaire() {
       <nav className="sticky top-0 z-50 bg-white border-b border-mist-100 shadow-sm h-20 px-6 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
+            src={mikudLogo}
             alt="מיקוד משכנתאות"
             className="h-16 w-auto object-contain"
           />

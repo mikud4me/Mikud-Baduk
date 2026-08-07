@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/appClient';
+import mikudLogo from '@/assets/brand/mikud-logo.jpg';
 import { createPageUrl } from '@/utils';
 import AdminOnly from '@/components/AdminOnly';
 import {
@@ -35,7 +36,7 @@ function AdminDashboardContent() {
 
   const loadLeads = async () => {
     setLoading(true);
-    const data = await base44.entities.Lead.list('-created_date', 100);
+    const data = await appClient.entities.Lead.list('-created_date', 100);
     setLeads(data);
     setLoading(false);
   };
@@ -44,7 +45,7 @@ function AdminDashboardContent() {
 
   const updateStatus = async (id, status) => {
     setUpdatingId(id);
-    await base44.entities.Lead.update(id, { status });
+    await appClient.entities.Lead.update(id, { status });
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
     setUpdatingId(null);
   };
@@ -118,7 +119,7 @@ function AdminDashboardContent() {
       <div className="bg-gradient-to-l from-[#0C084A] to-[#06042A] px-6 py-5 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-3">
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696ca6d05493d178c33e26fd/0c936db5c_Gemini_Generated_Image_ae1zscae1zscae1z.jpg"
+            src={mikudLogo}
             alt="מיקוד" className="h-12 w-auto object-contain" style={{ mixBlendMode: 'screen' }}
           />
           <div>

@@ -2,6 +2,12 @@
 .env
 .env.*
 
+# Local migration inputs can contain customer data; keep them out of Git.
+*_export.csv
+
+# Supabase CLI link/cache metadata is local to this machine.
+supabase/.temp/
+
 # Logs
 logs
 *.log
