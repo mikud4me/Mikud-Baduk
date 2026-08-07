@@ -1141,7 +1141,7 @@ export default function RefinanceQuickCheck() {
                 </div>
               )}
 
-              <ProfessionalAnalysis text={analysisResult.conclusionText} title="חוות דעת מומחה - ניתוח כדאיות" />
+              <ProfessionalAnalysis text={analysisResult.conclusionText} title="ניתוח כדאיות מחזור" />
 
               {/* אזור השוואה נקי וברור - לפני מול אחרי, כשני בלוקים נפרדים */}
               <div className="grid md:grid-cols-2 gap-6 items-start mb-6">
@@ -1209,6 +1209,65 @@ export default function RefinanceQuickCheck() {
                 </div>
               </div>
 
+              {/* ניתוח משכנתא מעמיק */}
+              <div className="text-center mb-6 mt-12">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAdvancedAnalysis(!showAdvancedAnalysis)}
+                  className="bg-white border border-mist-200 text-[#0C084A] hover:border-[#0153F4] hover:bg-periwinkle-100 gap-2 h-14 px-6 rounded-full font-semibold text-lg shadow-sm transition-all active:scale-95"
+                >
+                  {showAdvancedAnalysis ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  <span className="font-bold text-base">
+                    {showAdvancedAnalysis ? 'הסתר ניתוח משכנתא מעמיק' : 'הצג ניתוח משכנתא מעמיק (למתקדמים)'}
+                  </span>
+                </Button>
+              </div>
+
+              <AnimatePresence>
+                {showAdvancedAnalysis && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden space-y-6"
+                  >
+                    <div className="p-6 sm:p-8 border border-mist-100 rounded-2xl sm:rounded-3xl bg-white shadow-xl space-y-6">
+                      <h3 className="text-xl font-semibold text-[#0C084A] text-center mb-4">ניתוח משכנתא מעמיק</h3>
+
+                      {/* פירוט המסלולים הקיימים */}
+                      {analysisResult.currentLoan.tracks && analysisResult.currentLoan.tracks.length > 0 && (
+                        <Card className="border border-mist-200 bg-white">
+                          <CardHeader className="pb-2"><CardTitle className="text-sm text-mist-500">פירוט מסלולים קיימים</CardTitle></CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              {analysisResult.currentLoan.tracks.map((track, i) => (
+                                <div key={i} className="bg-mist-50 p-3 rounded-lg border border-mist-200 text-sm">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="font-bold text-mist-900">{track.track_type}</span>
+                                    <span className="text-red-600 font-bold">{track.interest_rate?.toFixed(2)}%</span>
+                                  </div>
+                                  <div className="flex justify-between text-xs text-mist-500">
+                                    <span>יתרה: ₪{track.remaining_balance?.toLocaleString()}</span>
+                                    <span>נותרו: {track.remaining_months} חודשים</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      <RefinanceCalculator currentLoan={analysisResult.currentLoan} />
+
+                      {/* ⚠️ Balloon Trap Alert */}
+                      <BalloonTrapAlert
+                        externalDebts={analysisResult.savings?.equityReleaseAnalysis?.externalDebts}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* 📄 אסטרטגיית המחזור והדוח המלא */}
               <ExecutiveSummary
                 analysisResult={analysisResult}
@@ -1236,68 +1295,6 @@ export default function RefinanceQuickCheck() {
                   </CardContent>
                 </Card>
               )}
-
-              {/* כפתור חשיפת ניתוח מתקדם */}
-              <div className="text-center mb-6 mt-12">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAdvancedAnalysis(!showAdvancedAnalysis)}
-                  className="bg-white border border-mist-200 text-[#0C084A] hover:border-[#0153F4] hover:bg-periwinkle-100 gap-2 h-14 px-6 rounded-full font-semibold text-lg shadow-sm transition-all active:scale-95"
-                >
-                  {showAdvancedAnalysis ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                  <span className="font-bold text-base">
-                    {showAdvancedAnalysis ? 'הסתר ניתוח פינאנסי מעמיק' : 'הצג ניתוח פינאנסי מעמיק (למתקדמים)'}
-                  </span>
-                </Button>
-              </div>
-
-              {/* אזור הניתוח המעמיק - מוסתר כברירת מחדל */}
-              <AnimatePresence>
-                {showAdvancedAnalysis && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden space-y-6"
-                  >
-                    <div className="p-6 sm:p-8 border border-mist-100 rounded-2xl sm:rounded-3xl bg-white shadow-xl space-y-6">
-                      <h3 className="text-xl font-semibold text-[#0C084A] text-center mb-4">ניתוח פינאנסי מעמיק</h3>
-
-                      {/* פירוט המסלולים הקיימים */}
-                      {analysisResult.currentLoan.tracks && analysisResult.currentLoan.tracks.length > 0 && (
-                        <Card className="border border-mist-200 bg-white">
-                          <CardHeader className="pb-2"><CardTitle className="text-sm text-mist-500">פירוט מסלולים קיימים</CardTitle></CardHeader>
-                          <CardContent>
-                            <div className="space-y-2">
-                              {analysisResult.currentLoan.tracks.map((track, i) => (
-                                <div key={i} className="bg-mist-50 p-3 rounded-lg border border-mist-200 text-sm">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="font-bold text-mist-900">{track.track_type}</span>
-                                    <span className="text-red-600 font-bold">{track.interest_rate?.toFixed(2)}%</span>
-                                  </div>
-                                  <div className="flex justify-between text-xs text-mist-500">
-                                    <span>יתרה: ₪{track.remaining_balance?.toLocaleString()}</span>
-                                    <span>נותרו: {track.remaining_months} חודשים</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      <RefinanceCalculator
-                        currentLoan={analysisResult.currentLoan}
-                      />
-
-                      {/* ⚠️ Balloon Trap Alert */}
-                      <BalloonTrapAlert
-                        externalDebts={analysisResult.savings?.equityReleaseAnalysis?.externalDebts}
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               {analysisResult.savings?.equityReleaseAnalysis && (
                 <Card className="border border-purple-500 bg-gradient-to-br from-purple-50 to-white">
