@@ -145,5 +145,8 @@ mortgage math, change it here, not inline in components.
   page which `postMessage`s the parent, and `cardComWebhook` (re-verifying via
   CardCom `GetLpResult`) sets `Lead.isPurchased`. CardCom secrets
   (`CARDCOM_TERMINAL_NUMBER`, `CARDCOM_API_NAME`, `CARDCOM_API_PASSWORD`,
-  `CARDCOM_WEBHOOK_URL`) live in Base44 function env, not the repo. The old Stripe
+  `CARDCOM_WEBHOOK_URL`) live in Base44 function env, not the repo. Refinance
+  payments additionally require `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+  in the Base44 function environment so the verified payment can unlock the
+  corresponding `refinance_leads` row. The old Stripe
   path (`@stripe/react-stripe-js` + the three Stripe functions) is unused.

@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import RefinanceCalculator from '@/components/refinance/RefinanceCalculator';
-import BleedingPathChart from '@/components/refinance/BleedingPathChart';
 import BalloonTrapAlert from '@/components/refinance/BalloonTrapAlert';
 import ExecutiveSummary from '@/components/refinance/ExecutiveSummary';
 import DualStrategyCard from '@/components/refinance/DualStrategyCard';
@@ -23,6 +22,10 @@ import MikudHeader from '@/components/mikud/MikudHeader';
 import ProfessionalAnalysis from '@/components/mikud/ProfessionalAnalysis';
 import MixComparison from '@/components/mikud/MixComparison';
 import { isValidIsraeliID, isValidEmail, isValidIsraeliPhone } from '@/components/refinance/validators';
+import CardComPaymentModal from '@/components/payment/CardComPaymentModal';
+import { useCardComPayment } from '@/hooks/useCardComPayment';
+import { PAYMENT_BYPASS_ENABLED } from '@/lib/demoMode';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // מקור אמת יחיד למספרי הליבה שחוזרים על עצמם בכמה מקומות בדוח (חיסכון נטו, החזר חדש, ריבית חדשה וכו')
 function buildHeadline(analysisResult) {
@@ -230,16 +233,30 @@ export default function RefinanceQuickCheck() {
 
   // פרטי קשר — נאספים לפני העלאת המסמך ונשמרים כליד
   const [leadId, setLeadId] = useState(null);
-  const [tier, setTier] = useState('free'); // נשמר לצורך שלב הבא (הצגת שכבות free/paid/premium) — לא משפיע על התצוגה כרגע
+  const [tier, setTier] = useState('free');
+  const [isPurchased, setIsPurchased] = useState(false);
   const [isResumingLead, setIsResumingLead] = useState(true);
   const [contactFullName, setContactFullName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [contactIdNumber, setContactIdNumber] = useState('');
+  const [contactConsent, setContactConsent] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [contactErrors, setContactErrors] = useState({});
   const [contactTouched, setContactTouched] = useState({});
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
   const markContactTouched = (field) => setContactTouched(t => ({ ...t, [field]: true }));
+
+  // These details are collected in their own step before the document upload.
+  // Keep the values as strings while editing so PremiumInput can apply its
+  // existing currency formatting without losing an in-progress value.
+  const [monthlyIncome, setMonthlyIncome] = useState('');
+  const [propertyPurchasePrice, setPropertyPurchasePrice] = useState('');
+  const [estimatedCurrentPropertyValue, setEstimatedCurrentPropertyValue] = useState('');
+  const [financialDetailsTouched, setFinancialDetailsTouched] = useState({});
+  const [financialDetailsError, setFinancialDetailsError] = useState('');
+  const [isSubmittingFinancialDetails, setIsSubmittingFinancialDetails] = useState(false);
+  const [hasFinancialDetails, setHasFinancialDetails] = useState(false);
 
   useEffect(() => {
     document.title = 'בדיקת מחזור משכנתא | מיקוד';
@@ -263,10 +280,19 @@ export default function RefinanceQuickCheck() {
         if (leadError || !lead) return;
         setLeadId(lead.id);
         setTier(lead.tier || 'free');
+        setIsPurchased(lead.tier === 'paid');
         setContactFullName(lead.full_name || '');
         setContactEmail(lead.email || '');
         setContactPhone(lead.phone || '');
         setContactIdNumber(lead.id_number || '');
+        setContactConsent(Boolean(lead.contact_consent));
+        setTermsAccepted(Boolean(lead.terms_accepted));
+        setMonthlyIncome(lead.monthly_income?.toString() || '');
+        setPropertyPurchasePrice(lead.property_purchase_price?.toString() || '');
+        setEstimatedCurrentPropertyValue(lead.estimated_current_property_value?.toString() || '');
+        setHasFinancialDetails(
+          Number(lead.monthly_income) > 0 && Number(lead.property_purchase_price) > 0
+        );
         if (lead.status === 'analyzed' && lead.analysis_result) {
           setAnalysisResult({ ...lead.analysis_result, file_url: lead.file_url });
         }
@@ -303,12 +329,14 @@ export default function RefinanceQuickCheck() {
     if (!isValidEmail(contactEmail)) errors.email = 'כתובת אימייל לא תקינה';
     if (!isValidIsraeliPhone(contactPhone)) errors.phone = 'מספר טלפון לא תקין';
     if (!isValidIsraeliID(contactIdNumber)) errors.idNumber = 'תעודת זהות לא תקינה';
+    if (!contactConsent) errors.contactConsent = 'חובה לאשר יצירת קשר';
+    if (!termsAccepted) errors.termsAccepted = 'חובה לאשר את תנאי השימוש ומדיניות הפרטיות';
     return errors;
   };
 
   const liveContactErrors = useMemo(
     () => getContactErrors(),
-    [contactFullName, contactEmail, contactPhone, contactIdNumber]
+    [contactFullName, contactEmail, contactPhone, contactIdNumber, contactConsent, termsAccepted]
   );
   const isContactFormValid = Object.keys(liveContactErrors).length === 0;
 
@@ -316,7 +344,7 @@ export default function RefinanceQuickCheck() {
     const errors = getContactErrors();
 
     if (Object.keys(errors).length > 0) {
-      setContactTouched({ fullName: true, idNumber: true, phone: true, email: true });
+      setContactTouched({ fullName: true, idNumber: true, phone: true, email: true, contactConsent: true, termsAccepted: true });
       return;
     }
 
@@ -329,12 +357,16 @@ export default function RefinanceQuickCheck() {
           full_name: contactFullName.trim(),
           email: contactEmail.trim(),
           phone: contactPhone.trim(),
-          id_number: contactIdNumber.trim()
+          id_number: contactIdNumber.trim(),
+          contact_consent: contactConsent,
+          terms_accepted: termsAccepted,
+          terms_accepted_at: new Date().toISOString()
         })
         .select()
         .single();
       if (createError) throw createError;
       setLeadId(lead.id);
+      setHasFinancialDetails(false);
       const url = new URL(window.location.href);
       url.searchParams.set('lead', lead.id);
       window.history.replaceState(null, '', url);
@@ -353,6 +385,74 @@ export default function RefinanceQuickCheck() {
       if (updateError) throw updateError;
     } catch (err) {
       console.error('Failed to update lead record:', err);
+    }
+  };
+
+  const getFinancialDetailsErrors = () => {
+    const errors = {};
+    if (Number(monthlyIncome) <= 0) errors.monthlyIncome = 'יש להזין הכנסה חודשית נטו גדולה מאפס';
+    if (Number(propertyPurchasePrice) <= 0) errors.propertyPurchasePrice = 'יש להזין את מחיר הרכישה המקורי של הנכס';
+    if (estimatedCurrentPropertyValue && Number(estimatedCurrentPropertyValue) <= 0) {
+      errors.estimatedCurrentPropertyValue = 'אם מזינים שווי נוכחי, הוא חייב להיות גדול מאפס';
+    }
+    return errors;
+  };
+
+  const financialDetailsErrors = useMemo(
+    () => getFinancialDetailsErrors(),
+    [monthlyIncome, propertyPurchasePrice, estimatedCurrentPropertyValue]
+  );
+  const {
+    paymentLoading,
+    paymentNotice,
+    paymentUrl,
+    handlePurchaseClick,
+    handlePaymentModalClose,
+  } = useCardComPayment({
+    leadId,
+    leadType: 'refinance',
+    onPaid: () => {
+      setTier('paid');
+      setIsPurchased(true);
+    },
+  });
+
+  const handlePaymentBypass = () => {
+    setTier('paid');
+    setIsPurchased(true);
+  };
+  const isFinancialDetailsValid = Object.keys(financialDetailsErrors).length === 0;
+
+  const handleFinancialDetailsSubmit = async () => {
+    const errors = getFinancialDetailsErrors();
+    if (Object.keys(errors).length > 0) {
+      setFinancialDetailsTouched({ monthlyIncome: true, propertyPurchasePrice: true, estimatedCurrentPropertyValue: true });
+      return;
+    }
+
+    setFinancialDetailsError('');
+    setIsSubmittingFinancialDetails(true);
+    try {
+      const { data: updatedLead, error: updateError } = await supabase
+        .from('refinance_leads')
+        .update({
+          monthly_income: Number(monthlyIncome),
+          property_purchase_price: Number(propertyPurchasePrice),
+          estimated_current_property_value: estimatedCurrentPropertyValue ? Number(estimatedCurrentPropertyValue) : null
+        })
+        .eq('id', leadId)
+        .select('id')
+        .single();
+      if (updateError) throw updateError;
+      if (!updatedLead) throw new Error('The refinance lead was not updated');
+      setHasFinancialDetails(true);
+    } catch (err) {
+      console.error('Failed to save refinance financial details:', err);
+      setFinancialDetailsError(
+        'לא הצלחנו לשמור את הנתונים. יש לוודא שמסד הנתונים עודכן עם העמודות החדשות למחזור, ואז לנסות שוב.'
+      );
+    } finally {
+      setIsSubmittingFinancialDetails(false);
     }
   };
 
@@ -502,6 +602,7 @@ export default function RefinanceQuickCheck() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden" dir="rtl">
+      <CardComPaymentModal paymentUrl={paymentUrl} onClose={handlePaymentModalClose} />
       <MikudHeader activePage="refinance" isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
       <main className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center">
       <div className="w-full max-w-4xl">
@@ -550,6 +651,38 @@ export default function RefinanceQuickCheck() {
                 <PremiumInput label="כתובת דוא״ל" name="refinanceEmail" value={contactEmail} onChange={(_, value) => setContactEmail(value)} onBlur={() => markContactTouched('email')} disabled={isSubmittingContact} type="email" autoComplete="email" error={contactTouched.email ? liveContactErrors.email : undefined} />
               </div>
 
+              <div className="space-y-3 rounded-2xl bg-mist-50 p-4 text-right">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="refinance-contact-consent"
+                    checked={contactConsent}
+                    onCheckedChange={(checked) => setContactConsent(checked === true)}
+                    disabled={isSubmittingContact}
+                    aria-labelledby="refinance-contact-consent-label"
+                    className="mt-0.5"
+                  />
+                  <label id="refinance-contact-consent-label" htmlFor="refinance-contact-consent" className="cursor-pointer text-xs font-bold leading-relaxed text-mist-600">
+                    אני מאשר ליועץ ממיקוד משכנתאות ליצור איתי קשר לצורך קידום התיק.
+                  </label>
+                </div>
+                {contactTouched.contactConsent && liveContactErrors.contactConsent && <p className="text-xs font-bold text-red-600">{liveContactErrors.contactConsent}</p>}
+
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="refinance-terms-accepted"
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                    disabled={isSubmittingContact}
+                    aria-labelledby="refinance-terms-accepted-label"
+                    className="mt-0.5"
+                  />
+                  <label id="refinance-terms-accepted-label" htmlFor="refinance-terms-accepted" className="cursor-pointer text-xs font-bold leading-relaxed text-mist-600">
+                    קראתי ואני מסכים/ה לתנאי השימוש ולמדיניות הפרטיות של האתר, לרבות עיבוד הפרטים והמסמכים לצורך בדיקת המחזור.
+                  </label>
+                </div>
+                {contactTouched.termsAccepted && liveContactErrors.termsAccepted && <p className="text-xs font-bold text-red-600">{liveContactErrors.termsAccepted}</p>}
+              </div>
+
               {contactErrors.submit && (
                 <div className="bg-red-50 border border-red-300 rounded-xl p-4 flex items-start gap-3">
                   <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
@@ -572,7 +705,72 @@ export default function RefinanceQuickCheck() {
           </div>
         )}
 
-        {leadId && !analysisResult && (
+        {leadId && !hasFinancialDetails && !analysisResult && (
+          <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-mist-100 transition-all duration-700 relative overflow-hidden">
+            <div className="space-y-5">
+              <div className="mb-6 text-right">
+                <h2 className="text-lg sm:text-2xl font-bold text-[#0C084A] leading-none">כמה פרטים על הנכס</h2>
+                <p className="text-[#0153F4] font-medium text-xs mt-2">הנתונים עוזרים לנו להתאים את בדיקת המחזור למצבכם</p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3 mb-1">
+                <PremiumInput
+                  label="הכנסה חודשית נטו (₪)"
+                  name="refinanceMonthlyIncome"
+                  value={monthlyIncome}
+                  onChange={(_, value) => setMonthlyIncome(value)}
+                  onBlur={() => setFinancialDetailsTouched(t => ({ ...t, monthlyIncome: true }))}
+                  disabled={isSubmittingFinancialDetails}
+                  inputMode="numeric"
+                  error={financialDetailsTouched.monthlyIncome ? financialDetailsErrors.monthlyIncome : undefined}
+                />
+                <PremiumInput
+                  label="מחיר הרכישה המקורי של הנכס (₪)"
+                  name="refinancePropertyPurchasePrice"
+                  value={propertyPurchasePrice}
+                  onChange={(_, value) => setPropertyPurchasePrice(value)}
+                  onBlur={() => setFinancialDetailsTouched(t => ({ ...t, propertyPurchasePrice: true }))}
+                  disabled={isSubmittingFinancialDetails}
+                  inputMode="numeric"
+                  error={financialDetailsTouched.propertyPurchasePrice ? financialDetailsErrors.propertyPurchasePrice : undefined}
+                />
+                <div className="sm:col-span-2">
+                  <PremiumInput
+                    label="שווי הנכס המשוער כיום (₪) — אופציונלי"
+                    name="refinanceEstimatedCurrentPropertyValue"
+                    value={estimatedCurrentPropertyValue}
+                    onChange={(_, value) => setEstimatedCurrentPropertyValue(value)}
+                    onBlur={() => setFinancialDetailsTouched(t => ({ ...t, estimatedCurrentPropertyValue: true }))}
+                    disabled={isSubmittingFinancialDetails}
+                    inputMode="numeric"
+                    error={financialDetailsTouched.estimatedCurrentPropertyValue ? financialDetailsErrors.estimatedCurrentPropertyValue : undefined}
+                  />
+                </div>
+              </div>
+
+              {financialDetailsError && (
+                <div className="bg-red-50 border border-red-300 rounded-xl p-4 flex items-start gap-3">
+                  <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700">{financialDetailsError}</p>
+                </div>
+              )}
+
+              <Button
+                onClick={handleFinancialDetailsSubmit}
+                disabled={isSubmittingFinancialDetails || !isFinancialDetailsValid}
+                className="w-full h-14 rounded-full font-semibold text-lg shadow-md transition-all bg-[#0C084A] text-white hover:bg-[#0153F4] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isSubmittingFinancialDetails ? (
+                  <><Loader2 className="w-5 h-5 ml-2 animate-spin" /> שומר...</>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">המשך להעלאת מסמך <ChevronLeft size={24} /></span>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {leadId && hasFinancialDetails && !analysisResult && (
           <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-mist-100 transition-all duration-700 relative overflow-hidden">
             <div className="space-y-6">
 
@@ -961,16 +1159,6 @@ export default function RefinanceQuickCheck() {
                         }}
                       />
 
-                      {/* 🔥 המסלול המדמם */}
-                      {analysisResult.currentLoan?.tracks?.some(t => t.is_index_linked || (t.track_type || '').includes('צמוד')) && (
-                        <BleedingPathChart
-                          tracks={analysisResult.currentLoan.tracks}
-                          newMonthlyPayment={analysisResult.savings?.newMonthlyPayment}
-                          newAverageRate={analysisResult.savings?.newAverageRate}
-                          remainingBalance={analysisResult.currentLoan.remainingBalance}
-                        />
-                      )}
-
                       {/* ⚠️ Balloon Trap Alert */}
                       <BalloonTrapAlert
                         externalDebts={analysisResult.savings?.equityReleaseAnalysis?.externalDebts}
@@ -1325,13 +1513,36 @@ export default function RefinanceQuickCheck() {
               </AnimatePresence>
 
               {refinanceMixes.length > 0 && (
-                <div className="mt-8">
-                  <MixComparison
-                    mixes={refinanceMixes}
-                    loanAmount={analysisResult.currentLoan?.remainingBalance}
-                    isRefinance
-                  />
-                </div>
+                <>
+                  {!isPurchased && (
+                    <div className="mb-6 p-5 rounded-2xl border border-dashed border-[#0153F4] bg-periwinkle-100 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
+                      <div className="flex-1">
+                        <h4 className="font-black text-[#06042A] text-base mb-1">התמהילים המלאים נעולים</h4>
+                        <p className="text-mist-600 font-medium text-xs leading-relaxed">הפקת פירוט הריביות והחזרים מדויקים דורשת פתיחת תיק במיקוד משכנתאות.</p>
+                        {paymentNotice && <p className="mt-2 text-[#0C084A] font-bold text-xs leading-relaxed">{paymentNotice}</p>}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+                        <button onClick={handlePurchaseClick} disabled={paymentLoading} className="bg-[#0C084A] text-white px-6 py-3 rounded-full font-black text-sm shadow-lg hover:bg-[#1362FF] hover:text-[#06042A] transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                          {paymentLoading && <Loader2 size={16} className="animate-spin" />}
+                          רכוש דוח ₪499
+                        </button>
+                        {PAYMENT_BYPASS_ENABLED && (
+                          <button onClick={handlePaymentBypass} className="border border-[#0153F4] text-[#0C084A] px-5 py-3 rounded-full font-bold text-sm hover:bg-white transition-all whitespace-nowrap">
+                            דלג על התשלום (דמו)
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <div className={`mt-8 transition-all duration-1000 ${!isPurchased ? 'opacity-60 pointer-events-none select-none' : ''}`} style={!isPurchased ? { filter: 'blur(8px)' } : {}}>
+                    <MixComparison
+                      mixes={refinanceMixes}
+                      loanAmount={analysisResult.currentLoan?.remainingBalance}
+                      isRefinance
+                      isPurchased={isPurchased}
+                    />
+                  </div>
+                </>
               )}
             </motion.div>
           )}

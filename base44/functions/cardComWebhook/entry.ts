@@ -1,13 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import {
+  getVerifiedCardComResult,
+  hasExpectedPaymentAmount,
+  markPaymentLeadAsPurchased,
+  parsePaymentReturnValue,
+} from '../_shared/cardCom.ts';
 
 // Server-to-server callback from CardCom after a LowProfile payment. This is the
 // trust boundary that grants purchase status — conceptually replaces stripeWebhook.
 // We never trust the posted body's success flag; we re-query CardCom with our own
 // terminal credentials (GetLpResult) and verify ResponseCode + amount ourselves.
-const CARDCOM_RESULT_URL = 'https://secure.cardcom.solutions/api/v11/LowProfile/GetLpResult';
-
-// TODO: TEST VALUE — set back to 589 before go-live. Must match createCardComPayment.
-const AMOUNT = 1; // must match createCardComPayment
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -29,16 +31,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing LowProfileId' }, { status: 400 });
     }
 
-    const terminalNumber = Number(Deno.env.get('CARDCOM_TERMINAL_NUMBER'));
-    const apiName = Deno.env.get('CARDCOM_API_NAME');
-
-    // Authoritative re-verification against CardCom.
-    const resp = await fetch(CARDCOM_RESULT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ TerminalNumber: terminalNumber, ApiName: apiName, LowProfileId: lowProfileId }),
-    });
-    const result = await resp.json();
+    const result = await getVerifiedCardComResult(lowProfileId);
 
     if (result.ResponseCode !== 0) {
       console.error(`CardCom webhook: unpaid/failed LP ${lowProfileId} (code ${result.ResponseCode})`);
@@ -46,31 +39,19 @@ Deno.serve(async (req) => {
     }
 
     // Guard against amount tampering — the charged sum must be exactly our price.
-    const paidAmount = Number(result.TranzactionInfo?.Amount);
-    if (paidAmount !== AMOUNT) {
-      console.error(`CardCom webhook: amount mismatch for LP ${lowProfileId}: got ${paidAmount}, expected ${AMOUNT}`);
+    if (!hasExpectedPaymentAmount(result)) {
+      console.error(`CardCom webhook: amount mismatch for LP ${lowProfileId}`);
       return Response.json({ received: true });
     }
 
-    const leadId = result.ReturnValue;
-    if (!leadId) {
-      console.error(`CardCom webhook: no ReturnValue (leadId) for LP ${lowProfileId}`);
+    const paymentLead = parsePaymentReturnValue(result.ReturnValue);
+    if (!paymentLead) {
+      console.error(`CardCom webhook: invalid ReturnValue for LP ${lowProfileId}`);
       return Response.json({ received: true });
     }
 
-    // Confirm the lead exists before granting purchase status (a stale/malformed
-    // id should never silently succeed) — same shape as stripeWebhook.
-    const existing = await base44.asServiceRole.entities.Lead.filter({ id: leadId });
-    if (!existing?.[0]) {
-      console.error(`CardCom webhook: no lead found for id ${leadId}`);
-      return Response.json({ received: true });
-    }
-
-    await base44.asServiceRole.entities.Lead.update(leadId, {
-      isPurchased: true,
-      status: 'contacted',
-    });
-    console.log(`Lead ${leadId} marked as purchased via CardCom (LP ${lowProfileId}, txn ${result.TranzactionId})`);
+    await markPaymentLeadAsPurchased(base44, paymentLead.leadType, paymentLead.leadId);
+    console.log(`${paymentLead.leadType} lead ${paymentLead.leadId} marked as purchased via CardCom (LP ${lowProfileId}, txn ${result.TranzactionId})`);
 
     return Response.json({ received: true });
 

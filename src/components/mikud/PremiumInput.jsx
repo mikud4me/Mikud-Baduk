@@ -18,7 +18,7 @@ export default function PremiumInput({
   label, name, value, placeholder, options, onChange, error, min, max, type = "text",
   onBlur, disabled = false, inputMode, maxLength, autoComplete,
 }) {
-  const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'existingPropertyValue', 'existingMortgageBalance', 'existingMortgagePayment', 'rentalIncome', 'salePrice', 'completionAmount', 'refinanceBalance', 'currentMonthlyPayment', 'refinanceIncreaseAmount', 'appraisalValue', 'rentIncomeFromPurchased'].includes(name) || name.startsWith('amount_');
+  const isNumeric = ['propertyPrice', 'loanAmount', 'equity', 'netIncome', 'partnerNetIncome', 'monthlyDebts', 'monthlyOverdraft', 'loanDuration', 'additionalIncomeAmount', 'age', 'idNumber', 'childrenUnder18', 'employmentSeniority', 'existingPropertyValue', 'existingMortgageBalance', 'existingMortgagePayment', 'rentalIncome', 'salePrice', 'completionAmount', 'refinanceBalance', 'currentMonthlyPayment', 'refinanceIncreaseAmount', 'appraisalValue', 'rentIncomeFromPurchased', 'refinanceMonthlyIncome', 'refinancePropertyPurchasePrice', 'refinanceEstimatedCurrentPropertyValue'].includes(name) || name.startsWith('amount_');
   const displayValue = isNumeric && value !== "" && !NON_FORMAT_FIELDS.includes(name) ? formatCurrency(value) : value;
   const inputId = `premium-input-${name}`;
 

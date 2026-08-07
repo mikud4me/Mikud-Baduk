@@ -33,6 +33,11 @@ project URL/publishable key (see `src/components/refinance/supabaseClient.js`
 aren't set, so it works out of the box. Set them to point a build at a
 different Supabase project instead:
 
+For CardCom refinance payments, also configure `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` in the Base44 function environment. These secrets
+are used only server-side to mark the CardCom-verified `refinance_leads` record
+as paid.
+
 ```
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
