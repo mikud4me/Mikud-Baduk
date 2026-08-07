@@ -7,7 +7,7 @@ const fmt = (val) => {
   return new Intl.NumberFormat('he-IL').format(Math.round(val));
 };
 
-function SavingsAnnotation({ label, value }) {
+function SavingsAnnotation({ value }) {
   if (value == null || !Number.isFinite(Number(value))) return null;
 
   const numericValue = Number(value);
@@ -19,8 +19,8 @@ function SavingsAnnotation({ label, value }) {
       : 'text-mist-500';
 
   return (
-    <span className={`text-[10px] sm:text-[11px] font-bold ${colorClass}`}>
-      ({label}: {sign}₪{fmt(Math.abs(numericValue))})
+    <span className={`-mt-0.5 text-[10px] sm:text-[11px] font-bold leading-none ${colorClass}`}>
+      {sign}₪{fmt(Math.abs(numericValue))}
     </span>
   );
 }
@@ -134,25 +134,25 @@ function MixCard({
 
         <div className="w-full">
           <div className="w-full flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-mist-700 font-semibold">תשלום חודשי</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex-shrink-0 whitespace-nowrap text-sm text-mist-700 font-semibold">תשלום חודשי</span>
               <span
-                className={`font-semibold text-base sm:text-lg ${monthlySaving != null ? 'flex flex-wrap items-baseline justify-end gap-x-1.5' : ''}`}
+                className={`font-semibold text-base sm:text-lg text-right ${monthlySaving != null ? 'flex flex-col items-end leading-none' : ''}`}
                 style={{ color: meta.accentColor }}
               >
                 <Amount value={Math.floor(totalPmt)} />
-                <SavingsAnnotation label="חיסכון חודשי" value={monthlySaving} />
+                <SavingsAnnotation value={monthlySaving} />
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-mist-700 font-semibold">משך זמן</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex-shrink-0 whitespace-nowrap text-sm text-mist-700 font-semibold">משך זמן</span>
               <span className="font-semibold text-base sm:text-lg text-[#0C084A]">{years} שנה</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-mist-700 font-semibold">סך החזר כולל</span>
-              <span className={`font-semibold text-base sm:text-lg text-[#0C084A] ${totalSaving != null ? 'flex flex-wrap items-baseline justify-end gap-x-1.5' : ''}`}>
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex-shrink-0 whitespace-nowrap text-sm text-mist-700 font-semibold">סך החזר כולל</span>
+              <span className={`font-semibold text-base sm:text-lg text-right text-[#0C084A] ${totalSaving != null ? 'flex flex-col items-end leading-none' : ''}`}>
                 <Amount value={Math.floor(totalPayment)} />
-                <SavingsAnnotation label="חיסכון כולל" value={totalSaving} />
+                <SavingsAnnotation value={totalSaving} />
               </span>
             </div>
           </div>

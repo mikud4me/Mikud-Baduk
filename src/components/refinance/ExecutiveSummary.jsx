@@ -109,14 +109,6 @@ export default function ExecutiveSummary({ analysisResult, headline, externalTri
 
   return (
     <div className="space-y-3 -mt-2">
-      {/* ── תוצאת הביניים — המשך ישיר לשתי האסטרטגיות, לא כרטיס נפרד ── */}
-      <div className="border-t border-mist-200 pt-4">
-        <div dir="rtl" className="text-center">
-          <div dir="rtl" className="text-center text-xs text-[#0153F4] font-bold opacity-80">
-            {strategy.title} · {strategy.description}
-          </div>
-        </div>
-      </div>
 
       {/* ══════════════════════════════════════════════
           PRINTABLE REPORT — hidden off-screen

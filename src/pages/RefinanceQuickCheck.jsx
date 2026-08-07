@@ -1246,7 +1246,7 @@ export default function RefinanceQuickCheck() {
                 >
                   {showAdvancedAnalysis ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                   <span className="font-bold text-base">
-                    {showAdvancedAnalysis ? 'הסתר ניתוח כלכלי מעמיק' : 'הצג ניתוח כלכלי מעמיק (למתקדמים)'}
+                    {showAdvancedAnalysis ? 'הסתר ניתוח פינאנסי מעמיק' : 'הצג ניתוח פינאנסי מעמיק (למתקדמים)'}
                   </span>
                 </Button>
               </div>
@@ -1261,7 +1261,7 @@ export default function RefinanceQuickCheck() {
                     className="overflow-hidden space-y-6"
                   >
                     <div className="p-6 sm:p-8 border border-mist-100 rounded-2xl sm:rounded-3xl bg-white shadow-xl space-y-6">
-                      <h3 className="text-xl font-semibold text-[#0C084A] text-center mb-4">ניתוח כלכלי מעמיק</h3>
+                      <h3 className="text-xl font-semibold text-[#0C084A] text-center mb-4">ניתוח פינאנסי מעמיק</h3>
 
                       {/* פירוט המסלולים הקיימים */}
                       {analysisResult.currentLoan.tracks && analysisResult.currentLoan.tracks.length > 0 && (
@@ -1288,18 +1288,6 @@ export default function RefinanceQuickCheck() {
 
                       <RefinanceCalculator
                         currentLoan={analysisResult.currentLoan}
-                        newLoan={analysisResult.newLoan}
-                        savings={analysisResult.savings}
-                        partialRefinanceSavings={analysisResult.partialRefinanceSavings}
-                        surgicalAnalysis={analysisResult.surgicalAnalysis}
-                        clientInfo={{
-                          borrowers: (analysisResult.currentLoan.borrowers_names || []).map((name, i) => ({
-                            name,
-                            idNumber: i === 0
-                              ? analysisResult.currentLoan.id_number
-                              : analysisResult.currentLoan.borrower_2?.id_number
-                          }))
-                        }}
                       />
 
                       {/* ⚠️ Balloon Trap Alert */}
