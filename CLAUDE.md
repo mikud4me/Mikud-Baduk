@@ -90,6 +90,14 @@ npx wrangler pages deploy .\dist --project-name baduk-ai --branch main --commit-
 
 Cloudflare DNS and the custom domain are configured separately. After the `baduk-ai.co.il` zone is active in Cloudflare, attach it from **Workers & Pages → baduk-ai → Custom domains**. Do not create a standalone `pages.dev` CNAME before adding the domain in the Pages dashboard.
 
+## Git workflow
+
+- Always commit all in-scope work after it is complete and verified; do not wait for a separate instruction to commit.
+- Immediately push every new commit to the current branch's configured remote.
+- Never merge a branch or pull request unless the user explicitly instructs you to merge it.
+- Never deploy to preview, staging, production, Supabase, Cloudflare, or any other environment unless the user explicitly instructs you to deploy.
+- If a commit or push cannot be completed safely because of authentication, conflicts, branch protection, or unrelated changes, stop and report the blocker instead of merging, force-pushing, or discarding work.
+
 ## Refinance document flow
 
 1. `document-upload` creates a signed upload ticket for the private `documents` bucket.
