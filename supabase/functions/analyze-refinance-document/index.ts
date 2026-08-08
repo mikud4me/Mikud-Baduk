@@ -1042,10 +1042,15 @@ Today: ${today}`,
       ? toxicTracksForSavings.reduce((s, t) => { const rr = t.interest_rate/100/12; const n = t.remaining_months||0; const b = t.remaining_balance||0; return (rr>0&&n>0&&b>0) ? s + b*(rr*Math.pow(1+rr,n))/(Math.pow(1+rr,n)-1) : s; }, 0)
       : currentMonthlyPreCalc;
     const maxYearsPreCalc = isSurgicalMode ? Math.ceil((surgicalAvgMonths || weightedPeriodMonths) / 12) : weightedPeriodYears;
+    let mixSavingsPeriodYears = maxYearsPreCalc;
     for (let y = 10; y <= maxYearsPreCalc; y++) {
       const m = y * 12;
       const pmt = surgicalPrincipalPreCalc * (r_preCalc * Math.pow(1+r_preCalc, m)) / (Math.pow(1+r_preCalc, m) - 1);
-      if (pmt <= refMonthlyPreCalc * 1.15) { strategyAYearsPreCalc = y; break; }
+      if (pmt <= refMonthlyPreCalc * 1.15) {
+        strategyAYearsPreCalc = y;
+        mixSavingsPeriodYears = y;
+        break;
+      }
     }
     const strategyAMonthsPreCalc = strategyAYearsPreCalc * 12;
     const strategyAMonthlyPreCalc = surgicalPrincipalPreCalc * (r_preCalc * Math.pow(1+r_preCalc, strategyAMonthsPreCalc)) / (Math.pow(1+r_preCalc, strategyAMonthsPreCalc) - 1);
@@ -1116,132 +1121,45 @@ Today: ${today}`,
       else surgicalAnalysis.neutralTracks.push(withClass);
     });
 
-    // ━━━ MIX CALCULATION ━━━
-    const validateCompliance = (tracks) => {
-      let fixed = 0, variable = 0;
-      tracks.forEach(t => {
-        const type = (t.track_type || '').toLowerCase();
-        const pct = t.percentage || 0;
-        if (type.includes('פריים') || type.includes('prime')) variable += pct;
-        else if (type.includes('קבוע') || type.includes('fixed')) fixed += pct;
-        else if (type.includes('משתנה') || type.includes('variable')) variable += pct;
-      });
-      const errors = [];
-      if (fixed < 33) errors.push({ type: 'REGULATORY', severity: 'CRITICAL', message: `${fixed.toFixed(1)}% קבוע - דורש Auto-Shift`, missingPercent: 33.1 - fixed });
-      return { isCompliant: errors.length === 0, fixedPercentage: Math.round(fixed), variablePercentage: Math.round(variable), errors };
-    };
-
-    // בתיק כירורגי: תמהילים מחושבים על החלק שממחזרים בלבד (surgicalBalance + fees)
+    // בתיק כירורגי: תמהילים יחושבו לפי החלק שממחזרים בלבד (surgicalBalance + fees)
     const mixBasePrincipal = isSurgicalMode ? (surgicalBalance + earlyRepaymentFee + bankFees) : actualRemainingBalance;
 
-    // goldenMonthly for mixes — חישוב החזר חודשי של מסלולי הזהב (לשימוש בתמהילים)
-    const goldenMonthlyForMixes = isSurgicalMode
-      ? goldenTracksForSavings.reduce((s, t) => {
-          const rr = t.interest_rate / 100 / 12;
-          const n = t.remaining_months || 0;
-          const b = t.remaining_balance || 0;
-          return (rr > 0 && n > 0 && b > 0) ? s + b * (rr * Math.pow(1+rr, n)) / (Math.pow(1+rr, n) - 1) : s;
-        }, 0)
-      : 0;
-
-    const calculateMix = (trackDefs) => {
-      let totalMonthly = 0, totalPayments = 0;
-      const calculatedTracks = trackDefs.map(t => {
-        const amount = t.exact_amount || (mixBasePrincipal * (t.percentage / 100));
-        const r = t.interest_rate / 100 / 12;
-        const m = t.period_years * 12;
-        const monthly = amount * (r * Math.pow(1+r, m)) / (Math.pow(1+r, m) - 1);
-        totalMonthly += monthly;
-        totalPayments += monthly * m;
-        return { track_type: t.track_type, amount: Math.round(amount), percentage: Math.round((amount / mixBasePrincipal) * 1000) / 10, interest_rate: t.interest_rate, period_years: t.period_years, monthly_payment: Math.round(monthly) };
-      });
-
-      // בתיק כירורגי: הוסף את מסלול הזהב כ-track נוסף (נשמר)
-      if (isSurgicalMode && goldenTracksForSavings.length > 0) {
-        goldenTracksForSavings.forEach(gt => {
-          const rr = gt.interest_rate / 100 / 12;
-          const n = gt.remaining_months || 0;
-          const b = gt.remaining_balance || 0;
-          const gm = (rr > 0 && n > 0 && b > 0) ? b * (rr * Math.pow(1+rr, n)) / (Math.pow(1+rr, n) - 1) : 0;
-          calculatedTracks.push({
-            track_type: translateTrackType(gt.track_type),
-            amount: Math.round(b),
-            percentage: Math.round((b / actualRemainingBalance) * 1000) / 10,
-            interest_rate: gt.interest_rate,
-            period_years: Math.round(n / 12),
-            monthly_payment: Math.round(gm),
-            is_golden: true,
-            label: '⭐ מסלול נשמר'
-          });
-        });
-      }
-
-      const mixPeriodMonths = trackDefs[0].period_years * 12;
-      // חישוב חיסכון הוגן: משווה עלות המשכנתא הישנה לאותה תקופה בדיוק
-      let oldCostForPeriod = totalOldPayments;
-      if (mixPeriodMonths !== weightedPeriodMonths && mixPeriodMonths > 0) {
-        oldCostForPeriod = 0;
-        allTracks.forEach(track => {
-          const linked = isTrackCPILinked(track);
-          const annualRate = track.interest_rate || 0;
-          const r = annualRate / 100 / 12;
-          const balance = track.remaining_balance || 0;
-          if (balance <= 0) return;
-          const effectiveMonths = Math.min(track.remaining_months || weightedPeriodMonths, mixPeriodMonths);
-          if (linked) {
-            oldCostForPeriod += calcLinkedCost(balance, annualRate, effectiveMonths);
-          } else {
-            const pmt = balance * (r * Math.pow(1+r, effectiveMonths)) / (Math.pow(1+r, effectiveMonths) - 1);
-            oldCostForPeriod += pmt * effectiveMonths;
-          }
-        });
-      }
-      const savings = calculateFinalSavings(oldCostForPeriod, totalPayments, earlyRepaymentFee, mixPeriodMonths);
-      // החזר חודשי כולל = מסלולים חדשים + מסלול זהב שנשמר
-      const totalMonthlyWithGolden = Math.round(totalMonthly + goldenMonthlyForMixes);
-      const realMixMonthlySavings = Math.round(existingMonthlyPayment - totalMonthlyWithGolden);
-      return { tracks: calculatedTracks, total_monthly_payment: totalMonthlyWithGolden, total_interest: Math.round(totalPayments - mixBasePrincipal), monthly_savings: realMixMonthlySavings, total_savings: savings.grossSavings, net_savings: savings.netSavings, is_worthwhile: savings.isWorthwhile, compliance: validateCompliance(calculatedTracks) };
+    // Strategy-specific mixes are now calculated only after the borrower
+    // chooses a goal. Keep the exact inputs used by the existing mix formulas
+    // so the follow-up Edge Function can reproduce them without changing any
+    // refinance assumptions.
+    const mixCalculationContext = {
+      analysisRevision: crypto.randomUUID(),
+      mixBasePrincipal,
+      actualRemainingBalance,
+      isSurgicalMode,
+      goldenTracks: goldenTracksForSavings.map((track) => ({
+        track_type: translateTrackType(track.track_type),
+        remaining_balance: track.remaining_balance,
+        interest_rate: track.interest_rate,
+        remaining_months: track.remaining_months,
+      })),
+      existingMonthlyPayment,
+      totalOldPayments,
+      weightedPeriodMonths,
+      earlyRepaymentFee,
+      bankFees,
+      allTracks: allTracks.map((track) => ({
+        track_type: translateTrackType(track.track_type),
+        remaining_balance: track.remaining_balance,
+        interest_rate: track.interest_rate,
+        remaining_months: track.remaining_months,
+        is_index_linked: isTrackCPILinked(track),
+      })),
+      expectedAnnualInflation: EXPECTED_ANNUAL_INFLATION,
+      marketRates: CURRENT_MARKET_RATES,
+      strategyPeriods: {
+        // Same period returned as dualStrategy.strategyA.periodYears, including
+        // its surgical-reference fallback when no shorter period qualifies.
+        savings: mixSavingsPeriodYears,
+        cashflow: oxygenYearsPreCalc,
+      },
     };
-
-    const enforce33Fixed = (mix) => {
-      const fixedPct = mix.tracks.reduce((s, t) => (t.track_type || '').toLowerCase().includes('קבוע') ? s + (t.percentage || 0) : s, 0);
-      if (fixedPct >= 33) return mix;
-      const missing = 33.1 - fixedPct;
-      const fixedIdx = mix.tracks.findIndex(t => (t.track_type || '').toLowerCase().includes('קבוע'));
-      let flexIdx = mix.tracks.findIndex(t => (t.track_type || '').toLowerCase().includes('פריים'));
-      if (flexIdx === -1) flexIdx = mix.tracks.findIndex(t => (t.track_type || '').toLowerCase().includes('משתנה'));
-      if (fixedIdx === -1 || flexIdx === -1) return mix;
-      const newTracks = mix.tracks.map((t, i) => ({ ...t, percentage: i === fixedIdx ? t.percentage + missing : i === flexIdx ? Math.max(10, t.percentage - missing) : t.percentage }));
-      return { ...mix, ...calculateMix(newTracks), mix_name: mix.mix_name, mix_number: mix.mix_number, risk_level: mix.risk_level, advantages: mix.advantages, disadvantages: mix.disadvantages, recommended_for: mix.recommended_for };
-    };
-
-    const mix1Period = Math.min(weightedPeriodYears, maxAllowedYears);
-    const mix2Period = Math.min(weightedPeriodYears, maxAllowedYears);
-    const mix3Period = Math.min(30, Math.min(weightedPeriodYears + 3, maxAllowedYears));
-
-    const mix1Raw = calculateMix([
-      { track_type: 'פריים', percentage: 33, interest_rate: avgPrime, period_years: mix1Period },
-      { track_type: 'קבועה לא צמודה', percentage: 34, interest_rate: avgFixedUnlinked, period_years: mix1Period },
-      { track_type: 'משתנה לא צמודה', percentage: 33, interest_rate: avgVariableUnlinked, period_years: mix1Period }
-    ]);
-    const mix2Raw = calculateMix([
-      { track_type: 'פריים', percentage: 47, interest_rate: avgPrime, period_years: mix2Period },
-      { track_type: 'קבועה לא צמודה', percentage: 38, interest_rate: avgFixedUnlinked, period_years: mix2Period },
-      { track_type: 'משתנה לא צמודה', percentage: 15, interest_rate: avgVariableUnlinked, period_years: mix2Period }
-    ]);
-    const mix3Raw = calculateMix([
-      { track_type: 'פריים', percentage: 27, interest_rate: avgPrime, period_years: mix3Period },
-      { track_type: 'קבועה לא צמודה', percentage: 46, interest_rate: avgFixedUnlinked, period_years: mix3Period },
-      { track_type: 'משתנה לא צמודה', percentage: 27, interest_rate: avgVariableUnlinked, period_years: mix3Period }
-    ]);
-
-    const mixesData = [
-      { ...mix1Raw, mix_name: 'תמהיל 1: מאוזן ואופטימלי', mix_number: 1, risk_level: 'balanced', advantages: ['חלוקה שווה', 'תשלום צפוי', `חיסכון: ₪${mix1Raw.monthly_savings?.toLocaleString()}`], disadvantages: ['לא ממקסם חיסכון'], recommended_for: 'לקוחות שרוצים חלוקה שווה' },
-      { ...mix2Raw, mix_name: 'תמהיל 2: מאוזן', mix_number: 2, risk_level: 'balanced', advantages: ['עומד ברגולציה', 'איזון ריבית/ביטחון', `חיסכון: ₪${mix2Raw.monthly_savings?.toLocaleString()}`], disadvantages: ['פחות גמיש'], recommended_for: '⭐ מומלץ - איזון אופטימלי' },
-      { ...mix3Raw, mix_name: 'תמהיל 3: הגנה מקסימלית', mix_number: 3, risk_level: 'conservative', advantages: ['תשלום יציב', 'הגנה מלאה ממדד', `חיסכון: ₪${mix3Raw.monthly_savings?.toLocaleString()}`], disadvantages: ['ריבית גבוהה יותר'], recommended_for: 'לקוחות שמעדיפים יציבות מקסימלית' }
-    ];
-    const compliantMixes = mixesData.map(m => enforce33Fixed(m));
-    console.log(`✅ 3 mixes ready`);
 
     // ━━━ EQUITY RELEASE ━━━
     let equityReleaseAnalysis = null;
@@ -1410,7 +1328,10 @@ Today: ${today}`,
         goldenAssets: surgicalAnalysis.goldenAssets.map(t => ({ track_type: translateTrackType(t.track_type), interest_rate: t.interest_rate, remaining_balance: t.remaining_balance })),
         toxicTracks: surgicalAnalysis.toxicTracks.map(t => ({ track_type: translateTrackType(t.track_type), interest_rate: t.interest_rate, remaining_balance: t.remaining_balance }))
       },
-      mixes: compliantMixes,
+      // Generic mixes are intentionally no longer returned. They are produced
+      // on demand for the selected strategy by calculate-refinance-mixes.
+      mixes: [],
+      mixCalculationContext,
       conclusionText,
       newRates: { average_rates: CURRENT_MARKET_RATES },
       bankReadyMetadata: { inflationAssumption: EXPECTED_ANNUAL_INFLATION, actualFeesUsed: earlyRepaymentFee, complianceChecked: true, feeConfidence },

@@ -7,6 +7,11 @@ import {
 } from '@/components/refinance/supabaseClient';
 import { analyzeRefinanceDocument } from '@/components/refinance/analysisClient';
 import { refinanceLeads } from '@/api/refinanceLeads';
+import { calculateRefinanceMixes } from '@/api/refinanceMixes';
+import {
+  canRestoreRefinanceMixes,
+  getRefinanceMixPresentation,
+} from '@/utils/refinanceMixState';
 import {
   Upload, Loader2, DollarSign,
   CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download, Sparkle
@@ -254,6 +259,10 @@ export default function RefinanceQuickCheck() {
   const [extraDebts, setExtraDebts] = useState([{ creditor: '', monthly_repayment: '', remaining_balance: '', estimated_interest: 15 }]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [demoDocumentOverride, setDemoDocumentOverride] = useState(false);
+  const [selectedMixStrategy, setSelectedMixStrategy] = useState('savings');
+  const [strategyMixes, setStrategyMixes] = useState([]);
+  const [isCalculatingMixes, setIsCalculatingMixes] = useState(false);
+  const [mixCalculationError, setMixCalculationError] = useState('');
 
   // פרטי קשר — נאספים לפני העלאת המסמך ונשמרים כליד
   const [leadId, setLeadId] = useState(null);
@@ -312,7 +321,21 @@ export default function RefinanceQuickCheck() {
           Number(lead.monthly_income) > 0 && Number(lead.property_purchase_price) > 0
         );
         if (lead.status === 'analyzed' && lead.analysis_result) {
-          setAnalysisResult({ ...lead.analysis_result, file_url: lead.file_url });
+          const restoredStrategy = lead.selected_mix_strategy || 'savings';
+          setSelectedMixStrategy(restoredStrategy);
+          setAnalysisResult({ ...lead.analysis_result, mixes: [], file_url: lead.file_url });
+          if (canRestoreRefinanceMixes(
+            lead.selected_mix_strategy,
+            lead.cached_mix_strategies,
+            lead.has_mix_calculation_context,
+          )) {
+            try {
+              const cachedResult = await calculateRefinanceMixes(lead.id, restoredStrategy);
+              setStrategyMixes(cachedResult?.mixes || []);
+            } catch (mixError) {
+              console.error('Failed to restore refinance strategy mixes:', mixError);
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to resume lead from URL:', err);
@@ -327,9 +350,18 @@ export default function RefinanceQuickCheck() {
     [analysisResult]
   );
   const refinanceMixes = useMemo(
-    () => buildRefinanceMixCards(analysisResult?.mixes),
-    [analysisResult]
+    () => buildRefinanceMixCards(strategyMixes),
+    [strategyMixes]
   );
+  const mixPresentation = useMemo(
+    () => getRefinanceMixPresentation(strategyMixes, isPurchased),
+    [strategyMixes, isPurchased]
+  );
+  const reportAnalysisResult = useMemo(() => (
+    analysisResult
+      ? { ...analysisResult, mixes: mixPresentation.reportMixes }
+      : null
+  ), [analysisResult, mixPresentation.reportMixes]);
   const refinanceOutcome = useMemo(
     () => getRefinanceOutcome(analysisResult, demoDocumentOverride),
     [analysisResult, demoDocumentOverride]
@@ -437,6 +469,38 @@ export default function RefinanceQuickCheck() {
     setTier('paid');
     setIsPurchased(true);
   };
+  const handleMixStrategyChange = (strategy) => {
+    if (strategy === selectedMixStrategy) return;
+    setSelectedMixStrategy(strategy);
+    setStrategyMixes([]);
+    setMixCalculationError('');
+    void updateLead({ selected_mix_strategy: strategy });
+  };
+
+  const handleCalculateMixes = async () => {
+    if (!leadId) {
+      setMixCalculationError('לא הצלחנו לזהות את הבקשה. נסו לרענן את העמוד.');
+      return;
+    }
+
+    setIsCalculatingMixes(true);
+    setMixCalculationError('');
+    try {
+      const result = await calculateRefinanceMixes(leadId, selectedMixStrategy);
+      if (!Array.isArray(result?.mixes) || result.mixes.length !== 3) {
+        throw new Error('The refinance mix response is incomplete');
+      }
+      setStrategyMixes(result.mixes);
+    } catch (mixError) {
+      console.error('Failed to calculate refinance strategy mixes:', mixError);
+      setStrategyMixes([]);
+      setMixCalculationError(
+        'לא הצלחנו לחשב את התמהילים. אם הניתוח בוצע לפני השדרוג, יש להעלות מחדש את דף יתרת הסילוק.'
+      );
+    } finally {
+      setIsCalculatingMixes(false);
+    }
+  };
   const isFinancialDetailsValid = Object.keys(financialDetailsErrors).length === 0;
 
   const handleFinancialDetailsSubmit = async () => {
@@ -525,16 +589,23 @@ export default function RefinanceQuickCheck() {
         return;
       }
 
-      setAnalysisResult({ ...data, file_url });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      updateLead({
+      const { mixCalculationContext, ...publicAnalysis } = data;
+      setSelectedMixStrategy('savings');
+      setStrategyMixes([]);
+      setMixCalculationError('');
+      await updateLead({
         status: 'analyzed',
         file_url,
         has_extra_debts: hasExtraDebts,
         external_debts: externalDebtsInput,
-        analysis_result: data,
+        analysis_result: publicAnalysis,
+        mix_calculation_context: mixCalculationContext,
+        strategy_mix_results: {},
+        selected_mix_strategy: null,
         analyzed_at: new Date().toISOString()
       });
+      setAnalysisResult({ ...publicAnalysis, file_url });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
       console.error('Analysis error:', err);
@@ -559,16 +630,23 @@ export default function RefinanceQuickCheck() {
           if (!retryData?.success) {
             throw new Error(retryData?.error || 'שגיאה בניתוח הקובץ');
           }
-          setAnalysisResult({ ...retryData, file_url });
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          updateLead({
+          const { mixCalculationContext, ...publicAnalysis } = retryData;
+          setSelectedMixStrategy('savings');
+          setStrategyMixes([]);
+          setMixCalculationError('');
+          await updateLead({
             status: 'analyzed',
             file_url,
             has_extra_debts: hasExtraDebts,
             external_debts: externalDebtsInput,
-            analysis_result: retryData,
+            analysis_result: publicAnalysis,
+            mix_calculation_context: mixCalculationContext,
+            strategy_mix_results: {},
+            selected_mix_strategy: null,
             analyzed_at: new Date().toISOString()
           });
+          setAnalysisResult({ ...publicAnalysis, file_url });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         } catch (retryErr) {
           finalMessage = retryErr?.message || finalMessage;
@@ -594,6 +672,9 @@ export default function RefinanceQuickCheck() {
 
   const returnToDocumentUpload = () => {
     setAnalysisResult(null);
+    setSelectedMixStrategy('savings');
+    setStrategyMixes([]);
+    setMixCalculationError('');
     setFiles([]);
     setError(null);
     setShowAdvancedAnalysis(false);
@@ -604,6 +685,9 @@ export default function RefinanceQuickCheck() {
 
   const startRefinanceOver = () => {
     setAnalysisResult(null);
+    setSelectedMixStrategy('savings');
+    setStrategyMixes([]);
+    setMixCalculationError('');
     setFiles([]);
     setError(null);
     setShowAdvancedAnalysis(false);
@@ -1090,7 +1174,13 @@ export default function RefinanceQuickCheck() {
                   {isDownloadingPdf ? 'מייצר PDF...' : 'הורד דוח PDF'}
                 </Button>
                 <button
-                  onClick={() => { setAnalysisResult(null); setFiles([]); setError(null); }}
+                  onClick={() => {
+                    setAnalysisResult(null);
+                    setStrategyMixes([]);
+                    setMixCalculationError('');
+                    setFiles([]);
+                    setError(null);
+                  }}
                   className="flex items-center gap-2 h-14 px-6 bg-white hover:bg-mist-50 text-mist-600 text-base font-bold rounded-full transition-all border border-mist-200 hover:border-mist-300 active:scale-95"
                 >
                   <X className="w-4 h-4" />
@@ -1270,7 +1360,7 @@ export default function RefinanceQuickCheck() {
 
               {/* 📄 אסטרטגיית המחזור והדוח המלא */}
               <ExecutiveSummary
-                analysisResult={analysisResult}
+                analysisResult={reportAnalysisResult}
                 headline={headline}
                 externalTrigger={pdfTrigger}
                 onTriggerDone={() => setIsDownloadingPdf(false)}
@@ -1279,8 +1369,29 @@ export default function RefinanceQuickCheck() {
               {/* 2 אסטרטגיות מחזור */}
               <DualStrategyCard
                 dualStrategy={analysisResult.dualStrategy}
-                currentMonthlyPayment={headline.currentMonthlyPayment}
+                selectedStrategy={selectedMixStrategy}
+                onStrategyChange={handleMixStrategyChange}
               />
+
+              <div className="mb-6 text-center">
+                <button
+                  type="button"
+                  onClick={handleCalculateMixes}
+                  disabled={isCalculatingMixes}
+                  className="h-14 min-w-56 rounded-full bg-[#0C084A] px-8 text-base font-black text-white shadow-md transition-all hover:bg-[#0153F4] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isCalculatingMixes ? (
+                    <><Loader2 className="ml-2 h-5 w-5 animate-spin" /> מחשב תמהילים...</>
+                  ) : (
+                    <><Sparkle className="ml-2 h-5 w-5" /> חשב תמהילים</>
+                  )}
+                </button>
+                {mixCalculationError && (
+                  <p className="mx-auto mt-3 max-w-xl text-sm font-bold leading-relaxed text-red-600">
+                    {mixCalculationError}
+                  </p>
+                )}
+              </div>
 
               {analysisResult.savings?.feeWarning && (
                 <Card className="border border-red-500 bg-red-50 mb-6">
@@ -1640,9 +1751,9 @@ export default function RefinanceQuickCheck() {
                 )}
               </AnimatePresence>
 
-              {refinanceMixes.length > 0 && (
+              {mixPresentation.hasMixes && (
                 <>
-                  {!isPurchased && (
+                  {mixPresentation.showPayment && (
                     <div className="mb-6 p-5 rounded-2xl border border-dashed border-[#0153F4] bg-periwinkle-100 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
                       <div className="flex-1">
                         <h4 className="font-black text-[#06042A] text-base mb-1">התמהילים המלאים נעולים</h4>
@@ -1662,7 +1773,7 @@ export default function RefinanceQuickCheck() {
                       </div>
                     </div>
                   )}
-                  <div className={`mt-8 transition-all duration-1000 ${!isPurchased ? 'opacity-60 pointer-events-none select-none' : ''}`} style={!isPurchased ? { filter: 'blur(8px)' } : {}}>
+                  <div className={`mt-8 transition-all duration-1000 ${mixPresentation.isBlurred ? 'opacity-60 pointer-events-none select-none' : ''}`} style={mixPresentation.isBlurred ? { filter: 'blur(8px)' } : {}}>
                     <MixComparison
                       mixes={refinanceMixes}
                       loanAmount={analysisResult.currentLoan?.remainingBalance}

@@ -26,6 +26,7 @@ supabase functions deploy verify-cardcom-payment
 supabase functions deploy cardcom-webhook
 supabase functions deploy generate-pdf-report
 supabase functions deploy analyze-refinance-document
+supabase functions deploy calculate-refinance-mixes
 supabase functions deploy document-upload
 ```
 

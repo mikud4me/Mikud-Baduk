@@ -22,5 +22,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.analyze-refinance-document]
 verify_jwt = false
+[functions.calculate-refinance-mixes]
+verify_jwt = false
 [functions.document-upload]
 verify_jwt = false

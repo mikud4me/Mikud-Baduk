@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export default function DualStrategyCard({ dualStrategy }) {
-  const [selectedStrategy, setSelectedStrategy] = useState('savings');
-
+export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStrategyChange }) {
   if (!dualStrategy) return null;
 
   const { strategyA, strategyB } = dualStrategy;
@@ -42,9 +40,7 @@ export default function DualStrategyCard({ dualStrategy }) {
               role="tab"
               aria-selected={isSelected}
               aria-controls="refinance-strategy-panel"
-              onClick={() => setSelectedStrategy((current) => (
-                current === 'savings' ? 'cashflow' : 'savings'
-              ))}
+              onClick={() => onStrategyChange(option.id)}
               className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors duration-150 sm:text-sm ${
                 isSelected
                   ? 'bg-white text-[#0C084A] shadow-sm'

@@ -52,7 +52,7 @@ supabase db push --linked
 Deploy the Edge Functions after function changes:
 
 ```powershell
-supabase functions deploy mortgage-leads refinance-leads get-bank-of-israel-rates send-email-verification verify-email-code mortgage-ai create-cardcom-payment verify-cardcom-payment cardcom-webhook generate-pdf-report analyze-refinance-document document-upload --project-ref dtqjbszvgkibgvxanvja --use-api
+supabase functions deploy mortgage-leads refinance-leads get-bank-of-israel-rates send-email-verification verify-email-code mortgage-ai create-cardcom-payment verify-cardcom-payment cardcom-webhook generate-pdf-report analyze-refinance-document calculate-refinance-mixes document-upload --project-ref dtqjbszvgkibgvxanvja --use-api
 ```
 
 Production Edge Function secrets are managed in Supabase **Edge Functions → Secrets**. Required names are:
