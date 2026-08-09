@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-export default function FormattedAnalysis({ text, previewParagraphs = 2 }) {
+export default function FormattedAnalysis({ text, previewParagraphs = 4 }) {
   const [expanded, setExpanded] = useState(false);
   if (!text) return null;
 

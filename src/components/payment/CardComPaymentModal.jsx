@@ -18,7 +18,7 @@ export default function CardComPaymentModal({ paymentUrl, onClose }) {
         aria-modal="true"
         aria-labelledby="payment-modal-title"
         tabIndex={-1}
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md h-[640px] max-h-[92vh] overflow-hidden flex flex-col outline-none"
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[820px] max-h-[95vh] overflow-hidden flex flex-col outline-none"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-mist-100 flex-shrink-0">
           <h3 id="payment-modal-title" className="font-black text-[#0C084A] text-sm">תשלום מאובטח — מיקוד משכנתאות</h3>

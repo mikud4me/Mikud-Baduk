@@ -1125,7 +1125,6 @@ export default function RefinanceQuickCheck() {
                         <CheckCircle className="h-11 w-11 text-white" />
                       </motion.div>
                       <div className="text-center md:text-right">
-                        <Badge className="mb-3 border border-green-200 bg-green-100 text-green-800">תוצאת הבדיקה</Badge>
                         <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">אפשר להתקדם למחזור המשכנתא</h2>
                         <p className="mt-2 text-sm leading-relaxed text-mist-600">מצאנו שאפשר להמשיך לבחינת מסלולי המחזור המותאמים לכם.</p>
                       </div>
@@ -1159,27 +1158,6 @@ export default function RefinanceQuickCheck() {
                   </div>
                 )}
               </div>
-
-              {/* אזהרת תאריך יתרת סילוק ישן — חסימה קריטית */}
-              {analysisResult.statementDateWarning && (
-                <div className="bg-red-50 border border-red-300 text-red-800 px-5 py-4 rounded-xl mb-2">
-                  <div className="flex items-start gap-3 mb-3">
-                    <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-base font-black text-red-800 mb-1">תיק לא כשיר להגשה לבנק</p>
-                      <p className="text-sm font-semibold text-red-700">{analysisResult.statementDateWarning}</p>
-                    </div>
-                  </div>
-                  <div className="bg-white border border-red-200 rounded-lg px-4 py-3">
-                    <p className="text-sm text-red-800 font-bold mb-1">מה עושים?</p>
-                    <p className="text-xs text-red-700 leading-relaxed">יש לבקש <strong>יתרת סילוק עדכנית</strong> מהבנק הנוכחי (בנק הפועלים) — ניתן להזמין באפליקציה, בסניף, או בטלפון. לאחר קבלת המסמך החדש, העלה אותו מחדש לקבלת חישוב מדויק.</p>
-                  </div>
-                  <div className="mt-3 flex items-center gap-2 text-xs text-red-700">
-                    <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>
-                    <span>הניתוח הכלכלי שלהלן מבוסס על יתרה שאינה עדכנית — הנתונים עשויים להשתנות</span>
-                  </div>
-                </div>
-              )}
 
               <ProfessionalAnalysis text={analysisResult.conclusionText} title="ניתוח כדאיות מחזור" />
 
