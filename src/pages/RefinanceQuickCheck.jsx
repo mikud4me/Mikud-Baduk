@@ -1257,9 +1257,6 @@ export default function RefinanceQuickCheck() {
                     <div className="col-span-2 rounded-xl p-4 border border-periwinkle-200 bg-periwinkle-100 text-center">
                       <p className="text-xs text-mist-500 mb-1">{headline.netSavings >= 0 ? 'חיסכון כולל נטו' : 'עלות כוללת נטו'}</p>
                       <CelebratingSavingsAmount value={headline.netSavings} />
-                      <p className="text-xs text-mist-400 mt-2">
-                        {headline.monthlySavings >= 0 ? 'חיסכון חודשי' : 'הפרש חודשי'}: {headline.monthlySavings >= 0 ? '' : '-'}₪{Math.abs(headline.monthlySavings || 0).toLocaleString()}
-                      </p>
                     </div>
                   </div>
                 </div>
