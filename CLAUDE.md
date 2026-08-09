@@ -74,6 +74,8 @@ Secrets become available to functions immediately after saving; a redeployment i
 
 Use `npx wrangler` from the repository. Build before every deployment because Pages receives the generated `dist/` directory.
 
+Before building for a preview or production deploy, confirm `.env.local` exists in the repository root and contains `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (see Local development above). Vite inlines these at build time; a build run without them silently ships a `dist/` where `isSupabaseConfigured` is `false`, and every Supabase-backed page (including the refinance flow) renders its "not available" fallback in production. This file does not persist between sessions or environments — check for it every time, not just once.
+
 Preview deployment:
 
 ```powershell
