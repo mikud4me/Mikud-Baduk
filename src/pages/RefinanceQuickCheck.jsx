@@ -1139,19 +1139,6 @@ export default function RefinanceQuickCheck() {
                   {isDownloadingPdf ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                   {isDownloadingPdf ? 'מייצר PDF...' : 'הורד דוח PDF'}
                 </Button>
-                <button
-                  onClick={() => {
-                    setAnalysisResult(null);
-                    setStrategyMixes([]);
-                    setMixCalculationError('');
-                    setFiles([]);
-                    setError(null);
-                  }}
-                  className="flex items-center gap-2 h-14 px-6 bg-white hover:bg-mist-50 text-mist-600 text-base font-bold rounded-full transition-all border border-mist-200 hover:border-mist-300 active:scale-95"
-                >
-                  <X className="w-4 h-4" />
-                  התחל מחדש / העלה מסמך אחר
-                </button>
               </div>
               {/* 🏷️ Badge סוג התיק */}
               <div className="flex flex-col items-center gap-3 mb-4">
