@@ -177,17 +177,6 @@ function buildRefinanceMixCards(mixes) {
     });
 }
 
-const SAVINGS_CELEBRATION_PARTICLES = [
-  { angle: -100, distance: 40, size: 12, delay: 0.56, color: '#0153F4' },
-  { angle: -55, distance: 48, size: 9, delay: 0.68, color: '#F5B700' },
-  { angle: -15, distance: 42, size: 11, delay: 0.6, color: '#0153F4' },
-  { angle: 30, distance: 46, size: 8, delay: 0.8, color: '#F5B700' },
-  { angle: 80, distance: 40, size: 10, delay: 0.72, color: '#0153F4' },
-  { angle: 130, distance: 44, size: 9, delay: 0.64, color: '#F5B700' },
-  { angle: 175, distance: 40, size: 11, delay: 0.88, color: '#0153F4' },
-  { angle: -140, distance: 46, size: 8, delay: 0.76, color: '#F5B700' },
-];
-
 const REFINANCE_OUTCOME = {
   DOCUMENT_INVALID: 'document_invalid',
   FINANCIAL_INELIGIBLE: 'financial_ineligible',
@@ -214,34 +203,11 @@ function CelebratingSavingsAmount({ value }) {
   const isPositive = value >= 0;
 
   return (
-    <motion.div
-      className="relative inline-flex items-center justify-center"
-      initial={{ scale: 0.3, rotate: 0 }}
-      animate={{ scale: [0.3, 1.2, 0.9, 1.06, 0.98, 1], rotate: [0, -12, 10, -6, 4, 0] }}
-      transition={{ duration: 0.7, ease: 'easeOut' }}
-    >
-      {SAVINGS_CELEBRATION_PARTICLES.map((particle, index) => {
-        const radians = (particle.angle * Math.PI) / 180;
-        const x = Math.cos(radians) * particle.distance;
-        const y = Math.sin(radians) * particle.distance;
-
-        return (
-          <motion.span
-            key={index}
-            className="absolute top-1/2 left-1/2 flex items-center justify-center"
-            style={{ width: particle.size, height: particle.size, marginLeft: -particle.size / 2, marginTop: -particle.size / 2 }}
-            initial={{ opacity: 0, x: 0, y: 0, scale: 0, rotate: 0 }}
-            animate={{ opacity: [0, 1, 0], x: [0, x], y: [0, y], scale: [0, 1, 0.4], rotate: 90 }}
-            transition={{ duration: 1.6, delay: particle.delay, ease: 'easeOut' }}
-          >
-            <Sparkle size={particle.size} fill={particle.color} color={particle.color} />
-          </motion.span>
-        );
-      })}
+    <div className="relative inline-flex items-center justify-center">
       <span className={`text-3xl font-black ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
         {isPositive ? '' : '-'}₪{Math.abs(value || 0).toLocaleString()}
       </span>
-    </motion.div>
+    </div>
   );
 }
 
