@@ -1129,17 +1129,6 @@ export default function RefinanceQuickCheck() {
                       )}
                     </div>
                   </motion.section>
-              {/* כפתורי פעולה עליונים */}
-              <div className="flex justify-between items-center gap-3 flex-wrap">
-                <Button
-                  onClick={() => { setIsDownloadingPdf(true); setPdfTrigger(t => t + 1); }}
-                  disabled={isDownloadingPdf}
-                  className="flex items-center gap-2 h-14 px-6 bg-[#0C084A] hover:bg-[#0153F4] text-white font-semibold text-lg rounded-full shadow-md transition-all active:scale-95"
-                >
-                  {isDownloadingPdf ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                  {isDownloadingPdf ? 'מייצר PDF...' : 'הורד דוח PDF'}
-                </Button>
-              </div>
               {/* 🏷️ Badge סוג התיק */}
               <div className="flex flex-col items-center gap-3 mb-4">
                 <Badge className={`rounded-full text-base px-5 py-2 font-bold ${
@@ -1731,6 +1720,18 @@ export default function RefinanceQuickCheck() {
                       isPurchased={isPurchased}
                     />
                   </div>
+                  {isPurchased && (
+                    <div className="mt-6 flex justify-center">
+                      <Button
+                        onClick={() => { setIsDownloadingPdf(true); setPdfTrigger(t => t + 1); }}
+                        disabled={isDownloadingPdf}
+                        className="flex items-center gap-2 h-14 px-6 bg-[#0C084A] hover:bg-[#0153F4] text-white font-semibold text-lg rounded-full shadow-md transition-all active:scale-95"
+                      >
+                        {isDownloadingPdf ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                        {isDownloadingPdf ? 'מייצר PDF...' : 'הורד דוח PDF'}
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
                 </>
