@@ -1091,6 +1091,25 @@ export default function RefinanceQuickCheck() {
 
               {refinanceOutcome === REFINANCE_OUTCOME.ELIGIBLE && (
                 <>
+                  {/* 📄 אסטרטגיית המחזור והדוח המלא — מחוץ לכרטיס כי היא מוצגת מחוץ למסך לצורך ה-PDF */}
+                  <ExecutiveSummary
+                    analysisResult={reportAnalysisResult}
+                    headline={headline}
+                    externalTrigger={pdfTrigger}
+                    onTriggerDone={() => setIsDownloadingPdf(false)}
+                  />
+
+                  <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 relative overflow-hidden">
+                    {/* כותרת הדוח */}
+                    <div className="px-6 sm:px-10 py-6 sm:py-8 text-right border-b border-mist-100">
+                      <h1 className="text-[21.6px] sm:text-[27px] md:text-[32.4px] font-semibold text-[#0C084A] leading-tight">
+                        {analysisResult.savings?.equityReleaseAnalysis
+                          ? 'דוח מחזור משכנתא לכל מטרה (איחוד חובות)'
+                          : 'דוח מחזור משכנתא לדיור'}
+                      </h1>
+                    </div>
+
+                    <div className="p-4 sm:p-6 md:p-8">
                   <motion.section
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1129,18 +1148,7 @@ export default function RefinanceQuickCheck() {
                       )}
                     </div>
                   </motion.section>
-              {/* 🏷️ Badge סוג התיק */}
               <div className="flex flex-col items-center gap-3 mb-4">
-                <Badge className={`rounded-full text-base px-5 py-2 font-bold ${
-                  analysisResult.savings?.equityReleaseAnalysis
-                    ? 'bg-purple-100 text-purple-800 border border-purple-300'
-                    : 'bg-brand-50 text-[#0141C2] border border-[#0153F4]/30'
-                }`}>
-                  {analysisResult.savings?.equityReleaseAnalysis
-                    ? '🏦 סוג התיק: משכנתא לכל מטרה (איחוד חובות)'
-                    : '🏠 סוג התיק: מחזור משכנתא (דיור)'}
-                </Badge>
-
                 {analysisResult.savings?.arrearsDebt > 0 && (
                   <div className="bg-red-50 border border-red-300 text-red-800 px-6 py-3 rounded-xl flex items-center gap-3">
                     <AlertCircle className="w-6 h-6 text-red-600" />
@@ -1210,7 +1218,7 @@ export default function RefinanceQuickCheck() {
                 </div>
 
                 {/* אחרי המחזור */}
-                <div className="rounded-3xl border border-[#0153F4] bg-white p-6 sm:p-8 shadow-xl shadow-brand-100/60">
+                <div className="rounded-3xl border border-[#0153F4] bg-white p-6 sm:p-8">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                       <CheckCircle className="w-4 h-4 text-green-600" />
@@ -1260,7 +1268,7 @@ export default function RefinanceQuickCheck() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden space-y-6"
                   >
-                    <div className="p-6 sm:p-8 border border-mist-100 rounded-2xl sm:rounded-3xl bg-white shadow-xl space-y-6">
+                    <div className="p-6 sm:p-8 border border-mist-100 rounded-2xl sm:rounded-3xl bg-white space-y-6">
                       <h3 className="text-xl font-semibold text-[#0C084A] text-center mb-4">ניתוח משכנתא מעמיק</h3>
 
                       {/* פירוט המסלולים הקיימים */}
@@ -1296,14 +1304,6 @@ export default function RefinanceQuickCheck() {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* 📄 אסטרטגיית המחזור והדוח המלא */}
-              <ExecutiveSummary
-                analysisResult={reportAnalysisResult}
-                headline={headline}
-                externalTrigger={pdfTrigger}
-                onTriggerDone={() => setIsDownloadingPdf(false)}
-              />
 
               {/* 2 אסטרטגיות מחזור */}
               <DualStrategyCard
@@ -1734,6 +1734,8 @@ export default function RefinanceQuickCheck() {
                   )}
                 </>
               )}
+                    </div>
+                  </div>
                 </>
               )}
             </motion.div>
