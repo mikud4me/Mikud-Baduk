@@ -812,7 +812,7 @@ export default function RefinanceQuickCheck() {
           <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 md:p-16 border border-mist-100 transition-all duration-700 relative overflow-hidden">
             <div className="space-y-5">
               <div className="mb-6 text-right">
-                <h2 className="text-lg sm:text-2xl font-bold text-[#0C084A] leading-none">כמה פרטים על הנכס</h2>
+                <h2 className="text-lg sm:text-2xl font-bold text-[#0C084A] leading-none">עוד כמה פרטים ונמשיך</h2>
                 <p className="text-[#0153F4] font-medium text-xs mt-2">הנתונים עוזרים לנו להתאים את בדיקת המחזור למצבכם</p>
               </div>
 
