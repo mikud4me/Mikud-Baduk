@@ -1169,20 +1169,22 @@ export default function RefinanceQuickCheck() {
                     animate={{ opacity: 1, y: 0 }}
                     className="overflow-hidden rounded-3xl border border-[#0153F4]/20 bg-gradient-to-br from-periwinkle-100 via-white to-green-50 p-6 sm:p-8 shadow-xl"
                   >
-                    <div className="flex flex-col items-center justify-center gap-4 text-center md:flex-row md:justify-center md:text-right">
-                      <div className="mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#0153F4] shadow-lg shadow-brand-200">
+                    <div className="flex flex-col items-center justify-center gap-4 text-center md:flex-row md:justify-start md:text-right">
+                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#0153F4] shadow-lg shadow-brand-200">
                         <CheckCircle className="h-11 w-11 text-white" />
                       </div>
                       <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">מדהים! אפשר למחזר את המשכנתא</h2>
                     </div>
                     <div className="mt-6 rounded-2xl border border-[#0153F4]/15 bg-white/80 p-4 text-right">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-[#0153F4]" />
-                        <h3 className="font-black text-[#0C084A]">כמה שווה לי למחזר?</h3>
-                      </div>
-                      <div className="mt-3 rounded-xl border border-green-200 bg-green-50/60 p-4 text-center">
-                        <p className="text-xs font-bold text-mist-500">חיסכון כלכלי נטו</p>
-                        <CelebratingSavingsAmount value={headline?.netSavings || 0} />
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5 text-[#0153F4]" />
+                          <h3 className="font-black text-[#0C084A]">כמה שווה לי למחזר?</h3>
+                        </div>
+                        <div className="rounded-2xl border border-green-200 bg-white/80 p-4 text-center">
+                          <p className="text-xs font-bold text-mist-500">חיסכון כלכלי נטו</p>
+                          <CelebratingSavingsAmount value={headline?.netSavings || 0} />
+                        </div>
                       </div>
                       {headline?.isWorthwhile === true ? (
                         <p className="mt-2 text-sm font-bold text-green-700">מומלץ בחום — הניתוח מצביע על כדאיות כלכלית ברורה למחזור.</p>
@@ -1245,12 +1247,10 @@ export default function RefinanceQuickCheck() {
                     </div>
                     <span className="inline-block bg-periwinkle-100 text-[#0153F4] text-xs font-bold rounded-full px-3 py-1.5">אחרי · המחזור החדש</span>
                   </div>
-                  <div className="rounded-xl p-4 border border-periwinkle-200 bg-periwinkle-100 mb-3 flex items-center justify-between gap-3">
-                    <p className="text-sm text-mist-500">החזר חודשי חדש</p>
-                    <span className="flex flex-col items-end leading-none">
-                      <span className="text-3xl font-bold text-[#0153F4]">₪{headline.newMonthlyPayment?.toLocaleString()}</span>
-                      <SavingsAnnotation value={(headline.currentMonthlyPayment || 0) - (headline.newMonthlyPayment || 0)} />
-                    </span>
+                  <div className="rounded-xl p-4 border border-periwinkle-200 bg-periwinkle-100 mb-3">
+                    <p className="text-sm text-mist-500 mb-1">החזר חודשי חדש</p>
+                    <p className="text-3xl font-bold text-[#0153F4]">₪{headline.newMonthlyPayment?.toLocaleString()}</p>
+                    <SavingsAnnotation value={(headline.currentMonthlyPayment || 0) - (headline.newMonthlyPayment || 0)} />
                   </div>
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="rounded-xl p-3 border border-periwinkle-200 bg-periwinkle-100 flex flex-col justify-center">
