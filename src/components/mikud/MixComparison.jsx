@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Sparkles, ShieldCheck, Zap, ChevronDown, ChevronUp, Minus, TrendingDown, TrendingUp } from 'lucide-react';
 import Amount from './Amount';
 
-const fmt = (val) => {
+export const fmt = (val) => {
   if (!val || isNaN(val)) return "0";
   return new Intl.NumberFormat('he-IL').format(Math.round(val));
 };
 
-function SavingsAnnotation({ value }) {
+export function SavingsAnnotation({ value }) {
   if (value == null || !Number.isFinite(Number(value))) return null;
 
   const numericValue = Number(value);

@@ -14,9 +14,10 @@ import {
 } from '@/utils/refinanceMixState';
 import {
   Upload, Loader2, DollarSign,
-  CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download, Sparkle
+  CheckCircle, AlertCircle, TrendingUp, X, ChevronDown, ChevronUp, ChevronLeft, Download, Sparkle, Info
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverTrigger, PopoverContent, PopoverClose } from '@/components/ui/popover';
 import RefinanceCalculator from '@/components/refinance/RefinanceCalculator';
 import BalloonTrapAlert from '@/components/refinance/BalloonTrapAlert';
 import ExecutiveSummary from '@/components/refinance/ExecutiveSummary';
@@ -26,7 +27,7 @@ import FooterCTA from '@/components/mikud/FooterCTA';
 import PremiumInput from '@/components/mikud/PremiumInput';
 import MikudHeader from '@/components/mikud/MikudHeader';
 import ProfessionalAnalysis from '@/components/mikud/ProfessionalAnalysis';
-import MixComparison from '@/components/mikud/MixComparison';
+import MixComparison, { SavingsAnnotation } from '@/components/mikud/MixComparison';
 import { isValidIsraeliID, isValidEmail, isValidIsraeliPhone } from '@/components/refinance/validators';
 import CardComPaymentModal from '@/components/payment/CardComPaymentModal';
 import { useCardComPayment } from '@/hooks/useCardComPayment';
@@ -198,6 +199,38 @@ function getRefinanceOutcome(analysisResult, ignoreDocumentValidity) {
   }
 
   return REFINANCE_OUTCOME.ELIGIBLE;
+}
+
+function EffectiveRateInfo() {
+  return (
+    <Popover>
+      <PopoverTrigger
+        type="button"
+        onClick={(e) => e.stopPropagation()}
+        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-mist-400 hover:text-[#0153F4] focus:outline-none"
+        aria-label="מהי ריבית אפקטיבית"
+      >
+        <Info className="h-3.5 w-3.5" />
+      </PopoverTrigger>
+      <PopoverContent
+        align="center"
+        sideOffset={8}
+        className="z-[60] w-64 rounded-xl border border-mist-200 bg-white p-3 text-right shadow-lg"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-xs leading-relaxed text-mist-700">
+            הריבית האפקטיבית משקפת את העלות השנתית האמיתית של ההלוואה, כולל השפעת ריבית-דריבית לאורך זמן — בעוד הריבית הנומינלית אינה כוללת זאת.
+          </p>
+          <PopoverClose
+            className="flex-shrink-0 rounded-full p-0.5 text-mist-400 hover:text-mist-700 focus:outline-none"
+            aria-label="סגור"
+          >
+            <X className="h-3.5 w-3.5" />
+          </PopoverClose>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 function CelebratingSavingsAmount({ value }) {
@@ -1182,7 +1215,7 @@ export default function RefinanceQuickCheck() {
 
               <ProfessionalAnalysis text={analysisResult.conclusionText} title="ניתוח כדאיות מחזור" />
 
-              {/* אזור השוואה נקי וברור - לפני מול אחרי, כשני בלוקים נפרדים */}
+              {/* אזור השוואה נקי וברור - לפני מול אחרי, כשני בלוקים נפרדים, שדות באותו מיקום בשתי הכרטיסיות */}
               <div className="grid md:grid-cols-2 gap-6 items-start mb-6">
                 {/* המשכנתא הנוכחית */}
                 <div className="rounded-3xl border border-mist-200 bg-mist-50 p-6 sm:p-8">
@@ -1196,23 +1229,19 @@ export default function RefinanceQuickCheck() {
                     <p className="text-sm text-mist-500 mb-1">החזר חודשי</p>
                     <p className="text-3xl font-bold text-mist-900">₪{headline.currentMonthlyPayment?.toLocaleString()}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
-                      <p className="text-xs text-mist-500 mb-1">יתרה לסילוק</p>
-                      <p className="text-lg font-bold text-mist-900">₪{analysisResult.currentLoan.remainingBalance?.toLocaleString()}</p>
-                    </div>
-                    <div className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
-                      <p className="text-xs text-mist-500 mb-1">ריבית ממוצעת</p>
-                      <p className="text-lg font-bold text-mist-900">{headline.currentAverageRate?.toFixed(2)}%</p>
-                    </div>
-                    <div className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
-                      <p className="text-xs text-mist-500 mb-1">ריבית אפקטיבית</p>
+                      <p className="text-xs text-mist-500 mb-1 flex items-center gap-1">ריבית אפקטיבית<EffectiveRateInfo /></p>
                       <p className="text-lg font-bold text-mist-900">{(analysisResult.currentLoan.effectiveInterestRate ?? headline.currentAverageRate)?.toFixed(2)}%</p>
                     </div>
                     <div className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
                       <p className="text-xs text-mist-500 mb-1">תקופה נותרת</p>
                       <p className="text-lg font-bold text-mist-900">{Math.round((analysisResult.currentLoan.remainingMonths || 0) / 12)} שנים</p>
                     </div>
+                  </div>
+                  <div className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
+                    <p className="text-xs text-mist-500 mb-1">יתרה לסילוק</p>
+                    <p className="text-lg font-bold text-mist-900">₪{analysisResult.currentLoan.remainingBalance?.toLocaleString()}</p>
                   </div>
                 </div>
 
@@ -1224,23 +1253,26 @@ export default function RefinanceQuickCheck() {
                     </div>
                     <span className="inline-block bg-periwinkle-100 text-[#0153F4] text-xs font-bold rounded-full px-3 py-1.5">אחרי · המחזור החדש</span>
                   </div>
-                  <div className="rounded-xl p-4 border border-periwinkle-200 bg-periwinkle-100 mb-3">
-                    <p className="text-sm text-mist-500 mb-1">החזר חודשי חדש</p>
-                    <p className="text-3xl font-bold text-[#0153F4]">₪{headline.newMonthlyPayment?.toLocaleString()}</p>
+                  <div className="rounded-xl p-4 border border-periwinkle-200 bg-periwinkle-100 mb-3 flex items-center justify-between gap-3">
+                    <p className="text-sm text-mist-500">החזר חודשי חדש</p>
+                    <span className="flex flex-col items-end leading-none">
+                      <span className="text-3xl font-bold text-[#0153F4]">₪{headline.newMonthlyPayment?.toLocaleString()}</span>
+                      <SavingsAnnotation value={(headline.currentMonthlyPayment || 0) - (headline.newMonthlyPayment || 0)} />
+                    </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="rounded-xl p-3 border border-periwinkle-200 bg-periwinkle-100 flex flex-col justify-center">
-                      <p className="text-xs text-mist-500 mb-1">ריבית חדשה</p>
+                      <p className="text-xs text-mist-500 mb-1 flex items-center gap-1">ריבית אפקטיבית<EffectiveRateInfo /></p>
                       <p className="text-lg font-bold text-[#0153F4]">{headline.newAverageRate?.toFixed(2)}%</p>
                     </div>
                     <div className="rounded-xl p-3 border border-periwinkle-200 bg-periwinkle-100 flex flex-col justify-center">
                       <p className="text-xs text-mist-500 mb-1">תקופה חדשה</p>
                       <p className="text-lg font-bold text-mist-900">{analysisResult.newLoan?.periodYears} שנים</p>
                     </div>
-                    <div className="col-span-2 rounded-xl p-4 border border-periwinkle-200 bg-periwinkle-100 text-center">
-                      <p className="text-xs text-mist-500 mb-1">{headline.netSavings >= 0 ? 'חיסכון כולל נטו' : 'עלות כוללת נטו'}</p>
-                      <CelebratingSavingsAmount value={headline.netSavings} />
-                    </div>
+                  </div>
+                  <div className="rounded-xl p-3 border border-periwinkle-200 bg-periwinkle-100 flex flex-col justify-center">
+                    <p className="text-xs text-mist-500 mb-1">יתרה לסילוק</p>
+                    <p className="text-lg font-bold text-mist-900">₪{analysisResult.currentLoan.remainingBalance?.toLocaleString()}</p>
                   </div>
                 </div>
               </div>
