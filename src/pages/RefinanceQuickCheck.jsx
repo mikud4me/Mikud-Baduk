@@ -1286,7 +1286,7 @@ export default function RefinanceQuickCheck() {
                 >
                   {showAdvancedAnalysis ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                   <span className="font-bold text-base">
-                    {showAdvancedAnalysis ? 'הסתר ניתוח משכנתא מעמיק' : 'הצג ניתוח משכנתא מעמיק (למתקדמים)'}
+                    {showAdvancedAnalysis ? 'הסתר ניתוח משכנתא מעמיק' : 'הצג ניתוח משכנתא מעמיק'}
                   </span>
                 </Button>
               </div>
