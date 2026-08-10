@@ -1348,12 +1348,12 @@ export default function RefinanceQuickCheck() {
                   type="button"
                   onClick={handleCalculateMixes}
                   disabled={isCalculatingMixes}
-                  className="h-14 min-w-56 rounded-full bg-[#0C084A] px-8 text-base font-black text-white shadow-md transition-all hover:bg-[#0153F4] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-14 min-w-56 items-center justify-center gap-2 rounded-full bg-[#0C084A] px-8 text-base font-black text-white shadow-md transition-all hover:bg-[#0153F4] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isCalculatingMixes ? (
-                    <><Loader2 className="ml-2 h-5 w-5 animate-spin" /> מחשב תמהילים...</>
+                    <><Loader2 className="h-5 w-5 animate-spin" /> מחשב תמהילים...</>
                   ) : (
-                    <><Sparkle className="ml-2 h-5 w-5" /> חשב תמהילים</>
+                    <><Sparkle className="h-5 w-5" /> חשב תמהילים</>
                   )}
                 </button>
                 {mixCalculationError && (
