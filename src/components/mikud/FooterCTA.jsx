@@ -86,6 +86,10 @@ export default function FooterCTA() {
           <a href={createPageUrl('AccessibilityStatement')} className="hover:text-[#0153F4] underline">
             הצהרת נגישות
           </a>
+          &nbsp;·&nbsp;
+          <a href={createPageUrl('TermsAndPrivacy')} className="hover:text-[#0153F4] underline">
+            תנאי שימוש ומדיניות פרטיות
+          </a>
         </p>
       </div>
     </footer>

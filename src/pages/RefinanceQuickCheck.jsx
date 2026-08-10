@@ -32,6 +32,7 @@ import CardComPaymentModal from '@/components/payment/CardComPaymentModal';
 import { useCardComPayment } from '@/hooks/useCardComPayment';
 import { PAYMENT_BYPASS_ENABLED } from '@/lib/demoMode';
 import { Checkbox } from '@/components/ui/checkbox';
+import { createPageUrl } from '@/utils';
 
 // מקור אמת יחיד למספרי הליבה שחוזרים על עצמם בכמה מקומות בדוח (חיסכון נטו, החזר חדש, ריבית חדשה וכו')
 function buildHeadline(analysisResult) {
@@ -780,7 +781,27 @@ export default function RefinanceQuickCheck() {
                     className="mt-0.5"
                   />
                   <label id="refinance-terms-accepted-label" htmlFor="refinance-terms-accepted" className="cursor-pointer text-xs font-bold leading-relaxed text-mist-600">
-                    קראתי ואני מסכים/ה לתנאי השימוש ולמדיניות הפרטיות של האתר, לרבות עיבוד הפרטים והמסמכים לצורך בדיקת המחזור.
+                    קראתי ואני מסכים/ה ל
+                    <a
+                      href={`${createPageUrl('TermsAndPrivacy')}#terms`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-[#0153F4] hover:text-brand-700"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      תנאי השימוש
+                    </a>
+                    {' '}ול
+                    <a
+                      href={`${createPageUrl('TermsAndPrivacy')}#privacy`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-[#0153F4] hover:text-brand-700"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      מדיניות הפרטיות
+                    </a>
+                    {' '}של האתר.
                   </label>
                 </div>
                 {contactTouched.termsAccepted && liveContactErrors.termsAccepted && <p className="text-xs font-bold text-red-600">{liveContactErrors.termsAccepted}</p>}

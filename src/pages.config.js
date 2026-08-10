@@ -54,6 +54,7 @@ import LeadProfile from './pages/LeadProfile';
 import MortgageCalculator from './pages/MortgageCalculator';
 import PaymentReturn from './pages/PaymentReturn';
 import RefinanceQuickCheck from './pages/RefinanceQuickCheck';
+import TermsAndPrivacy from './pages/TermsAndPrivacy';
 
 
 export const PAGES = {
@@ -64,6 +65,7 @@ export const PAGES = {
     "MortgageCalculator": MortgageCalculator,
     "PaymentReturn": PaymentReturn,
     "RefinanceQuickCheck": RefinanceQuickCheck,
+    "TermsAndPrivacy": TermsAndPrivacy,
 }
 
 export const pagesConfig = {
