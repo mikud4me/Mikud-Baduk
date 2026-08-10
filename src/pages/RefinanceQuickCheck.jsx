@@ -1136,28 +1136,20 @@ export default function RefinanceQuickCheck() {
                     animate={{ opacity: 1, y: 0 }}
                     className="overflow-hidden rounded-3xl border border-[#0153F4]/20 bg-gradient-to-br from-periwinkle-100 via-white to-green-50 p-6 sm:p-8 shadow-xl"
                   >
-                    <div className="grid items-center gap-6 md:grid-cols-[auto_1fr_auto]">
-                      <motion.div
-                        initial={{ scale: 0.5, rotate: -12 }}
-                        animate={{ scale: [0.5, 1.12, 0.96, 1], rotate: [-12, 8, -3, 0] }}
-                        transition={{ duration: 0.75, ease: 'easeOut' }}
-                        className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#0153F4] shadow-lg shadow-brand-200"
-                      >
+                    <div className="flex flex-col items-center justify-center gap-4 text-center md:flex-row md:justify-center md:text-right">
+                      <div className="mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#0153F4] shadow-lg shadow-brand-200">
                         <CheckCircle className="h-11 w-11 text-white" />
-                      </motion.div>
-                      <div className="text-center md:text-right">
-                        <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">אפשר להתקדם למחזור המשכנתא</h2>
-                        <p className="mt-2 text-sm leading-relaxed text-mist-600">מצאנו שאפשר להמשיך לבחינת מסלולי המחזור המותאמים לכם.</p>
                       </div>
-                      <div className="rounded-2xl border border-green-200 bg-white/80 p-4 text-center">
-                        <p className="text-xs font-bold text-mist-500">חיסכון כלכלי נטו</p>
-                        <CelebratingSavingsAmount value={headline?.netSavings || 0} />
-                      </div>
+                      <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">מדהים! אפשר למחזר את המשכנתא</h2>
                     </div>
                     <div className="mt-6 rounded-2xl border border-[#0153F4]/15 bg-white/80 p-4 text-right">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-[#0153F4]" />
-                        <h3 className="font-black text-[#0C084A]">עד כמה המחזור מומלץ?</h3>
+                        <h3 className="font-black text-[#0C084A]">כמה שווה לי למחזר?</h3>
+                      </div>
+                      <div className="mt-3 rounded-xl border border-green-200 bg-green-50/60 p-4 text-center">
+                        <p className="text-xs font-bold text-mist-500">חיסכון כלכלי נטו</p>
+                        <CelebratingSavingsAmount value={headline?.netSavings || 0} />
                       </div>
                       {headline?.isWorthwhile === true ? (
                         <p className="mt-2 text-sm font-bold text-green-700">מומלץ בחום — הניתוח מצביע על כדאיות כלכלית ברורה למחזור.</p>
