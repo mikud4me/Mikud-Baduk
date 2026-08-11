@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Wallet, Feather } from 'lucide-react';
+import { Coins, Feather } from 'lucide-react';
 
 export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStrategyChange }) {
   if (!dualStrategy) return null;
@@ -17,7 +17,7 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
   const totalPayments = Number(strategy?.monthlyPayment || 0) * Number(strategy?.periodYears || 0) * 12;
 
   const options = [
-    { id: 'savings', label: 'מקסימום חיסכון', icon: Wallet },
+    { id: 'savings', label: 'מקסימום חיסכון', icon: Coins },
     { id: 'cashflow', label: 'מקסימום חמצן', icon: Feather },
   ];
 
