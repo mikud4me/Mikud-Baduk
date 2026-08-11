@@ -215,11 +215,11 @@ function EffectiveRateInfo() {
       <PopoverContent
         align="center"
         sideOffset={8}
-        className="z-[60] w-64 rounded-xl border border-mist-200 bg-white p-3 text-right shadow-lg"
+        className="z-[60] w-72 rounded-xl border border-mist-200 bg-white p-3 text-right shadow-lg"
       >
         <div className="flex items-start justify-between gap-2">
           <p className="text-xs leading-relaxed text-mist-700">
-            הריבית האפקטיבית משקפת את העלות השנתית האמיתית של ההלוואה, כולל השפעת ריבית-דריבית לאורך זמן — בעוד הריבית הנומינלית אינה כוללת זאת.
+            הריבית האפקטיבית משקפת את העלות השנתית האמיתית של ההלוואה, כולל השפעת ריבית-דריבית לאורך זמן — בעוד הריבית הנומינלית אינה כוללת זאת. במסלולים צמודי מדד היא כוללת גם תוספת של מדד שנתי משוער (2.5%) מעבר לריבית הנקובה, ולכן גבוהה ממנה; במסלולים לא צמודים הריבית האפקטיבית שווה לריבית הנומינלית.
           </p>
           <PopoverClose
             className="flex-shrink-0 rounded-full p-0.5 text-mist-400 hover:text-mist-700 focus:outline-none"
