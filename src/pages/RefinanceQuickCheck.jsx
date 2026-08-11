@@ -1154,15 +1154,6 @@ export default function RefinanceQuickCheck() {
                   />
 
                   <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 relative overflow-hidden">
-                    {/* כותרת הדוח */}
-                    <div className="px-6 sm:px-10 py-6 sm:py-8 text-right border-b border-mist-100">
-                      <h1 className="text-[21.6px] sm:text-[27px] md:text-[32.4px] font-semibold text-[#0C084A] leading-tight">
-                        {analysisResult.savings?.equityReleaseAnalysis
-                          ? 'דוח מחזור משכנתא לכל מטרה (איחוד חובות)'
-                          : 'דוח מחזור משכנתא לדיור'}
-                      </h1>
-                    </div>
-
                     <div className="p-4 sm:p-6 md:p-8">
                   <motion.section
                     initial={{ opacity: 0, y: 16 }}
