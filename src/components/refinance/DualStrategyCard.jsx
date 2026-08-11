@@ -1,5 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { PiggyBank, Wind } from 'lucide-react';
 
 export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStrategyChange }) {
   if (!dualStrategy) return null;
@@ -16,8 +17,8 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
   const totalPayments = Number(strategy?.monthlyPayment || 0) * Number(strategy?.periodYears || 0) * 12;
 
   const options = [
-    { id: 'savings', label: 'מקסימום חיסכון' },
-    { id: 'cashflow', label: 'מקסימום חמצן' },
+    { id: 'savings', label: 'מקסימום חיסכון', icon: PiggyBank },
+    { id: 'cashflow', label: 'מקסימום חמצן', icon: Wind },
   ];
 
   return (
@@ -33,6 +34,7 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
       >
         {options.map((option) => {
           const isSelected = selectedStrategy === option.id;
+          const Icon = option.icon;
           return (
             <button
               key={option.id}
@@ -41,12 +43,13 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
               aria-selected={isSelected}
               aria-controls="refinance-strategy-panel"
               onClick={() => onStrategyChange(option.id)}
-              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors duration-150 sm:text-sm ${
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors duration-150 sm:text-sm ${
                 isSelected
                   ? 'bg-white text-[#0C084A] shadow-sm'
                   : 'text-mist-500 hover:text-[#0C084A]'
               }`}
             >
+              <Icon className="h-4 w-4 shrink-0" />
               {option.label}
             </button>
           );
@@ -66,7 +69,12 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
         >
           <div className="px-5 py-7 text-center sm:px-8 sm:py-8">
             <p className="mb-2 text-xs font-medium text-mist-500">{primaryLabel}</p>
-            <p className="m-0 text-[clamp(32px,8vw,44px)] font-black leading-none text-[#0C084A]" dir="ltr">
+            <p
+              className={`m-0 text-[clamp(32px,8vw,44px)] font-black leading-none ${
+                primaryValue < 0 ? 'text-red-600' : 'text-green-600'
+              }`}
+              dir="ltr"
+            >
               {primaryPrefix}₪{formatNum(primaryValue)}
             </p>
           </div>
@@ -74,15 +82,15 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
           <div className="grid grid-cols-3 border-t border-mist-100">
             <div className="px-4 py-4 text-center sm:px-6">
               <p className="mb-1 text-[11px] text-mist-500">החזר חודשי חדש</p>
-              <p className="m-0 text-[13px] font-bold text-[#0C084A] sm:text-base" dir="ltr">₪{formatNum(strategy?.monthlyPayment)}</p>
+              <p className="m-0 text-base font-bold text-[#0C084A] sm:text-lg" dir="ltr">₪{formatNum(strategy?.monthlyPayment)}</p>
             </div>
             <div className="border-r border-mist-100 px-4 py-4 text-center sm:px-6">
               <p className="mb-1 text-[11px] text-mist-500">תקופה</p>
-              <p className="m-0 text-[13px] font-bold text-[#0C084A] sm:text-base">{strategy?.periodYears || 0} שנים</p>
+              <p className="m-0 text-base font-bold text-[#0C084A] sm:text-lg">{strategy?.periodYears || 0} שנים</p>
             </div>
             <div className="border-r border-mist-100 px-3 py-4 text-center sm:px-6">
               <p className="mb-1 text-[11px] text-mist-500">סך החזר כולל</p>
-              <p className="m-0 text-[13px] font-bold text-[#0C084A] sm:text-base" dir="ltr">₪{formatNum(totalPayments)}</p>
+              <p className="m-0 text-base font-bold text-[#0C084A] sm:text-lg" dir="ltr">₪{formatNum(totalPayments)}</p>
             </div>
           </div>
         </motion.div>
