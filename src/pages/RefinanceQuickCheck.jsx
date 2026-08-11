@@ -1176,7 +1176,7 @@ export default function RefinanceQuickCheck() {
                       <h2 className="text-2xl font-black text-[#0C084A] sm:text-3xl">מדהים! אפשר למחזר את המשכנתא</h2>
                     </div>
                     <div className="mt-6 rounded-2xl border border-[#0153F4]/15 bg-white/80 p-4 text-right">
-                      <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-start justify-between gap-4">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="h-5 w-5 text-[#0153F4]" />
                           <h3 className="font-black text-[#0C084A]">כמה שווה לי למחזר?</h3>
