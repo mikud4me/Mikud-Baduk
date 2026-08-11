@@ -1168,22 +1168,24 @@ export default function RefinanceQuickCheck() {
                     </div>
                     <div className="mt-6 rounded-2xl border border-[#0153F4]/15 bg-white/80 p-4 text-right">
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="h-5 w-5 text-[#0153F4]" />
-                          <h3 className="font-black text-[#0C084A]">כמה שווה לי למחזר?</h3>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5 text-[#0153F4]" />
+                            <h3 className="font-black text-[#0C084A]">כמה שווה לי למחזר?</h3>
+                          </div>
+                          {headline?.isWorthwhile === true ? (
+                            <p className="mt-2 text-sm font-bold text-green-700">מומלץ בחום — הניתוח מצביע על כדאיות כלכלית ברורה למחזור.</p>
+                          ) : headline?.isWorthwhile === false ? (
+                            <p className="mt-2 text-sm font-bold text-amber-700">כדאי לבחון בזהירות — קיימת אפשרות למחזור, אך הכדאיות הכלכלית אינה חד-משמעית.</p>
+                          ) : (
+                            <p className="mt-2 text-sm font-bold text-[#0C084A]">כדאי לקבל חוות דעת מקצועית לפני שמתקדמים.</p>
+                          )}
                         </div>
                         <div className="rounded-2xl border border-green-200 bg-white/80 p-4 text-center">
                           <p className="text-xs font-bold text-mist-500">חיסכון כלכלי נטו</p>
                           <CelebratingSavingsAmount value={headline?.netSavings || 0} />
                         </div>
                       </div>
-                      {headline?.isWorthwhile === true ? (
-                        <p className="mt-2 text-sm font-bold text-green-700">מומלץ בחום — הניתוח מצביע על כדאיות כלכלית ברורה למחזור.</p>
-                      ) : headline?.isWorthwhile === false ? (
-                        <p className="mt-2 text-sm font-bold text-amber-700">כדאי לבחון בזהירות — קיימת אפשרות למחזור, אך הכדאיות הכלכלית אינה חד-משמעית.</p>
-                      ) : (
-                        <p className="mt-2 text-sm font-bold text-[#0C084A]">כדאי לקבל חוות דעת מקצועית לפני שמתקדמים.</p>
-                      )}
                     </div>
                   </motion.section>
               <div className="flex flex-col items-center gap-3 mb-4">
