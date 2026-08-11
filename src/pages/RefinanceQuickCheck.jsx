@@ -237,8 +237,8 @@ function CelebratingSavingsAmount({ value }) {
   const isPositive = value >= 0;
 
   return (
-    <div className="relative inline-flex items-center justify-center">
-      <span className={`text-3xl font-black ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+    <div className="relative inline-flex items-center justify-center leading-none">
+      <span className={`text-3xl font-black leading-none ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
         {isPositive ? '' : '-'}₪{Math.abs(value || 0).toLocaleString()}
       </span>
     </div>
@@ -1181,8 +1181,8 @@ export default function RefinanceQuickCheck() {
                             <p className="mt-2 text-sm font-bold text-[#0C084A]">כדאי לקבל חוות דעת מקצועית לפני שמתקדמים.</p>
                           )}
                         </div>
-                        <div className="rounded-2xl border border-green-200 bg-white/80 p-4 text-center">
-                          <p className="text-xs font-bold text-mist-500">חיסכון כלכלי נטו</p>
+                        <div className="rounded-2xl border border-green-200 bg-white/80 p-3 text-center">
+                          <p className="mb-1 text-xs font-bold leading-none text-mist-500">חיסכון כלכלי נטו</p>
                           <CelebratingSavingsAmount value={headline?.netSavings || 0} />
                         </div>
                       </div>
