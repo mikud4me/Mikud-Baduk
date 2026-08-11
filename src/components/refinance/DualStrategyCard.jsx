@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PiggyBank, Wind } from 'lucide-react';
+import { Wallet, Feather } from 'lucide-react';
 
 export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStrategyChange }) {
   if (!dualStrategy) return null;
@@ -17,8 +17,8 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
   const totalPayments = Number(strategy?.monthlyPayment || 0) * Number(strategy?.periodYears || 0) * 12;
 
   const options = [
-    { id: 'savings', label: 'מקסימום חיסכון', icon: PiggyBank },
-    { id: 'cashflow', label: 'מקסימום חמצן', icon: Wind },
+    { id: 'savings', label: 'מקסימום חיסכון', icon: Wallet },
+    { id: 'cashflow', label: 'מקסימום חמצן', icon: Feather },
   ];
 
   return (
@@ -81,15 +81,15 @@ export default function DualStrategyCard({ dualStrategy, selectedStrategy, onStr
 
           <div className="grid grid-cols-3 border-t border-mist-100">
             <div className="px-4 py-4 text-center sm:px-6">
-              <p className="mb-1 text-[11px] text-mist-500">החזר חודשי חדש</p>
+              <p className="mb-0 text-[11px] text-mist-500">החזר חודשי חדש</p>
               <p className="m-0 text-base font-bold text-[#0C084A] sm:text-lg" dir="ltr">₪{formatNum(strategy?.monthlyPayment)}</p>
             </div>
             <div className="border-r border-mist-100 px-4 py-4 text-center sm:px-6">
-              <p className="mb-1 text-[11px] text-mist-500">תקופה</p>
+              <p className="mb-0 text-[11px] text-mist-500">תקופה</p>
               <p className="m-0 text-base font-bold text-[#0C084A] sm:text-lg">{strategy?.periodYears || 0} שנים</p>
             </div>
             <div className="border-r border-mist-100 px-3 py-4 text-center sm:px-6">
-              <p className="mb-1 text-[11px] text-mist-500">סך החזר כולל</p>
+              <p className="mb-0 text-[11px] text-mist-500">סך החזר כולל</p>
               <p className="m-0 text-base font-bold text-[#0C084A] sm:text-lg" dir="ltr">₪{formatNum(totalPayments)}</p>
             </div>
           </div>
