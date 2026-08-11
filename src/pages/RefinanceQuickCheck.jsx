@@ -1154,7 +1154,7 @@ export default function RefinanceQuickCheck() {
                   />
 
                   <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 relative overflow-hidden">
-                    <div className="p-4 sm:p-6 md:p-8">
+                    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
                   <motion.section
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1188,8 +1188,8 @@ export default function RefinanceQuickCheck() {
                       </div>
                     </div>
                   </motion.section>
-              <div className="flex flex-col items-center gap-3 mb-4">
-                {analysisResult.savings?.arrearsDebt > 0 && (
+              {analysisResult.savings?.arrearsDebt > 0 && (
+                <div className="flex flex-col items-center gap-3">
                   <div className="bg-red-50 border border-red-300 text-red-800 px-6 py-3 rounded-xl flex items-center gap-3">
                     <AlertCircle className="w-6 h-6 text-red-600" />
                     <div>
@@ -1197,13 +1197,13 @@ export default function RefinanceQuickCheck() {
                       <p className="text-sm">תיק מורכב - המחזור נועד להצלת הנכס והסדרת החוב</p>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               <ProfessionalAnalysis text={analysisResult.conclusionText} title="ניתוח כדאיות מחזור" />
 
               {/* אזור השוואה נקי וברור - לפני מול אחרי, כשני בלוקים נפרדים, שדות באותו מיקום בשתי הכרטיסיות */}
-              <div className="grid md:grid-cols-2 gap-6 items-start mb-6">
+              <div className="grid md:grid-cols-2 gap-6 items-start">
                 {/* המשכנתא הנוכחית */}
                 <div className="rounded-3xl border border-mist-200 bg-mist-50 p-6 sm:p-8">
                   <div className="flex items-center gap-2 mb-4">
@@ -1263,7 +1263,7 @@ export default function RefinanceQuickCheck() {
               </div>
 
               {/* ניתוח משכנתא מעמיק */}
-              <div className="text-center mb-6 mt-12">
+              <div className="text-center">
                 <Button
                   variant="outline"
                   onClick={() => setShowAdvancedAnalysis(!showAdvancedAnalysis)}
@@ -1359,7 +1359,7 @@ export default function RefinanceQuickCheck() {
                 onStrategyChange={handleMixStrategyChange}
               />
 
-              <div className="mb-6 text-center">
+              <div className="text-center">
                 <button
                   type="button"
                   onClick={handleCalculateMixes}
@@ -1380,7 +1380,7 @@ export default function RefinanceQuickCheck() {
               </div>
 
               {analysisResult.savings?.feeWarning && (
-                <Card className="border border-red-500 bg-red-50 mb-6">
+                <Card className="border border-red-500 bg-red-50">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -1697,7 +1697,7 @@ export default function RefinanceQuickCheck() {
               {mixPresentation.hasMixes && (
                 <>
                   {mixPresentation.showPayment && (
-                    <div className="mb-6 p-5 rounded-2xl border border-dashed border-[#0153F4] bg-periwinkle-100 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
+                    <div className="p-5 rounded-2xl border border-dashed border-[#0153F4] bg-periwinkle-100 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
                       <div className="flex-1">
                         <h4 className="font-black text-[#06042A] text-base mb-1">התמהילים המלאים נעולים</h4>
                         <p className="text-mist-600 font-medium text-xs leading-relaxed">הפקת פירוט הריביות והחזרים מדויקים דורשת פתיחת תיק במיקוד משכנתאות.</p>
@@ -1716,7 +1716,7 @@ export default function RefinanceQuickCheck() {
                       </div>
                     </div>
                   )}
-                  <div className={`mt-8 transition-all duration-1000 ${mixPresentation.isBlurred ? 'opacity-60 pointer-events-none select-none' : ''}`} style={mixPresentation.isBlurred ? { filter: 'blur(8px)' } : {}}>
+                  <div className={`transition-all duration-1000 ${mixPresentation.isBlurred ? 'opacity-60 pointer-events-none select-none' : ''}`} style={mixPresentation.isBlurred ? { filter: 'blur(8px)' } : {}}>
                     <MixComparison
                       mixes={refinanceMixes}
                       loanAmount={analysisResult.currentLoan?.remainingBalance}
@@ -1725,7 +1725,7 @@ export default function RefinanceQuickCheck() {
                     />
                   </div>
                   {isPurchased && (
-                    <div className="mt-6 flex justify-center">
+                    <div className="flex justify-center">
                       <Button
                         onClick={() => { setIsDownloadingPdf(true); setPdfTrigger(t => t + 1); }}
                         disabled={isDownloadingPdf}
