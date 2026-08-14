@@ -115,16 +115,9 @@ class GeminiContractError extends Error {
 // JSON.parse. `responseJsonSchema` — not `responseSchema` — is the correct field
 // here: these schemas use standard JSON Schema nullable type arrays
 // (`type: ["string", "null"]`), which the OpenAPI-subset `responseSchema` rejects.
-async function invokeGemini({ model, prompt, files = [], schema = null, useSearchGrounding = false }) {
+async function invokeGemini({ model, prompt, files = [], schema = null }) {
   if (!GEMINI_API_KEY) {
     throw new Error(`GEMINI_API_KEY is not configured (${GEMINI_SECRET_STATUS})`);
-  }
-
-  // Gemini rejects search grounding combined with a response schema. Nothing
-  // passes both today; fail loudly if that ever changes rather than quietly
-  // dropping one of them the way the old config shape did.
-  if (useSearchGrounding && schema) {
-    throw new Error('Gemini cannot combine search grounding with a response schema');
   }
 
   const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
@@ -134,7 +127,6 @@ async function invokeGemini({ model, prompt, files = [], schema = null, useSearc
   }
 
   const config = { maxOutputTokens: MAX_OUTPUT_TOKENS };
-  if (useSearchGrounding) config.tools = [{ googleSearch: {} }];
   if (schema) {
     config.responseMimeType = 'application/json';
     config.responseJsonSchema = schema;
@@ -347,23 +339,118 @@ TODAY: ${today}
 Return structured data as specified in the JSON schema.`;
 
     // ━━━ STEP 0: Fetch market rates in background (no file needed) ━━━
-    // Search-grounded rate lookup returns text and is parsed independently from
-    // the structured document extraction.
+    // Real Bank of Israel data, not an AI guess. Two calls, no auth, no scraping:
+    //   1. GetInterest — the official BOI base rate. Prime = base + 1.5%, the
+    //      same regulated formula every bank uses, so this is exact, not modeled.
+    //   2. The BOI series-database SDMX API (edge.boi.org.il — a different host
+    //      from boi.org.il, not behind the Radware bot-check that blocks the
+    //      documentation site) for the published average new-mortgage rate on
+    //      the two fixed tracks (BIR_MRTG_99 dataflow, series below).
+    // Variable-track rates (linked/unlinked) have no reliable single published
+    // aggregate — BOI only reports them split by reset-period bucket, and none
+    // of those buckets had a current data point when checked. Rather than guess,
+    // those two stay on the same static constants the rest of the app already
+    // uses (FALLBACK_RATES below) — no search, no AI, ever, for any of the five.
+    //
+    // These barely move day to day, so this isn't refetched per analysis: a
+    // small boi_rate_cache table (see migration) holds the last fetch, and only
+    // the request that finds it >24h stale calls BOI at all — everyone else
+    // (and every other refinance check that day) reads the cached row instead.
+    // The cache itself is optional, not required: this function's only hard
+    // dependency stays GEMINI_API_KEY, so if SUPABASE_URL/SERVICE_ROLE_KEY are
+    // ever missing this just silently falls back to fetching BOI directly every
+    // time, same as before caching existed.
+    const BOI_FIXED_UNLINKED_SERIES = 'BNK_99034_LR_BIR_MRTG_467';  // ריבית קבועה לא צמודה, חדש, סך מערכת בנקאית
+    const BOI_FIXED_LINKED_SERIES = 'BNK_99034_LR_BIR_MRTG_1492';   // ריבית קבועה צמודה מדד, חדש, סך מערכת בנקאית
+    const RATE_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+    const supabaseRestUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const cacheHeaders = supabaseRestUrl && supabaseServiceKey ? {
+      apikey: supabaseServiceKey,
+      Authorization: `Bearer ${supabaseServiceKey}`,
+      'Content-Type': 'application/json',
+    } : null;
+
+    async function readRateCache() {
+      if (!cacheHeaders) return null;
+      try {
+        const res = await fetch(
+          `${supabaseRestUrl}/rest/v1/boi_rate_cache?id=eq.1&select=prime,fixed_unlinked,fixed_linked,fetched_at`,
+          { headers: cacheHeaders, signal: AbortSignal.timeout(5000) },
+        );
+        if (!res.ok) return null;
+        const [row] = await res.json();
+        if (!row) return null;
+        const ageMs = Date.now() - new Date(row.fetched_at).getTime();
+        if (ageMs > RATE_CACHE_MAX_AGE_MS) return null;
+        return { prime: Number(row.prime), fixed_unlinked: Number(row.fixed_unlinked), fixed_linked: Number(row.fixed_linked) };
+      } catch (e) {
+        console.warn(`Rate cache read failed (continuing without it): ${e.message}`);
+        return null;
+      }
+    }
+
+    async function writeRateCache(rates) {
+      if (!cacheHeaders) return;
+      try {
+        await fetch(`${supabaseRestUrl}/rest/v1/boi_rate_cache`, {
+          method: 'POST',
+          headers: { ...cacheHeaders, Prefer: 'resolution=merge-duplicates' },
+          body: JSON.stringify({ id: 1, ...rates, fetched_at: new Date().toISOString() }),
+          signal: AbortSignal.timeout(5000),
+        });
+      } catch (e) {
+        console.warn(`Rate cache write failed (rates still returned, just not cached): ${e.message}`);
+      }
+    }
+
+    async function fetchLiveRatesFromBOI() {
+      const [primeRes, mrtgRes] = await Promise.all([
+        fetch('https://www.boi.org.il/PublicApi/GetInterest', { signal: AbortSignal.timeout(8000) }),
+        fetch(
+          `https://edge.boi.org.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/BIR_MRTG_99/1.0/` +
+          `?c%5BSERIES_CODE%5D=${BOI_FIXED_UNLINKED_SERIES},${BOI_FIXED_LINKED_SERIES}` +
+          `&format=sdmx-json&lastNObservations=1&locale=he`,
+          { signal: AbortSignal.timeout(8000) },
+        ),
+      ]);
+      if (!primeRes.ok) throw new Error(`BOI GetInterest returned ${primeRes.status}`);
+      if (!mrtgRes.ok) throw new Error(`BOI series API returned ${mrtgRes.status}`);
+
+      const primeData = await primeRes.json();
+      const boiBaseRate = Number(primeData.currentInterest);
+      if (!Number.isFinite(boiBaseRate)) throw new Error('BOI GetInterest returned an invalid rate');
+      const prime = boiBaseRate + 1.5; // regulated formula: prime = BOI base rate + 1.5%, always
+
+      const mrtgData = await mrtgRes.json();
+      const seriesNames = mrtgData?.data?.structure?.dimensions?.series?.[0]?.values || [];
+      const seriesData = mrtgData?.data?.dataSets?.[0]?.series || {};
+      const rateBySeriesCode = {};
+      for (const [key, val] of Object.entries(seriesData)) {
+        const seriesIndex = Number(key.split(':')[0]);
+        const code = seriesNames[seriesIndex]?.id;
+        const latestObservation = Object.values(val.observations || {})[0];
+        if (code && Array.isArray(latestObservation)) rateBySeriesCode[code] = Number(latestObservation[0]);
+      }
+      const fixed_unlinked = rateBySeriesCode[BOI_FIXED_UNLINKED_SERIES];
+      const fixed_linked = rateBySeriesCode[BOI_FIXED_LINKED_SERIES];
+      if (!Number.isFinite(fixed_unlinked) || !Number.isFinite(fixed_linked)) {
+        throw new Error('BOI series API did not return both fixed-rate series');
+      }
+
+      return { prime, fixed_unlinked, fixed_linked };
+    }
+
     let ratesError = null;
-    const ratesPromise = invokeGeminiWithRetry({
-      model: GEMINI_MODEL,
-      prompt: `What are the current Israeli mortgage interest rates as of today ${today}?
-Search the Bank of Israel website (boi.org.il) and major Israeli bank sites for the latest rates.
-Return CUSTOMER-FACING effective rates (after typical bank discounts) as a JSON object:
-{"prime": <number>, "fixed_linked": <number>, "fixed_unlinked": <number>, "variable_linked": <number>, "variable_unlinked": <number>}
-- prime: effective ~4.8-5.0
-- fixed_linked: typically 3.0-3.4
-- fixed_unlinked: typically 4.5-4.9
-- variable_linked: typically 2.9-3.3
-- variable_unlinked: typically 4.4-4.8
-      Return ONLY the JSON object, nothing else.`,
-      useSearchGrounding: true,
-    }).catch((error) => {
+    const ratesPromise = (async () => {
+      const cached = await readRateCache();
+      if (cached) return cached;
+
+      const fresh = await fetchLiveRatesFromBOI();
+      await writeRateCache(fresh);
+      return fresh;
+    })().catch((error) => {
       ratesError = error;
       return null;
     });
@@ -467,17 +554,11 @@ Only extract what you can clearly read. Return null if unclear.`;
     // Await the rates (already running in background since before file extraction)
     let ratesResultRaw = null;
     try {
-      const ratesRaw = await ratesPromise;
+      ratesResultRaw = await ratesPromise;
       if (ratesError) throw ratesError;
-      if (typeof ratesRaw === 'string') {
-        const match = ratesRaw.match(/\{[\s\S]*\}/);
-        if (match) ratesResultRaw = JSON.parse(match[0]);
-      } else if (typeof ratesRaw === 'object') {
-        ratesResultRaw = ratesRaw;
-      }
-      console.log(`✅ Live rates fetched: prime=${ratesResultRaw?.prime}%`);
+      console.log(`✅ Live BOI rates fetched: prime=${ratesResultRaw?.prime}% fixed_unlinked=${ratesResultRaw?.fixed_unlinked}% fixed_linked=${ratesResultRaw?.fixed_linked}%`);
     } catch(e) {
-      console.warn(`⚠️ Live rates fetch failed, using fallback: ${e.message}`);
+      console.warn(`⚠️ Live BOI rates fetch failed, using fallback: ${e.message}`);
     }
 
     console.log(`✅ Extraction done: ${extractionResult.tracks?.length || 0} tracks | Balance: ₪${extractionResult.remaining_balance?.toLocaleString()}`);
@@ -529,24 +610,28 @@ Only extract what you can clearly read. Return null if unclear.`;
     extractionResult.borrower_2 = finalBorrowers[1] || null;
 
     // ━━━ MARKET RATES ━━━
-    // STABILITY FIX: ריביות ה-fallback משמשות כ-anchor קבוע כדי למנוע תנודות בין הרצות.
-    // ריביות ה-LLM נקבלות אך מוגבלות לטווח הגיוני ± 0.3% מה-fallback.
+    // Deterministic. Prime + the two fixed-track rates come straight from Bank
+    // of Israel (see ratesPromise above) — a real published number, not a model
+    // guess, so no clamping/squeezing toward a hardcoded anchor is needed here,
+    // just a wide sanity check against an API outage or malformed response.
+    // Variable-track rates have no reliable single published aggregate (BOI only
+    // reports them split by reset-period bucket), so they always use the static
+    // constants below — never fetched, never guessed, never searched.
     const FALLBACK_RATES = { prime: 5.0, fixed_linked: 3.2, fixed_unlinked: 4.7, variable_linked: 3.1, variable_unlinked: 4.6 };
-    const clampRate = (live, fallback, maxDrift = 0.3) => {
-      if (live == null || isNaN(live)) return fallback;
-      return Math.min(fallback + maxDrift, Math.max(fallback - maxDrift, live));
+    const isSaneRate = (rate, min, max) => Number.isFinite(rate) && rate >= min && rate <= max;
+    const liveRatesUsable = Boolean(ratesResultRaw)
+      && isSaneRate(ratesResultRaw.prime, 2, 10)
+      && isSaneRate(ratesResultRaw.fixed_unlinked, 2, 10)
+      && isSaneRate(ratesResultRaw.fixed_linked, 0, 8);
+    const CURRENT_MARKET_RATES = {
+      prime: liveRatesUsable ? ratesResultRaw.prime : FALLBACK_RATES.prime,
+      fixed_unlinked: liveRatesUsable ? ratesResultRaw.fixed_unlinked : FALLBACK_RATES.fixed_unlinked,
+      fixed_linked: liveRatesUsable ? ratesResultRaw.fixed_linked : FALLBACK_RATES.fixed_linked,
+      variable_linked: FALLBACK_RATES.variable_linked,
+      variable_unlinked: FALLBACK_RATES.variable_unlinked,
     };
-    const primeValid = ratesResultRaw?.prime >= 4.5 && ratesResultRaw?.prime <= 5.5;
-    const fixedValid = ratesResultRaw?.fixed_unlinked >= 4.0 && ratesResultRaw?.fixed_unlinked <= 6.0;
-    const CURRENT_MARKET_RATES = (primeValid && fixedValid) ? {
-      prime: clampRate(ratesResultRaw.prime, FALLBACK_RATES.prime),
-      fixed_linked: clampRate(ratesResultRaw.fixed_linked, FALLBACK_RATES.fixed_linked),
-      fixed_unlinked: clampRate(ratesResultRaw.fixed_unlinked, FALLBACK_RATES.fixed_unlinked),
-      variable_linked: clampRate(ratesResultRaw.variable_linked, FALLBACK_RATES.variable_linked),
-      variable_unlinked: clampRate(ratesResultRaw.variable_unlinked, FALLBACK_RATES.variable_unlinked),
-    } : FALLBACK_RATES;
-    if (!primeValid || !fixedValid) console.warn(`⚠️ Invalid live rates (prime=${ratesResultRaw?.prime}), using fallback`);
-    console.log(`✅ Rates: prime=${CURRENT_MARKET_RATES.prime}`);
+    if (!liveRatesUsable) console.warn(`⚠️ Live BOI rates unavailable/out of range (prime=${ratesResultRaw?.prime}), using fallback`);
+    console.log(`✅ Rates: prime=${CURRENT_MARKET_RATES.prime} fixed_unlinked=${CURRENT_MARKET_RATES.fixed_unlinked} fixed_linked=${CURRENT_MARKET_RATES.fixed_linked} (source: ${liveRatesUsable ? 'BOI live' : 'fallback'})`);
 
     const EXPECTED_ANNUAL_INFLATION = 2.5;
 
