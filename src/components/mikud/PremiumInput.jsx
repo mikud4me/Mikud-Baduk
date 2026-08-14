@@ -1,5 +1,4 @@
 import React from 'react';
-import { AlertCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formatCurrency = (val) => {
@@ -88,10 +87,7 @@ export default function PremiumInput({
       )}
 
       {error && (
-        <div className="mt-3 flex items-center gap-3 bg-red-50 border border-red-500 px-5 py-3 rounded-2xl">
-          <AlertCircle size={20} className="text-red-600" />
-          <p className="text-red-700 text-sm font-bold">{error}</p>
-        </div>
+        <p className="mt-1 text-xs text-red-600 font-semibold">{error}</p>
       )}
     </div>
   );
