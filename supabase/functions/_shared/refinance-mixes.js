@@ -1,23 +1,17 @@
-const STRATEGY_PERIOD_KEYS = {
-  savings: 'savings',
-  cashflow: 'cashflow',
-};
-
 const TRACK_TYPES = {
   prime: 'פריים',
   fixed: 'קבועה לא צמודה',
   variable: 'משתנה לא צמודה',
 };
 
-export function getCachedRefinanceStrategyResult(strategyResults, analysisRevision, strategy) {
-  const cached = strategyResults?.[strategy];
-  return cached?.analysisRevision === analysisRevision && Array.isArray(cached?.mixes)
-    ? cached
+export function getCachedRefinanceMixResult(cachedResult, analysisRevision) {
+  return cachedResult?.analysisRevision === analysisRevision && Array.isArray(cachedResult?.mixes)
+    ? cachedResult
     : null;
 }
 
-export function cacheRefinanceStrategyResult(strategyResults, strategy, result) {
-  return { ...(strategyResults || {}), [strategy]: result };
+export function cacheRefinanceMixResult(result) {
+  return result;
 }
 
 function annuityPayment(principal, annualRatePercent, months) {
@@ -210,15 +204,13 @@ function buildCalculator(context) {
   return { calculateMix, enforce33Fixed };
 }
 
-export function generateRefinanceStrategyMixes(context, strategy) {
-  if (!Object.hasOwn(STRATEGY_PERIOD_KEYS, strategy)) {
-    throw new Error('Invalid refinance mix strategy');
+export function generateRefinanceMixes(context) {
+  const savingsYears = Number(context.strategyPeriods?.savings);
+  const oxygenYears = Number(context.strategyPeriods?.cashflow);
+  if (!Number.isFinite(savingsYears) || savingsYears <= 0 || !Number.isFinite(oxygenYears) || oxygenYears <= 0) {
+    throw new Error('The strategy periods are unavailable');
   }
-
-  const periodYears = Number(context.strategyPeriods?.[STRATEGY_PERIOD_KEYS[strategy]]);
-  if (!Number.isFinite(periodYears) || periodYears <= 0) {
-    throw new Error('The selected strategy period is unavailable');
-  }
+  const middleYears = Math.round((savingsYears + oxygenYears) / 2);
 
   const rates = context.marketRates || {};
   const primeRate = Number(rates.prime);
@@ -232,35 +224,42 @@ export function generateRefinanceStrategyMixes(context, strategy) {
   const definitions = [
     {
       mix_number: 1,
-      mix_name: 'תמהיל 1: הגנה מקסימלית',
+      mix_name: 'תמהיל 1: מקסימום חיסכון',
       risk_level: 'conservative',
+      strategy: 'savings',
+      periodYears: savingsYears,
       percentages: [27, 46, 27],
-      advantages: ['תשלום יציב', 'הגנה מלאה ממדד'],
-      disadvantages: ['ריבית גבוהה יותר'],
-      recommended_for: 'לקוחות שמעדיפים יציבות מקסימלית',
+      advantages: ['תשלום יציב', 'הגנה מלאה ממדד', 'סך הריבית הנמוך ביותר לאורך התקופה'],
+      disadvantages: ['החזר חודשי גבוה יותר'],
+      recommended_for: 'לקוחות שרוצים לחסוך הכי הרבה כסף לאורך זמן',
     },
     {
       mix_number: 2,
       mix_name: 'תמהיל 2: מאוזן',
       risk_level: 'balanced',
+      strategy: 'middle',
+      periodYears: middleYears,
       percentages: [33, 34, 33],
-      advantages: ['חלוקה מאוזנת', 'תשלום צפוי'],
+      advantages: ['חלוקה מאוזנת', 'איזון בין חיסכון להקלה בתזרים'],
       disadvantages: ['פחות גמיש'],
-      recommended_for: '⭐ מומלץ - איזון אופטימלי',
+      recommended_for: '⭐ מומלץ - איזון אופטימלי בין חיסכון לתזרים',
     },
     {
       mix_number: 3,
-      mix_name: 'תמהיל 3: גמישות גבוהה',
+      mix_name: 'תמהיל 3: מקסימום חמצן',
       risk_level: 'aggressive',
+      strategy: 'cashflow',
+      periodYears: oxygenYears,
       percentages: [47, 38, 15],
-      advantages: ['גמישות גבוהה', 'ניצול מסלול הפריים'],
-      disadvantages: ['חשיפה גבוהה יותר לשינויי ריבית'],
-      recommended_for: 'לקוחות שמעדיפים גמישות',
+      advantages: ['ההחזר החודשי הנמוך ביותר', 'שחרור תזרים מיידי'],
+      disadvantages: ['חשיפה גבוהה יותר לשינויי ריבית', 'סך ריבית גבוה יותר לאורך התקופה'],
+      recommended_for: 'לקוחות שרוצים להקטין את ההחזר החודשי',
     },
   ];
 
   return definitions.map((definition) => {
     const [primePercentage, fixedPercentage, variablePercentage] = definition.percentages;
+    const periodYears = definition.periodYears;
     const calculated = calculateMix([
       { track_type: TRACK_TYPES.prime, percentage: primePercentage, interest_rate: primeRate, period_years: periodYears },
       { track_type: TRACK_TYPES.fixed, percentage: fixedPercentage, interest_rate: fixedRate, period_years: periodYears },
@@ -270,10 +269,10 @@ export function generateRefinanceStrategyMixes(context, strategy) {
       ...calculated,
       ...definition,
       advantages: [...definition.advantages, `חיסכון: ₪${calculated.monthly_savings.toLocaleString('he-IL')}`],
-      strategy,
       strategy_period_years: periodYears,
     };
     delete mix.percentages;
+    delete mix.periodYears;
     return enforce33Fixed(mix);
   });
 }

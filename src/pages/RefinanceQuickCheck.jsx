@@ -21,7 +21,6 @@ import { Popover, PopoverTrigger, PopoverContent, PopoverClose } from '@/compone
 import RefinanceCalculator from '@/components/refinance/RefinanceCalculator';
 import BalloonTrapAlert from '@/components/refinance/BalloonTrapAlert';
 import ExecutiveSummary from '@/components/refinance/ExecutiveSummary';
-import DualStrategyCard from '@/components/refinance/DualStrategyCard';
 import MortgageChatbot from '@/components/refinance/MortgageChatbot';
 import FooterCTA from '@/components/mikud/FooterCTA';
 import PremiumInput from '@/components/mikud/PremiumInput';
@@ -201,6 +200,26 @@ function getRefinanceOutcome(analysisResult, ignoreDocumentValidity) {
   return REFINANCE_OUTCOME.ELIGIBLE;
 }
 
+// שם שחולץ ממסמך עשוי לכלול ניקוד/רווחים כפולים/סדר מילים שונה מהשם שהוזן
+// בטופס. משווים לפי קבוצת המילים ולא לפי שוויון מדויק כדי לא לתפוס הבדלי
+// פורמט כאילו זה מסמך של אדם אחר.
+function normalizeNameForComparison(name) {
+  return String(name || '')
+    .trim()
+    .replace(/[֑-ׇ]/g, '') // ניקוד/טעמים
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+}
+
+function borrowerNameMatchesContact(borrowersNames, contactName) {
+  const expectedTokens = normalizeNameForComparison(contactName).split(' ').filter(Boolean);
+  if (expectedTokens.length === 0) return true;
+  return (borrowersNames || []).some((name) => {
+    const nameTokens = new Set(normalizeNameForComparison(name).split(' ').filter(Boolean));
+    return expectedTokens.every((token) => nameTokens.has(token));
+  });
+}
+
 function EffectiveRateInfo() {
   return (
     <Popover>
@@ -259,7 +278,10 @@ export default function RefinanceQuickCheck() {
   const [extraDebts, setExtraDebts] = useState([{ creditor: '', monthly_repayment: '', remaining_balance: '', estimated_interest: 15 }]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [demoDocumentOverride, setDemoDocumentOverride] = useState(false);
-  const [selectedMixStrategy, setSelectedMixStrategy] = useState('savings');
+  // כשמשתמש חוזר להעלות מסמך עדכני (אחרי דחיית המסמך הקודם), יש לוודא שהשם
+  // שחולץ מהמסמך החדש תואם לשם שמילא בטופס הפרטים המקורי — כדי לתפוס העלאה
+  // בטעות של מסמך של אדם אחר. לא נבדק בהעלאה הראשונה, רק בחזרה דרך הכפתור הזה.
+  const [verifyBorrowerName, setVerifyBorrowerName] = useState(false);
   const [strategyMixes, setStrategyMixes] = useState([]);
   const [isCalculatingMixes, setIsCalculatingMixes] = useState(false);
   const [mixCalculationError, setMixCalculationError] = useState('');
@@ -321,16 +343,10 @@ export default function RefinanceQuickCheck() {
           Number(lead.monthly_income) > 0 && Number(lead.property_purchase_price) > 0
         );
         if (lead.status === 'analyzed' && lead.analysis_result) {
-          const restoredStrategy = lead.selected_mix_strategy || 'savings';
-          setSelectedMixStrategy(restoredStrategy);
           setAnalysisResult({ ...lead.analysis_result, mixes: [], file_url: lead.file_url });
-          if (canRestoreRefinanceMixes(
-            lead.selected_mix_strategy,
-            lead.cached_mix_strategies,
-            lead.has_mix_calculation_context,
-          )) {
+          if (canRestoreRefinanceMixes(lead.has_mix_calculation_context, lead.has_cached_mixes)) {
             try {
-              const cachedResult = await calculateRefinanceMixes(lead.id, restoredStrategy);
+              const cachedResult = await calculateRefinanceMixes(lead.id);
               setStrategyMixes(cachedResult?.mixes || []);
             } catch (mixError) {
               console.error('Failed to restore refinance strategy mixes:', mixError);
@@ -469,14 +485,6 @@ export default function RefinanceQuickCheck() {
     setTier('paid');
     setIsPurchased(true);
   };
-  const handleMixStrategyChange = (strategy) => {
-    if (strategy === selectedMixStrategy) return;
-    setSelectedMixStrategy(strategy);
-    setStrategyMixes([]);
-    setMixCalculationError('');
-    void updateLead({ selected_mix_strategy: strategy });
-  };
-
   const handleCalculateMixes = async () => {
     if (!leadId) {
       setMixCalculationError('לא הצלחנו לזהות את הבקשה. נסו לרענן את העמוד.');
@@ -486,7 +494,7 @@ export default function RefinanceQuickCheck() {
     setIsCalculatingMixes(true);
     setMixCalculationError('');
     try {
-      const result = await calculateRefinanceMixes(leadId, selectedMixStrategy);
+      const result = await calculateRefinanceMixes(leadId);
       if (!Array.isArray(result?.mixes) || result.mixes.length !== 3) {
         throw new Error('The refinance mix response is incomplete');
       }
@@ -589,8 +597,19 @@ export default function RefinanceQuickCheck() {
         return;
       }
 
+      if (verifyBorrowerName && !borrowerNameMatchesContact(data.currentLoan?.borrowers_names, contactFullName)) {
+        setError(`❌ השם שחולץ מהמסמך שהעלית אינו תואם לשם שהוזן בתחילת התהליך (${contactFullName}). ודא שהעלית את המסמך של האדם הנכון.`);
+        updateLead({
+          status: 'error',
+          file_url,
+          has_extra_debts: hasExtraDebts,
+          external_debts: externalDebtsInput
+        });
+        return;
+      }
+      setVerifyBorrowerName(false);
+
       const { mixCalculationContext, ...publicAnalysis } = data;
-      setSelectedMixStrategy('savings');
       setStrategyMixes([]);
       setMixCalculationError('');
       await updateLead({
@@ -601,7 +620,6 @@ export default function RefinanceQuickCheck() {
         analysis_result: publicAnalysis,
         mix_calculation_context: mixCalculationContext,
         strategy_mix_results: {},
-        selected_mix_strategy: null,
         analyzed_at: new Date().toISOString()
       });
       setAnalysisResult({ ...publicAnalysis, file_url });
@@ -630,8 +648,12 @@ export default function RefinanceQuickCheck() {
           if (!retryData?.success) {
             throw new Error(retryData?.error || 'שגיאה בניתוח הקובץ');
           }
+          if (verifyBorrowerName && !borrowerNameMatchesContact(retryData.currentLoan?.borrowers_names, contactFullName)) {
+            throw new Error(`השם שחולץ מהמסמך שהעלית אינו תואם לשם שהוזן בתחילת התהליך (${contactFullName}). ודא שהעלית את המסמך של האדם הנכון.`);
+          }
+          setVerifyBorrowerName(false);
+
           const { mixCalculationContext, ...publicAnalysis } = retryData;
-          setSelectedMixStrategy('savings');
           setStrategyMixes([]);
           setMixCalculationError('');
           await updateLead({
@@ -642,7 +664,6 @@ export default function RefinanceQuickCheck() {
             analysis_result: publicAnalysis,
             mix_calculation_context: mixCalculationContext,
             strategy_mix_results: {},
-            selected_mix_strategy: null,
             analyzed_at: new Date().toISOString()
           });
           setAnalysisResult({ ...publicAnalysis, file_url });
@@ -672,7 +693,6 @@ export default function RefinanceQuickCheck() {
 
   const returnToDocumentUpload = () => {
     setAnalysisResult(null);
-    setSelectedMixStrategy('savings');
     setStrategyMixes([]);
     setMixCalculationError('');
     setFiles([]);
@@ -680,12 +700,12 @@ export default function RefinanceQuickCheck() {
     setShowAdvancedAnalysis(false);
     setIsDownloadingPdf(false);
     setDemoDocumentOverride(false);
+    setVerifyBorrowerName(true);
     window.requestAnimationFrame(() => document.getElementById('refinance-files')?.click());
   };
 
   const startRefinanceOver = () => {
     setAnalysisResult(null);
-    setSelectedMixStrategy('savings');
     setStrategyMixes([]);
     setMixCalculationError('');
     setFiles([]);
@@ -693,6 +713,7 @@ export default function RefinanceQuickCheck() {
     setShowAdvancedAnalysis(false);
     setIsDownloadingPdf(false);
     setDemoDocumentOverride(false);
+    setVerifyBorrowerName(false);
     setLeadId(null);
     setTier('free');
     setIsPurchased(false);
@@ -1114,11 +1135,9 @@ export default function RefinanceQuickCheck() {
                       <Upload className="ml-2 h-5 w-5" />
                       העלאת מסמך עדכני
                     </Button>
-                    {PAYMENT_BYPASS_ENABLED && (
-                      <Button variant="outline" onClick={() => setDemoDocumentOverride(true)} className="h-14 rounded-full border-[#0153F4] px-6 font-bold text-[#0C084A] hover:bg-periwinkle-100">
-                        הצגת התוצאה (דמו)
-                      </Button>
-                    )}
+                    <Button variant="outline" onClick={startRefinanceOver} className="h-14 rounded-full border-mist-300 px-6 font-bold text-mist-600 hover:bg-mist-50">
+                      התחל מחדש
+                    </Button>
                   </div>
                 </motion.section>
               )}
@@ -1201,6 +1220,34 @@ export default function RefinanceQuickCheck() {
               )}
 
               <ProfessionalAnalysis text={analysisResult.conclusionText} title="ניתוח כדאיות מחזור" />
+
+              {!isPurchased && (
+                <div className="p-5 rounded-2xl border border-dashed border-[#0153F4] bg-periwinkle-100 text-center sm:text-right">
+                  <p className="font-black text-[#0C084A] text-base mb-4">
+                    אז למה אתם מחכים? כדי לחסוך ₪{Math.max(0, Math.round(headline?.netSavings || 0)).toLocaleString()}, קבלו את הניתוח המלא, פירוט ריביות ושלושה תמהילים מותאמים אישית
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <div className="flex-1">
+                      <h4 className="font-black text-[#06042A] text-base mb-1">הניתוח המלא נעול</h4>
+                      <p className="text-mist-600 font-medium text-xs leading-relaxed">הפקת פירוט הריביות, ההשוואה המלאה והתמהילים המותאמים דורשת פתיחת תיק במיקוד משכנתאות.</p>
+                      {paymentNotice && <p className="mt-2 text-[#0C084A] font-bold text-xs leading-relaxed">{paymentNotice}</p>}
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+                      <button onClick={handlePurchaseClick} disabled={paymentLoading} className="bg-[#0C084A] text-white px-6 py-3 rounded-full font-black text-sm shadow-lg hover:bg-[#1362FF] hover:text-[#06042A] transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        {paymentLoading && <Loader2 size={16} className="animate-spin" />}
+                        רכוש דוח ₪499
+                      </button>
+                      {PAYMENT_BYPASS_ENABLED && (
+                        <button onClick={handlePaymentBypass} className="border border-[#0153F4] text-[#0C084A] px-5 py-3 rounded-full font-bold text-sm hover:bg-white transition-all whitespace-nowrap">
+                          דלג על התשלום (דמו)
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className={`space-y-5 sm:space-y-6 transition-all duration-1000 ${!isPurchased ? 'opacity-60 pointer-events-none select-none' : ''}`} style={!isPurchased ? { filter: 'blur(8px)' } : {}}>
 
               {/* אזור השוואה נקי וברור - לפני מול אחרי, כשני בלוקים נפרדים, שדות באותו מיקום בשתי הכרטיסיות */}
               <div className="grid md:grid-cols-2 gap-6 items-start">
@@ -1301,7 +1348,11 @@ export default function RefinanceQuickCheck() {
                                   </div>
                                   <div className="flex justify-between text-xs text-mist-500">
                                     <span>יתרה: ₪{track.remaining_balance?.toLocaleString()}</span>
-                                    <span>נותרו: {track.remaining_months} חודשים</span>
+                                    <span>
+                                      נותרו: {track.remaining_months > 12
+                                        ? `${(track.remaining_months / 12).toFixed(1)} שנים`
+                                        : `${track.remaining_months} חודשים`}
+                                    </span>
                                   </div>
                                 </div>
                               ))}
@@ -1334,7 +1385,6 @@ export default function RefinanceQuickCheck() {
                                   <span className="font-semibold text-mist-900">{alert.track_type}</span>
                                   <span className="text-2xl font-black text-red-600">+₪{alert.indexDamage?.toLocaleString()}</span>
                                 </div>
-                                <p className="text-xs text-red-600/80 mt-1">{alert.note}</p>
                               </div>
                             ))}
                             <div className="bg-white rounded-lg p-3 border border-red-300 text-center">
@@ -1351,13 +1401,6 @@ export default function RefinanceQuickCheck() {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* 2 אסטרטגיות מחזור */}
-              <DualStrategyCard
-                dualStrategy={analysisResult.dualStrategy}
-                selectedStrategy={selectedMixStrategy}
-                onStrategyChange={handleMixStrategyChange}
-              />
 
               <div className="text-center">
                 <button
@@ -1696,34 +1739,12 @@ export default function RefinanceQuickCheck() {
 
               {mixPresentation.hasMixes && (
                 <>
-                  {mixPresentation.showPayment && (
-                    <div className="p-5 rounded-2xl border border-dashed border-[#0153F4] bg-periwinkle-100 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right">
-                      <div className="flex-1">
-                        <h4 className="font-black text-[#06042A] text-base mb-1">התמהילים המלאים נעולים</h4>
-                        <p className="text-mist-600 font-medium text-xs leading-relaxed">הפקת פירוט הריביות והחזרים מדויקים דורשת פתיחת תיק במיקוד משכנתאות.</p>
-                        {paymentNotice && <p className="mt-2 text-[#0C084A] font-bold text-xs leading-relaxed">{paymentNotice}</p>}
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
-                        <button onClick={handlePurchaseClick} disabled={paymentLoading} className="bg-[#0C084A] text-white px-6 py-3 rounded-full font-black text-sm shadow-lg hover:bg-[#1362FF] hover:text-[#06042A] transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                          {paymentLoading && <Loader2 size={16} className="animate-spin" />}
-                          רכוש דוח ₪499
-                        </button>
-                        {PAYMENT_BYPASS_ENABLED && (
-                          <button onClick={handlePaymentBypass} className="border border-[#0153F4] text-[#0C084A] px-5 py-3 rounded-full font-bold text-sm hover:bg-white transition-all whitespace-nowrap">
-                            דלג על התשלום (דמו)
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  <div className={`transition-all duration-1000 ${mixPresentation.isBlurred ? 'opacity-60 pointer-events-none select-none' : ''}`} style={mixPresentation.isBlurred ? { filter: 'blur(8px)' } : {}}>
-                    <MixComparison
-                      mixes={refinanceMixes}
-                      loanAmount={analysisResult.currentLoan?.remainingBalance}
-                      isRefinance
-                      isPurchased={isPurchased}
-                    />
-                  </div>
+                  <MixComparison
+                    mixes={refinanceMixes}
+                    loanAmount={analysisResult.currentLoan?.remainingBalance}
+                    isRefinance
+                    isPurchased={isPurchased}
+                  />
                   {isPurchased && (
                     <div className="flex justify-center">
                       <Button
@@ -1738,6 +1759,7 @@ export default function RefinanceQuickCheck() {
                   )}
                 </>
               )}
+              </div>
                     </div>
                   </div>
                 </>

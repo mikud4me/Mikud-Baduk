@@ -1,9 +1,5 @@
-export function canRestoreRefinanceMixes(selectedStrategy, cachedStrategies, hasCalculationContext) {
-  return Boolean(
-    selectedStrategy
-    && hasCalculationContext
-    && cachedStrategies?.includes(selectedStrategy),
-  );
+export function canRestoreRefinanceMixes(hasCalculationContext, hasCachedMixes) {
+  return Boolean(hasCalculationContext && hasCachedMixes);
 }
 
 export function getRefinanceMixPresentation(mixes, isPurchased) {

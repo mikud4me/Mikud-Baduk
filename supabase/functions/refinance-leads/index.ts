@@ -6,7 +6,7 @@ const columns: Record<string, string> = {
   analysis_result: 'analysis_result', has_extra_debts: 'has_extra_debts', external_debts: 'external_debts', analyzed_at: 'analyzed_at',
   monthly_income: 'monthly_income', property_purchase_price: 'property_purchase_price', estimated_current_property_value: 'estimated_current_property_value',
   contact_consent: 'contact_consent', terms_accepted: 'terms_accepted', terms_accepted_at: 'terms_accepted_at',
-  mix_calculation_context: 'mix_calculation_context', strategy_mix_results: 'strategy_mix_results', selected_mix_strategy: 'selected_mix_strategy',
+  mix_calculation_context: 'mix_calculation_context', strategy_mix_results: 'strategy_mix_results',
 };
 
 function toRow(payload: Record<string, unknown>) {
@@ -18,9 +18,10 @@ function toClient(row: Record<string, any>) {
   const client = { ...(row.payload || {}), ...row };
   const analysisRevision = row.mix_calculation_context?.analysisRevision;
   client.has_mix_calculation_context = Boolean(analysisRevision);
-  client.cached_mix_strategies = Object.entries(row.strategy_mix_results || {})
-    .filter(([, result]: [string, any]) => result?.analysisRevision === analysisRevision && Array.isArray(result?.mixes))
-    .map(([strategy]) => strategy);
+  client.has_cached_mixes = Boolean(
+    row.strategy_mix_results?.analysisRevision === analysisRevision
+    && Array.isArray(row.strategy_mix_results?.mixes),
+  );
   if (client.payload) {
     client.payload = { ...client.payload };
     delete client.payload.mix_calculation_context;
