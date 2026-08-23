@@ -1174,6 +1174,31 @@ export default function RefinanceQuickCheck() {
 
                   <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-mist-100 relative overflow-hidden">
                     <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
+
+                  {/* תמצית פרטי הבקשה */}
+                  <div className="rounded-3xl border border-mist-200 bg-mist-50 p-6 sm:p-8">
+                    <h3 className="text-sm font-bold text-mist-500 mb-4">פרטי הבקשה</h3>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {[analysisResult.borrower_1, analysisResult.borrower_2].filter(Boolean).map((borrower, i) => (
+                        <div key={i} className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
+                          <p className="text-xs text-mist-500 mb-1">{i === 0 ? 'לווה' : 'לווה נוסף'}</p>
+                          <p className="text-base font-bold text-mist-900">{borrower.full_name || `${borrower.first_name || ''} ${borrower.last_name || ''}`.trim()}</p>
+                          {borrower.id_number && <p className="text-xs text-mist-500 mt-1">ת.ז. {borrower.id_number}</p>}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
+                        <p className="text-xs text-mist-500 mb-1">יתרה לסילוק</p>
+                        <p className="text-lg font-bold text-mist-900">₪{analysisResult.currentLoan.remainingBalance?.toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-xl p-3 border border-mist-200 bg-white/60 flex flex-col justify-center">
+                        <p className="text-xs text-mist-500 mb-1">תקופה נותרת</p>
+                        <p className="text-lg font-bold text-mist-900">{Math.round((analysisResult.currentLoan.remainingMonths || 0) / 12)} שנים</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <motion.section
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
