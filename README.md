@@ -10,10 +10,10 @@ React/Vite frontend hosted on Cloudflare Pages, with Supabase for data, authenti
 
 ## Supabase setup
 
-This deployment uses project `dtqjbszvgkibgvxanvja` (`https://dtqjbszvgkibgvxanvja.supabase.co`). Link the project, apply the migrations, then deploy every function:
+This deployment uses project `nkihunpgionvbgbslmfa` (`https://nkihunpgionvbgbslmfa.supabase.co`), in the `avkqawhrjywwrjpyctgo` org ("office@mikud4me.co.il's Org"). The prior project (`dtqjbszvgkibgvxanvja`) is paused and no longer in use. Link the project, apply the migrations, then deploy every function:
 
 ```powershell
-supabase link --project-ref dtqjbszvgkibgvxanvja
+supabase link --project-ref nkihunpgionvbgbslmfa
 supabase db push
 supabase functions deploy mortgage-leads
 supabase functions deploy refinance-leads
@@ -35,8 +35,12 @@ Configure these server-side secrets in Supabase. Replace only the values represe
 ```powershell
 supabase secrets set GEMINI_API_KEY=... GEMINI_MODEL=gemini-3.5-flash
 supabase secrets set RESEND_API_KEY=... RESEND_FROM="Mikud Mortgages <noreply@baduk-ai.co.il>"
-supabase secrets set CARDCOM_TERMINAL_NUMBER=... CARDCOM_API_NAME=... CARDCOM_WEBHOOK_URL="https://dtqjbszvgkibgvxanvja.supabase.co/functions/v1/cardcom-webhook"
-supabase secrets set ALLOWED_SITE_ORIGINS="https://baduk-ai.co.il,https://www.baduk-ai.co.il"
+# RESEND_API_KEY is currently unset on the live project — tolerated only because
+# EMAIL_VERIFICATION_ENABLED = false in src/lib/demoMode.js, which stops the frontend
+# from ever calling send-email-verification/verify-email-code. Set this secret before
+# flipping that flag back to true.
+supabase secrets set CARDCOM_TERMINAL_NUMBER=... CARDCOM_API_NAME=... CARDCOM_WEBHOOK_URL="https://nkihunpgionvbgbslmfa.supabase.co/functions/v1/cardcom-webhook"
+supabase secrets set ALLOWED_SITE_ORIGINS="https://baduk-ai.co.il,https://www.baduk-ai.co.il,https://baduk-ai-a2y.pages.dev"
 ```
 
 Create each administrator in Supabase Auth with an email invitation, then run this in the SQL editor for that user:
@@ -56,7 +60,7 @@ The logo and footer image are bundled in `src/assets/brand`, so no legacy storag
 3. Import the data:
 
 ```powershell
-$env:SUPABASE_URL='https://dtqjbszvgkibgvxanvja.supabase.co'
+$env:SUPABASE_URL='https://nkihunpgionvbgbslmfa.supabase.co'
 $env:SUPABASE_SERVICE_ROLE_KEY='YOUR_SERVICE_ROLE_KEY'
 node scripts/import-base44-export.mjs .
 ```
@@ -66,13 +70,13 @@ node scripts/import-base44-export.mjs .
 
 ## Cloudflare Pages
 
-Create a Pages project with build command `npm run build` and output directory `dist`, or use a direct Wrangler deployment when repository integration is unavailable. Configure the two `VITE_*` values from `.env.example` for Preview and Production. Attach `baduk-ai.co.il` (and `www.baduk-ai.co.il` if desired) only after the final data reconciliation.
+Deployed via direct `npx wrangler pages deploy` (no Git-connected build integration configured). Project name `baduk-ai`, on the `office@mikud4me.co.il` Cloudflare account. Its `*.pages.dev` alias is `baduk-ai-a2y.pages.dev`, not `baduk-ai.pages.dev` — that subdomain belongs to a different, unrelated Cloudflare account, so Cloudflare assigned a suffixed alias here instead. Configure the two `VITE_*` values from `.env.example` (via a local `.env.local`, since there's no Git-integration build step to set them in the Pages dashboard) before every build/deploy.
 
 ### Domain setup
 
-The domain can remain registered with its current provider. Because `baduk-ai.co.il` is the apex domain, add it as a zone in the same Cloudflare account as the Pages project, then change its nameservers at the registrar to the two Cloudflare nameservers shown in the zone overview. Before changing nameservers, copy any existing email and verification records (including Resend SPF/DKIM records) into Cloudflare DNS.
+`baduk-ai.co.il` is already live: the zone lives in the same Cloudflare account as the Pages project, nameservers were switched at the registrar, and the domain is attached under **Workers & Pages → baduk-ai → Custom domains**. This is the current working setup, not a pending task.
 
-After the zone is active and the Pages project has a successful deployment, add `baduk-ai.co.il` through **Workers & Pages → project → Custom domains**. Cloudflare creates the necessary DNS record and TLS certificate. Do not add a standalone CNAME to `*.pages.dev` before associating the domain in the Pages dashboard; Cloudflare will reject that configuration. Add `www.baduk-ai.co.il` separately only if it will be used, then redirect it to the apex domain.
+If redoing this on a new account in the future: add the zone in the target Cloudflare account, switch the registrar's nameservers to the two Cloudflare nameservers shown in the zone overview (after copying any existing email/verification records, including Resend SPF/DKIM, into Cloudflare DNS first), then attach the domain from **Workers & Pages → project → Custom domains** — only after the zone is active and the Pages project has a successful deployment. Do not add a standalone CNAME to `*.pages.dev` before that; Cloudflare will reject it.
 
 ## Cutover checklist
 

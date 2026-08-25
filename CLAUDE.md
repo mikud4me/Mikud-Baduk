@@ -10,8 +10,8 @@ This is a React/Vite application hosted on Cloudflare Pages. Supabase provides P
 - Database migrations: `supabase/migrations/`.
 - Server functions: `supabase/functions/`.
 - Private refinance uploads: `documents` Storage bucket via the `document-upload` function.
-- Hosting: Cloudflare Pages project `baduk-ai`.
-- Production site: `https://baduk-ai.pages.dev` until `baduk-ai.co.il` is attached in Cloudflare.
+- Hosting: Cloudflare Pages project `baduk-ai`, on the `office@mikud4me.co.il` Cloudflare account.
+- Production site: `https://baduk-ai.co.il` (DNS zone lives in the same Cloudflare account as the Pages project and the custom domain is attached). The project's own `*.pages.dev` alias is `https://baduk-ai-a2y.pages.dev` — not `baduk-ai.pages.dev`, because that subdomain is already claimed by an unrelated Cloudflare account and Cloudflare assigned a suffixed alias instead. `pages_build_output_dir`/project name in `wrangler.toml` are unaffected by this.
 
 There is no Base44 runtime, SDK, plugin, configuration, or server code in this repository.
 
@@ -20,7 +20,7 @@ There is no Base44 runtime, SDK, plugin, configuration, or server code in this r
 Create an ignored `.env.local` file:
 
 ```text
-VITE_SUPABASE_URL=https://dtqjbszvgkibgvxanvja.supabase.co
+VITE_SUPABASE_URL=https://nkihunpgionvbgbslmfa.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
 ```
 
@@ -35,12 +35,12 @@ npm run build
 
 ## Supabase deployment
 
-Project reference: `dtqjbszvgkibgvxanvja`.
+Project reference: `nkihunpgionvbgbslmfa` (Supabase org `avkqawhrjywwrjpyctgo`, "office@mikud4me.co.il's Org"). The prior project (`dtqjbszvgkibgvxanvja`) was paused and is no longer used — do not deploy or link against it.
 
 First-time setup links the CLI to the project and prompts for the database password:
 
 ```powershell
-supabase link --project-ref dtqjbszvgkibgvxanvja
+supabase link --project-ref nkihunpgionvbgbslmfa
 ```
 
 For every database change, add a new timestamped migration under `supabase/migrations/`; do not modify an already-applied migration. Deploy it with:
@@ -52,7 +52,7 @@ supabase db push --linked
 Deploy the Edge Functions after function changes:
 
 ```powershell
-supabase functions deploy mortgage-leads refinance-leads get-bank-of-israel-rates send-email-verification verify-email-code mortgage-ai create-cardcom-payment verify-cardcom-payment cardcom-webhook generate-pdf-report analyze-refinance-document calculate-refinance-mixes document-upload --project-ref dtqjbszvgkibgvxanvja --use-api
+supabase functions deploy mortgage-leads refinance-leads get-bank-of-israel-rates send-email-verification verify-email-code mortgage-ai create-cardcom-payment verify-cardcom-payment cardcom-webhook generate-pdf-report analyze-refinance-document calculate-refinance-mixes document-upload --project-ref nkihunpgionvbgbslmfa --use-api
 ```
 
 Production Edge Function secrets are managed in Supabase **Edge Functions → Secrets**. Required names are:
@@ -69,6 +69,8 @@ ALLOWED_SITE_ORIGINS
 ```
 
 Secrets become available to functions immediately after saving; a redeployment is not needed just for a secret change.
+
+`RESEND_API_KEY` is currently unset on the live project. This is tolerated only because `src/lib/demoMode.js` has `EMAIL_VERIFICATION_ENABLED = false`, so the frontend never calls `send-email-verification`/`verify-email-code`. Setting `EMAIL_VERIFICATION_ENABLED` back to `true` requires setting `RESEND_API_KEY` first, or email verification will fail in production.
 
 ## Cloudflare Pages deployment
 
@@ -90,7 +92,7 @@ npm run build
 npx wrangler pages deploy .\dist --project-name baduk-ai --branch main --commit-message "Describe the change" --commit-dirty=true
 ```
 
-Cloudflare DNS and the custom domain are configured separately. After the `baduk-ai.co.il` zone is active in Cloudflare, attach it from **Workers & Pages → baduk-ai → Custom domains**. Do not create a standalone `pages.dev` CNAME before adding the domain in the Pages dashboard.
+Cloudflare DNS and the custom domain are configured separately. The `baduk-ai.co.il` zone already lives in this Cloudflare account and the domain is already attached in **Workers & Pages → baduk-ai → Custom domains** — this is the account's current, working production setup, not a pending step. If setting this up again from scratch (e.g. yet another account move), the zone must be active in Cloudflare *before* attaching the custom domain from that screen, and do not create a standalone `pages.dev` CNAME before doing so.
 
 ## Git workflow
 
