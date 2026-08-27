@@ -1138,6 +1138,11 @@ export default function RefinanceQuickCheck() {
                     <Button variant="outline" onClick={startRefinanceOver} className="h-14 rounded-full border-mist-300 px-6 font-bold text-mist-600 hover:bg-mist-50">
                       התחל מחדש
                     </Button>
+                    {PAYMENT_BYPASS_ENABLED && (
+                      <Button variant="outline" onClick={() => setDemoDocumentOverride(true)} className="h-14 rounded-full border-[#0153F4] px-6 font-bold text-[#0C084A] hover:bg-periwinkle-100">
+                        דלג על בדיקת תוקף המסמך (דמו)
+                      </Button>
+                    )}
                   </div>
                 </motion.section>
               )}
