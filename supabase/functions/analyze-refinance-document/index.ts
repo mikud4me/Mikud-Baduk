@@ -694,23 +694,35 @@ Only extract what you can clearly read. Return null if unclear.`;
       return false;
     };
 
-    const classifyTrack = (track) => {
+    // Bank of Israel refinance spec: which published market-average rate a
+    // track is measured against is decided purely by its own type/linkage —
+    // never a mix of the two (a fixed track is never compared to the variable
+    // average, etc).
+    const marketRateForTrack = (track) => {
       const type = (track.track_type || '').toLowerCase();
       const isLinked = isTrackCPILinked(track);
+      if (type.includes('פריים') || type.includes('prime')) return CURRENT_MARKET_RATES.prime;
+      if (type.includes('קבוע')) return isLinked ? CURRENT_MARKET_RATES.fixed_linked : CURRENT_MARKET_RATES.fixed_unlinked;
+      if (type.includes('משתנה')) return isLinked ? CURRENT_MARKET_RATES.variable_linked : CURRENT_MARKET_RATES.variable_unlinked;
+      return CURRENT_MARKET_RATES.fixed_unlinked; // unrecognized type — conservative fallback
+    };
+
+    // Bank of Israel refinance spec: green/red is binary, not a three-way
+    // judgment call — a track is "green" (kept untouched) only if its own
+    // current rate is strictly below today's published market average for
+    // that exact track type; otherwise the balance goes into the refinanced
+    // pool. There is no NEUTRAL/borderline zone.
+    const classifyTrack = (track) => {
       const rate = track.interest_rate || 0;
+      const isLinked = isTrackCPILinked(track);
+      // Display-only figure (shown to the borrower as "true cost including
+      // CPI drift") — kept separate from the green/red decision itself, which
+      // the spec defines as a plain nominal-rate-vs-market-average comparison.
       const effectiveRateCalc = isLinked ? rate + EXPECTED_ANNUAL_INFLATION : rate;
-      // goldenMax: מתחת לסף זה — שמר. toxicMin: מעל לסף זה — מחזר.
-      // GOLDEN = נמוך בצורה ברורה מהשוק (שווה שמירה). TOXIC = יקר (צריך להחליף).
-      // NEUTRAL שטח אפור — גם NEUTRAL כלפי GOLDEN ייחשב כ"כדאי לשמר" אם יש TOXIC ברורים
-      let goldenMax = 3.5, toxicMin = 4.5;
-      if (type.includes('פריים') || type.includes('prime')) { goldenMax = 4.5; toxicMin = 5.0; }
-      else if (type.includes('קבוע') && isLinked) { goldenMax = 5.0; toxicMin = 7.0; } // קבועה צמודה: 2-3% ריבית = 4.5-5.5% אפקטיבי — שמרן
-      else if (type.includes('קבוע') && !isLinked) { goldenMax = 4.2; toxicMin = 4.8; }
-      else if (type.includes('משתנה') && !isLinked) { goldenMax = 4.0; toxicMin = 4.7; }
-      else if (type.includes('משתנה') && isLinked) { goldenMax = 4.5; toxicMin = 5.5; }
-      if (effectiveRateCalc <= goldenMax) return { status: 'GOLDEN', effectiveRate: effectiveRateCalc, reason: `נכס זהב - ${effectiveRateCalc.toFixed(2)}%` };
-      if (effectiveRateCalc >= toxicMin) return { status: 'TOXIC', effectiveRate: effectiveRateCalc, reason: `רעיל - ${effectiveRateCalc.toFixed(2)}%` };
-      return { status: 'NEUTRAL', effectiveRate: effectiveRateCalc, reason: `גבולי - ${effectiveRateCalc.toFixed(2)}%` };
+      const marketRate = marketRateForTrack(track);
+      return rate < marketRate
+        ? { status: 'GOLDEN', effectiveRate: effectiveRateCalc, marketRate, reason: `ירוק - ${rate.toFixed(2)}% מתחת לממוצע השוק (${marketRate.toFixed(2)}%)` }
+        : { status: 'TOXIC', effectiveRate: effectiveRateCalc, marketRate, reason: `אדום - ${rate.toFixed(2)}% מעל/שווה לממוצע השוק (${marketRate.toFixed(2)}%)` };
     };
 
     // ━━━ BALANCE RESOLUTION ━━━
@@ -857,7 +869,10 @@ Today: ${today}`,
     let maxAge = 40;
     if (extractionResult.borrower_1?.age) maxAge = Math.max(maxAge, extractionResult.borrower_1.age);
     if (extractionResult.borrower_2?.age) maxAge = Math.max(maxAge, extractionResult.borrower_2.age);
-    const maxAllowedYears = Math.max(5, 75 - maxAge);
+    // Regulatory cap: 30 years, or shorter if the age-85 ceiling binds first.
+    const REGULATORY_MAX_AGE = 85;
+    const REGULATORY_MAX_YEARS = 30;
+    const maxAllowedYears = Math.max(5, Math.min(REGULATORY_MAX_YEARS, REGULATORY_MAX_AGE - maxAge));
 
     // ━━━ OLD MORTGAGE TOTAL COST ━━━
     let totalOldPayments = 0;
@@ -946,15 +961,21 @@ Today: ${today}`,
 
     // Pre-classify tracks to compute surgical savings before savingsResult
     const preClassified = allTracks.map(track => ({ track, classification: classifyTrack(track) }));
-    const toxicTracksForSavings = preClassified.filter(({ classification }) => classification.status === 'TOXIC').map(({ track }) => track);
     const goldenTracksForSavings = preClassified.filter(({ classification }) => classification.status === 'GOLDEN').map(({ track }) => track);
-    const isSurgicalMode = toxicTracksForSavings.length > 0 && goldenTracksForSavings.length > 0;
+    // Per the Bank of Israel refinance spec, green tracks are kept untouched
+    // whenever ANY exist — the split is binary (green vs. everything else),
+    // with no separate carve-out for TOXIC vs. merely NEUTRAL tracks. Surgical
+    // mode used to also require a TOXIC track to exist, which meant a mortgage
+    // with a green track but only NEUTRAL siblings got fully refinanced
+    // instead of preserving the green one — that was wrong.
+    const nonGreenTracksForSavings = preClassified.filter(({ classification }) => classification.status !== 'GOLDEN').map(({ track }) => track);
+    const isSurgicalMode = goldenTracksForSavings.length > 0;
 
     if (isSurgicalMode) {
       // עלות מסלולים רעילים קיימים (עם מדד אם צמוד)
       // surgicalAvgMonths = ממוצע משוקלל לפי יתרה (לא ממוצע פשוט)
       let surgicalWeightedMonthsSum = 0;
-      toxicTracksForSavings.forEach(t => {
+      nonGreenTracksForSavings.forEach(t => {
         const linked = isTrackCPILinked(t);
         const bal = t.remaining_balance || 0;
         const months = t.remaining_months || 0;
@@ -985,7 +1006,7 @@ Today: ${today}`,
 
       // חיסכון חודשי כירורגי: התשלום הנוכחי על הרעילים מול התשלום החדש עליהם
       let currentToxicMonthly = 0, newToxicMonthly = 0;
-      toxicTracksForSavings.forEach(t => {
+      nonGreenTracksForSavings.forEach(t => {
         const r = t.interest_rate / 100 / 12;
         const n = t.remaining_months || 0;
         const b = t.remaining_balance || 0;
@@ -1033,7 +1054,7 @@ Today: ${today}`,
       const calcReferenceCost = (inflationPct) => {
         if (!isSurgicalMode) return calcOldCostAtInflation(inflationPct);
         let cost = 0;
-        toxicTracksForSavings.forEach(track => {
+        nonGreenTracksForSavings.forEach(track => {
           const linked = isTrackCPILinked(track);
           const months = track.remaining_months || 0;
           const balance = track.remaining_balance || 0;
@@ -1064,7 +1085,7 @@ Today: ${today}`,
     // נזק = indexed - base = הנזק הטהור מהצמדה למדד לכל תקופת המסלול
     const indexDamageAlerts = [];
     // tracksForIndexDamage: בכירורגי — רק הרעילים; במלא — כולם
-    const tracksForIndexDamage = isSurgicalMode ? toxicTracksForSavings : allTracks;
+    const tracksForIndexDamage = isSurgicalMode ? nonGreenTracksForSavings : allTracks;
     tracksForIndexDamage.forEach(track => {
       if (isTrackCPILinked(track) && (track.remaining_balance || 0) > 0 && (track.remaining_months || 0) > 0) {
         const n = track.remaining_months; // כל חודשי המסלול — לא רק 60 חודשים!
@@ -1101,7 +1122,7 @@ Today: ${today}`,
 
     // ━━━ STRATEGY A PRE-CALC: חישוב מוקדם של oldCostLifetime לשימוש ב-MAX ━━━
     // אותו חישוב שיתבצע בתוך dualStrategy — מחשבים כאן כדי לכלול ב-MAX
-    const tracksForComparisonPreCalc = isSurgicalMode ? toxicTracksForSavings : allTracks;
+    const tracksForComparisonPreCalc = isSurgicalMode ? nonGreenTracksForSavings : allTracks;
     let oldCostLifetimePreCalc = 0;
     tracksForComparisonPreCalc.forEach(track => {
       const linked = isTrackCPILinked(track);
@@ -1124,7 +1145,7 @@ Today: ${today}`,
     const r_preCalc = avgNewRate / 100 / 12;
     let strategyAYearsPreCalc = weightedPeriodYears;
     const refMonthlyPreCalc = isSurgicalMode
-      ? toxicTracksForSavings.reduce((s, t) => { const rr = t.interest_rate/100/12; const n = t.remaining_months||0; const b = t.remaining_balance||0; return (rr>0&&n>0&&b>0) ? s + b*(rr*Math.pow(1+rr,n))/(Math.pow(1+rr,n)-1) : s; }, 0)
+      ? nonGreenTracksForSavings.reduce((s, t) => { const rr = t.interest_rate/100/12; const n = t.remaining_months||0; const b = t.remaining_balance||0; return (rr>0&&n>0&&b>0) ? s + b*(rr*Math.pow(1+rr,n))/(Math.pow(1+rr,n)-1) : s; }, 0)
       : currentMonthlyPreCalc;
     const maxYearsPreCalc = isSurgicalMode ? Math.ceil((surgicalAvgMonths || weightedPeriodMonths) / 12) : weightedPeriodYears;
     let mixSavingsPeriodYears = maxYearsPreCalc;
@@ -1148,7 +1169,7 @@ Today: ${today}`,
     const surgicalPrincipalB = isSurgicalMode ? surgicalBalance + earlyRepaymentFee + bankFees : actualRemainingBalance + earlyRepaymentFee + bankFees;
     const r_b = avgNewRate / 100 / 12;
     const oxygenMonthlyPreCalc = surgicalPrincipalB * (r_b * Math.pow(1+r_b, oxygenMonthsPreCalc)) / (Math.pow(1+r_b, oxygenMonthsPreCalc) - 1);
-    const tracksForCompPreCalc = isSurgicalMode ? toxicTracksForSavings : allTracks;
+    const tracksForCompPreCalc = isSurgicalMode ? nonGreenTracksForSavings : allTracks;
     let oldCostForOxygenPreCalc = 0;
     tracksForCompPreCalc.forEach(track => {
       const linked = isTrackCPILinked(track);
@@ -1229,21 +1250,23 @@ Today: ${today}`,
       weightedPeriodMonths,
       earlyRepaymentFee,
       bankFees,
-      allTracks: allTracks.map((track) => ({
+      // is_green rides along per-track so the mix generator can split the
+      // non-green balance into fixed-type vs. variable-type pools itself,
+      // without re-deriving green/red from scratch or matching by value
+      // against goldenTracks.
+      allTracks: preClassified.map(({ track, classification }) => ({
         track_type: translateTrackType(track.track_type),
         remaining_balance: track.remaining_balance,
         interest_rate: track.interest_rate,
         remaining_months: track.remaining_months,
         is_index_linked: isTrackCPILinked(track),
+        is_green: classification.status === 'GOLDEN',
       })),
       expectedAnnualInflation: EXPECTED_ANNUAL_INFLATION,
       marketRates: CURRENT_MARKET_RATES,
-      strategyPeriods: {
-        // Same period returned as dualStrategy.strategyA.periodYears, including
-        // its surgical-reference fallback when no shorter period qualifies.
-        savings: mixSavingsPeriodYears,
-        cashflow: oxygenYearsPreCalc,
-      },
+      // Regulatory ceiling (age-85 cap / 30 years, whichever binds first) for
+      // any new track's period.
+      maxAllowedYears,
     };
 
     // ━━━ EQUITY RELEASE ━━━
@@ -1442,7 +1465,7 @@ Today: ${today}`,
         const currentMonthly = extractionResult.monthly_payment || Math.round(existingMonthlyPayment);
 
         // ━━━ SURGICAL vs FULL: הגדר principal ומסלולים לפי מצב ━━━
-        const tracksForComparison = isSurgicalMode ? toxicTracksForSavings : allTracks;
+        const tracksForComparison = isSurgicalMode ? nonGreenTracksForSavings : allTracks;
         const surgicalPrincipal = isSurgicalMode ? surgicalBalance + earlyRepaymentFee + bankFees : actualRemainingBalance + earlyRepaymentFee + bankFees;
 
         // ━━━ GOLDEN MONTHLY: החזר חודשי של המסלולים שנשמרים (לתיק כירורגי) ━━━
@@ -1480,7 +1503,7 @@ Today: ${today}`,
         // netSavings = oldCostLifetime - (תשלומים בפועל בתקופה החדשה) - עמלות
         // הרווח הגדול = החודשים שנחסכו בסוף (Avoided Payments)
         const refCurrentMonthly = isSurgicalMode
-          ? toxicTracksForSavings.reduce((s, t) => {
+          ? nonGreenTracksForSavings.reduce((s, t) => {
               const rr = t.interest_rate / 100 / 12;
               const n = t.remaining_months || 0;
               const b = t.remaining_balance || 0;

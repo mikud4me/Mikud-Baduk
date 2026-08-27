@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
 
     const { data: lead, error: leadError } = await service
       .from('refinance_leads')
-      .select('id, mix_calculation_context, strategy_mix_results')
+      .select('id, mix_calculation_context, strategy_mix_results, monthly_income')
       .eq('id', leadId)
       .maybeSingle();
     if (leadError) throw leadError;
@@ -34,7 +34,11 @@ Deno.serve(async (req) => {
       return json({ cacheHit: true, mixes: cached.mixes, calculatedAt: cached.calculatedAt });
     }
 
-    const mixes = generateRefinanceMixes(context);
+    // Read fresh from the lead row rather than snapshotting at analysis time —
+    // the financial-details step (income) isn't guaranteed to happen before
+    // the document analysis, so this needs to reflect whatever's on the lead
+    // right now, not what existed when mix_calculation_context was written.
+    const mixes = generateRefinanceMixes({ ...context, monthlyIncome: Number(lead.monthly_income) || 0 });
     const calculatedAt = new Date().toISOString();
     const result = { analysisRevision: context.analysisRevision, mixes, calculatedAt };
     const { error: updateError } = await service
