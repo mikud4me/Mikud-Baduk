@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Shield, Clock, HeartHandshake, Mail } from 'lucide-react';
+import { Phone, Shield, Clock, HeartHandshake, GraduationCap, Mail } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import footerCta from '@/assets/brand/footer-cta.png';
 
@@ -7,6 +7,7 @@ const badges = [
   { icon: Shield, text: 'ללא התחייבות' },
   { icon: Clock, text: 'תגובה תוך 24 שעות' },
   { icon: HeartHandshake, text: 'ייעוץ אישי חינם' },
+  { icon: GraduationCap, text: 'מגובה בכלכלנים מומחים' },
 ];
 
 export default function FooterCTA() {
